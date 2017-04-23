@@ -1,0 +1,14 @@
+#!/bin/sh
+#set -x
+if [ -z "$QT_HOME" ]
+then 
+	QT_HOME=~/Devtools/Qt5.4.1/5.4/clang_64
+fi
+${QT_HOME}/bin/lrelease xflr5*.pro
+
+if [ ! -e XFLR5.app/Contents/MacOS/translations ]
+then
+	mkdir XFLR5.app/Contents/MacOS/translations
+fi
+cp translations/*.qm XFLR5.app/Contents/MacOS/translations
+	

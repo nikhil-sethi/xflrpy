@@ -1,0 +1,12 @@
+#ifndef GRAPHLIB_GLOBAL_H
+#define GRAPHLIB_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(GRAPHLIB_LIBRARY)
+#  define GRAPHLIBSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define GRAPHLIBSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // GRAPHLIB_GLOBAL_H

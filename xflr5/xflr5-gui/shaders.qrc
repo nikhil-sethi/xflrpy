@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>shaders/gradient_fragmentshader.glsl</file>
+        <file>shaders/gradient_vertexshader.glsl</file>
+        <file>shaders/line_fragmentshader.glsl</file>
+        <file>shaders/line_vertexshader.glsl</file>
+        <file>shaders/texture_fragmentshader.glsl</file>
+        <file>shaders/texture_vertexshader.glsl</file>
+        <file>shaders/gradient_fragmentshader_120.glsl</file>
+        <file>shaders/gradient_vertexshader_120.glsl</file>
+        <file>shaders/line_fragmentshader_120.glsl</file>
+        <file>shaders/line_vertexshader_120.glsl</file>
+        <file>shaders/texture_fragmentshader_120.glsl</file>
+        <file>shaders/texture_vertexshader_120.glsl</file>
+        <file>shaders/surface_fragmentshader_120.glsl</file>
+        <file>shaders/surface_vertexshader_120.glsl</file>
+        <file>shaders/surface_fragmentshader.glsl</file>
+        <file>shaders/surface_vertexshader.glsl</file>
+    </qresource>
+</RCC>

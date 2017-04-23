@@ -1,0 +1,18 @@
+\newcommand*\touche[1]{%
+  \tikz[baseline=(key.base)]
+    \node[%
+      draw,
+      fill=white,
+      drop shadow={shadow xshift=0.25ex,shadow yshift=-0.25ex, fill=black,
+      opacity=0.75}, rectangle, rounded corners=2pt, inner sep=3pt, line 
+      width=0.5pt, font=\scriptsize\sffamily](key) {#1\strut};
+}
+
+\newcommand*\bouton[1]{%
+  \tikz[baseline=(key.base)]
+    \node[%
+      draw,
+      fill=white,
+      rectangle, inner sep=3pt, line width=0.5pt, font=\scriptsize
+      \sffamily](key) {#1\strut};
+}
