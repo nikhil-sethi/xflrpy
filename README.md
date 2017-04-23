@@ -37,11 +37,12 @@ At this point, you should be all ready to go. You can check by running XFLR5 fro
 /usr/bin/xflr5
 ```
 
-**5** Finally, in order to run the software more easily, move the provided `*.desktop` file to your preferred location:
+**6** Finally, in order to run the software more easily, move the provided `*.desktop` file to your preferred location:
 ```
 cd /path/to/repo
 mv xflr5.desktop ~/.local/share/applications/
 ```
+And now you should be able to launch *XFLR5 v6.33* from the Dash.
 
 ## Credits
 
