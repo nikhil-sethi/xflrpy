@@ -1,6 +1,6 @@
 # XFLR5 for Ubuntu
 
-*This repo provides the latest [XFLR5](http://www.xflr5.com/xflr5.htm) (currently v6.33) patched for Ubuntu 16.04 LTS using Qt 5.8*
+*This repo provides the latest [XFLR5](http://www.xflr5.com/xflr5.htm) (currently v6.38) patched for Ubuntu 16.04 LTS using Qt 5.9*
 
 ## Installation
 
@@ -9,8 +9,8 @@
 sudo apt-get install build-essential mesa-common-dev mesa-utils libgl1-mesa-dev libglu1-mesa-dev lingl-dev libqt4-dev
 ```
 
-**2** Next, head over to [Qt.io](https://www.qt.io/download-open-source/) and download the Linux installer. Run it and make sure to install Qt 5.8 for GCC 64-bit.
-If you don't change the default options, it will be installed in `~/Qt/5.8`.
+**2** Next, head over to [Qt.io](https://www.qt.io/download-open-source/) and download the Linux installer. Run it and make sure to install Qt 5.9 for GCC 64-bit.
+If you don't change the default options, it will be installed in `~/Qt/5.9`.
 
 **3** Download the files from this repo and extract them:
 ```
@@ -27,7 +27,7 @@ sudo mv xflr5/ /opt/
 **5** Follow the standard install procedure:
 ```
 cd /opt/xflr5/
-~/Qt/5.8/gcc_64/bin/qmake
+~/Qt/5.9/gcc_64/bin/qmake
 make # will take a while
 sudo make install
 ```
@@ -42,7 +42,7 @@ At this point, you should be all ready to go. You can check by running XFLR5 fro
 cd /path/to/repo
 mv xflr5.desktop ~/.local/share/applications/
 ```
-And now you should be able to launch *XFLR5 v6.33* from the Dash.
+And now you should be able to launch *XFLR5 v6.38* from the Dash.
 
 ## Credits
 
