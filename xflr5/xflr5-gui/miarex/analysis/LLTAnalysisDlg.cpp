@@ -24,6 +24,7 @@
 #include <QDir>
 #include <QThreadPool>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QFontDatabase>
 #include <QDateTime>
 #include <QDesktopWidget>
 #include <QVBoxLayout>
@@ -101,8 +102,6 @@ LLTAnalysisDlg::~LLTAnalysisDlg()
 */
 void LLTAnalysisDlg::initDialog()
 {
-	m_pctrlTextOutput->setFont(Settings::s_TableFont);
-
 	m_pIterGraph->deleteCurves();
 
 	m_pIterGraph->setXMin(0.0);
@@ -146,7 +145,6 @@ void LLTAnalysisDlg::keyPressEvent(QKeyEvent *event)
 void LLTAnalysisDlg::onCancelAnalysis()
 {
 	m_bCancel = true;
-
 	if(m_bFinished) accept();
 }
 
@@ -163,11 +161,8 @@ void LLTAnalysisDlg::setupLayout()
 //	setMinimumWidth((int)(r.width()*2.0/5.0));
 
 	m_pctrlTextOutput = new QTextEdit;
-	QFont outFont;
-	outFont.setStyleHint(QFont::TypeWriter);
-	outFont.setFamily(outFont.defaultFamily());
-	outFont.setPointSize(9);
-	m_pctrlTextOutput->setFont(outFont);
+	m_pctrlTextOutput->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+
 	m_pctrlTextOutput->setReadOnly(true);
 	m_pctrlTextOutput->setLineWrapMode(QTextEdit::NoWrap);
 	m_pctrlTextOutput->setWordWrapMode(QTextOption::NoWrap);

@@ -69,7 +69,6 @@ SOURCES += \
 	viewwidgets/wingwidget.cpp \
 	viewwidgets/oppointwidget.cpp \
 	viewwidgets/inverseviewwidget.cpp \
-	viewwidgets/ArcBall.cpp \
 	misc/Settings.cpp \
 	misc/SaveOptionsDlg.cpp \
 	misc/ProgressDlg.cpp \
@@ -176,7 +175,8 @@ SOURCES += \
 	viewwidgets/glWidgets/gl3dmiarexview.cpp \
 	viewwidgets/glWidgets/gl3dwingview.cpp \
 	viewwidgets/glWidgets/gl3dplaneview.cpp \
-	misc/voidwidget.cpp
+	misc/voidwidget.cpp \
+    viewwidgets/glWidgets/ArcBall.cpp
 
 
 HEADERS += \
@@ -195,7 +195,6 @@ HEADERS += \
 	viewwidgets/wingwidget.h \
 	viewwidgets/oppointwidget.h \
 	viewwidgets/inverseviewwidget.h \
-	viewwidgets/ArcBall.h \
 	misc/Settings.h \
 	misc/SaveOptionsDlg.h \
 	misc/ModDlg.h \
@@ -305,7 +304,8 @@ HEADERS += \
 	viewwidgets/glWidgets/gl3dmiarexview.h \
 	viewwidgets/glWidgets/gl3dwingview.h \
 	viewwidgets/glWidgets/gl3dplaneview.h \
-	misc/voidwidget.h
+	misc/voidwidget.h \
+    viewwidgets/glWidgets/ArcBall.h
 	
 
 RESOURCES += \

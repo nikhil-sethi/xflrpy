@@ -136,7 +136,10 @@ BatchDlg::BatchDlg(QWidget *pParent) : QDialog(pParent)
 BatchDlg::~BatchDlg()
 {
 //	Trace("Destroying BatchDlg");
+	if(m_pXFile) delete m_pXFile;
 	if(m_pXFoilTask) delete m_pXFoilTask;
+	if(m_pRmsGraph) delete m_pRmsGraph;
+//	if(m_pRmsGraph) m_pRmsGraph->deleteCurves();;
 }
 
 /**
@@ -802,9 +805,9 @@ void BatchDlg::onAnalyze()
 	else         m_pXFoilTask->setSequence(false, m_ClMin, m_ClMax, m_ClInc);
 
 	m_pXFoilTask->setReRange(m_ReMin, m_ReMax, m_ReInc);
-	m_pXFoilTask->initializeTask(QXDirect::curFoil(), QXDirect::curPolar(),
+/*	m_pXFoilTask->initializeTask(QXDirect::curFoil(), QXDirect::curPolar(),
 								 QXDirect::s_bStoreOpp, QXDirect::s_bViscous, m_bInitBL, m_bFromZero);
-
+*/
 
 	//prepare button state for analysis
 	m_pctrlAnalyze->setText(tr("Cancel"));
@@ -1270,7 +1273,7 @@ void BatchDlg::customEvent(QEvent * event)
 	else if(event->type() == XFOIL_END_OPP_EVENT)
 	{
 		XFoilOppEvent *pOppEvent = (XFoilOppEvent*)event;
-		OpPoint *pOpp = Objects2D::addOpPoint(pOppEvent->foilPtr(), pOppEvent->polarPtr(), pOppEvent->XFoilPtr(), QXDirect::s_bStoreOpp);
+		Objects2D::addOpPoint(pOppEvent->foilPtr(), pOppEvent->polarPtr(), pOppEvent->XFoilPtr(), QXDirect::s_bStoreOpp);
 		m_pRmsGraph->resetYLimits();
 	}
 }
@@ -1279,7 +1282,7 @@ void BatchDlg::customEvent(QEvent * event)
 
 void BatchDlg::handleXFoilTaskEvent(const XFoilTaskEvent *event)
 {
-
+	Q_UNUSED(event);
 }
 
 

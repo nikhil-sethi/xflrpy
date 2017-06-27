@@ -37,7 +37,7 @@ public:
 
 	void keyPressEvent(QKeyEvent *event);
 	void paintEvent(QPaintEvent *event);
-	QSize sizeHint();
+	QSize sizeHint() const;
 	void mouseMoveEvent(QMouseEvent *event);
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);

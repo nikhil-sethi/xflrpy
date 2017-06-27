@@ -59,7 +59,7 @@ private:
 
 protected:
 	void keyPressEvent(QKeyEvent *event);
-	void InitDialog();
+	void initDialog();
 
 private slots:
 	void OnApply();

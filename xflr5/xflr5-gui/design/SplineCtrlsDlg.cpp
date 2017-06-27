@@ -27,7 +27,7 @@
 #include <QLabel>
 #include <QHeaderView>
 #include <QMessageBox>
-
+#include <QtDebug>
 
 void *SplineCtrlsDlg::s_pAFoil = NULL;
 
@@ -38,10 +38,12 @@ SplineCtrlsDlg::SplineCtrlsDlg(QWidget *pParent): QDialog(pParent)
 	setupLayout();
 }
 
+
 SplineCtrlsDlg::~SplineCtrlsDlg()
 {
 	delete [] m_precision;
 }
+
 
 void SplineCtrlsDlg::initDialog()
 {
@@ -110,7 +112,6 @@ void SplineCtrlsDlg::initDialog()
 	connect(m_pUpperFloatDelegate, SIGNAL(closeEditor(QWidget *)), this, SLOT(onUpdate()));
 	connect(m_pLowerFloatDelegate, SIGNAL(closeEditor(QWidget *)), this, SLOT(onUpdate()));
 
-	m_pctrlPtWeight->setValue(m_pSF->m_Extrados.m_PtWeight);
 
 	fillPointLists();
 
@@ -204,20 +205,6 @@ void SplineCtrlsDlg::setupLayout()
 
 	m_pctrlSymetric = new QCheckBox(tr("Symetric foil"));
 
-	QHBoxLayout *pWeightLayout = new QHBoxLayout;
-	{
-		QLabel *labWeight = new QLabel(tr("Point Weight ="));
-		m_pctrlPtWeight = new QSlider(Qt::Horizontal);
-		m_pctrlPtWeight->setMinimum(1);
-		m_pctrlPtWeight->setMaximum(11);
-		m_pctrlPtWeight->setSliderPosition(1);
-		m_pctrlPtWeight->setTickInterval(1);
-		m_pctrlPtWeight->setTickPosition(QSlider::TicksBelow);
-//		m_pctrlPtWeight->setSizePolicy(szPolicyMinimum);
-		pWeightLayout->addWidget(labWeight);
-		pWeightLayout->addWidget(m_pctrlPtWeight);
-	}
-
 	QHBoxLayout *pCommandButtons = new QHBoxLayout;
 	{
 		OKButton        = new QPushButton(tr("OK"));
@@ -235,8 +222,7 @@ void SplineCtrlsDlg::setupLayout()
 		pMainLayout->addWidget(m_pctrlSymetric);
 //		MainLayout->addLayout(WeightLayout);
 		pMainLayout->addStretch(1);
-		pMainLayout->addLayout(pWeightLayout);
-		pMainLayout->addStretch(1);
+
 		pMainLayout->addLayout(pCommandButtons);
 		setLayout(pMainLayout);
 	}
@@ -250,10 +236,6 @@ void SplineCtrlsDlg::setupLayout()
 	connect(m_pctrlDegIntrados, SIGNAL(activated(int)), this, SLOT(onUpdate()));
 	connect(m_pctrlOutExtrados, SIGNAL(editingFinished()), this, SLOT(onUpdate()));
 	connect(m_pctrlOutIntrados, SIGNAL(editingFinished()), this, SLOT(onUpdate()));
-
-	connect(m_pctrlPtWeight, SIGNAL(sliderMoved(int)), this, SLOT(onUpdate()));
-	connect(m_pctrlPtWeight, SIGNAL(sliderReleased()), this, SLOT(onUpdate()));
-
 }
 
 
@@ -345,9 +327,6 @@ void SplineCtrlsDlg::readData()
 		m_pSF->m_Intrados.copySymetric(&m_pSF->m_Extrados);
 	}
 
-	double w = (double)m_pctrlPtWeight->value();
-	m_pSF->m_Extrados.m_PtWeight = exp(w);
-	m_pSF->m_Extrados.m_PtWeight = exp(w);
 }
 
 

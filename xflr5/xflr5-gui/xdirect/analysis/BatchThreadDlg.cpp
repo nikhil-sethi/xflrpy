@@ -37,13 +37,14 @@
 #include <QThread>
 #include <QThreadPool>
 #include <QTimer>
+#include <QFontDatabase>
 #include <QtDebug>
 
 bool BatchThreadDlg::s_bCurrentFoil=true;
 bool BatchThreadDlg::s_bUpdatePolarView = false;
 void * BatchThreadDlg::s_pXDirect;
 QPoint BatchThreadDlg::s_Position;
-
+int BatchThreadDlg::s_nThreads = 1;
 
 /**
  * The public contructor
@@ -72,7 +73,6 @@ BatchThreadDlg::BatchThreadDlg(QWidget *pParent) : QDialog(pParent)
 	m_XTop = 1.0;
 	m_XBot = 1.0;
 
-	m_nThreads = 0;
 	m_nTaskDone = 0;
 	m_nTaskStarted = 0;
 	m_nAnalysis = 0;
@@ -312,7 +312,8 @@ void BatchThreadDlg::setupLayout()
 		m_pctrlTextOutput->setWordWrapMode(QTextOption::NoWrap);
 		m_pctrlTextOutput->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-		m_pctrlTextOutput->setFont(Settings::s_TableFont);
+		m_pctrlTextOutput->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+
 		QFontMetrics fm(Settings::s_TableFont);
 		m_pctrlTextOutput->setMinimumWidth(67*fm.averageCharWidth());
 		m_pctrlInitBL          = new QCheckBox(tr("Initialize BLs between polars"));
@@ -327,8 +328,21 @@ void BatchThreadDlg::setupLayout()
 			pOptionsLayout->addStretch(1);
 			pOptionsLayout->addWidget(pClearBtn);
 		}
+		QHBoxLayout *pnThreadLayout = new QHBoxLayout;
+		{
+			QLabel *label1 = new QLabel(tr("Max. Threads to use for the analysis:"));
+			int maxThreads = QThread::idealThreadCount();
+			m_pctrlMaxThreads = new IntEdit(std::min(s_nThreads, maxThreads));
+			QLabel *label2= new QLabel(QString("/%1").arg(maxThreads));
+			pnThreadLayout->addWidget(label1);
+			pnThreadLayout->addWidget(m_pctrlMaxThreads);
+			pnThreadLayout->addWidget(label2);
+			pnThreadLayout->addStretch();
+		}
+
 		pRightSide->addWidget(m_pctrlInitBL);
 		pRightSide->addLayout(pOptionsLayout);
+		pRightSide->addLayout(pnThreadLayout);
 		pRightSide->addWidget(m_pctrlTextOutput,1);
 	}
 
@@ -787,6 +801,10 @@ void BatchThreadDlg::readParams()
 	m_ACrit    = m_pctrlACrit->value();
 	m_XTop   = m_pctrlXTopTr->value();
 	m_XBot   = m_pctrlXBotTr->value();
+
+	s_nThreads = m_pctrlMaxThreads->value();
+	s_nThreads = std::min(s_nThreads, QThread::idealThreadCount());
+	m_pctrlMaxThreads->setValue(s_nThreads);
 }
 
 
@@ -916,12 +934,12 @@ void BatchThreadDlg::startAnalysis()
 	strong = QString("Found %1 foil/polar pairs to analyze\n").arg(m_nAnalysis);
 	m_pctrlTextOutput->insertPlainText(strong);
 
-	//Start as many threads as the system will support
-	m_nThreads = QThread::idealThreadCount();
+	//Start as many threads as the user has requested
+//	m_nThreads = QThread::idealThreadCount();
 
 	XFoilTask::s_bCancel = false;
 
-	strong = QString("Starting with %1 threads\n\n").arg(m_nThreads);
+	strong = QString("Starting with %1 threads\n\n").arg(s_nThreads);
 	m_pctrlTextOutput->insertPlainText(strong);
 	m_pctrlTextOutput->insertPlainText("\nStarted/Done/Total\n");
 
@@ -981,9 +999,8 @@ void BatchThreadDlg::startThread()
 	FoilAnalysis *pAnalysis;
 	QString strong;
 	//  browse through the array until we find an available thread
-	m_nThreads = QThread::idealThreadCount();
 
-	if(QThreadPool::globalInstance()->activeThreadCount()<QThread::idealThreadCount() && m_AnalysisPair.count())
+	if(QThreadPool::globalInstance()->activeThreadCount()<s_nThreads && m_AnalysisPair.count())
 	{
 		XFoilTask *pXFoilTask = new XFoilTask(this);
 
@@ -1024,7 +1041,7 @@ void BatchThreadDlg::customEvent(QEvent * event)
 	else if(event->type() == XFOIL_END_OPP_EVENT)
 	{
 		XFoilOppEvent *pOppEvent = (XFoilOppEvent*)event;
-		OpPoint *pOpp = Objects2D::addOpPoint(pOppEvent->foilPtr(), pOppEvent->polarPtr(), pOppEvent->XFoilPtr(), QXDirect::s_bStoreOpp);
+		Objects2D::addOpPoint(pOppEvent->foilPtr(), pOppEvent->polarPtr(), pOppEvent->XFoilPtr(), QXDirect::s_bStoreOpp);
 	}
 }
 

@@ -1898,7 +1898,7 @@ void QXInverse::paintGraph(QPainter &painter)
 	{
 		m_QGraph.drawGraph(painter);
 		QPoint Place((int)(m_rGraphRect.right()-300), m_rGraphRect.top()+12);
-		m_QGraph.drawLegend(painter, Place, Settings::s_TextFont, Settings::s_TextColor);
+		m_QGraph.drawLegend(painter, Place, Settings::s_TextFont, Settings::s_TextColor, Settings::backgroundColor());
 	}
 
 // draw the zoom rectangle, if relevant

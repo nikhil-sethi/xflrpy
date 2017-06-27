@@ -62,7 +62,21 @@ OpPoint::OpPoint()
 	nd1 = 0;
 	nd2 = 0;
 	nd3 = 0;
-//	Format = 1;
+
+	tklam = qinf = 0.0;
+
+	memset(thet,   0, sizeof(thet));
+	memset(tau,    0, sizeof(tau));
+	memset(ctau,   0, sizeof(ctau));
+	memset(ctq,    0, sizeof(ctq));
+	memset(dis,    0, sizeof(dis));
+	memset(dstr,   0, sizeof(dstr));
+	memset(uedg,   0, sizeof(uedg));
+	memset(xbl,    0, sizeof(xbl));
+	memset(Hk,     0, sizeof(Hk));
+	memset(RTheta, 0, sizeof(RTheta));
+	memset(itran,  0, sizeof(itran));
+	nside1 = nside2 = 0;
 
 	m_bIsVisible = true;
 	m_PointStyle = 0;

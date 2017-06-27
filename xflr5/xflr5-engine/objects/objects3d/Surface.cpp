@@ -876,7 +876,7 @@ bool Surface::rotateFlap(double Angle)
 		}
 		alpha0 = (m_pFoilA->m_TEFlapAngle + m_pFoilB->m_TEFlapAngle)/2.0;
 
-		Quat.Set(Angle-alpha0, m_HingeVector);
+		Quat.set(Angle-alpha0, m_HingeVector);
 
 
 		for (k=0; k<m_nFlapNodes; k++)

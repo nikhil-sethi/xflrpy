@@ -141,7 +141,7 @@ void BodyLineWidget::drawBodyLines()
 		}
 	}
 
-	QRect r(rect());
+//	QRect r(rect());
 	painter.drawPolyline(midLine);
 	painter.drawPolyline(topLine);
 	painter.drawPolyline(botLine);

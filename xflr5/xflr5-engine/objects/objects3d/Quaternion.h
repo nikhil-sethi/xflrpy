@@ -141,7 +141,7 @@ public:
 	}
 
 
-	void Set(double const &real, double const &x, double const &y, double const &z)
+	void set(double const &real, double const &x, double const &y, double const &z)
 	{	
 		a = real;
 		qx = x;
@@ -150,7 +150,7 @@ public:
 		Settxx();
 	}
 
-	void Set(double const &Angle, Vector3d const &R)
+	void set(double const &Angle, Vector3d const &R)
 	{	
 		Vector3d N;
 		N = R;

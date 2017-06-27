@@ -120,6 +120,7 @@ void SaveOptionsDlg::initDialog(bool bAutoLoadLast, bool bOpps, bool bWOpps, boo
 	m_pctrlOpps->setChecked(m_bOpps);
 	m_pctrlWOpps->setChecked(m_bWOpps);
 
+	m_pctrlAutoLoadLast->setChecked(m_bAutoLoadLast);
 	m_pctrlAutoSave->setChecked(m_bAutoSave);
 	m_pctrlInterval->setValue(m_SaveInterval);
 	m_pctrlInterval->setEnabled(m_bAutoSave);

@@ -35,6 +35,7 @@
 
 #include <objects2d/Foil.h>
 #include <objects2d/Polar.h>
+#include <misc/IntEdit.h>
 #include <misc/DoubleEdit.h>
 #include <xdirect/analysis/XFoilTask.h>
 #include <xdirect/analysis/xfoiltaskevent.h>
@@ -109,6 +110,7 @@ private:
 	DoubleEdit *m_pctrlReMin, *m_pctrlReMax, *m_pctrlReDelta, *m_pctrlMach;
 	DoubleEdit *m_pctrlSpecMin, *m_pctrlSpecMax, *m_pctrlSpecDelta;
 	DoubleEdit *m_pctrlACrit, *m_pctrlXTopTr, *m_pctrlXBotTr;
+	IntEdit *m_pctrlMaxThreads;
 	QLabel *m_pctrlSpecVar;
 	QLabel *m_pctrlMaType, *m_pctrlReType;
 	QCheckBox *m_pctrlInitBL, *m_pctrlFromZero, *m_pctrlUpdatePolarView;
@@ -120,6 +122,7 @@ private:
 	static bool s_bCurrentFoil;        /**< true if the analysis should be performed only for the current foil */
 	static bool s_bUpdatePolarView;    /**< true if the polar graphs should be updated during the analysis */
 	static QPoint s_Position;          /**< the position on the client area of the dialog's topleft corner */
+	static int s_nThreads;             /**< the number of available threads */
 
 	double m_ReMin;             /**< the min Re for a range analysis */
 	double m_ReMax;             /**< the max Re for a range analysis */
@@ -142,7 +145,6 @@ private:
 	XFOIL::enumPolarType m_PolarType;  /**< the type of analysis to perform */
 
 	int m_nAnalysis;            /**< the number of analysis pairs to run */
-	int m_nThreads;             /**< the number of available threads */
 	int m_nTaskStarted;         /**< the number of started tasks */
 	int m_nTaskDone;            /**< the number of finished tasks */
 	double m_Mach;              /**< the Mach number used if not from the list of Re numbers */

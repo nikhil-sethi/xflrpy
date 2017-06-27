@@ -55,21 +55,27 @@ class XFoilOppEvent : public QEvent
 {
 
 public:
-	XFoilOppEvent(void * pFoil, void *pPolar, void *pXFoilPtr): QEvent(XFOIL_END_OPP_EVENT),
+	XFoilOppEvent(void * pFoil, void *pPolar, XFoil *pXFoilRef): QEvent(XFOIL_END_OPP_EVENT),
 		m_pFoil(pFoil),
 		m_pPolar(pPolar)
 	{
-		memcpy(&m_XFoil, pXFoilPtr, sizeof(XFoil));
+//		memcpy(&m_XFoil, pXFoilPtr, sizeof(XFoil));
+		m_pXFoil = pXFoilRef; /** use the copy constructor and = operator defined implicitly by the compiler */
+	}
+
+	~XFoilOppEvent()
+	{
+		if(m_pXFoil) delete m_pXFoil;
 	}
 
 	void * foilPtr() const	{return m_pFoil;}
 	void * polarPtr() const	{return m_pPolar;}
-	XFoil * XFoilPtr() {return &m_XFoil;}
+	XFoil * XFoilPtr() {return m_pXFoil;}
 
 private:
 	void *m_pFoil=NULL;
 	void *m_pPolar=NULL;
-	XFoil m_XFoil;
+	XFoil *m_pXFoil=NULL;    /** need to store current XFoil results */
 };
 
 #endif // XFOILTASKEVENT_H

@@ -38,17 +38,17 @@ LEDlg::LEDlg(QWidget *pParent) : QDialog(pParent)
 	m_bModified = false;
 	m_bApplied  = true;
 
-	SetupLayout();
+	setupLayout();
 
-	connect(m_pctrlLE, SIGNAL(editingFinished()), this, SLOT(OnChanged()));
-	connect(m_pctrlBlend, SIGNAL(editingFinished()), this, SLOT(OnChanged()));
-	connect(ApplyButton, SIGNAL(clicked()),this, SLOT(OnApply()));
-	connect(OKButton, SIGNAL(clicked()),this, SLOT(OnOK()));
+	connect(m_pctrlLE, SIGNAL(editingFinished()), this, SLOT(onChanged()));
+	connect(m_pctrlBlend, SIGNAL(editingFinished()), this, SLOT(onChanged()));
+	connect(ApplyButton, SIGNAL(clicked()),this, SLOT(onApply()));
+	connect(OKButton, SIGNAL(clicked()),this, SLOT(onOK()));
 	connect(CancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
 }
 
-void LEDlg::SetupLayout()
+void LEDlg::setupLayout()
 {
 	QHBoxLayout *pLEValue = new QHBoxLayout;
 	{
@@ -120,7 +120,7 @@ void LEDlg::keyPressEvent(QKeyEvent *event)
 		{
 			if(!OKButton->hasFocus() && !CancelButton->hasFocus())
 			{
-				OnApply();
+				onApply();
 				OKButton->setFocus();
 				m_bApplied  = true;
 			}
@@ -137,7 +137,7 @@ void LEDlg::keyPressEvent(QKeyEvent *event)
 }
 
 
-void LEDlg::InitDialog()
+void LEDlg::initDialog()
 {
 	m_pctrlLE->setMin(  0.0);
 	m_pctrlLE->setMax(100.0);
@@ -150,13 +150,14 @@ void LEDlg::InitDialog()
 }
 
 
-void LEDlg::OnChanged()
+void LEDlg::onChanged()
 {
 	m_bApplied = false;
+	onApply();
 }
 
 
-void LEDlg::OnApply()
+void LEDlg::onApply()
 {
 	if(m_bApplied) return;
 
@@ -225,9 +226,9 @@ void LEDlg::OnApply()
 }
 
 
-void LEDlg::OnOK()
+void LEDlg::onOK()
 {
-	if(!m_bApplied)	OnApply();
+	if(!m_bApplied)	onApply();
 	if(!m_bModified) done(0);
 	else done(1);
 }

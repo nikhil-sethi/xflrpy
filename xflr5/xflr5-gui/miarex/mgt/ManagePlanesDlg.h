@@ -21,7 +21,7 @@
 
 
 #ifndef MANAGEPLANESDLG_H
-#define MANAGEPLANESSDLG_H
+#define MANAGEPLANESDLG_H
 
 #include <QDialog>
 #include <QTextEdit>

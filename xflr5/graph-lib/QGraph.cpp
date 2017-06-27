@@ -21,6 +21,7 @@
 
 
 #include "QGraph.h"
+
 #include <math.h>
 #include <QPainter>
 #include <QFontMetrics>
@@ -555,7 +556,7 @@ void QGraph::drawYMinGrid(QPainter &painter)
 }
 
 
-void QGraph::drawLegend(QPainter &painter, QPoint &Place, QFont &LegendFont, QColor &LegendColor)
+void QGraph::drawLegend(QPainter &painter, QPoint &Place, QFont &LegendFont, QColor &LegendColor, QColor &backColor)
 {
 	painter.save();
 	int LegendSize, ypos;
@@ -568,10 +569,14 @@ void QGraph::drawLegend(QPainter &painter, QPoint &Place, QFont &LegendFont, QCo
 
 	painter.setFont(LegendFont);
 
+	painter.setBackgroundMode(Qt::TransparentMode);
+
 	Curve* pCurve;
 
 	QPen TextPen(LegendColor);
 	QPen LegendPen(Qt::gray);
+	QBrush LegendBrush(backColor);
+	painter.setBrush(LegendBrush);
 
 	int npos = 0;
 	for (int nc=0; nc< m_oaCurves.size(); nc++)
@@ -591,6 +596,13 @@ void QGraph::drawLegend(QPainter &painter, QPoint &Place, QFont &LegendFont, QCo
 
 				painter.drawLine(Place.x(),                     Place.y() + ypos*npos + ypos/3,
 								 Place.x() + (int)(LegendSize), Place.y() + ypos*npos + ypos/3);
+				if(pCurve->pointStyle())
+				{
+					int x1 = Place.x() + 0.5*LegendSize;
+					int y1 = Place.y() + 1.*ypos*npos+ ypos/3;
+
+					drawPoint(painter, pCurve->pointStyle(), QPoint(x1, y1));
+				}
 
 				painter.setPen(TextPen);
 				painter.drawText(Place.x() + (int)(1.5*LegendSize),    Place.y()  + ypos*npos+(int)(ypos/2),

@@ -3410,7 +3410,7 @@ bool PanelAnalysis::computeTrimmedConditions()
 {
 	QString strong, strange;
 	int p;
-	double Lift, phi, VerticalCl;
+	double Lift, phi;
 	Vector3d VInf, Force, Moment, WindNormal;
 
 	// find aoa such that Cm=0;
@@ -4232,7 +4232,7 @@ void PanelAnalysis::computeControlDerivatives()
 				SignedDeltaAngle = DeltaAngle * m_pWPolar->m_ControlGain[0]/qAbs(m_pWPolar->m_ControlGain[0]);
 			else SignedDeltaAngle = DeltaAngle;
 
-			Quat.Set(SignedDeltaAngle*180.0/PI, H);
+			Quat.set(SignedDeltaAngle*180.0/PI, H);
 
 			for(p=0; p<m_pWingList[0]->m_MatSize; p++)
 			{
@@ -4255,7 +4255,7 @@ void PanelAnalysis::computeControlDerivatives()
 			   SignedDeltaAngle = DeltaAngle * m_pWPolar->m_ControlGain[1]/qAbs(m_pWPolar->m_ControlGain[1]);
 			else SignedDeltaAngle = DeltaAngle;
 
-			Quat.Set(SignedDeltaAngle*180.0/PI, H);
+			Quat.set(SignedDeltaAngle*180.0/PI, H);
 
 			for(p=0; p<m_pWingList[2]->m_MatSize; p++)
 			{
@@ -4279,7 +4279,7 @@ void PanelAnalysis::computeControlDerivatives()
 				   SignedDeltaAngle = DeltaAngle * m_pWPolar->m_ControlGain[NCtrls]/qAbs(m_pWPolar->m_ControlGain[NCtrls]);
 				else SignedDeltaAngle = DeltaAngle;
 
-				Quat.Set(SignedDeltaAngle*180.0/PI, m_ppSurface->at(j)->m_HingeVector);
+				Quat.set(SignedDeltaAngle*180.0/PI, m_ppSurface->at(j)->m_HingeVector);
 				for(p=0; p<m_MatSize;p++)
 				{
 					if(m_ppSurface->at(j)->isFlapPanel(p))
@@ -4930,7 +4930,7 @@ void PanelAnalysis::setControlPositions(double t, int &NCtrls, QString &out, boo
 			strange += "\n";
 			out +=strange;
 
-			Quat.Set(angle, YVector);
+			Quat.set(angle, YVector);
 
 			if(bBCOnly)
 			{
@@ -4973,7 +4973,7 @@ void PanelAnalysis::setControlPositions(double t, int &NCtrls, QString &out, boo
 				strange += "\n";
 				out +=strange;
 
-				Quat.Set(angle, YVector);
+				Quat.set(angle, YVector);
 				if(!bBCOnly)
 				{
 					for(int n=0; n<m_nNodes; n++)
@@ -5032,7 +5032,7 @@ void PanelAnalysis::setControlPositions(double t, int &NCtrls, QString &out, boo
 						if(qAbs(angle)>PRECISION)
 						{
 //							pWing->m_Surface.at(j)->RotateFlap(angle, bBCOnly);
-							Quat.Set(angle, pWing->m_Surface.at(j)->m_HingeVector);
+							Quat.set(angle, pWing->m_Surface.at(j)->m_HingeVector);
 							if(bBCOnly)
 							{
 								for(int p=0; p<m_MatSize; p++)

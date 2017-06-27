@@ -106,9 +106,11 @@ void gl3dWingView::paintOverlay()
 	QOpenGLPaintDevice device(size() * devicePixelRatio());
 	QPainter painter(&device);
 
-	painter.drawPixmap(0,0, m_PixTextOverlay);
-	m_PixTextOverlay.fill(Qt::transparent);
-
+	if(!m_PixTextOverlay.isNull())
+	{
+		painter.drawPixmap(0,0, m_PixTextOverlay);
+		m_PixTextOverlay.fill(Qt::transparent);
+	}
 }
 
 

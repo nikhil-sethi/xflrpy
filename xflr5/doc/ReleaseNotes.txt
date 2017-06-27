@@ -15,7 +15,30 @@
 *******************************************************************************
 
 
-xflr5 v6.33
+xflr5 v6.38 June 5th, 2017
+	- fixed the random behaviour bug in the OpenGL view
+
+
+xflr5 v6.37 May 28th, 2017
+	- added a verification of the OpenGL version at startup
+	- fixed two bad crash bugs when derotating a foil and when defining a flap
+
+xflr5 v6.36 May 22nd, 2017 - limited release only
+
+
+xflr5 v6.35 May 15th, 2017
+	- Added an option to adjust the number of worker threads in a foil multithreaded analysis
+	- Fixed some memory leak & overflow issues in foil analysis; improves the stability of the analysis
+	- Fixed some font issues for MacOS
+	- Other minor improvements
+
+
+xflr5 v6.34 April 15th, 2017 - limited release only
+	- Forced the default renderer to be OpenGL and not Angle on Windows desktops
+	- Added an option to export time graphs to text files
+
+
+xflr5 v6.33 March 26th, 2017
 	- corrected the calculation of the downwash and induced angle for the VLM method. Was twice what it should be. No impact on other results.
 	- corrected the calculation of the damping ratio; was formerly lambda.real()/omega_damped instead of lambda.real()/omega_natural
 	- changed the calculation method of Stability derivatives from forward differences to centered differences.

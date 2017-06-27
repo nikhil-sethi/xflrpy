@@ -34,6 +34,9 @@
 */
 int main(int argc, char *argv[])
 {
+//	QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+
+
 #ifdef Q_OS_MACX
 	/*
     if ( QSysInfo::MacintoshVersion > QSysInfo::MV_10_8 )
@@ -92,7 +95,7 @@ int main(int argc, char *argv[])
 	qDebug()<<"";
 #endif
 */
-
+	QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 	XFLR5Application app(argc, argv);
 
 	return app.exec();

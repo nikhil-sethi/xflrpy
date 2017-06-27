@@ -1,7 +1,7 @@
 /****************************************************************************
 
-	DisplaySettingsDlg Class
-	Copyright (C) 2008-2016 Andre Deperrois adeperrois@xflr5.com
+	Settings Class
+	Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include <QStyleFactory>
 #include <QDir>
 #include <QMessageBox>
+#include <QFontDatabase>
 #include <QtDebug>
 
 bool Settings::s_bStyleSheets = true;
@@ -60,7 +61,6 @@ Settings::Settings(QWidget *pParent) : QDialog(pParent)
 	m_pMainFrame = pParent;
 	m_bIsGraphModified = false;
 
-
 #ifdef Q_OS_MAC
 	m_StyleSheetDir.setPath(qApp->applicationDirPath());
 #endif
@@ -86,6 +86,24 @@ Settings::Settings(QWidget *pParent) : QDialog(pParent)
 	connect(OKButton, SIGNAL(clicked()),this, SLOT(accept()));
 }
 
+
+void Settings::setDefaultFonts()
+{
+//	QFontDatabase fntDatabase;
+//	QStringList fontFamiliyList = fntDatabase.families();
+//	for (int i=0; i<fontFamiliyList.count(); i++) qDebug()<<fontFamiliyList.at(i);
+
+	QFont generalFont(QFontDatabase::systemFont(QFontDatabase::GeneralFont));
+	QFont fixedFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+	QFont titleFont(QFontDatabase::systemFont(QFontDatabase::TitleFont));
+	QFont smallestReadableFont(QFontDatabase::systemFont(QFontDatabase::SmallestReadableFont));
+
+	s_TextFont = QFont(fixedFont);
+	s_TableFont = QFont(fixedFont);
+
+//	qDebug()<<"done"<<s_TextFont.family()<<s_TextFont.pointSize();
+//	qDebug()<<"______";
+}
 
 void Settings::setupLayout()
 {
@@ -358,15 +376,8 @@ void Settings::onTextFont()
 	QFont TextFont;
 	TextFont.setStyleHint(QFont::TypeWriter, QFont::OpenGLCompatible);
 
-#ifdef Q_OS_MAC
-	//20090604 Mac OS Native font dialog does not work well under QT 4.5.1
-	//QFont font = QFontDialog::getFont(&ok, m_TextFont, this);
-		//20110324 Works again under QT 4.6, though it loses focus if mouse is moved outside of it (QT bug?)
-		//QFont font = QFontDialog::getFont(&bOK, m_TextFont, this, "",QFontDialog::DontUseNativeDialog);
-       TextFont = QFontDialog::getFont(&bOK, s_TextFont, this);
-#else
+
 	TextFont = QFontDialog::getFont(&bOK, s_TextFont, this);
-#endif
 
 	if (bOK)
 	{
@@ -385,15 +396,7 @@ void Settings::onTableFont()
 	QFont TableFont;
 //	TableFont.setStyleHint(QFont::TypeWriter, QFont::OpenGLCompatible);
 
-#ifdef Q_OS_MAC
-	//20090604 Mac OS Native font dialog does not work well under QT 4.5.1
-	//QFont font = QFontDialog::getFont(&ok, m_TextFont, this);
-		//20110324 Works again under QT 4.6, though it loses focus if mouse is moved outside of it (QT bug?)
-		//QFont font = QFontDialog::getFont(&bOK, m_TextFont, this, "",QFontDialog::DontUseNativeDialog);
-       TableFont = QFontDialog::getFont(&bOK, s_TableFont, this);
-#else
 	TableFont = QFontDialog::getFont(&bOK, s_TableFont, this);
-#endif
 
 	if (bOK)
 	{

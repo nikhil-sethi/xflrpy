@@ -1370,7 +1370,6 @@ void Foil::setTEFlap()
 	}
 
 	// trim upper surface first
-
 	i1 = iUpperh;
 	i2 = iUpperh+1;
 	p=0;
@@ -1379,12 +1378,12 @@ void Foil::setTEFlap()
 	k=0;
 	for (j=i2; j<m_iExt; j++)
 	{
-		for (k=i1;k>0; k--)
+		for (k=i1; k>0; k--)
 		{
 			if(intersect(m_rpExtrados[j], m_rpExtrados[j+1], m_rpExtrados[k], m_rpExtrados[k-1], &M))
 			{
-					bIntersect = true;
-					break;
+				bIntersect = true;
+				break;
 			}
 		}
 		if(bIntersect) break;
@@ -1394,7 +1393,7 @@ void Foil::setTEFlap()
 	{
 		m_rpExtrados[k] = M;
 		p=1;
-		for (l=j+1;l<=m_iExt; l++)
+		for (l=j+1; l<=m_iExt; l++)
 		{
 			m_rpExtrados[k+p]  = m_rpExtrados[l];
 			p++;
@@ -1409,12 +1408,12 @@ void Foil::setTEFlap()
 	bIntersect = false;
 	for (j=i2; j<m_iInt; j++)
 	{
-		for (k=i1;k>0; k--)
+		for (k=i1; k>0; k--)
 		{
 			if(intersect(m_rpIntrados[j], m_rpIntrados[j+1], m_rpIntrados[k], m_rpIntrados[k-1], &M))
 			{
-					bIntersect = true;
-					break;
+				bIntersect = true;
+				break;
 			}
 		}
 		if(bIntersect) break;
@@ -1424,7 +1423,7 @@ void Foil::setTEFlap()
 	{
 		m_rpIntrados[k] = M;
 		p=1;
-		for (l=j+1;l<=m_iInt; l++)
+		for (l=j+1; l<=m_iInt; l++)
 		{
 			m_rpIntrados[k+p]  = m_rpIntrados[l];
 			p++;

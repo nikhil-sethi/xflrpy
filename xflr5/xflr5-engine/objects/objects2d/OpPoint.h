@@ -131,6 +131,16 @@ public:
 	double YForce;              /**< the y-component of the pressure forces */
 	double Cpmn;                /**< @todo check significance in XFoil doc */
 
+	// BL data
+	double tklam, qinf;
+	double thet[IVX][ISX],tau[IVX][ISX],ctau[IVX][ISX],ctq[IVX][ISX];
+	double dis[IVX][ISX],uedg[IVX][ISX];
+	double dstr[IVX][ISX];
+	double xbl[IVX][ISX], Hk[IVX][ISX], RTheta[IVX][ISX];
+	int nside1, nside2;
+	int itran[ISX];
+
+
 	QString m_FoilName;      /**< the name of the parent Foil */
 	QString m_PlrName;       /**< the name of the parent Polar */
 };

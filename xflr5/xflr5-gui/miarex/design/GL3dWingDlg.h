@@ -39,7 +39,7 @@
 
 #include "WingDelegate.h"
 #include <gl3dwingview.h>
-#include <viewwidgets/ArcBall.h>
+#include <viewwidgets/glWidgets/ArcBall.h>
 #include <misc/DoubleEdit.h>
 #include <misc/ColorButton.h>
 #include <objects3d/Wing.h>

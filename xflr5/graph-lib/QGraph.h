@@ -50,7 +50,7 @@ public:
 	void drawGraph(QPainter &painter);
 	void drawAxes(QPainter &painter);
 	void drawCurve(int nIndex, QPainter &painter);
-	void drawLegend(QPainter &painter, QPoint &Place, QFont &LegendFont, QColor &LegendColor);
+	void drawLegend(QPainter &painter, QPoint &Place, QFont &LegendFont, QColor &LegendColor, QColor &backColor);
 	void drawTitles(QPainter &painter);
 	void drawXMinGrid(QPainter &painter);
 	void drawYMinGrid(QPainter &painter);

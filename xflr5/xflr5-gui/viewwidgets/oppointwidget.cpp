@@ -323,12 +323,12 @@ void OpPointWidget::setFoilScale()
 		m_FoilOffset.rx() = rect().left() + iMargin;
 		m_FoilOffset.ry() = (rect().height()+h)/2;
 		m_fScale = rect().width()-2.0*iMargin;
-		if(m_pCpGraph && m_pCpGraph->yVariable()<2)
+/*		if(m_pCpGraph && m_pCpGraph->yVariable()<2)
 		{
 			double p0  = m_pCpGraph->xToClient(0.0);
 			double p1  = m_pCpGraph->xToClient(1.0);
 			m_fScale =  (p1-p0);
-		}
+		}*/
 	}
 	else
 	{
@@ -474,7 +474,7 @@ void OpPointWidget::paintGraph(QPainter &painter)
 	{
 		m_pCpGraph->drawGraph(painter);
 		QPoint Place(m_pCpGraph->clientRect()->right()-73*fmWidth, m_pCpGraph->clientRect()->top()+fmheight);
-		m_pCpGraph->drawLegend(painter, Place, Settings::s_TextFont, Settings::s_TextColor);
+		m_pCpGraph->drawLegend(painter, Place, Settings::s_TextFont, Settings::s_TextColor, Settings::backgroundColor());
 	}
 
 

@@ -19,12 +19,8 @@
 
 *****************************************************************************/
 
-#include "gl3dview.h"
-
-
 #include <QOpenGLShaderProgram>
 #include <QOpenGLPaintDevice>
-#include <QOpenGLFunctions>
 #include <QMouseEvent>
 
 #include "gl3dview.h"
@@ -234,27 +230,22 @@ void gl3dView::onClipPlane(int pos)
 
 void gl3dView::on3DIso()
 {
+	Quaternion qti;
+
 	memcpy(ab_old, m_ArcBall.ab_quat, 16*sizeof(float));
-	ab_new[0]	= -0.65987748f;
-	ab_new[1]	=  0.38526487f;
-	ab_new[2]	= -0.64508355f;
-	ab_new[3]	=  0.0f;
-	ab_new[4]	= -0.75137258f;
-	ab_new[5]	= -0.33720365f;
-	ab_new[6]	=  0.56721509f;
-	ab_new[7]	=  0.0f;
-	ab_new[8]	=  0.000f;
-	ab_new[9]	=  0.85899049f;
-	ab_new[10]	=  0.51199043f;
-	ab_new[11]	=  0.0f;
-	ab_new[12]	=  0.0f;
-	ab_new[13]	=  0.0f;
-	ab_new[14]	=  0.0f;
-	ab_new[15]	=  1.0f;
+
+	double yaw = -PI;
+	double pitch = 0.0;
+	double roll = -2.0*PI/3.0;
+	m_ArcBall.quat(roll, pitch, yaw, qti);
+
+	Quaternion qtyaw(-30.0, Vector3d(0.0,0.0,1.0));
+	m_ArcBall.setQuat(qti*qtyaw);
+
+	memcpy(ab_new, m_ArcBall.ab_quat, 16*sizeof(float));
 
 	startRotationTimer();
 	emit(viewModified());
-
 }
 
 
@@ -267,6 +258,7 @@ void gl3dView::on3DFlip()
 	memset(ab_flip, 0, 16*sizeof(float));
 	m_ArcBall.quatToMatrix(ab_flip, qtflip);
 	m_ArcBall.quatNext(ab_new, m_ArcBall.ab_quat, ab_flip);
+	memcpy(m_ArcBall.ab_quat, ab_new, 16*sizeof(float));
 
 	startRotationTimer();
 	emit(viewModified());
@@ -469,7 +461,6 @@ void gl3dView::mouseMoveEvent(QMouseEvent *event)
 
 		}
 	}
-
 	else if (event->buttons() & Qt::MidButton)
 	{
 		m_ArcBall.move(Real.x, Real.y);
@@ -711,15 +702,18 @@ void gl3dView::glRenderText(double x, double y, double z, const QString & str, Q
 
 	point = worldToScreen(Vector3d(x,y,z));
 	point *= devicePixelRatio();
-	QPainter paint(&m_PixTextOverlay);
-	paint.save();
-	QPen textPen(textColor);
-	paint.setPen(textPen);
-	QFont font(paint.font());
-	font.setPointSize(paint.font().pointSize()*devicePixelRatio());
-	paint.setFont(font);
-	paint.drawText(point, str);
-	paint.restore();
+	if(!m_PixTextOverlay.isNull())
+	{
+		QPainter paint(&m_PixTextOverlay);
+		paint.save();
+		QPen textPen(textColor);
+		paint.setPen(textPen);
+		QFont font(paint.font());
+		font.setPointSize(paint.font().pointSize()*devicePixelRatio());
+		paint.setFont(font);
+		paint.drawText(point, str);
+		paint.restore();
+	}
 }
 
 
@@ -761,8 +755,8 @@ void gl3dView::resizeGL(int width, int height)
 	if(w>h)	m_GLViewRect.setRect(-s, s*h/w, s, -s*h/w);
 	else    m_GLViewRect.setRect(-s*w/h, s, s*w/h, -s);
 
-	m_PixTextOverlay = m_PixTextOverlay.scaled(rect().size()*devicePixelRatio());
-	m_PixTextOverlay.fill(Qt::transparent);
+	if(!m_PixTextOverlay.isNull())	m_PixTextOverlay = m_PixTextOverlay.scaled(rect().size()*devicePixelRatio());
+	if(!m_PixTextOverlay.isNull())	m_PixTextOverlay.fill(Qt::transparent);
 }
 
 
@@ -1579,24 +1573,16 @@ void gl3dView::paintGL3()
 {
 //	makeCurrent();
 	int width, height;
+
+	double s = 1.0;
+	double pixelRatio = devicePixelRatio();
+
 	glClearColor(Settings::backgroundColor().redF(), Settings::backgroundColor().greenF(), Settings::backgroundColor().blueF(), 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
-
-	QVector4D clipPlane(0.0,0.0,-1,m_ClipPlanePos);
-
-	double s, pixelRatio;
-	s = 1.0;
-	pixelRatio = devicePixelRatio();
-
-	width = geometry().width() * pixelRatio;
-	height = geometry().height() * pixelRatio;
-
-	m_OrthoMatrix.setToIdentity();
-	m_OrthoMatrix.ortho(-s,s,-(height*s)/width,(height*s)/width,-50.0*s,50.0*s);
 
 	m_ShaderProgramSurface.bind();
 	m_ShaderProgramSurface.setUniformValue(m_EyePosLocationSurface, QVector3D(0.0,0.0,50.0*s));
@@ -1605,11 +1591,7 @@ void gl3dView::paintGL3()
 	m_ShaderProgramTexture.setUniformValue(m_EyePosLocationTexture, QVector3D(0.0,0.0,50.0*s));
 	m_ShaderProgramTexture.release();
 
-	QMatrix4x4 matQuat(m_ArcBall.ab_quat);
-
-	QMatrix4x4 modelMatrix;//keep identity
-	m_viewMatrix= matQuat.transposed();
-	m_pvmMatrix = m_OrthoMatrix * m_viewMatrix * modelMatrix;
+	QVector4D clipPlane(0.0,0.0,-1,m_ClipPlanePos);
 
 	m_ShaderProgramLine.bind();
 	m_ShaderProgramLine.setUniformValue(m_ClipPlaneLocationLine, clipPlane);
@@ -1623,6 +1605,24 @@ void gl3dView::paintGL3()
 	m_ShaderProgramTexture.setUniformValue(m_ClipPlaneLocationTexture, clipPlane);
 	m_ShaderProgramTexture.release();
 
+	width  = geometry().width() * pixelRatio;
+	height = geometry().height() * pixelRatio;
+
+	m_orthoMatrix.setToIdentity();
+	m_orthoMatrix.ortho(-s,s,-(height*s)/width,(height*s)/width,-50.0*s,50.0*s);
+
+	QMatrix4x4 matQuat(m_ArcBall.ab_quat);
+
+	m_modelMatrix.setToIdentity();//keep identity
+	m_viewMatrix = matQuat.transposed();
+	m_pvmMatrix = m_orthoMatrix * m_viewMatrix * m_modelMatrix;
+
+	m_ShaderProgramLine.bind();
+	m_ShaderProgramLine.setUniformValue(m_mMatrixLocationLine, m_modelMatrix);
+	m_ShaderProgramLine.setUniformValue(m_vMatrixLocationLine, m_viewMatrix);
+	m_ShaderProgramLine.setUniformValue(m_pvmMatrixLocationLine, m_pvmMatrix);
+	m_ShaderProgramLine.release();
+
 	if(m_bArcball) paintArcBall();
 
 	MainFrame *pMainFrame = (MainFrame*)s_pMainFrame;
@@ -1635,17 +1635,17 @@ void gl3dView::paintGL3()
 		lightColor.setGreenF(GLLightDlg::s_Light.m_Green);
 		lightColor.setBlueF(GLLightDlg::s_Light.m_Blue);
 		lightColor.setAlphaF(1.0);
-		m_pvmMatrix = m_OrthoMatrix;
+		m_pvmMatrix = m_orthoMatrix;
 		paintSphere(lightPos, radius, lightColor, false);
 	}
 
 	m_viewMatrix.scale(m_glScaled, m_glScaled, m_glScaled);
 	m_viewMatrix.translate(m_glRotCenter.x, m_glRotCenter.y, m_glRotCenter.z);
-	m_pvmMatrix = m_OrthoMatrix * m_viewMatrix * modelMatrix;
+	m_pvmMatrix = m_orthoMatrix * m_viewMatrix * m_modelMatrix;
 
-	if(m_bAxes)    paintAxes();
+	if(m_bAxes)  paintAxes();
+
 	glRenderView();
-
 
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
@@ -1939,7 +1939,6 @@ void gl3dView::paintArcBall()
 	m_ShaderProgramLine.enableAttributeArray(m_VertexLocationLine);
 	m_vboArcBall.bind();
 	m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3, 0);
-	m_ShaderProgramLine.setUniformValue(m_pvmMatrixLocationLine, m_pvmMatrix);
 	m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, QColor(50,55,80,255));
 
 	glLineWidth(1.0);
@@ -1957,17 +1956,7 @@ void gl3dView::paintArcBall()
 
 	if(m_bCrossPoint)
 	{
-		double s, pixelRatio;
-		s = 1.0;
-		pixelRatio = devicePixelRatio();
-
-		int width = geometry().width() * pixelRatio;
-		int height = geometry().height() * pixelRatio;
-
-		QMatrix4x4 pvmCP; /** @todo remove pvm as parameter */
-		pvmCP.setToIdentity();
-		pvmCP.ortho(-s,s,-(height*s)/width,(height*s)/width,-100.0*s,100.0*s);
-
+		QMatrix4x4 pvmCP(m_orthoMatrix);
 		m_ArcBall.rotateCrossPoint();
 		pvmCP.rotate(m_ArcBall.angle, m_ArcBall.p.x, m_ArcBall.p.y, m_ArcBall.p.z);
 		m_ShaderProgramLine.setUniformValue(m_pvmMatrixLocationLine, pvmCP);
@@ -1991,10 +1980,10 @@ void gl3dView::paintArcBall()
 void gl3dView::paintAxes()
 {
 	m_ShaderProgramLine.bind();
-
 	m_ShaderProgramLine.enableAttributeArray(m_VertexLocationLine);
 	m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3, 0);
 	m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, W3dPrefsDlg::s_3DAxisColor);
+	m_ShaderProgramLine.setUniformValue(m_mMatrixLocationLine, m_modelMatrix);
 	m_ShaderProgramLine.setUniformValue(m_vMatrixLocationLine, m_viewMatrix);
 	m_ShaderProgramLine.setUniformValue(m_pvmMatrixLocationLine, m_pvmMatrix);
 
@@ -3703,278 +3692,7 @@ void gl3dView::glMakeBodyFrameHighlight(Body *pBody, Vector3d bodyPos, int iFram
 
 
 
-/**< used for body edition only */
-void gl3dView::glMakeBodyMesh(Body *pBody)
-{
-	if(!pBody) return;
-	int NXXXX = W3dPrefsDlg::s_iBodyAxialRes;
-	int NHOOOP = W3dPrefsDlg::s_iBodyAxialRes;
-	int nx, nh;
-	Vector3d Pt, N;
-	Vector3d P1, P2, P3, P4, PStart, PEnd;
-	float *meshVertexArray = NULL;
-	int bufferSize = 0;
-	m_iBodyMeshLines = 0;
 
-	int iv=0;
-
-	if(pBody->isFlatPanelType()) //LINES
-	{
-		bufferSize = 0;
-		for (int j=0; j<pBody->frameCount()-1;j++)
-		{
-			for (int k=0; k<pBody->sideLineCount()-1;k++)
-			{
-				for(int jp=0; jp<pBody->m_xPanels[j]; jp++)
-				{
-					bufferSize += 6;
-				}
-				for(int kp=0; kp<pBody->m_hPanels[k]; kp++)
-				{
-					bufferSize += 6;
-				}
-			}
-		}
-		bufferSize *=2;
-
-		meshVertexArray = new float[bufferSize];
-
-		for (int j=0; j<pBody->frameCount()-1;j++)
-		{
-			for (int k=0; k<pBody->sideLineCount()-1;k++)
-			{
-				P1 = pBody->frame(j)->m_CtrlPoint[k];       P1.x = pBody->frame(j)->m_Position.x;
-				P2 = pBody->frame(j+1)->m_CtrlPoint[k];     P2.x = pBody->frame(j+1)->m_Position.x;
-				P3 = pBody->frame(j+1)->m_CtrlPoint[k+1];   P3.x = pBody->frame(j+1)->m_Position.x;
-				P4 = pBody->frame(j)->m_CtrlPoint[k+1];     P4.x = pBody->frame(j)->m_Position.x;
-
-				//left side panels
-				for(int jp=0; jp<pBody->m_xPanels[j]; jp++)
-				{
-					PStart = P1 + (P2-P1) * (float)jp/(float)pBody->m_xPanels[j];
-					PEnd   = P4 + (P3-P4) * (float)jp/(float)pBody->m_xPanels[j];
-					meshVertexArray[iv++] = PStart.x;
-					meshVertexArray[iv++] = PStart.y;
-					meshVertexArray[iv++] = PStart.z;
-					meshVertexArray[iv++] = PEnd.x;
-					meshVertexArray[iv++] = PEnd.y;
-					meshVertexArray[iv++] = PEnd.z;
-					m_iBodyMeshLines++;
-				}
-				for(int kp=0; kp<pBody->m_hPanels[k]; kp++)
-				{
-					PStart = P1 + (P4-P1) * (float)kp/(float)pBody->m_hPanels[k];
-					PEnd   = P2 + (P3-P2) * (float)kp/(float)pBody->m_hPanels[k];
-					meshVertexArray[iv++] = PStart.x;
-					meshVertexArray[iv++] = PStart.y;
-					meshVertexArray[iv++] = PStart.z;
-					meshVertexArray[iv++] = PEnd.x;
-					meshVertexArray[iv++] = PEnd.y;
-					meshVertexArray[iv++] = PEnd.z;
-					m_iBodyMeshLines++;
-				}
-
-				//right side panels
-				for(int jp=0; jp<pBody->m_xPanels[j]; jp++)
-				{
-					PStart = P1 + (P2-P1) * (float)jp/(float)pBody->m_xPanels[j];
-					PEnd   = P4 + (P3-P4) * (float)jp/(float)pBody->m_xPanels[j];
-					meshVertexArray[iv++] =  PStart.x;
-					meshVertexArray[iv++] = -PStart.y;
-					meshVertexArray[iv++] =  PStart.z;
-					meshVertexArray[iv++] =  PEnd.x;
-					meshVertexArray[iv++] = -PEnd.y;
-					meshVertexArray[iv++] =  PEnd.z;
-					m_iBodyMeshLines++;
-				}
-				for(int kp=0; kp<pBody->m_hPanels[k]; kp++)
-				{
-					PStart = P1 + (P4-P1) * (float)kp/(float)pBody->m_hPanels[k];
-					PEnd   = P2 + (P3-P2) * (float)kp/(float)pBody->m_hPanels[k];
-					meshVertexArray[iv++] =  PStart.x;
-					meshVertexArray[iv++] = -PStart.y;
-					meshVertexArray[iv++] =  PStart.z;
-					meshVertexArray[iv++] =  PEnd.x;
-					meshVertexArray[iv++] = -PEnd.y;
-					meshVertexArray[iv++] =  PEnd.z;
-					m_iBodyMeshLines++;
-				}
-			}
-		}
-		Q_ASSERT(m_iBodyMeshLines*6==bufferSize);
-		Q_ASSERT(iv==bufferSize);
-	}
-	else if(pBody->isSplineType()) //NURBS
-	{
-		nx = pBody->m_nxPanels;
-		nh = pBody->m_nhPanels;
-
-		bufferSize = 0;
-		bufferSize += nh * NXXXX; // nh longitudinal lines
-		bufferSize += nx * NHOOOP; // nx hoop line
-		bufferSize *= 2;       // two sides
-		bufferSize *= 3;       // 3 components/vertex;
-
-		meshVertexArray = new float[bufferSize];
-
-		pBody->setPanelPos();
-		//x-lines;
-		for (int l=0; l<nh; l++)
-		{
-			double v = (double)l/(double)(nh-1);
-			for (int k=0; k<NXXXX; k++)
-			{
-				double u = (double)k/(double)(NXXXX-1);
-				pBody->getPoint(u,  v, true, Pt);
-				meshVertexArray[iv++] = Pt.x;
-				meshVertexArray[iv++] = Pt.y;
-				meshVertexArray[iv++] = Pt.z;
-			}
-		}
-		for (int l=0; l<nh; l++)
-		{
-			double v = (double)l/(double)(nh-1);
-			for (int k=0; k<NXXXX; k++)
-			{
-				double u = (double)k/(double)(NXXXX-1);
-				pBody->getPoint(u,  v, false, Pt);
-				meshVertexArray[iv++] = Pt.x;
-				meshVertexArray[iv++] = Pt.y;
-				meshVertexArray[iv++] = Pt.z;
-			}
-		}
-
-		//hoop lines;
-		for (int k=0; k<nx; k++)
-		{
-			double uk = pBody->m_XPanelPos[k];
-			for (int l=0; l<NHOOOP; l++)
-			{
-				double v = (double)l/(double)(NHOOOP-1);
-				pBody->getPoint(uk,  v, true, Pt);
-				meshVertexArray[iv++] = Pt.x;
-				meshVertexArray[iv++] = Pt.y;
-				meshVertexArray[iv++] = Pt.z;
-			}
-		}
-		for (int k=0; k<nx; k++)
-		{
-			double uk = pBody->m_XPanelPos[k];
-			for (int l=0; l<NHOOOP; l++)
-			{
-				double v = (double)l/(double)(NHOOOP-1);
-				pBody->getPoint(uk,  v, false, Pt);
-				meshVertexArray[iv++] = Pt.x;
-				meshVertexArray[iv++] = Pt.y;
-				meshVertexArray[iv++] = Pt.z;
-			}
-		}
-	}
-	Q_ASSERT(iv==bufferSize);
-
-	m_vboEditMesh.destroy();
-	m_vboEditMesh.create();
-	m_vboEditMesh.bind();
-	m_vboEditMesh.allocate(meshVertexArray, bufferSize * sizeof(GLfloat));
-	m_vboEditMesh.release();
-
-	delete[] meshVertexArray;
-}
-
-
-
-/** Used only in ***BodyDlg, at a time when the mesh panels have not yet been built */
-void gl3dView::paintBodyMesh(Body *pBody)
-{
-	if(!pBody) return;
-	int NXXXX = W3dPrefsDlg::s_iBodyAxialRes;
-	int NHOOOP = W3dPrefsDlg::s_iBodyAxialRes;
-	if(pBody->isFlatPanelType())
-	{
-		m_ShaderProgramLine.bind();
-		m_ShaderProgramLine.enableAttributeArray(m_VertexLocationLine);
-		m_vboEditMesh.bind();
-		m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3);
-		m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, W3dPrefsDlg::s_VLMColor);
-
-		glLineWidth(W3dPrefsDlg::s_VLMWidth);
-		glDrawArrays(GL_LINES, 0, m_iBodyMeshLines*2);
-		m_vboEditMesh.release();
-		m_ShaderProgramLine.disableAttributeArray(m_VertexLocationLine);
-		m_ShaderProgramLine.release();
-	}
-	else if(pBody->isSplineType())
-	{
-		int pos=0;
-
-		//mesh background
-		m_ShaderProgramSurface.bind();
-		m_ShaderProgramSurface.enableAttributeArray(m_VertexLocationSurface);
-		m_ShaderProgramSurface.enableAttributeArray(m_NormalLocationSurface);
-
-		m_vboBody.bind();
-		m_ShaderProgramSurface.setAttributeBuffer(m_VertexLocationSurface, GL_FLOAT, 0,                  3, 8 * sizeof(GLfloat));
-		m_ShaderProgramSurface.setAttributeBuffer(m_NormalLocationSurface, GL_FLOAT, 3* sizeof(GLfloat), 3, 8 * sizeof(GLfloat));
-
-		glEnable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(1.0, 1.0);
-
-		m_pRightBodyTexture->bind();
-		glDrawElements(GL_TRIANGLES, m_iBodyElems*3/2, GL_UNSIGNED_SHORT, m_BodyIndicesArray);
-		m_pRightBodyTexture->release();
-		m_pLeftBodyTexture->bind();
-		glDrawElements(GL_TRIANGLES, m_iBodyElems*3/2, GL_UNSIGNED_SHORT, m_BodyIndicesArray+m_iBodyElems*3/2);
-		m_pLeftBodyTexture->release();
-
-		glDisable(GL_POLYGON_OFFSET_FILL);
-
-		m_ShaderProgramSurface.disableAttributeArray(m_VertexLocationSurface);
-		m_ShaderProgramSurface.disableAttributeArray(m_NormalLocationSurface);
-		m_ShaderProgramSurface.release();
-
-
-		//panel lines
-		m_ShaderProgramLine.bind();
-		m_ShaderProgramLine.enableAttributeArray(m_VertexLocationLine);
-		m_vboEditMesh.bind();
-		m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3);
-		m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, W3dPrefsDlg::s_VLMColor);
-
-		glEnable (GL_LINE_STIPPLE);
-		switch(W3dPrefsDlg::s_VLMStyle)
-		{
-			case 1:  glLineStipple (1, 0xCFCF); break;
-			case 2:  glLineStipple (1, 0x6666); break;
-			case 3:  glLineStipple (1, 0xFF18); break;
-			case 4:  glLineStipple (1, 0x7E66); break;
-			default: glLineStipple (1, 0xFFFF); break;
-		}
-		glLineWidth(W3dPrefsDlg::s_VLMWidth);
-
-
-		pos=0;
-		//x-lines
-		for (int l=0; l<2*pBody->m_nhPanels; l++)
-		{
-			glDrawArrays(GL_LINE_STRIP, pos, NXXXX);
-			pos += NXXXX;
-		}
-
-		//hoop lines;
-		for (int k=0; k<2*pBody->m_nxPanels; k++)
-		{
-			glDrawArrays(GL_LINE_STRIP, pos, NHOOOP);
-			pos += NHOOOP;
-		}
-	}
-
-
-	m_vboEditMesh.release();
-	m_ShaderProgramLine.disableAttributeArray(m_VertexLocationLine);
-	m_ShaderProgramLine.release();
-	glDisable(GL_LINE_STIPPLE);
-	glDisable(GL_POLYGON_OFFSET_FILL);
-}
 
 
 

@@ -153,6 +153,7 @@ void TEGapDlg::initDialog()
 void TEGapDlg::onChanged()
 {
 	m_bApplied = false;
+	onApply();
 }
 
 void TEGapDlg::onOK()

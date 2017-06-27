@@ -205,6 +205,7 @@ public:
 	void deleteProject(bool bClosing=false);
 	void exportGraph(QGraph *pGraph);
 	void GLToClient(CVector const &real, QPoint &point);
+	static bool hasOpenGL(){return s_bOpenGL;}
 	bool loadSettings();
 	bool loadPolarFileV3(QDataStream &ar, bool bIsStoring, int ArchiveFormat=0);
 	void readPolarFile(QDataStream &ar);
@@ -355,7 +356,7 @@ private:
 	QAction *m_pDefinePlaneAct, *m_pDefinePlaneObjectAct, *m_pEditPlaneAct, *m_pEditBodyAct, *m_pEditBodyObjectAct;
 	QAction *m_pEditWingAct, *m_pEditStabAct, *m_pEditFinAct;
 	QAction *m_pSavePlaneAsProjectAct, *m_pRenameCurPlaneAct, *m_pDeleteCurPlane, *m_pDuplicateCurPlane;
-	QAction *m_pRrenameCurWPolar, *m_pEditWPolarAct, *m_pEditWPolarPts, *m_pExportCurWPolar, *m_pResetCurWPolar;
+	QAction *m_pRenameCurWPolar, *m_pEditWPolarAct, *m_pEditWPolarPts, *m_pExportCurWPolar, *m_pResetCurWPolar;
 	QAction *m_pShowPolarProps, *m_pShowWOppProps;
 	QAction *m_pDeleteCurWPolar, *m_pDeleteCurWOpp;
 	QAction *m_pEditObjectAct, *m_pEditWPolarObjectAct;
@@ -445,6 +446,7 @@ private:
 public:
 	static bool s_bTrace;
 	static bool s_bShowMousePos;
+	static bool s_bOpenGL;
 	static QFile *s_pTraceFile;
 	static QString s_ProjectName;      /**< The Project's name. */
 

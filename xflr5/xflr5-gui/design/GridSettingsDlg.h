@@ -41,21 +41,21 @@ public:
 	void initDialog();
 
 private slots:
-	void OnOK();
-	void OnScale();
-	void OnNeutralStyle();
-	void OnXMajStyle();
-	void OnXMinStyle();
-	void OnYMajStyle();
-	void OnYMinStyle();
-	void OnNeutralShow(bool bShow);
-	void OnXMajShow(bool bShow);
-	void OnYMajShow(bool bShow);
-	void OnXMinShow(bool bShow);
-	void OnYMinShow(bool bShow);
+	void onOK();
+	void onScale();
+	void onNeutralStyle();
+	void onXMajStyle();
+	void onXMinStyle();
+	void onYMajStyle();
+	void onYMinStyle();
+	void onNeutralShow(bool bShow);
+	void onXMajShow(bool bShow);
+	void onYMajShow(bool bShow);
+	void onXMinShow(bool bShow);
+	void onYMinShow(bool bShow);
 
 private:
-	void SetupLayout();
+	void setupLayout();
 	void keyPressEvent(QKeyEvent *event);
 
 	void *m_pParent;

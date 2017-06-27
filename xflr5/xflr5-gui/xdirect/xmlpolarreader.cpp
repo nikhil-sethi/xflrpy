@@ -39,7 +39,7 @@ bool XmlPolarReader::readXMLPolarFile()
 		{
 			while(!atEnd() && !hasError() && readNextStartElement() )
 			{
-				if (name().toString().compare("Polar", Qt::CaseInsensitive)==0)
+                if (name().toString().compare(QString("Polar"), Qt::CaseInsensitive)==0)
 				{
 					readPolar(m_pPolar);
 				}
@@ -59,43 +59,43 @@ void XmlPolarReader::readPolar(Polar *pPolar)
 
 	while(!atEnd() && !hasError() && readNextStartElement())
 	{
-		if (name().toString().compare("polar_name",Qt::CaseInsensitive) ==0)
+        if (name().toString().compare(QString("polar_name"),Qt::CaseInsensitive) ==0)
 		{
 			pPolar->polarName() = readElementText();
 		}
-		else if (name().toString().compare("foil_name",Qt::CaseInsensitive) ==0)
+        else if (name().toString().compare(QString("foil_name"),Qt::CaseInsensitive) ==0)
 		{
 			pPolar->foilName() = readElementText();
 		}
-		else if (name().toString().compare("type",Qt::CaseInsensitive) ==0)
+        else if (name().toString().compare(QString("type"),Qt::CaseInsensitive) ==0)
 		{
 			pPolar->polarType() = polarType(readElementText());
 		}
-		else if (name().toString().compare("Fixed_Reynolds",         Qt::CaseInsensitive)==0)
+        else if (name().compare(QString("Fixed_Reynolds"),         Qt::CaseInsensitive)==0)
 		{
 			pPolar->Reynolds() = readElementText().toDouble();
 		}
-		else if (name().toString().compare("Fixed_AOA",         Qt::CaseInsensitive)==0)
+        else if (name().compare(QString("Fixed_AOA"),         Qt::CaseInsensitive)==0)
 		{
 			pPolar->aoa() = readElementText().toDouble();
 		}
-		else if (name().toString().compare("Forced_Top_Transition",Qt::CaseInsensitive) ==0)
+        else if (name().toString().compare(QString("Forced_Top_Transition"),Qt::CaseInsensitive) ==0)
 		{
 			pPolar->XtrTop() = readElementText().toDouble();
 		}
-		else if (name().toString().compare("Forced_Bottom_Transition",Qt::CaseInsensitive) ==0)
+        else if (name().toString().compare(QString("Forced_Bottom_Transition"),Qt::CaseInsensitive) ==0)
 		{
 			pPolar->XtrBot() = readElementText().toDouble();
 		}
-		else if (name().toString().compare("Reynolds_Type",Qt::CaseInsensitive) ==0)
+        else if (name().toString().compare(QString("Reynolds_Type"),Qt::CaseInsensitive) ==0)
 		{
 			pPolar->ReType() = readElementText().toInt();
 		}
-		else if (name().toString().compare("Mach_Type",Qt::CaseInsensitive) ==0)
+        else if (name().toString().compare(QString("Mach_Type"),Qt::CaseInsensitive) ==0)
 		{
 			pPolar->MaType() = readElementText().toInt();
 		}
-		else if (name().toString().compare("NCrit",Qt::CaseInsensitive) ==0)
+        else if (name().toString().compare(QString("NCrit"),Qt::CaseInsensitive) ==0)
 		{
 			pPolar->NCrit() = readElementText().toDouble();
 		}

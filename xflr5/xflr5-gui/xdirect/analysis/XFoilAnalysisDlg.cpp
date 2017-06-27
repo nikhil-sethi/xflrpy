@@ -24,6 +24,7 @@
 #include <QDateTime>
 #include <QTimer>
 #include <QHBoxLayout>
+#include <QFontDatabase>
 #include <QtDebug>
 
 #include <gui_params.h>
@@ -103,7 +104,7 @@ void XFoilAnalysisDlg::setupLayout()
 	m_pctrlTextOutput->setReadOnly(true);
 	m_pctrlTextOutput->setLineWrapMode(QTextEdit::NoWrap);
 	m_pctrlTextOutput->setWordWrapMode(QTextOption::NoWrap);
-
+	m_pctrlTextOutput->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 	m_pGraphWidget = new GraphWidget;
 	m_pGraphWidget->setMinimumHeight(350);
 	m_pGraphWidget->setMinimumWidth(600);
@@ -154,7 +155,11 @@ void XFoilAnalysisDlg::initDialog()
 
 	QString FileName = QDir::tempPath() + "/XFLR5.log";
 	m_pXFile = new QFile(FileName);
-	if (!m_pXFile->open(QIODevice::WriteOnly | QIODevice::Text)) m_pXFile = NULL;
+	if (!m_pXFile->open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		delete m_pXFile;
+		m_pXFile = NULL;
+	}
 
 	m_pXFoilTask->m_OutStream.setDevice(m_pXFile);
 
@@ -385,7 +390,7 @@ void XFoilAnalysisDlg::customEvent(QEvent * event)
 	else if(event->type() == XFOIL_END_OPP_EVENT)
 	{
 		XFoilOppEvent *pOppEvent = (XFoilOppEvent*)event;
-		OpPoint *pOpp = Objects2D::addOpPoint(pOppEvent->foilPtr(), pOppEvent->polarPtr(), pOppEvent->XFoilPtr(), QXDirect::s_bStoreOpp);
+		Objects2D::addOpPoint(pOppEvent->foilPtr(), pOppEvent->polarPtr(), pOppEvent->XFoilPtr(), QXDirect::s_bStoreOpp);
 		m_pRmsGraph->resetYLimits();
 	}
 }
@@ -394,7 +399,7 @@ void XFoilAnalysisDlg::customEvent(QEvent * event)
 
 void XFoilAnalysisDlg::handleXFoilTaskEvent(const XFoilTaskEvent *event)
 {
-
+	Q_UNUSED(event);
 }
 
 

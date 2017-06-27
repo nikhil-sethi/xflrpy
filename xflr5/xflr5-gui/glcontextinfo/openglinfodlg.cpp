@@ -13,6 +13,7 @@
 #include <QSurfaceFormat>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
+#include <QCoreApplication>
 #include <QtDebug>
 
 struct Version {
@@ -240,6 +241,23 @@ void OpenGLInfoDlg::start()
 		return;
 	}
 	m_surface = renderWindow;
+
+	m_glOutput->append("OpenGL support:");
+
+	QString strange;
+	strange = "    Desktop OpenGL";
+	qApp->testAttribute(Qt::AA_UseDesktopOpenGL) ? strange += ": true" : strange+=": false";
+	m_glOutput->append(strange);
+
+	strange = "    OpenGL ES";
+	qApp->testAttribute(Qt::AA_UseOpenGLES) ? strange += ": true" : strange+=": false";
+	m_glOutput->append(strange);
+
+	strange = "    Software OpenGL";
+	qApp->testAttribute(Qt::AA_UseSoftwareOpenGL) ? strange += ": true" : strange+=": false";
+	m_glOutput->append(strange+"\n");
+
+
 
 	renderWindow->setForceGLSL110(forceGLSL110);
 	connect(renderWindow, &GLRenderWindow::ready, this, &OpenGLInfoDlg::renderWindowReady);

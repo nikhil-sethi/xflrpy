@@ -47,7 +47,6 @@
 #include <misc/RenameDlg.h>
 #include <misc/EditPlrDlg.h>
 
-#include "analysis/XFoilAnalysisDlg.h"
 #include "analysis/XFoilAdvancedDlg.h"
 #include "analysis/FoilPolarDlg.h"
 #include "analysis/BatchThreadDlg.h"
@@ -87,15 +86,13 @@ Polar*    QXDirect::m_pCurPolar = NULL;
 OpPoint * QXDirect::m_pCurOpp = NULL;
 
 
-/** @todo is there any use for a buffer foil at all ? */
-
-
 /**
 *The public constructor.
 */
 QXDirect::QXDirect(QWidget *parent) : QWidget(parent)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
+	m_pXFADlg = new XFoilAnalysisDlg(this);
 
 	m_pOpPointWidget = NULL;
 
@@ -106,7 +103,6 @@ QXDirect::QXDirect(QWidget *parent) : QWidget(parent)
 
 	setupLayout();
 
-	m_pXFoil = new XFoil();
 	m_pAnimateTimer = new QTimer(this);
 	m_posAnimate = 0; // no animation to start with
 	connectSignals();
@@ -116,7 +112,7 @@ QXDirect::QXDirect(QWidget *parent) : QWidget(parent)
 	m_bAnimate        = false;
 	m_bAnimatePlus    = false;
 	m_bCpGraph        = true;
-	m_bShowPanels     = false;
+
 	m_bShowUserGraph  = true;
 	m_bSequence       = false;
 	s_bStoreOpp       = false;
@@ -224,7 +220,6 @@ QXDirect::QXDirect(QWidget *parent) : QWidget(parent)
 	s_ReList[10] = 1000000.0;
 	s_ReList[11] = 3000000.0;
 
-	m_pXFADlg = new XFoilAnalysisDlg(this);
 }
 
 
@@ -238,7 +233,7 @@ QXDirect::~QXDirect()
 		delete m_PlrGraph.at(ig);
 		m_PlrGraph.removeAt(ig);
 	}
-	if(m_pXFADlg) delete m_pXFADlg;
+	delete m_pXFADlg;
 }
 
 
@@ -281,10 +276,10 @@ void QXDirect::setControls()
 	s_pMainFrame->m_pCurXFoilUePlot->setChecked(!m_bPolarView  && OppVar==2 && m_XFoilVar ==9);
 	s_pMainFrame->m_pCurXFoilHPlot->setChecked(!m_bPolarView   && OppVar==2 && m_XFoilVar ==10);
 
-	s_pMainFrame->m_pCurXFoilResults->setEnabled(m_pXFoil->lvconv);
-    s_pMainFrame->m_pCurXFoilResults_OperPolarCtxMenu->setEnabled(m_pXFoil->lvconv);
+	s_pMainFrame->m_pCurXFoilResults->setEnabled(m_pCurOpp && m_pCurOpp->nside1>0);
+	s_pMainFrame->m_pCurXFoilResults_OperPolarCtxMenu->setEnabled(m_XFoil.lvconv);
 
-	s_pMainFrame->m_pExportCurXFoilRes->setEnabled(m_pXFoil->lvconv);
+	s_pMainFrame->m_pExportCurXFoilRes->setEnabled(m_XFoil.lvconv);
 
 	m_pctrlShowPressure->setEnabled(!m_bPolarView && m_pCurOpp);
 	m_pctrlShowBL->setEnabled(!m_bPolarView && m_pCurOpp);
@@ -392,7 +387,7 @@ void QXDirect::createOppCurves(OpPoint *pOpp)
 		pCurve1    = m_CpGraph.addCurve();
 		int r,g,b,a;
 		pOpPoint->getColor(r,g,b,a);
-//		QColor clr(r,g,b,a);
+
 		pCurve1->setLineStyle(pOpPoint->oppStyle(), pOpPoint->oppWidth(), colour(pOpPoint), pOpPoint->pointStyle(), pOpPoint->isVisible());
 		pCurve1->setCurveName(pOpPoint->opPointName());
 
@@ -954,7 +949,7 @@ void QXDirect::loadSettings(QSettings *pSettings)
 		s_bInitBL         = pSettings->value("InitBL").toBool();
 		m_bPolarView      = pSettings->value("PolarView").toBool();
 		m_bShowUserGraph  = pSettings->value("UserGraph").toBool();
-		m_bShowPanels     = pSettings->value("ShowPanels").toBool();
+
 		m_bType1          = pSettings->value("Type1").toBool();
 		m_bType2          = pSettings->value("Type2").toBool();
 		m_bType3          = pSettings->value("Type3").toBool();
@@ -971,8 +966,6 @@ void QXDirect::loadSettings(QSettings *pSettings)
 
 		m_XFoilVar       = pSettings->value("XFoilVar").toInt();
 		s_TimeUpdateInterval = pSettings->value("TimeUpdateInterval",100).toInt();
-
-		BatchThreadDlg::s_bUpdatePolarView = pSettings->value("BatchUpdatePolarView", false).toBool();
 
 		m_iPlrGraph      = pSettings->value("PlrGraph").toInt();
 
@@ -1001,13 +994,16 @@ void QXDirect::loadSettings(QSettings *pSettings)
 		m_Reynolds        = pSettings->value("ReynoldsMin").toDouble();
 		m_ReynoldsMax     = pSettings->value("ReynoldsMax").toDouble();
 		m_ReynoldsDelta   = pSettings->value("ReynolsDelta").toDouble();
-		m_pXFoil->vaccel  = pSettings->value("VAccel").toDouble();
+		m_XFoil.vaccel  = pSettings->value("VAccel").toDouble();
 		s_bKeepOpenErrors = pSettings->value("KeepOpenErrors").toBool();
 
 		XFoilTask::s_bAutoInitBL    = pSettings->value("AutoInitBL").toBool();
 		XFoilTask::s_IterLim        = pSettings->value("IterLim", 100).toInt();
 
 		XFoil::s_bFullReport = pSettings->value("FullReport").toBool();
+
+		BatchThreadDlg::s_bUpdatePolarView = pSettings->value("BatchUpdatePolarView", false).toBool();
+		BatchThreadDlg::s_nThreads = pSettings->value("MaxThreads", 12).toInt();
 
 		s_refPolar.NCrit()    = pSettings->value("NCrit").toDouble();
 		s_refPolar.XtrTop()   = pSettings->value("XTopTr").toDouble();
@@ -1230,23 +1226,13 @@ void QXDirect::onAnalyze()
 	m_pXFADlg->analyze();
 	if(!s_bKeepOpenErrors || !m_pXFADlg->m_bErrors) m_pXFADlg->hide();
 
-	if(s_bKeepOpenErrors && m_pXFADlg->m_bErrors)
-	{
-	}
-	else
-	{
-		m_pXFADlg->hide();
-	}
-
-	//save the results for boudnary layer plots
-	memcpy(m_pXFoil, &m_pXFADlg->m_pXFoilTask->XFoilInstance, sizeof(XFoil));
 
 	// and update window
 	emit projectModified();
 
 	m_pctrlAnalyze->setEnabled(true);
 
-	s_bInitBL = !m_pXFoil->lblini;
+	s_bInitBL = !m_XFoil.lblini;
 	m_pctrlInitBL->setChecked(s_bInitBL);;
 
 	s_pMainFrame->updateOppListBox();
@@ -1414,10 +1400,7 @@ void QXDirect::onMultiThreadedBatchAnalysis()
  */
 void QXDirect::onCfPlot()
 {
-	if(!m_pXFoil->lvconv) return;
-	int i;
-	double x[IVX][3],y[IVX][3];
-	int nside1, nside2, ibl;
+	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
 
 	m_CpGraph.setYVariable(2);
 	m_XFoilVar = 8;
@@ -1431,26 +1414,26 @@ void QXDirect::onCfPlot()
 	pTopCurve->setCurveName(tr("Top"));
 	pBotCurve->setCurveName(tr("Bot"));
 
-	double que = 0.5*m_pXFoil->qinf*m_pXFoil->qinf;
+	double que = 0.5*m_pCurOpp->qinf*m_pCurOpp->qinf;
 
-	m_pXFoil->CreateXBL(x, nside1, nside2);
+	double y[IVX][ISX];
 	//---- fill compressible ue arrays
-	for (ibl=2; ibl<= nside1;ibl++)
+	for (int ibl=2; ibl<= m_pCurOpp->nside1;ibl++)
 	{
-		y[ibl][1] = m_pXFoil->tau[ibl][1] / que;
+		y[ibl][1] = m_pCurOpp->tau[ibl][1] / que;
 	}
-	for ( ibl=2; ibl<= nside2;ibl++)
+	for (int ibl=2; ibl<= m_pCurOpp->nside2;ibl++)
 	{
-		y[ibl][2] = m_pXFoil->tau[ibl][2] / que;
+		y[ibl][2] = m_pCurOpp->tau[ibl][2] / que;
 	}
 
-	for (i=2; i<=nside1-1; i++)
+	for (int i=2; i<=m_pCurOpp->nside1-1; i++)
 	{
-		pTopCurve->appendPoint(x[i][1], y[i][1]);
+		pTopCurve->appendPoint(m_pCurOpp->xbl[i][1], y[i][1]);
 	}
-	for (i=2; i<=nside2-1; i++)
+	for (int i=2; i<=m_pCurOpp->nside2-1; i++)
 	{
-		pBotCurve->appendPoint(x[i][2], y[i][2]);
+		pBotCurve->appendPoint(m_pCurOpp->xbl[i][2], y[i][2]);
 	}
 	m_CpGraph.setXScale();
 	setFoilScale();
@@ -1466,8 +1449,7 @@ void QXDirect::onCfPlot()
  */
 void QXDirect::onCtPlot()
 {
-	if(!m_pXFoil->lvconv) return;
-	int i;
+	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
 
 	m_CpGraph.setYVariable(2);
 	m_XFoilVar=1;
@@ -1485,19 +1467,19 @@ void QXDirect::onCtPlot()
 	pCurve2->setCurveName(tr("Bot Shear"));
 	pCurve3->setCurveName(tr("Bot Shear eq"));
 
-	double x[IVX][3];
-	int nside1, nside2;
+//	double x[IVX][3];
+//	int nside1, nside2;
 
-	m_pXFoil->CreateXBL(x, nside1, nside2);
+//	m_XFoil.CreateXBL(x, nside1, nside2);
 
-	int it1 = m_pXFoil->itran[1];
-	int it2 = m_pXFoil->itran[2];
+	int it1 = m_pCurOpp->itran[1];
+	int it2 = m_pCurOpp->itran[2];
 
-	for (i=it1; i<=nside1-1; i++)	pCurve0->appendPoint(x[i][1], m_pXFoil->ctau[i][1]);
-	for (i=2; i<=nside1-1; i++)		pCurve1->appendPoint(x[i][1], m_pXFoil->ctq[i][1]);
+	for (int i=it1; i<=m_pCurOpp->nside1-1; i++)	pCurve0->appendPoint(m_pCurOpp->xbl[i][1], m_pCurOpp->ctau[i][1]);
+	for (int i=2; i<=m_pCurOpp->nside1-1; i++)		pCurve1->appendPoint(m_pCurOpp->xbl[i][1], m_pCurOpp->ctq[i][1]);
 
-	for (i=it2; i<=nside2-1; i++)	pCurve2->appendPoint(x[i][2], m_pXFoil->ctau[i][2]);
-	for (i=2; i<=nside2-1; i++)		pCurve3->appendPoint(x[i][2], m_pXFoil->ctq[i][2]);
+	for (int i=it2; i<=m_pCurOpp->nside2-1; i++)	pCurve2->appendPoint(m_pCurOpp->xbl[i][2], m_pCurOpp->ctau[i][2]);
+	for (int i=2; i<=m_pCurOpp->nside2-1; i++)		pCurve3->appendPoint(m_pCurOpp->xbl[i][2], m_pCurOpp->ctq[i][2]);
 
 	m_CpGraph.setXScale();
 	setFoilScale();
@@ -1514,8 +1496,7 @@ void QXDirect::onCtPlot()
  */
 void QXDirect::onDtPlot()
 {
-	if(!m_pXFoil->lvconv) return;
-	int i;
+	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
 
 	m_CpGraph.setYVariable(2);
 	m_XFoilVar=3;
@@ -1525,20 +1506,16 @@ void QXDirect::onDtPlot()
 	m_CpGraph.setInverted(false);
 	m_CpGraph.setYTitle(" ");
 
-
-	double x[IVX][3];
-	int nside1, nside2;
-
 	Curve * pCurve1 = m_CpGraph.addCurve();
 	Curve * pCurve2 = m_CpGraph.addCurve();
 
 	pCurve1->setCurveName("D*");
 	pCurve2->setCurveName("Theta");
-	m_pXFoil->CreateXBL(x, nside1, nside2);
 
-	for (i=2; i<nside1; i++){
-		pCurve1->appendPoint(x[i][1], m_pXFoil->dstr[i][1]);
-		pCurve2->appendPoint(x[i][1], m_pXFoil->thet[i][1]);
+	for (int i=2; i<m_pCurOpp->nside1; i++)
+	{
+		pCurve1->appendPoint(m_pCurOpp->xbl[i][1], m_pCurOpp->dstr[i][1]);
+		pCurve2->appendPoint(m_pCurOpp->xbl[i][1], m_pCurOpp->thet[i][1]);
 	}
 
 	m_CpGraph.setXScale();
@@ -1554,8 +1531,7 @@ void QXDirect::onDtPlot()
  */
 void QXDirect::onDbPlot()
 {
-	if(!m_pXFoil->lvconv) return;
-	int i;
+	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
 
 	m_CpGraph.setYVariable(2);
 	m_XFoilVar = 2;
@@ -1565,21 +1541,16 @@ void QXDirect::onDbPlot()
 	m_CpGraph.setInverted(false);
 	m_CpGraph.setYTitle(" ");
 
-
-	double x[IVX][3];
-	int nside1, nside2;
-
 	Curve * pCurve1 = m_CpGraph.addCurve();
 	Curve * pCurve2 = m_CpGraph.addCurve();
 
 	pCurve1->setCurveName("D*");
 	pCurve2->setCurveName("Theta");
-	m_pXFoil->CreateXBL(x, nside1, nside2);
 
-	for (i=2; i<nside2; i++)
+	for (int i=2; i<m_pCurOpp->nside2; i++)
 	{
-		pCurve1->appendPoint(x[i][2], m_pXFoil->dstr[i][2]);
-		pCurve2->appendPoint(x[i][2], m_pXFoil->thet[i][2]);
+		pCurve1->appendPoint(m_pCurOpp->xbl[i][2], m_pCurOpp->dstr[i][2]);
+		pCurve2->appendPoint(m_pCurOpp->xbl[i][2], m_pCurOpp->thet[i][2]);
 	}
 
 	m_CpGraph.setXScale();
@@ -1596,10 +1567,8 @@ void QXDirect::onDbPlot()
  */
 void QXDirect::onCdPlot()
 {
-	if(!m_pXFoil->lvconv) return;
-	double x[IVX][3],y[IVX][3];
-	int nside1, nside2, ibl;
-	int i;
+	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
+	double y[IVX][3];
 
 	m_CpGraph.setYVariable(2);
 	m_XFoilVar = 7;
@@ -1613,26 +1582,25 @@ void QXDirect::onCdPlot()
 	pTopCurve->setCurveName(tr("Top"));
 	pBotCurve->setCurveName(tr("Bot"));
 
-	double qrf = m_pXFoil->qinf;
+	double qrf = m_pCurOpp->qinf;
 
-	m_pXFoil->CreateXBL(x, nside1, nside2);
 	//---- fill compressible ue arrays
-	for (ibl=2; ibl<= nside1;ibl++)
+	for (int ibl=2; ibl<= m_pCurOpp->nside1;ibl++)
 	{
-		y[ibl][1] = m_pXFoil->dis[ibl][1] / qrf/ qrf/ qrf;
+		y[ibl][1] = m_pCurOpp->dis[ibl][1] / qrf/ qrf/ qrf;
 	}
-	for ( ibl=2; ibl<= nside2;ibl++)
+	for (int ibl=2; ibl<= m_pCurOpp->nside2;ibl++)
 	{
-		y[ibl][2] = m_pXFoil->dis[ibl][2] / qrf/ qrf/ qrf;
+		y[ibl][2] = m_pCurOpp->dis[ibl][2] / qrf/ qrf/ qrf;
 	}
 
-	for (i=2; i<=nside1-1; i++)
+	for (int i=2; i<=m_pCurOpp->nside1-1; i++)
 	{
-		pTopCurve->appendPoint(x[i][1], y[i][1]);
+		pTopCurve->appendPoint(m_pCurOpp->xbl[i][1], y[i][1]);
 	}
-	for (i=2; i<=nside2-1; i++)
+	for (int i=2; i<=m_pCurOpp->nside2-1; i++)
 	{
-		pBotCurve->appendPoint(x[i][2], y[i][2]);
+		pBotCurve->appendPoint(m_pCurOpp->xbl[i][2], y[i][2]);
 	}
 	m_CpGraph.setXScale();
 	setFoilScale();
@@ -1648,8 +1616,7 @@ void QXDirect::onCdPlot()
  */
 void QXDirect::onHPlot()
 {
-	if(!m_pXFoil->lvconv) return;
-	int i;
+	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
 
 	m_CpGraph.setYVariable(2);
 	m_XFoilVar = 10;
@@ -1663,19 +1630,14 @@ void QXDirect::onHPlot()
 	pTopCurve->setCurveName(tr("Top"));
 	pBotCurve->setCurveName(tr("Bot"));
 
-	double x[IVX][3],y[IVX][3];
-	int nside1, nside2;
 
-	m_pXFoil->CreateXBL(x, nside1, nside2);
-	m_pXFoil->FillHk(y, nside1, nside2);
-
-	for (i=2; i<=nside1-1; i++)
+	for (int i=2; i<=m_pCurOpp->nside1-1; i++)
 	{
-		pTopCurve->appendPoint(x[i][1], y[i][1]);
+		pTopCurve->appendPoint(m_pCurOpp->xbl[i][1], m_pCurOpp->Hk[i][1]);
 	}
-	for (i=2; i<=nside2-1; i++)
+	for (int i=2; i<=m_pCurOpp->nside2-1; i++)
 	{
-		pBotCurve->appendPoint(x[i][2], y[i][2]);
+		pBotCurve->appendPoint(m_pCurOpp->xbl[i][2], m_pCurOpp->Hk[i][2]);
 	}
 
 	m_CpGraph.setXScale();
@@ -1692,8 +1654,7 @@ void QXDirect::onHPlot()
  */
 void QXDirect::onRtPlot()
 {
-	if(!m_pXFoil->lvconv) return;
-	int i;
+	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
 
 	m_CpGraph.setYVariable(2);
 	m_XFoilVar=5;
@@ -1707,14 +1668,8 @@ void QXDirect::onRtPlot()
 	pTopCurve->setCurveName(tr("Top"));
 	pBotCurve->setCurveName(tr("Bot"));
 
-	double x[IVX][3],y[IVX][3];
-	int nside1, nside2;
-
-	m_pXFoil->CreateXBL(x, nside1, nside2);
-	m_pXFoil->FillRTheta(y, nside1, nside2);
-
-	for (i=2; i<=nside1-1; i++)	pTopCurve->appendPoint(x[i][1], y[i][1]);
-	for (i=2; i<=nside2-1; i++) pBotCurve->appendPoint(x[i][2], y[i][2]);
+	for (int i=2; i<=m_pCurOpp->nside1-1; i++)	pTopCurve->appendPoint(m_pCurOpp->xbl[i][1], m_pCurOpp->RTheta[i][1]);
+	for (int i=2; i<=m_pCurOpp->nside2-1; i++) pBotCurve->appendPoint(m_pCurOpp->xbl[i][2], m_pCurOpp->RTheta[i][2]);
 
 	m_CpGraph.setXScale();
 	setFoilScale();
@@ -1730,8 +1685,7 @@ void QXDirect::onRtPlot()
  */
 void QXDirect::onRtLPlot()
 {
-	if(!m_pXFoil->lvconv) return;
-	int i;
+	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
 
 	m_CpGraph.setYVariable(2);
 	m_XFoilVar=4;
@@ -1745,21 +1699,17 @@ void QXDirect::onRtLPlot()
 	pTopCurve->setCurveName(tr("Top"));
 	pBotCurve->setCurveName(tr("Bot"));
 
-	double x[IVX][3],y[IVX][3];
-	int nside1, nside2;
+	double y[IVX][3];
 
-	m_pXFoil->CreateXBL(x, nside1, nside2);
-	m_pXFoil->FillRTheta(y, nside1, nside2);
-
-	for (i=2; i<=nside1-1; i++){
-		if (y[i][1]>0.0) y[i][1] = log10( y[i][1] );
+	for (int i=2; i<=m_pCurOpp->nside1-1; i++){
+		if (y[i][1]>0.0) y[i][1] = log10( m_pCurOpp->RTheta[i][1] );
 		else             y[i][1] = 0.0;
-		pTopCurve->appendPoint(x[i][1], y[i][1]);
+		pTopCurve->appendPoint(m_pCurOpp->xbl[i][1], y[i][1]);
 	}
-	for (i=2; i<=nside2-1; i++){
-		if (y[i][2]>0.0) y[i][2] = log10( y[i][2] );
+	for (int i=2; i<=m_pCurOpp->nside2-1; i++){
+		if (y[i][2]>0.0) y[i][2] = log10( m_pCurOpp->RTheta[i][2] );
 		else             y[i][2] = 0.0;
-		pBotCurve->appendPoint(x[i][2], y[i][2]);
+		pBotCurve->appendPoint(m_pCurOpp->xbl[i][2], y[i][2]);
 	}
 	m_CpGraph.setXScale();
 	setFoilScale();
@@ -1775,11 +1725,7 @@ void QXDirect::onRtLPlot()
  */
 void QXDirect::onUePlot()
 {
-	if(!m_pXFoil->lvconv) return;
-	int i;
-	double x[IVX][3],y[IVX][3];
-	double uei;
-	int nside1, nside2, ibl;
+	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
 
 	m_CpGraph.setYVariable(2);
 	m_XFoilVar = 9;
@@ -1793,28 +1739,30 @@ void QXDirect::onUePlot()
 	pTopCurve->setCurveName(tr("Top"));
 	pBotCurve->setCurveName(tr("Bot"));
 
-	m_pXFoil->CreateXBL(x, nside1, nside2);
+	double y[IVX][3];
+	double uei;
+
 	//---- fill compressible ue arrays
-	for (ibl=2; ibl<= nside1;ibl++)
+	for (int ibl=2; ibl<= m_pCurOpp->nside1;ibl++)
 	{
-		uei = m_pXFoil->uedg[ibl][1];
-		y[ibl][1] = uei * (1.0-m_pXFoil->tklam)
-						/ (1.0-m_pXFoil->tklam*(uei/m_pXFoil->qinf)*(uei/m_pXFoil->qinf));
+		uei = m_pCurOpp->uedg[ibl][1];
+		y[ibl][1] = uei * (1.0-m_pCurOpp->tklam)
+						/ (1.0-m_pCurOpp->tklam*(uei/m_pCurOpp->qinf)*(uei/m_pCurOpp->qinf));
 	}
-	for (ibl=2; ibl<= nside2;ibl++)
+	for (int ibl=2; ibl<= m_pCurOpp->nside2;ibl++)
 	{
-		uei = m_pXFoil->uedg[ibl][2];
-		y[ibl][2] = uei * (1.0-m_pXFoil->tklam)
-						/ (1.0-m_pXFoil->tklam*(uei/m_pXFoil->qinf)*(uei/m_pXFoil->qinf));
+		uei = m_pCurOpp->uedg[ibl][2];
+		y[ibl][2] = uei * (1.0-m_pCurOpp->tklam)
+						/ (1.0-m_pCurOpp->tklam*(uei/m_pCurOpp->qinf)*(uei/m_pCurOpp->qinf));
 	}
 
-	for (i=2; i<=nside1-1; i++)
+	for (int i=2; i<=m_pCurOpp->nside1-1; i++)
 	{
-		pTopCurve->appendPoint(x[i][1], y[i][1]);
+		pTopCurve->appendPoint(m_pCurOpp->xbl[i][1], y[i][1]);
 	}
-	for (i=2; i<=nside2-1; i++)
+	for (int i=2; i<=m_pCurOpp->nside2-1; i++)
 	{
-		pBotCurve->appendPoint(x[i][2], y[i][2]);
+		pBotCurve->appendPoint(m_pCurOpp->xbl[i][2], y[i][2]);
 	}
 	m_CpGraph.setXScale();
 	setFoilScale();
@@ -1824,6 +1772,52 @@ void QXDirect::onUePlot()
 	updateView();
 }
 
+
+/**
+ * The user has requested a  plot of the A/A0 variable using current XFoil results.
+ */
+void QXDirect::onNPlot()
+{
+	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
+
+	m_CpGraph.setYVariable(2);
+	m_XFoilVar=6;
+	m_CpGraph.deleteCurves();
+	m_CpGraph.resetLimits();
+	m_CpGraph.setAuto(true);
+	m_CpGraph.setInverted(false);
+	m_CpGraph.setYTitle("A/A0");
+	Curve * pTopCurve = m_CpGraph.addCurve();
+	Curve * pBotCurve = m_CpGraph.addCurve();
+	pTopCurve->setCurveName(tr("Top"));
+	pBotCurve->setCurveName(tr("Bot"));
+
+	double y[IVX][3];
+
+	for (int ibl=2; ibl< m_pCurOpp->nside1;ibl++)
+	{
+		y[ibl][1] = m_pCurOpp->ctau[ibl][1];
+	}
+	for (int ibl=2; ibl< m_pCurOpp->nside2;ibl++)
+	{
+		y[ibl][2] = m_pCurOpp->ctau[ibl][2];
+	}
+
+	for (int i=2; i<=m_pCurOpp->itran[1]-2; i++)
+	{
+		pTopCurve->appendPoint(m_pCurOpp->xbl[i][1], y[i][1]);
+	}
+	for (int i=2; i<=m_pCurOpp->itran[2]-2; i++)
+	{
+		pBotCurve->appendPoint(m_pCurOpp->xbl[i][2], y[i][2]);
+	}
+	m_CpGraph.setXScale();
+	setFoilScale();
+	setControls();
+	m_bResetCurves = false;
+
+	updateView();
+}
 
 
 
@@ -1951,7 +1945,6 @@ void QXDirect::onDefinePolar()
 		setPolar(m_pCurPolar);
 
 		s_pMainFrame->updatePolarListBox();
-		setBufferFoil();
 		updateView();
 		emit projectModified();
 	}
@@ -2190,47 +2183,49 @@ void QXDirect::onDeleteFoilPolars()
 void QXDirect::onCadd()
 {
 	stopAnimate();
-	if(!m_pCurFoil)		return;
+	if(!m_pCurFoil)	return;
 	onOpPointView();
 
-	void* ptr = m_pCurOpp;
+	Foil *pCurFoil = curFoil(); //keep a reference to restore eventually
+	Foil *pNewFoil = new Foil();
+	pNewFoil->copyFoil(curFoil());
+
+	OpPoint* pOpPoint = m_pCurOpp;
 	setCurOpp(NULL);
 	m_bResetCurves = true;
 
-	bool bState = m_bShowPanels;
+	setFoil(pNewFoil);
 
 	CAddDlg caDlg(s_pMainFrame);
-	caDlg.m_pBufferFoil = &m_BufferFoil;
-	caDlg.m_pMemFoil    = m_pCurFoil;
+	caDlg.m_pBufferFoil = pNewFoil;
+	caDlg.m_pMemFoil    = pCurFoil;
 	caDlg.initDialog();
-
-	m_bShowPanels = true;
+	int psState = pNewFoil->foilPointStyle();
+	if(psState==0) pNewFoil->foilPointStyle() = 1;
 	updateView();
 
 	if(QDialog::Accepted == caDlg.exec())
 	{
-		Foil *pNewFoil = new Foil();
-		pNewFoil->copyFoil(&m_BufferFoil);
+		pNewFoil->foilPointStyle() = psState;
 		setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
-		pNewFoil->foilLineStyle() = 1;
-		pNewFoil->foilLineWidth() = 1;
-		pNewFoil->foilPointStyle() = 0;
-		setCurOpp((OpPoint*)ptr);
+		setCurOpp(pOpPoint);
 
-		if(!addNewFoil(pNewFoil)) setBufferFoil();
-		else                      setFoil(pNewFoil);
-
-		s_pMainFrame->updateFoilListBox();
-	}
-	else
-	{
-		setCurOpp((OpPoint*)ptr);
-		setBufferFoil();
-		Foil *pFoil = m_pCurFoil;
-		m_pXFoil->initXFoilGeometry(pFoil->n, pFoil->x,pFoil->y, pFoil->nx, pFoil->ny);
+		if(addNewFoil(pNewFoil))
+		{
+			setFoil(pNewFoil);
+			s_pMainFrame->updateFoilListBox();
+			emit projectModified();
+			updateView();
+			return;
+		}
 	}
 
-	m_bShowPanels = bState;
+	//reset everything
+	setFoil(pCurFoil);
+	setCurOpp(pOpPoint);
+
+	m_XFoil.initXFoilGeometry(m_pCurFoil->n, m_pCurFoil->x, m_pCurFoil->y, m_pCurFoil->nx, m_pCurFoil->ny);
+	delete pNewFoil;
 
 	updateView();
 }
@@ -2244,27 +2239,66 @@ void QXDirect::onDerotateFoil()
 	if(!m_pCurFoil) return;
 	QString str;
 	stopAnimate();
-
+	Foil *pCurFoil = curFoil();
 	Foil *pNewFoil = new Foil;
 	pNewFoil->copyFoil(m_pCurFoil);
-	pNewFoil->foilLineStyle() = 0;
-	pNewFoil->foilLineWidth() = 1;
-	pNewFoil->foilPointStyle() = 0;
 	setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
+	setCurFoil(pNewFoil);
+	updateView();
 
 	double angle = pNewFoil->deRotate();
 	str = QString(tr("The foil has been de-rotated by %1 degrees")).arg(angle,6,'f',3);
 	s_pMainFrame->statusBar()->showMessage(str);
 
-
-	if(!addNewFoil(pNewFoil)) setBufferFoil();
-	else                      setFoil(pNewFoil);
-
-	s_pMainFrame->updateFoilListBox();
-
-	emit projectModified();
+	if(addNewFoil(pNewFoil))
+	{
+		setFoil(pNewFoil);
+		s_pMainFrame->updateFoilListBox();
+		emit projectModified();
+		updateView();
+		return;
+	}
+	//restore things
+	delete pNewFoil;
+	setFoil(pCurFoil);
 	updateView();
 }
+
+
+
+/**
+ * The user has requested that the length of the current foil be normalized to 1.
+ */
+void QXDirect::onNormalizeFoil()
+{
+	if(!m_pCurFoil) return;
+	QString str;
+	stopAnimate();
+	Foil *pCurFoil = curFoil();
+	Foil *pNewFoil = new Foil;
+	pNewFoil->copyFoil(m_pCurFoil);
+	setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
+	setCurFoil(pNewFoil);
+	updateView();
+
+	double length = pNewFoil->normalizeGeometry();
+	str = QString(tr("The foil has been normalized from %1  to 1.000")).arg(length,7,'f',3);
+	s_pMainFrame->statusBar()->showMessage(str);
+	if(addNewFoil(pNewFoil))
+	{
+		setFoil(pNewFoil);
+		s_pMainFrame->updateFoilListBox();
+		emit projectModified();
+		updateView();
+		return;
+	}
+	//restore things
+	delete pNewFoil;
+	setCurFoil(pCurFoil);
+	m_XFoil.initXFoilGeometry(pCurFoil->n, pCurFoil->x, pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
+	updateView();
+}
+
 
 
 /**
@@ -2321,7 +2355,7 @@ void QXDirect::onEditCurPolar()
  */
 void QXDirect::onExportCurXFoilResults()
 {
-	if(!m_pXFoil->lvconv) return;
+	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
 	if(!m_pCurFoil)		  return;
 
 	QString FileName,  OutString, strong;
@@ -2329,8 +2363,8 @@ void QXDirect::onExportCurXFoilResults()
 	double x[IVX][3],Hk[IVX][3],UeVinf[IVX][3], Cf[IVX][3], Cd[IVX][3], AA0[IVX][3];
 	double RTheta[IVX][3], DStar[IVX][3], Theta[IVX][3];
 	double uei;
-	double que = 0.5*m_pXFoil->qinf*m_pXFoil->qinf;
-	double qrf = m_pXFoil->qinf;
+	double que = 0.5*m_XFoil.qinf*m_XFoil.qinf;
+	double qrf = m_XFoil.qinf;
 	int nside1, nside2, ibl;
 	XFLR5::enumTextFileType type = XFLR5::TXT;
 
@@ -2361,53 +2395,53 @@ void QXDirect::onExportCurXFoilResults()
 
 	if(type==XFLR5::TXT)
 		strong = QString("Alpha = %1,  Re = %2,  Ma= %3,  ACrit=%4\n\n")
-						 .arg(m_pXFoil->alfa*180./PI, 5, 'f',1)
-						 .arg(m_pXFoil->reinf1, 8, 'f',0)
-						 .arg(m_pXFoil->minf1, 6, 'f',4)
-						 .arg(m_pXFoil->acrit, 4, 'f',1);
+						 .arg(m_XFoil.alfa*180./PI, 5, 'f',1)
+						 .arg(m_XFoil.reinf1, 8, 'f',0)
+						 .arg(m_XFoil.minf1, 6, 'f',4)
+						 .arg(m_XFoil.acrit, 4, 'f',1);
 	else
 		strong = QString("Alpha =, %1,Re =, %3,Ma=, %3,ACrit =,%4\n\n")
-						 .arg(m_pXFoil->alfa*180./PI, 5, 'f',1)
-						 .arg(m_pXFoil->reinf1, 8, 'f',0)
-						 .arg(m_pXFoil->minf1, 6, 'f',4)
-						 .arg(m_pXFoil->acrit, 4, 'f',1);	out << (strong);
+						 .arg(m_XFoil.alfa*180./PI, 5, 'f',1)
+						 .arg(m_XFoil.reinf1, 8, 'f',0)
+						 .arg(m_XFoil.minf1, 6, 'f',4)
+						 .arg(m_XFoil.acrit, 4, 'f',1);	out << (strong);
 
-	m_pXFoil->CreateXBL(x, nside1, nside2);
+	m_XFoil.CreateXBL(x, nside1, nside2);
 	//write top first
-	m_pXFoil->FillHk(Hk, nside1, nside2);
+	m_XFoil.FillHk(Hk, nside1, nside2);
 	for (ibl=2; ibl<= nside1;ibl++)
 	{
-		uei = m_pXFoil->uedg[ibl][1];
-		UeVinf[ibl][1] = uei * (1.0-m_pXFoil->tklam)
-						/ (1.0-m_pXFoil->tklam*(uei/m_pXFoil->qinf)*(uei/m_pXFoil->qinf));
+		uei = m_XFoil.uedg[ibl][1];
+		UeVinf[ibl][1] = uei * (1.0-m_XFoil.tklam)
+						/ (1.0-m_XFoil.tklam*(uei/m_XFoil.qinf)*(uei/m_XFoil.qinf));
 	}
 	for (ibl=2; ibl<= nside2;ibl++)
 	{
-		uei = m_pXFoil->uedg[ibl][2];
-		UeVinf[ibl][2] = uei * (1.0-m_pXFoil->tklam)
-						/ (1.0-m_pXFoil->tklam*(uei/m_pXFoil->qinf)*(uei/m_pXFoil->qinf));
+		uei = m_XFoil.uedg[ibl][2];
+		UeVinf[ibl][2] = uei * (1.0-m_XFoil.tklam)
+						/ (1.0-m_XFoil.tklam*(uei/m_XFoil.qinf)*(uei/m_XFoil.qinf));
 	}
 	//---- fill compressible ue arrays
-	for (ibl=2; ibl<= nside1;ibl++)	Cf[ibl][1] = m_pXFoil->tau[ibl][1] / que;
-	for (ibl=2; ibl<= nside2;ibl++)	Cf[ibl][2] = m_pXFoil->tau[ibl][2] / que;
+	for (ibl=2; ibl<= nside1;ibl++)	Cf[ibl][1] = m_XFoil.tau[ibl][1] / que;
+	for (ibl=2; ibl<= nside2;ibl++)	Cf[ibl][2] = m_XFoil.tau[ibl][2] / que;
 
 	//---- fill compressible ue arrays
-	for (ibl=2; ibl<= nside1;ibl++)	Cd[ibl][1] = m_pXFoil->dis[ibl][1] / qrf/ qrf/ qrf;
-	for (ibl=2; ibl<= nside2;ibl++)	Cd[ibl][2] = m_pXFoil->dis[ibl][2] / qrf/ qrf/ qrf;
+	for (ibl=2; ibl<= nside1;ibl++)	Cd[ibl][1] = m_XFoil.dis[ibl][1] / qrf/ qrf/ qrf;
+	for (ibl=2; ibl<= nside2;ibl++)	Cd[ibl][2] = m_XFoil.dis[ibl][2] / qrf/ qrf/ qrf;
 	//NPlot
-	for (ibl=2; ibl< nside1;ibl++)	AA0[ibl][1] = m_pXFoil->ctau[ibl][1];
-	for (ibl=2; ibl< nside2;ibl++)	AA0[ibl][2] = m_pXFoil->ctau[ibl][2];
+	for (ibl=2; ibl< nside1;ibl++)	AA0[ibl][1] = m_XFoil.ctau[ibl][1];
+	for (ibl=2; ibl< nside2;ibl++)	AA0[ibl][2] = m_XFoil.ctau[ibl][2];
 
-	m_pXFoil->FillRTheta(RTheta, nside1, nside2);
+	m_XFoil.FillRTheta(RTheta, nside1, nside2);
 	for (ibl=2; ibl<= nside1; ibl++)
 	{
-		DStar[ibl][1] = m_pXFoil->dstr[ibl][1];
-		Theta[ibl][1] = m_pXFoil->thet[ibl][1];
+		DStar[ibl][1] = m_XFoil.dstr[ibl][1];
+		Theta[ibl][1] = m_XFoil.thet[ibl][1];
 	}
 	for (ibl=2; ibl<= nside2; ibl++)
 	{
-		DStar[ibl][2] = m_pXFoil->dstr[ibl][2];
-		Theta[ibl][2] = m_pXFoil->thet[ibl][2];
+		DStar[ibl][2] = m_XFoil.dstr[ibl][2];
+		Theta[ibl][2] = m_XFoil.thet[ibl][2];
 	}
 
 	out << tr("\nTop Side\n");
@@ -2426,7 +2460,7 @@ void QXDirect::onExportCurXFoilResults()
 							.arg(AA0[ibl][1],8,'f',5)
 							.arg(DStar[ibl][1],8,'f',5)
 							.arg(Theta[ibl][1],8,'f',5)
-							.arg(m_pXFoil->ctq[ibl][1],8,'f',5);
+							.arg(m_XFoil.ctq[ibl][1],8,'f',5);
 		else
 			OutString = QString("%1, %2, %3, %4, %5, %6, %7, %8, %9\n")
 							.arg(x[ibl][1],8,'f',5)
@@ -2437,7 +2471,7 @@ void QXDirect::onExportCurXFoilResults()
 							.arg(AA0[ibl][1],8,'f',5)
 							.arg(DStar[ibl][1],8,'f',5)
 							.arg(Theta[ibl][1],8,'f',5)
-							.arg(m_pXFoil->ctq[ibl][1],8,'f',5);
+							.arg(m_XFoil.ctq[ibl][1],8,'f',5);
 		out << (OutString);
 	}
 	out << tr("\n\nBottom Side\n");
@@ -2456,7 +2490,7 @@ void QXDirect::onExportCurXFoilResults()
 							.arg(AA0[ibl][2],8,'f',5)
 							.arg(DStar[ibl][2],8,'f',5)
 							.arg(Theta[ibl][2],8,'f',5)
-							.arg(m_pXFoil->ctq[ibl][2],8,'f',5);
+							.arg(m_XFoil.ctq[ibl][2],8,'f',5);
 		else
 			OutString = QString("%1, %2, %3, %4, %5, %6, %7, %8, %9\n")
 							.arg(x[ibl][2],8,'f',5)
@@ -2467,7 +2501,7 @@ void QXDirect::onExportCurXFoilResults()
 							.arg(AA0[ibl][2],8,'f',5)
 							.arg(DStar[ibl][2],8,'f',5)
 							.arg(Theta[ibl][2],8,'f',5)
-							.arg(m_pXFoil->ctq[ibl][2],8,'f',5);
+							.arg(m_XFoil.ctq[ibl][2],8,'f',5);
 		out << (OutString);
 	}
 
@@ -2734,48 +2768,51 @@ void QXDirect::onFoilCoordinates()
 	stopAnimate();
 	onOpPointView();
 
-	bool bState = m_bShowPanels;//save current view setting
-
-	void* ptr = m_pCurOpp;
+	Foil *pCurFoil = curFoil();
+	Foil *pNewFoil = new Foil;
+	pNewFoil->copyFoil(pCurFoil);
+	pNewFoil->foilPointStyle() = 1;
+	OpPoint* pOpPoint = m_pCurOpp;
 	setCurOpp(NULL);
 	m_bResetCurves = true;
 
 	updateView();
 
-	bool bFlap       = m_BufferFoil.m_bTEFlap;
-	double FlapAngle = m_BufferFoil.m_TEFlapAngle;
-	double Xh        = m_BufferFoil.m_TEXHinge;
-	double Yh        = m_BufferFoil.m_TEXHinge;
+	bool bFlap       = pCurFoil->m_bTEFlap;
+	double FlapAngle = pCurFoil->m_TEFlapAngle;
+	double Xh        = pCurFoil->m_TEXHinge;
+	double Yh        = pCurFoil->m_TEXHinge;
 
-	m_BufferFoil.m_bTEFlap = false;
+	pNewFoil->m_bTEFlap = false;
 
-	FoilCoordDlg fcoDlg(s_pMainFrame);
-	fcoDlg.m_pMemFoil    = m_pCurFoil;
-	fcoDlg.m_pBufferFoil = &m_BufferFoil;
-	fcoDlg.initDialog();
-
-	m_bShowPanels = true;
+	setCurFoil(pNewFoil);
 	updateView();
 
-	int res = fcoDlg.exec();
+	FoilCoordDlg fcoDlg(s_pMainFrame);
+	fcoDlg.m_pMemFoil    = pCurFoil;
+	fcoDlg.m_pBufferFoil = pNewFoil;
+	fcoDlg.initDialog();
 
-	if(QDialog::Accepted == res)
+	if(QDialog::Accepted == fcoDlg.exec())
 	{
-		m_BufferFoil.m_bTEFlap = bFlap;
-		m_BufferFoil.m_TEFlapAngle = FlapAngle;
-		m_BufferFoil.m_TEXHinge = Xh;
-		m_BufferFoil.m_TEYHinge = Yh;
+		pNewFoil->m_bTEFlap = bFlap;
+		pNewFoil->m_TEFlapAngle = FlapAngle;
+		pNewFoil->m_TEXHinge = Xh;
+		pNewFoil->m_TEYHinge = Yh;
 
-		Foil *pNewFoil = new Foil();
-		pNewFoil->copyFoil(&m_BufferFoil);
 		setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
-		pNewFoil->foilLineStyle() = 0;
-		pNewFoil->foilLineWidth() = 1;
-		pNewFoil->foilPointStyle() = 0;
-		setCurOpp((OpPoint*)ptr);
 
-		if(!addNewFoil(pNewFoil)) setBufferFoil();
-		else                      setFoil(pNewFoil);
+		setCurOpp(pOpPoint);
+
+		if(addNewFoil(pNewFoil)) setFoil(pNewFoil);
+		else
+		{
+			//reset everything
+			setFoil(pCurFoil);
+			setCurOpp(pOpPoint);
+			m_XFoil.initXFoilGeometry(pCurFoil->n, pCurFoil->x, pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
+			delete pNewFoil;
+		}
 
 		s_pMainFrame->updateFoilListBox();
 		emit projectModified();
@@ -2783,19 +2820,14 @@ void QXDirect::onFoilCoordinates()
 	else
 	{
 		//reset everything
-		setCurOpp((OpPoint*)ptr);
-		m_BufferFoil.m_bTEFlap = bFlap;
-		m_BufferFoil.m_TEFlapAngle = FlapAngle;
-		m_BufferFoil.m_TEXHinge = Xh;
-		m_BufferFoil.m_TEYHinge = Yh;
-		setBufferFoil();
-		Foil *pFoil = m_pCurFoil;
-		m_pXFoil->initXFoilGeometry(pFoil->n, pFoil->x,pFoil->y, pFoil->nx, pFoil->ny);
-
+		setCurFoil(pCurFoil);
+		setCurOpp(pOpPoint);
+		m_XFoil.initXFoilGeometry(pCurFoil->n, pCurFoil->x, pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
+		delete pNewFoil;
 	}
 
-	m_BufferFoil.setHighLight(-1);
-	m_bShowPanels = bState;//restore as it was
+	curFoil()->setHighLight(-1);
+
 	updateView();
 }
 
@@ -2810,39 +2842,40 @@ void QXDirect::onFoilGeom()
 	stopAnimate();
 	onOpPointView();
 
-	void* ptr = m_pCurOpp;
+	Foil *pCurFoil = curFoil();
+	Foil *pNewFoil = new Foil();
+	pNewFoil->copyFoil(pCurFoil);
+	setCurFoil(pNewFoil);
+
+	OpPoint* pOpPoint = m_pCurOpp;
 	setCurOpp(NULL);
 	m_bResetCurves = true;
 	updateView();
 
 	FoilGeomDlg fgeDlg(s_pMainFrame);
-	fgeDlg.m_pMemFoil = m_pCurFoil;
-	fgeDlg.m_pBufferFoil = &m_BufferFoil;
+	fgeDlg.m_pMemFoil = pCurFoil;
+	fgeDlg.m_pBufferFoil = pNewFoil;
 	fgeDlg.initDialog();
 
 	if(fgeDlg.exec() == QDialog::Accepted)
 	{
-		Foil *pNewFoil = new Foil();
-		pNewFoil->copyFoil(&m_BufferFoil);
 		setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
-		pNewFoil->foilLineStyle() = 0;
-		pNewFoil->foilLineWidth() = 1;
-		pNewFoil->foilPointStyle() = 0;
-		setCurOpp((OpPoint*)ptr);
+		setCurOpp(pOpPoint);
 
-		if(!addNewFoil(pNewFoil)) setBufferFoil();
-		else                      setFoil(pNewFoil);
+		if(addNewFoil(pNewFoil))
+		{
+			setFoil(pNewFoil);
+			s_pMainFrame->updateFoilListBox();
+			emit projectModified();
+			updateView();
+			return;
+		}
+	}
 
-		s_pMainFrame->updateFoilListBox();
-		emit projectModified();
-	}
-	else
-	{
-		setCurOpp((OpPoint*)ptr);
-		setBufferFoil();
-		Foil *pFoil = m_pCurFoil;
-		m_pXFoil->initXFoilGeometry(pFoil->n, pFoil->x,pFoil->y, pFoil->nx, pFoil->ny);
-	}
+	delete pNewFoil;
+	setCurFoil(pCurFoil);
+	setCurOpp(pOpPoint);
+	m_XFoil.initXFoilGeometry(pCurFoil->n, pCurFoil->x, pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
 
 	updateView();
 }
@@ -3296,34 +3329,37 @@ void QXDirect::onInterpolateFoils()
 
 	onOpPointView();
 
+	Foil *pCurFoil = curFoil();
+	Foil *pNewFoil = new Foil();
+	pNewFoil->copyFoil(curFoil());
+	setCurFoil(pNewFoil);
+
 	InterpolateFoilsDlg ifDlg(s_pMainFrame);
 	ifDlg.m_poaFoil     = m_poaFoil;
-	ifDlg.m_pBufferFoil = &m_BufferFoil;// work on the buffer foil
+	ifDlg.m_pBufferFoil = pNewFoil;
 	ifDlg.initDialog();
+
+	updateView();
 
 	if(ifDlg.exec() == QDialog::Accepted)
 	{
-		Foil *pNewFoil = new Foil();
-		pNewFoil->copyFoil(&m_BufferFoil);
 		setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
-		pNewFoil->foilLineStyle() = 0;
-		pNewFoil->foilLineWidth() = 1;
-		pNewFoil->foilPointStyle() = 0;
 		pNewFoil->foilName() = ifDlg.m_NewFoilName;
 
-		if(!addNewFoil(pNewFoil)) setBufferFoil();
-		else                      setFoil(pNewFoil);
-
-		s_pMainFrame->updateFoilListBox();
-		emit projectModified();
-	}
-	else
-	{
-		setBufferFoil();// restore buffer foil.. from current foil
-		Foil *pFoil = m_pCurFoil;
-		m_pXFoil->initXFoilGeometry(pFoil->n, pFoil->x,pFoil->y, pFoil->nx, pFoil->ny);
+		if(addNewFoil(pNewFoil))
+		{
+			setFoil(pNewFoil);
+			s_pMainFrame->updateFoilListBox();
+			emit projectModified();
+			updateView();
+			return;
+		}
 	}
 
+	//restore things
+	setCurFoil(pCurFoil);
+	m_XFoil.initXFoilGeometry(pCurFoil->n, pCurFoil->x, pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
+	delete pNewFoil;
 	updateView();
 }
 
@@ -3337,8 +3373,8 @@ void QXDirect::onNacaFoils()
 	stopAnimate();
 	onOpPointView();
 
-	void* ptr0 = m_pCurFoil;
-	void* ptr  = m_pCurOpp;
+	Foil* pCurFoil = m_pCurFoil;
+	OpPoint* pCurOpp  = m_pCurOpp;
 	setCurFoil(NULL);
 	setCurOpp(NULL);
 
@@ -3346,8 +3382,25 @@ void QXDirect::onNacaFoils()
 
 	updateView();
 
+	Foil *pNacaFoil = new Foil;
+	pNacaFoil->setFoilName("Naca0009");
+	m_XFoil.naca4(9, 50);
+	for (int j=0; j< m_XFoil.nb; j++)
+	{
+		pNacaFoil->xb[j] = m_XFoil.xb[j+1];
+		pNacaFoil->yb[j] = m_XFoil.yb[j+1];
+		pNacaFoil->x[j]  = m_XFoil.xb[j+1];
+		pNacaFoil->y[j]  = m_XFoil.yb[j+1];
+	}
+	pNacaFoil->nb = m_XFoil.nb;
+	pNacaFoil->n = m_XFoil.nb;
+	pNacaFoil->initFoil();
+
+	setFoil(pNacaFoil);
+	updateView();
+
 	NacaFoilDlg nacaDlg(s_pMainFrame);
-	nacaDlg.m_pBufferFoil = &m_BufferFoil;
+	nacaDlg.m_pBufferFoil = pNacaFoil;
 
 	if (nacaDlg.exec() == QDialog::Accepted)
 	{
@@ -3358,105 +3411,37 @@ void QXDirect::onNacaFoils()
 			str = QString("%1").arg(nacaDlg.s_Digits);
 		str = "NACA "+ str;
 
-		Foil *pNewFoil = new Foil;
-		pNewFoil->copyFoil(&m_BufferFoil);
-		setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
-		pNewFoil->foilLineStyle() = 0;
-		pNewFoil->foilLineWidth() = 1;
-		pNewFoil->foilPointStyle() = 0;
-		pNewFoil->foilName() = str;
+		setRandomFoilColor(pNacaFoil, !Settings::isLightTheme());
+		pNacaFoil->foilName() = str;
 
-		setCurOpp((OpPoint*)ptr);
+		setCurOpp(pCurOpp);
 
-		if(!addNewFoil(pNewFoil))	setBufferFoil();
+		if(addNewFoil(pNacaFoil))
+		{
+		}
+		else
+		{
+			delete pNacaFoil;
+		}
 
-		setFoil(pNewFoil);
+		setFoil(pNacaFoil);
 		s_pMainFrame->updateFoilListBox();
 		emit projectModified();
 	}
 	else
 	{
-		setCurFoil((Foil*)ptr0);
-		setCurOpp((OpPoint*)ptr);
-		setBufferFoil();
-		Foil *pFoil = m_pCurFoil;
-		m_pXFoil->initXFoilGeometry(pFoil->n, pFoil->x,pFoil->y, pFoil->nx, pFoil->ny);
+		delete pNacaFoil;
+		setCurFoil(pCurFoil);
+		setCurOpp(pCurOpp);
+//		Foil *pFoil = m_pCurFoil;
+		if(m_pCurFoil)	m_XFoil.initXFoilGeometry(m_pCurFoil->n, m_pCurFoil->x,m_pCurFoil->y, m_pCurFoil->nx, m_pCurFoil->ny);
 	}
 	setControls();
 	updateView();
 }
 
 
-/**
- * The user has requested that the length of the current foil be normalized to 1.
- */
-void QXDirect::onNormalizeFoil()
-{
-	if(!m_pCurFoil) return;
-	QString str;
-	stopAnimate();
 
-	double length = m_pCurFoil->normalizeGeometry();
-	Foil *pFoil = m_pCurFoil;
-	m_pXFoil->initXFoilGeometry(pFoil->n, pFoil->x,pFoil->y, pFoil->nx, pFoil->ny);
-	setBufferFoil();
-	str = QString(tr("The foil has been normalized from %1  to 1.000")).arg(length,7,'f',3);
-	emit projectModified();
-	s_pMainFrame->statusBar()->showMessage(str);
-
-	updateView();
-}
-
-
-/**
- * The user has requested a  plot of the A/A0 variable using current XFoil results.
- */
-void QXDirect::onNPlot()
-{
-	if(!m_pXFoil || !m_pXFoil->lvconv) return;
-	int i;
-	int nside1, nside2, ibl;
-
-	m_CpGraph.setYVariable(2);
-	m_XFoilVar=6;
-	m_CpGraph.deleteCurves();
-	m_CpGraph.resetLimits();
-	m_CpGraph.setAuto(true);
-	m_CpGraph.setInverted(false);
-	m_CpGraph.setYTitle("A/A0");
-	Curve * pTopCurve = m_CpGraph.addCurve();
-	Curve * pBotCurve = m_CpGraph.addCurve();
-	pTopCurve->setCurveName(tr("Top"));
-	pBotCurve->setCurveName(tr("Bot"));
-
-	double x[IVX][3],y[IVX][3];
-
-	m_pXFoil->CreateXBL(x, nside1, nside2);
-
-	for (ibl=2; ibl< nside1;ibl++)
-	{
-		y[ibl][1] = m_pXFoil->ctau[ibl][1];
-	}
-	for ( ibl=2; ibl< nside2;ibl++)
-	{
-		y[ibl][2] = m_pXFoil->ctau[ibl][2];
-	}
-
-	for (i=2; i<=m_pXFoil->itran[1]-2; i++)
-	{
-		pTopCurve->appendPoint(x[i][1], y[i][1]);
-	}
-	for (i=2; i<=m_pXFoil->itran[2]-2; i++)
-	{
-		pBotCurve->appendPoint(x[i][2], y[i][2]);
-	}
-	m_CpGraph.setXScale();
-	setFoilScale();
-	setControls();
-    m_bResetCurves = false;
-
-	updateView();
-}
 
 
 /**
@@ -3534,45 +3519,46 @@ void QXDirect::onRefinePanelsGlobally()
 	stopAnimate();
 
 	onOpPointView();
-	bool bState = m_bShowPanels;//save current view setting
 
-	void* ptr = m_pCurOpp;
+	Foil*pCurFoil = curFoil();
+
+	Foil *pNewFoil = new Foil;
+	pNewFoil->copyFoil(pCurFoil);
+	setFoil(pNewFoil);
+
+	OpPoint* pOpPoint = m_pCurOpp;
 	setCurOpp(NULL);
 	m_bResetCurves = true;
 
 	TwoDPanelDlg tdpDlg(s_pMainFrame);
-	tdpDlg.m_pBufferFoil = &m_BufferFoil;
-	tdpDlg.m_pMemFoil    = m_pCurFoil;
+	tdpDlg.m_pBufferFoil = pNewFoil;
+	tdpDlg.m_pMemFoil    = pCurFoil;
+	int psState = pNewFoil->foilPointStyle();
+	if(psState==0)	pNewFoil->foilPointStyle() = 1;
 
-	m_bShowPanels = true;
 	updateView();
 
 	tdpDlg.initDialog();
 
 	if(QDialog::Accepted == tdpDlg.exec())
 	{
-		Foil *pNewFoil = new Foil();
-		pNewFoil->copyFoil(&m_BufferFoil);
+		pNewFoil->foilPointStyle() = psState;
 		setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
-		pNewFoil->foilLineStyle() = 0;
-		pNewFoil->foilLineWidth() = 1;
-		pNewFoil->foilPointStyle() = 0;
-		setCurOpp((OpPoint*)ptr);
-		if(!addNewFoil(pNewFoil))	setBufferFoil();
-		setFoil(pNewFoil);
-		s_pMainFrame->updateFoilListBox();
-		emit projectModified();
+		setCurOpp(pOpPoint);
+		if(addNewFoil(pNewFoil))
+		{
+			setFoil(pNewFoil);
+			s_pMainFrame->updateFoilListBox();
+			emit projectModified();
+			updateView();
+			return;
+		}
 	}
-	else
-	{
-		//reset everything
-		setCurOpp((OpPoint*)ptr);
-		setBufferFoil();
-		Foil *pFoil = m_pCurFoil;
-		m_pXFoil->initXFoilGeometry(pFoil->n, pFoil->x,pFoil->y, pFoil->nx, pFoil->ny);
-	}
-
-	m_bShowPanels = bState;//restore as it was
+	//reset everything
+	setFoil(pCurFoil);
+	setCurOpp(pOpPoint);
+	m_XFoil.initXFoilGeometry(pCurFoil->n, pCurFoil->x, pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
+	delete pNewFoil;
 	updateView();
 }
 
@@ -3846,42 +3832,45 @@ void QXDirect::onSetFlap()
 	stopAnimate();
 	onOpPointView();
 
-	void* ptr = m_pCurOpp;
+	Foil *pCurFoil =curFoil();
+	Foil *pNewFoil = new Foil();
+	pNewFoil->copyFoil(curFoil());
+	setCurFoil(pNewFoil);
+
+	OpPoint *pOpPoint = m_pCurOpp;
 	setCurOpp(NULL);
 	m_bResetCurves = true;
 
 	FlapDlg flpDlg(s_pMainFrame);
-	flpDlg.m_pBufferFoil  = &m_BufferFoil;
-	flpDlg.m_pMemFoil     = m_pCurFoil;
-	flpDlg.m_pXFoil       = m_pXFoil;
-	flpDlg.InitDialog();
+	flpDlg.m_pBufferFoil  = pNewFoil;
+	flpDlg.m_pMemFoil     = pCurFoil;
+	flpDlg.m_pXFoil       = &m_XFoil;
+	flpDlg.initDialog();
 
 	if(QDialog::Accepted == flpDlg.exec())
 	{
-		Foil *pNewFoil = new Foil();
-		pNewFoil->copyFoil(&m_BufferFoil);
+//		pNewFoil->copyFoil(curFoil());
 		setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
-		pNewFoil->foilLineStyle() = 0;
-		pNewFoil->foilLineWidth() = 1;
-		pNewFoil->foilPointStyle() = 0;
 
-		setCurOpp((OpPoint*)ptr);
+		setCurOpp(pOpPoint);
 
-		if(!addNewFoil(pNewFoil)) setBufferFoil();
-		else                      setFoil(pNewFoil);
-
-		s_pMainFrame->updateFoilListBox();
-		emit projectModified();
-	}
-	else
-	{
-		//reset everything
-		setCurOpp((OpPoint*)ptr);
-		setBufferFoil();
-		Foil *pFoil = m_pCurFoil;
-		m_pXFoil->initXFoilGeometry(pFoil->n, pFoil->x,pFoil->y, pFoil->nx, pFoil->ny);
+		if(addNewFoil(pNewFoil))
+		{
+			setFoil(pNewFoil);
+			s_pMainFrame->updateFoilListBox();
+			emit projectModified();
+			updateView();
+			return;
+		}
 	}
 
+	//reset everything
+	setCurFoil(pCurFoil);
+	setCurOpp(pOpPoint);
+
+	m_XFoil.initXFoilGeometry(pCurFoil->n, pCurFoil->x, pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
+
+	delete pNewFoil;
 	updateView();
 }
 
@@ -3895,40 +3884,40 @@ void QXDirect::onSetLERadius()
 	stopAnimate();
 	onOpPointView();
 
-	void* ptr = m_pCurOpp;
+	Foil *pCurFoil = curFoil();
+	Foil *pNewFoil = new Foil();
+	pNewFoil->copyFoil(curFoil());
+	setCurFoil(pNewFoil);
+
+	OpPoint *pOpPoint = m_pCurOpp;
 	setCurOpp(NULL);
 	m_bResetCurves = true;
 
 	LEDlg lDlg(s_pMainFrame);
-	lDlg.m_pBufferFoil = &m_BufferFoil;
-	lDlg.m_pMemFoil    = m_pCurFoil;
-	lDlg.InitDialog();
+	lDlg.m_pBufferFoil = pNewFoil;
+	lDlg.m_pMemFoil    = pCurFoil;
+	lDlg.initDialog();
 
 	if(QDialog::Accepted == lDlg.exec())
 	{
-		Foil *pNewFoil = new Foil();
-		pNewFoil->copyFoil(&m_BufferFoil);
 		setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
-		pNewFoil->foilLineStyle() = 0;
-		pNewFoil->foilLineWidth() = 1;
-		pNewFoil->foilPointStyle() = 0;
-		setCurOpp((OpPoint*)ptr);
+		setCurOpp(pOpPoint);
 
-		if(!addNewFoil(pNewFoil)) setBufferFoil();
-		else                      setFoil(pNewFoil);
-
-		s_pMainFrame->updateFoilListBox();
-		emit projectModified();
+		if(addNewFoil(pNewFoil))
+		{
+			setFoil(pNewFoil);
+			s_pMainFrame->updateFoilListBox();
+			emit projectModified();
+			updateView();
+			return;
+		}
 	}
-	else
-	{
-		//reset everything
-		setCurOpp((OpPoint*)ptr);
-		setBufferFoil();
-		Foil *pFoil = m_pCurFoil;
-		m_pXFoil->initXFoilGeometry(pFoil->n, pFoil->x,pFoil->y, pFoil->nx, pFoil->ny);
-	}
+	//reset everything
+	setCurFoil(pCurFoil);
+	setCurOpp(pOpPoint);
 
+	m_XFoil.initXFoilGeometry(pCurFoil->n, pCurFoil->x, pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
+	delete pNewFoil;
 	updateView();
 }
 
@@ -3942,43 +3931,40 @@ void QXDirect::onSetTEGap()
 	stopAnimate();
 	onOpPointView();
 
-	void* ptr = m_pCurOpp;
+	Foil *pNewFoil = new Foil();
+	Foil *pCurFoil = curFoil();
+	pNewFoil->copyFoil(pCurFoil);
+	OpPoint *pOpPoint = m_pCurOpp;
 	setCurOpp(NULL);
 	m_bResetCurves = true;
 
+	setCurFoil(pNewFoil);
+
 	TEGapDlg tegDlg(s_pMainFrame);
-	tegDlg.m_pBufferFoil = &m_BufferFoil;
-	tegDlg.m_pMemFoil    = m_pCurFoil;
+	tegDlg.m_pBufferFoil = pNewFoil;
+	tegDlg.m_pMemFoil    = pCurFoil;
 	tegDlg.m_Gap         = m_pCurFoil->TEGap();
 	tegDlg.initDialog();
 
 	if(QDialog::Accepted == tegDlg.exec())
 	{
-		Foil *pNewFoil = new Foil();
-		pNewFoil->copyFoil(&m_BufferFoil);
 		setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
-		pNewFoil->foilLineStyle() = 0;
-		pNewFoil->foilLineWidth() = 1;
-		pNewFoil->foilPointStyle() = 0;
-		setCurOpp((OpPoint*)ptr);
 
-		if(!addNewFoil(pNewFoil)) setBufferFoil();
-		else                      setFoil(pNewFoil);
-
-		s_pMainFrame->updateFoilListBox();
-		emit projectModified();
+		if(addNewFoil(pNewFoil))
+		{
+			setFoil(pNewFoil);
+			s_pMainFrame->updateFoilListBox();
+			emit projectModified();
+			updateView();
+			return;
+		}
 	}
-	else
-	{
-		//reset everything
-		setCurOpp((OpPoint*)ptr);
-		setBufferFoil();
-		Foil *pFoil = m_pCurFoil;
-		m_pXFoil->initXFoilGeometry(pFoil->n, pFoil->x,pFoil->y, pFoil->nx, pFoil->ny);
-	}
-
+	//reset everything
+	setCurFoil(pCurFoil);
+	setCurOpp(pOpPoint);
+	m_XFoil.initXFoilGeometry(pCurFoil->n, pCurFoil->x, pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
+	delete pNewFoil;
 	updateView();
-
 }
 
 
@@ -4253,7 +4239,6 @@ void QXDirect::saveSettings(QSettings *pSettings)
 		pSettings->setValue("InitBL", s_bInitBL);
 		pSettings->setValue("PolarView", m_bPolarView);
 		pSettings->setValue("UserGraph", m_bShowUserGraph);
-		pSettings->setValue("ShowPanels", m_bShowPanels);
 		pSettings->setValue("Type1", m_bType1);
 		pSettings->setValue("Type2", m_bType2);
 		pSettings->setValue("Type3", m_bType3);
@@ -4267,7 +4252,6 @@ void QXDirect::saveSettings(QSettings *pSettings)
 		pSettings->setValue("Sequence", m_bSequence);
 		pSettings->setValue("XFoilVar", m_XFoilVar);
 		pSettings->setValue("TimeUpdateInterval", s_TimeUpdateInterval);
-		pSettings->setValue("BatchUpdatePolarView", BatchThreadDlg::s_bUpdatePolarView);
 		pSettings->setValue("PlrGraph", m_iPlrGraph);
 		pSettings->setValue("NeutralLine", m_bNeutralLine);
 
@@ -4301,8 +4285,10 @@ void QXDirect::saveSettings(QSettings *pSettings)
 		pSettings->setValue("IterLim", XFoilTask::s_IterLim);
 		pSettings->setValue("FullReport", XFoil::s_bFullReport);
 
+		pSettings->setValue("BatchUpdatePolarView", BatchThreadDlg::s_bUpdatePolarView);
+		pSettings->setValue("MaxThreads", BatchThreadDlg::s_nThreads);
 
-		pSettings->setValue("VAccel", m_pXFoil->vaccel);
+		pSettings->setValue("VAccel", m_XFoil.vaccel);
 		pSettings->setValue("KeepOpenErrors", s_bKeepOpenErrors);
 		pSettings->setValue("NCrit", s_refPolar.NCrit());
 		pSettings->setValue("XTopTr", s_refPolar.XtrTop());
@@ -4395,23 +4381,6 @@ void QXDirect::setAnalysisParams()
 }
 
 
-/**
- * Sets the buffer Foil as a copy of the active Foil.
- * All geometric modifications are made on the buffer foil.
- * The buffer foil is the one displayed in the OpPoint view.
- */
-void QXDirect::setBufferFoil()
-{
-	if(!m_pCurFoil || !m_pCurFoil->foilName().length()) return;
-
-	m_BufferFoil.copyFoil(m_pCurFoil);
-
-	m_BufferFoil.foilName()  = m_pCurFoil->foilName();
-	m_BufferFoil.setColor(m_pCurFoil->red(), m_pCurFoil->green(), m_pCurFoil->blue(), m_pCurFoil->alphaChannel());
-	m_BufferFoil.foilLineStyle() = m_pCurFoil->foilLineStyle();
-	m_BufferFoil.foilLineWidth() = m_pCurFoil->foilLineWidth();
-}
-
 
 /**
  * Updates the combobox widgets with the curve data from the active OpPoint or Polar, depending on the active view.
@@ -4481,7 +4450,7 @@ Foil* QXDirect::setFoil(Foil* pFoil)
 
 	Foil *pCurFoil = m_pCurFoil;
 	bool bRes = false;
-	if(pCurFoil) bRes = m_pXFoil->initXFoilGeometry(pCurFoil->n, pCurFoil->x,pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
+	if(pCurFoil) bRes = m_XFoil.initXFoilGeometry(pCurFoil->n, pCurFoil->x,pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
 
 	if(pCurFoil && !bRes)
 	{
@@ -4504,8 +4473,6 @@ Foil* QXDirect::setFoil(Foil* pFoil)
 //			setCurOpp(NULL);
 		}
 	}
-
-	setBufferFoil();
 
 	setPolar();
 
@@ -4578,7 +4545,7 @@ Polar * QXDirect::setPolar(Polar *pPolar)
 		m_pctrlInitBL->setChecked(s_bInitBL);
 	}
 
-//	m_pXFoil->InitXFoilAnalysis(m_pCurPolar, s_bViscous); //useless, will be done in XFoilTask
+//	m_XFoil.InitXFoilAnalysis(m_pCurPolar, s_bViscous); //useless, will be done in XFoilTask
 	m_bResetCurves = true;
 	setAnalysisParams();
 	setOpp();
@@ -4605,8 +4572,8 @@ OpPoint * QXDirect::setOpp(double Alpha)
 
 	if(Alpha < -1234567.0) //the default
 	{
-		if(m_pCurOpp && m_pCurOpp->foilName() == m_pCurFoil->foilName()
-							 && m_pCurOpp->polarName()==m_pCurPolar->polarName())
+		if(m_pCurOpp && m_pCurOpp->foilName() == m_pCurFoil->foilName() &&
+		   m_pCurOpp->polarName()==m_pCurPolar->polarName())
 			pOpp = m_pCurOpp;
 		else if(m_pCurOpp)
 		{
@@ -5011,7 +4978,6 @@ void QXDirect::updateView()
 	else
 	{
 		if(m_bResetCurves) createPolarCurves();
-
 	}
 	s_pMainFrame->m_pXDirectTileWidget->update();
 }

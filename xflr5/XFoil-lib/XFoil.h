@@ -294,7 +294,6 @@ public:
 	double xb[IBX],yb[IBX],nx[IZX],ny[IZX];
 	double xpref1,xpref2;
 	double cvpar,cterat,ctrrat,xsref1,xsref2;
-	double dstr[IVX][ISX];
 	double cl,cm,cd,cdp,cdf,cpi[IZX],cpv[IZX],acrit;
 	double xcp;
 	double alfa, avisc, awake, reinf1, qinf, mvisc, rmsbl, ante;
@@ -323,11 +322,14 @@ public:
 	double xp[IZX],yp[IZX],s[IZX];
 	double dtor;
 
+
 	double thet[IVX][ISX],tau[IVX][ISX],ctau[IVX][ISX],ctq[IVX][ISX];
 	double dis[IVX][ISX],uedg[IVX][ISX];
-	int itran[3];
+	double xbl[IVX][ISX], Hk[IVX][ISX], RTheta[IVX][ISX];
+	double dstr[IVX][ISX];
+	int nside1, nside2;
+	int itran[ISX];
 
-	
 
 private:
 

@@ -36,13 +36,13 @@ class LEDlg : public QDialog
 
 public:
 	LEDlg(QWidget *pParent);
-	void SetupLayout();
-	void InitDialog();
+	void setupLayout();
+	void initDialog();
 
 private slots:
-	void OnChanged();
-	void OnOK();
-	void OnApply();
+	void onChanged();
+	void onOK();
+	void onApply();
 
 private:
 	void keyPressEvent(QKeyEvent *event);

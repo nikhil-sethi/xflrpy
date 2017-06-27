@@ -50,9 +50,6 @@ bool EditPlaneDlg::s_bShowMasses = false;
 bool EditPlaneDlg::s_bFoilNames  = false;
 
 
-#define SECTIONHIGHLIGHT    1702
-
-
 
 EditPlaneDlg::EditPlaneDlg(QWidget *pParent) : QDialog(pParent)
 {
@@ -629,125 +626,6 @@ void EditPlaneDlg::reject()
 
 	done(QDialog::Rejected);
 }
-
-
-void EditPlaneDlg::glCreateWingSectionHighlight(Wing *pWing)
-{
-	if(!pWing) return;
-
-	int iSection = 0;
-	int jSurf = 0;
-	for(int jSection=0; jSection<pWing->NWingSection(); jSection++)
-	{
-		if(jSection==m_iActiveSection) break;
-		if(qAbs(pWing->YPosition(jSection+1)-pWing->YPosition(jSection)) > Wing::s_MinPanelSize)
-			iSection++;
-	}
-
-	glNewList(SECTIONHIGHLIGHT,GL_COMPILE);
-	{
-		glDisable(GL_DEPTH_TEST);
-		glDisable (GL_LINE_STIPPLE);
-		glColor3d(1.0, 0.0, 0.0);
-		glLineWidth(3);
-
-		if(iSection==0)
-		{
-			//define the inner left side surface
-			if(!pWing->isFin())  jSurf = pWing->m_Surface.size()/2 - 1;
-			else                 jSurf = pWing->m_Surface.size()   - 1;
-
-			//plot B side outline
-			glBegin(GL_LINE_STRIP);
-			{
-				for (int lx=0; lx<pWing->m_Surface.at(jSurf)->NXPanels(); lx++)
-				{
-					pWing->m_Surface.at(jSurf)->getPanel(pWing->m_Surface.at(jSurf)->NYPanels()-1, lx, TOPSURFACE);
-					glVertex3d(pWing->m_Surface.at(jSurf)->TB.x,
-							   pWing->m_Surface.at(jSurf)->TB.y,
-							   pWing->m_Surface.at(jSurf)->TB.z);
-				}
-
-				glVertex3d(pWing->m_Surface.at(jSurf)->LB.x,
-						   pWing->m_Surface.at(jSurf)->LB.y,
-						   pWing->m_Surface.at(jSurf)->LB.z);
-
-				for (int lx=pWing->m_Surface.at(jSurf)->NXPanels()-1; lx>=0; lx--)
-				{
-					pWing->m_Surface.at(jSurf)->getPanel(pWing->m_Surface.at(jSurf)->NYPanels()-1, lx, BOTSURFACE);
-					glVertex3d(pWing->m_Surface.at(jSurf)->TB.x,
-							   pWing->m_Surface.at(jSurf)->TB.y,
-							   pWing->m_Surface.at(jSurf)->TB.z);
-				}
-			}
-			glEnd();
-		}
-		else
-		{
-			if((pWing->m_bSymetric) && !pWing->m_bIsFin)
-			{
-				jSurf = pWing->m_Surface.size()/2 + iSection -1;
-
-				glBegin(GL_LINE_STRIP);
-				{
-					for (int lx=0; lx<pWing->m_Surface.at(jSurf)->NXPanels(); lx++)
-					{
-						pWing->m_Surface.at(jSurf)->getPanel(pWing->m_Surface.at(jSurf)->NYPanels()-1, lx, TOPSURFACE);
-						glVertex3d(pWing->m_Surface.at(jSurf)->TB.x,
-								 pWing->m_Surface.at(jSurf)->TB.y,
-								 pWing->m_Surface.at(jSurf)->TB.z);
-					}
-
-					glVertex3d(pWing->m_Surface.at(jSurf)->LB.x,
-							 pWing->m_Surface.at(jSurf)->LB.y,
-							 pWing->m_Surface.at(jSurf)->LB.z);
-
-					for (int lx=pWing->m_Surface.at(jSurf)->NXPanels()-1; lx>=0; lx--)
-					{
-						pWing->m_Surface.at(jSurf)->getPanel(pWing->m_Surface.at(jSurf)->NYPanels()-1, lx, BOTSURFACE);
-						glVertex3d(pWing->m_Surface.at(jSurf)->TB.x,
-								 pWing->m_Surface.at(jSurf)->TB.y,
-								 pWing->m_Surface.at(jSurf)->TB.z);
-					}
-				}
-				glEnd();
-			}
-
-			if(pWing->m_bSymetric)
-			{
-				if(!pWing->m_bIsFin) jSurf = pWing->m_Surface.size()/2 - iSection;
-				else                 jSurf = pWing->m_Surface.size()   - iSection;
-
-				//plot A side outline
-				glBegin(GL_LINE_STRIP);
-				{
-					for (int lx=0; lx<pWing->m_Surface.at(jSurf)->NXPanels(); lx++)
-					{
-						pWing->m_Surface.at(jSurf)->getPanel(0, lx, TOPSURFACE);
-						glVertex3d(pWing->m_Surface.at(jSurf)->TA.x,
-								   pWing->m_Surface.at(jSurf)->TA.y,
-								   pWing->m_Surface.at(jSurf)->TA.z);
-					}
-
-					glVertex3d(pWing->m_Surface.at(jSurf)->LA.x,
-							   pWing->m_Surface.at(jSurf)->LA.y,
-							   pWing->m_Surface.at(jSurf)->LA.z);
-
-					for (int lx=pWing->m_Surface.at(jSurf)->NXPanels()-1; lx>=0; lx--)
-					{
-						pWing->m_Surface.at(jSurf)->getPanel(0, lx, BOTSURFACE);
-						glVertex3d(pWing->m_Surface.at(jSurf)->TA.x,
-								   pWing->m_Surface.at(jSurf)->TA.y,
-								   pWing->m_Surface.at(jSurf)->TA.z);
-					}
-				}
-				glEnd();
-			}
-		}
-	}
-	glEndList();
-}
-
 
 
 void EditPlaneDlg::connectSignals()

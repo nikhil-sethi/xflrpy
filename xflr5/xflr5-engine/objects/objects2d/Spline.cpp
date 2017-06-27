@@ -23,7 +23,7 @@
 
 #include "Spline.h"
 #include "math.h"
-
+#include <QtDebug>
 
 /**
 *The public constructor
@@ -38,21 +38,18 @@ Spline::Spline()
 	m_alphaChannel = 255;
 
 	m_CtrlPoint.clear();
-#if QT_VERSION >= 0x040700
     m_CtrlPoint.reserve(50);
-#endif
+
 
 	m_knot.clear();
-#if QT_VERSION >= 0x040700
     m_knot.reserve(100);
-#endif
+
 
 	m_iHighlight  = -10;
 	m_iSelect     = -10;
 	m_iDegree     =  3;
 	m_iRes        = 79;
 
-	m_PtWeight = 1.0;
 
 	memset(m_Output, 0, sizeof(m_Output));
 }
@@ -326,15 +323,13 @@ void Spline::splineCurve()
 			m_Output[j].x = 0;
 			m_Output[j].y = 0;
 			w=0.0;
-
 			for (i=0; i<m_CtrlPoint.size(); i++)
 			{
 				b = splineBlend(i, m_iDegree, t);
-				if(i!=0 && i!=m_CtrlPoint.size()-1) b *= m_PtWeight;
+				w +=b;
 
 				m_Output[j].x += m_CtrlPoint[i].x * b;
 				m_Output[j].y += m_CtrlPoint[i].y * b;
-				w += b;
 			}
 			m_Output[j] *= 1.0/w;
 

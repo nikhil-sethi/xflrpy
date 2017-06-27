@@ -32,6 +32,8 @@ public:
 	gl3dBodyView(QWidget *pParent = NULL);
 	void setBody(Body* pBody){m_pBody = pBody;}
 	void resetGLBody(bool bReset){m_bResetglBody = bReset;}
+	void glMakeBodyMesh(Body *pBody);
+	void paintBodyMesh(Body *pBody);
 
 private:
 	void glRenderView();

@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include <QGridLayout>
 #include <QLabel>
+#include <QtDebug>
 
 #include "TwoDPanelDlg.h"
 #include <gui_params.h>
@@ -195,6 +196,7 @@ void TwoDPanelDlg::onChanged()
 
 void TwoDPanelDlg::onApply()
 {
+
 	if(m_bApplied) return;
 
 	//reset everything and retry

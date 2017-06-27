@@ -1,7 +1,7 @@
 /****************************************************************************
 
-	DisplaySettingsDlg Class
-	Copyright (C) 2008-2016 Andre Deperrois adeperrois@xflr5.com
+	Settings Class
+	Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ public:
 	static QString &styleName(){return s_StyleName;}
 	static QFont &textFont(){return s_TextFont;}
 	static QFont &tableFont(){return s_TableFont;}
-
+	static void setDefaultFonts();
 	static bool isLightTheme(){return s_Theme==SETTINGS::LIGHTTHEME;}
 
 private slots:

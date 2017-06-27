@@ -41,12 +41,12 @@
 #include <misc/DoubleEdit.h>
 #include <objects2d/Polar.h>
 #include <objects2d/Foil.h>
+#include <xdirect/analysis/XFoilAnalysisDlg.h>
+#include <viewwidgets/oppointwidget.h>
 #include <gui_enums.h>
 #include <objects2d/OpPoint.h>
 #include <QGraph.h>
-#include "analysis/XFoilAnalysisDlg.h"
 #include <XFoil.h>
-#include <viewwidgets/oppointwidget.h>
 
 
 class MainFrame; // to shut the compiler up
@@ -198,7 +198,6 @@ public:
 	Foil *addNewFoil(Foil *pFoil);
 	void renameFoil(Foil *pFoil);
 	void saveSettings(QSettings *pSettings);
-	void setBufferFoil();
 	void setCurveParams();
 	void setFoilScale();
 	void setGraphTiles();
@@ -232,7 +231,7 @@ public:
 
 
 private:
-
+	XFoilAnalysisDlg* m_pXFADlg ;
 	OpPointWidget *m_pOpPointWidget;
 
 	QStackedWidget *m_pctrlMiddleControls;
@@ -276,16 +275,14 @@ private:
 	static bool s_bAlpha;             /**< true if performing an analysis based on aoa, false if based on Cl */
 	static bool s_bInitBL;            /**< true if the boundary layer should be initialized for the next xfoil calculation */
 	static bool s_bFromZero;          /**< true if the batch analysis should start from Alpha=0 */
-	static bool s_bKeepOpenErrors; /**< true if the XfoilAnalysisDlg should be kept open if errors occured in the XFoil calculation */
+	static bool s_bKeepOpenErrors;    /**< true if the XfoilAnalysisDlg should be kept open if errors occured in the XFoil calculation */
 	static bool s_bStoreOpp;          /**< true if the operating points should be stored */
-
-	XFoilAnalysisDlg *m_pXFADlg;
 
 	bool m_bPolarView;         /**< true if the polar view is selected, false if the operating point view is selected */
 	bool m_bShowUserGraph;     /**< true if the 5th polar graph should be displayed */
 	bool m_bAnimate;           /**< true if a result animation is underway */
 	bool m_bAnimatePlus;       /**< true if the animation is going from lower to higher alpha, false if decreasing */
-	bool m_bShowPanels;        /**< true if the panels should be displayed on the foil surface */
+//	bool m_bShowPanels;        /**< true if the panels should be displayed on the foil surface */
 	bool m_bType1;             /**< true if the type 1 polars are to be displayed in the graphs */
 	bool m_bType2;             /**< true if the type 2 polars are to be displayed in the graphs */
 	bool m_bType3;             /**< true if the type 3 polars are to be displayed in the graphs */
@@ -336,7 +333,6 @@ private:
 
 	static Polar s_refPolar;    /**< Used a static reference to store default data */
 
-	Foil m_BufferFoil;          /**< used for screen drawing and temporary geometric mods */
 
 	QList<Foil*> *m_poaFoil;    /**< pointer to the foil object array */
 	QList<Polar*> *m_poaPolar;  /**< pointer to the polar object array */
@@ -350,7 +346,7 @@ private:
 	QRect m_rCltRect;		    /**< the client rectangle of the central TwoDWidget */
 	QPoint m_PointDown;		    /**< the client coordinated of the last mouse left-click */
 
-	XFoil *m_pXFoil;		    /**< a pointer to the unique instance of the XFoil object */
+	XFoil m_XFoil;		        /**< the unique instance of the XFoil object */
 
 	static Foil *m_pCurFoil;
 	static Polar *m_pCurPolar;

@@ -128,8 +128,8 @@ void gl3dPlaneView::resizeGL(int width, int height)
 	if(w>h)	m_GLViewRect.setRect(-s, s*h/w, s, -s*h/w);
 	else    m_GLViewRect.setRect(-s*w/h, s, s*w/h, -s);
 
-	m_PixTextOverlay = m_PixTextOverlay.scaled(rect().size()*devicePixelRatio());
-	m_PixTextOverlay.fill(Qt::transparent);
+	if(!m_PixTextOverlay.isNull())	m_PixTextOverlay = m_PixTextOverlay.scaled(rect().size()*devicePixelRatio());
+	if(!m_PixTextOverlay.isNull())	m_PixTextOverlay.fill(Qt::transparent);
 
 	EditPlaneDlg *pDlg = (EditPlaneDlg*)m_pParent;
 	pDlg->resize3DView();
@@ -142,8 +142,8 @@ void gl3dPlaneView::paintOverlay()
 	QPainter painter(&device);
 
 	EditPlaneDlg *pDlg = (EditPlaneDlg*)m_pParent;
-	painter.drawPixmap(0,0, pDlg->m_PixText);
-	painter.drawPixmap(0,0, m_PixTextOverlay);
+	if(!pDlg->m_PixText.isNull())   painter.drawPixmap(0,0, pDlg->m_PixText);
+	if(!m_PixTextOverlay.isNull())  painter.drawPixmap(0,0, m_PixTextOverlay);
 	m_PixTextOverlay.fill(Qt::transparent);
 }
 

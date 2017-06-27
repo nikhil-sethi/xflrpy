@@ -56,7 +56,7 @@ GraphWidget::GraphWidget(QWidget *pParent) : QWidget(pParent)
 	m_bXPressed = m_bYPressed = false;
 
 	m_pGraph = NULL;
-	m_LegendOrigin = QPoint(20,20);
+	setLegendPosition(QPoint(20,20));
 }
 
 void GraphWidget::setGraph(QGraph *pGraph)
@@ -91,7 +91,7 @@ void GraphWidget::paintEvent(QPaintEvent *  event )
 
 	m_pGraph->drawGraph(painter);
 
-	if(m_bDrawLegend) m_pGraph->drawLegend(painter, m_LegendOrigin, Settings::textFont(), Settings::textColor());
+	if(m_bDrawLegend) m_pGraph->drawLegend(painter, m_LegendOrigin, Settings::textFont(), Settings::textColor(), Settings::backgroundColor());
 	if(hasFocus() && MainFrame::s_bShowMousePos)
 	{
 		QPen textPen(Settings::textColor());
@@ -114,8 +114,6 @@ void GraphWidget::resizeEvent ( QResizeEvent * event )
 {
 	QRect r = rect();
 	if(m_pGraph) m_pGraph->setDrawRect(r);
-
-//
 
 	if(m_pGraph)
 	{

@@ -29,7 +29,6 @@
 #include <QColorDialog>
 #include <QDesktopServices>
 #include <math.h>
-#include <QStringRef>
 
 #include "Miarex.h"
 #include <mainframe.h>
@@ -394,7 +393,7 @@ QMiarex::QMiarex(QWidget *parent)
 	m_CpLineStyle.m_PointStyle = 0;
 	m_bShowCp       = true;
 
-	m_iView          = XFLR5::W3DVIEW;
+	m_iView          = XFLR5::WOPPVIEW;
 	m_iWingView      = XFLR5::ONEGRAPH;
 	m_iWPlrView      = XFLR5::FOURGRAPHS;
 	m_iRootLocusView = XFLR5::ONEGRAPH;
@@ -572,10 +571,6 @@ void QMiarex::setControls()
 	s_pMainFrame->m_pW3DAct->setChecked(m_iView==XFLR5::W3DVIEW);
 	s_pMainFrame->m_pCpViewAct->setChecked(m_iView==XFLR5::WCPVIEW);
 
-	s_pMainFrame->m_pWOppAct->setChecked(m_iView==XFLR5::WOPPVIEW);
-	s_pMainFrame->m_pWPolarAct->setChecked(m_iView==XFLR5::WPOLARVIEW);
-	s_pMainFrame->m_pW3DAct->setChecked(m_iView==XFLR5::W3DVIEW);
-	s_pMainFrame->m_pCpViewAct->setChecked(m_iView==XFLR5::WCPVIEW);
 	s_pMainFrame->m_pStabTimeAct->setChecked(m_iView==XFLR5::STABTIMEVIEW);
 	s_pMainFrame->m_pRootLocusAct->setChecked(m_iView==XFLR5::STABPOLARVIEW);
 
@@ -2016,7 +2011,7 @@ void QMiarex::keyPressEvent(QKeyEvent *event)
 			{
 				s_pMainFrame->m_pCloseProjectAct->trigger();
 			}
-			on3DView();
+			if(MainFrame::hasOpenGL()) on3DView();
 			break;
 		}
 		case Qt::Key_F5:
@@ -2356,8 +2351,14 @@ bool QMiarex::loadSettings(QSettings *pSettings)
  */
 void QMiarex::on3DView()
 {
-	m_bResetTextLegend = true;
+	if(!MainFrame::hasOpenGL())
+	{
+		m_iView = XFLR5::WPOLARVIEW;
+		updateView();
+		return;
+	}
 
+	m_bResetTextLegend = true;
 
 	if(m_iView==XFLR5::W3DVIEW)
 	{
@@ -2703,7 +2704,7 @@ void QMiarex::onAnimateModeSingle(bool bStep)
 void QMiarex::onAnimateWOppSingle()
 {
 	bool bIsValid, bSkipOne;
-	int size;
+	int size=0;
 	PlaneOpp *pPOpp;
 
 	//KickIdle
@@ -8416,7 +8417,9 @@ void QMiarex::drawTextLegend()
 	}
 	else if(m_iView==XFLR5::WOPPVIEW) rect = s_pMainFrame->m_pMiarexTileWidget->pWingWidget()->rect();
 
-	m_PixText = m_PixText.scaled(rect.size());
+	if(!m_PixText.isNull())	m_PixText = m_PixText.scaled(rect.size());
+	if(m_PixText.isNull()) return;
+
 	m_PixText.fill(Qt::transparent);
 
 	QPainter paint(&m_PixText);
@@ -8758,14 +8761,14 @@ void QMiarex::onImportFromXml()
 
 	do{
 		xmlReader.readNextStartElement();
-		if (QStringRef::compare(xmlReader.name(), "Plane_Polar", Qt::CaseInsensitive) == 0 && xmlReader.attributes().value("version") == "1.0")
+        if (xmlReader.name().compare(QString("Plane_Polar"), Qt::CaseInsensitive)==0 && xmlReader.attributes().value("version") == "1.0")
 		{
 			// the file contains the definition of a WPolar
 			xmlFile.close();
 			importWPolarFromXML(xmlFile);
 			break;
 		}
-		else if (QStringRef::compare(xmlReader.name(), "explane", Qt::CaseInsensitive) == 0 && xmlReader.attributes().value("version") == "1.0")
+        else if (xmlReader.name().compare(QString("explane"), Qt::CaseInsensitive)==0 && xmlReader.attributes().value("version") == "1.0")
 		{
 			// the file contains the definition of a Plane
 			xmlFile.close();

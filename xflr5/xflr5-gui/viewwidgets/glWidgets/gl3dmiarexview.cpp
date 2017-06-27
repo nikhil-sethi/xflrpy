@@ -59,7 +59,7 @@ void gl3dMiarexView::glRenderView()
 	m_modelMatrix = modeMatrix;
 
 	if(pMiarex->m_pCurPOpp)	m_modelMatrix.rotate(pMiarex->m_pCurPOpp->alpha(),0.0,1.0,0.0);
-	m_pvmMatrix = m_OrthoMatrix * m_viewMatrix * m_modelMatrix;
+	m_pvmMatrix = m_orthoMatrix * m_viewMatrix * m_modelMatrix;
 
 
 	glEnable(GL_CLIP_PLANE0);
@@ -77,7 +77,7 @@ void gl3dMiarexView::glRenderView()
 			/* CP position alredy includes the sideslip geometry, shond't be rotated by sideslip*/
 			if(pMiarex->m_bXCP)
 			{
-				m_pvmMatrix = m_OrthoMatrix * m_viewMatrix * m_modelMatrix;
+				m_pvmMatrix = m_orthoMatrix * m_viewMatrix * m_modelMatrix;
 				for(int iw=0; iw<MAXWINGS; iw++)
 				{
 					if(pMiarex->m_pCurPlane->wing(iw)) paintLift(iw);
@@ -92,10 +92,10 @@ void gl3dMiarexView::glRenderView()
 		{
 			if(pMiarex->m_pCurWPolar && fabs(pMiarex->m_pCurWPolar->Beta())>0.001)
 				m_modelMatrix.rotate(pMiarex->m_pCurWPolar->Beta(), 0.0, 0.0, 1.0);
-		}
-		m_pvmMatrix = m_OrthoMatrix * m_viewMatrix * m_modelMatrix;
+		}		if(m_bVLMPanels)  paintMesh(pMiarex->matSize());
+		m_pvmMatrix = m_orthoMatrix * m_viewMatrix * m_modelMatrix;
 
-		if(m_bVLMPanels)  paintMesh(pMiarex->matSize());
+		if(m_bVLMPanels) paintMesh(pMiarex->matSize());
 		if(pMiarex->m_pCurPOpp)
 		{
 			if(pMiarex->m_b3DCp && pMiarex->m_pCurPOpp->analysisMethod()>=XFLR5::VLMMETHOD)
@@ -249,8 +249,8 @@ void gl3dMiarexView::resizeGL(int width, int height)
 	if(w>h)	m_GLViewRect.setRect(-s, s*h/w, s, -s*h/w);
 	else    m_GLViewRect.setRect(-s*w/h, s, s*w/h, -s);
 
-	m_PixTextOverlay = m_PixTextOverlay.scaled(rect().size()*devicePixelRatio());
-	m_PixTextOverlay.fill(Qt::transparent);
+	if(!m_PixTextOverlay.isNull()) m_PixTextOverlay = m_PixTextOverlay.scaled(rect().size()*devicePixelRatio());
+	if(!m_PixTextOverlay.isNull()) m_PixTextOverlay.fill(Qt::transparent);
 
 	QMiarex* pMiarex = (QMiarex*)s_pMiarex;
 	pMiarex->m_bResetTextLegend = true;
@@ -267,9 +267,12 @@ void gl3dMiarexView::paintOverlay()
 	QMiarex* pMiarex = (QMiarex*)s_pMiarex;
 	if(pMiarex->m_bResetTextLegend) pMiarex->drawTextLegend();
 
-	painter.drawPixmap(0,0, pMiarex->m_PixText);
-	painter.drawPixmap(0,0, m_PixTextOverlay);
-	m_PixTextOverlay.fill(Qt::transparent);
+	if(!pMiarex->m_PixText.isNull())  painter.drawPixmap(0,0, pMiarex->m_PixText);
+	if(!m_PixTextOverlay.isNull())
+	{
+		painter.drawPixmap(0,0, m_PixTextOverlay);
+		m_PixTextOverlay.fill(Qt::transparent);
+	}
 }
 
 void gl3dMiarexView::glMakeCpLegendClr()
@@ -1696,7 +1699,7 @@ void gl3dMiarexView::paintStreamLines()
 	m_ShaderProgramLine.bind();
 	m_ShaderProgramLine.setUniformValue(m_mMatrixLocationLine, idMatrix);
 	m_ShaderProgramLine.setUniformValue(m_vMatrixLocationLine, m_viewMatrix);
-	m_ShaderProgramLine.setUniformValue(m_pvmMatrixLocationLine, m_OrthoMatrix * m_viewMatrix);
+	m_ShaderProgramLine.setUniformValue(m_pvmMatrixLocationLine, m_orthoMatrix * m_viewMatrix);
 
 	m_vboStreamLines.bind();
 	m_ShaderProgramLine.enableAttributeArray(m_VertexLocationLine);
@@ -1806,7 +1809,7 @@ void gl3dMiarexView::paintCpLegendClr()
 	m_ShaderProgramGradient.bind();
 	m_ShaderProgramGradient.enableAttributeArray(m_VertexLocationGradient);
 	m_ShaderProgramGradient.enableAttributeArray(m_ColorLocationGradient);
-	m_ShaderProgramGradient.setUniformValue(m_pvmMatrixLocationGradient, m_OrthoMatrix);
+	m_ShaderProgramGradient.setUniformValue(m_pvmMatrixLocationGradient, m_orthoMatrix);
 	m_vboLegendColor.bind();
 	m_ShaderProgramGradient.setAttributeBuffer(m_VertexLocationGradient, GL_FLOAT, 0,                  3, 6 * sizeof(GLfloat));
 	m_ShaderProgramGradient.setAttributeBuffer(m_ColorLocationGradient,  GL_FLOAT, 3* sizeof(GLfloat), 3, 6 * sizeof(GLfloat));
@@ -1962,7 +1965,7 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
 		// Rotate the reference arrow to align it with the panel normal
 		if(R==P)
 		{
-			Qt.Set(0.0, 0.0,0.0,1.0); //Null quaternion
+			Qt.set(0.0, 0.0,0.0,1.0); //Null quaternion
 		}
 		else
 		{
@@ -1973,7 +1976,7 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
 			Omega = R * pPanel[p].Normal;//crossproduct
 			Omega.normalize();
 			Omega *=sina2;
-			Qt.Set(cosa2, Omega.x, Omega.y, Omega.z);
+			Qt.set(cosa2, Omega.x, Omega.y, Omega.z);
 		}
 
 		Qt.Conjugate(R,  P);

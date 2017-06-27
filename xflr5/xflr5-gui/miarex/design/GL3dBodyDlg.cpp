@@ -426,9 +426,8 @@ void GL3dBodyDlg::onTextures()
 	if(m_pBody) m_pBody->m_bTextures = m_pctrlTextures->isChecked();
 	m_gl3dBodyview.resetGLBody(true);
 	setControls();
-	update();
+	updateView();
 }
-
 
 void GL3dBodyDlg::onBodyColor()
 {
@@ -787,8 +786,6 @@ void GL3dBodyDlg::onPointCellChanged(QWidget *)
 	for(int ip=0; ip<m_pPointModel->rowCount(); ip++)
 		readPointSectionData(ip);
 	m_gl3dBodyview.resetGLBody(true);
-
-
 	updateView();
 }
 

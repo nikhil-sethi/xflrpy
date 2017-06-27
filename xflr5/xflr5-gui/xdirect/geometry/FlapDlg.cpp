@@ -124,7 +124,7 @@ void FlapDlg::SetupLayout()
 }
 
 
-void FlapDlg::InitDialog()
+void FlapDlg::initDialog()
 {
 	m_pctrlTEFlapCheck->setChecked(m_pMemFoil->m_bTEFlap);
 

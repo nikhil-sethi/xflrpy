@@ -412,6 +412,36 @@ void QAFoil::loadSettings(QSettings *pSettings)
 			if(pSettings->value(str+"_hidden", false).toBool()) m_pctrlFoilTable->hideColumn(i);
 		}
 
+
+		m_p2DWidget->m_bScale = pSettings->value("x-scale", false).toBool();
+		m_p2DWidget->m_bNeutralLine = pSettings->value("NeutralLine", true).toBool();
+		m_p2DWidget->m_NeutralStyle = pSettings->value("NeutralLineStyle", 3).toInt();
+		m_p2DWidget->m_NeutralWidth = pSettings->value("NeutralLineWidth", 1).toInt();
+		m_p2DWidget->m_NeutralColor = pSettings->value("NeutralLineColor", QColor(70,70,70)).value<QColor>();
+
+		m_p2DWidget->m_bXGrid = pSettings->value("XGrid", false).toBool();
+		m_p2DWidget->m_XGridStyle = pSettings->value("XGridStyle", 1).toInt();
+		m_p2DWidget->m_XGridWidth = pSettings->value("XGridWidth", 1).toInt();
+		m_p2DWidget->m_XGridColor = pSettings->value("XGridColor", QColor(150,150,150)).value<QColor>();
+		m_p2DWidget->m_XGridUnit  = pSettings->value("XGridUnit", 0.05).toDouble();
+
+		m_p2DWidget->m_bXMinGrid = pSettings->value("XMinGrid", false).toBool();
+		m_p2DWidget->m_XMinStyle = pSettings->value("XMinGridStyle", 2).toInt();
+		m_p2DWidget->m_XMinWidth = pSettings->value("XMinGridWidth", 1).toInt();
+		m_p2DWidget->m_XMinColor = pSettings->value("XMinGridColor", QColor(70,70,70)).value<QColor>();
+		m_p2DWidget->m_XMinUnit  = pSettings->value("XMinGridUnit", 0.01).toDouble();
+
+		m_p2DWidget->m_bYGrid = pSettings->value("YGrid", false).toBool();
+		m_p2DWidget->m_YGridStyle = pSettings->value("YGridStyle", 1).toInt();
+		m_p2DWidget->m_YGridWidth = pSettings->value("YGridWidth", 1).toInt();
+		m_p2DWidget->m_YGridColor = pSettings->value("YGridColor", QColor(150,150,150)).value<QColor>();
+		m_p2DWidget->m_YGridUnit  = pSettings->value("YGridUnit", 0.05).toDouble();
+
+		m_p2DWidget->m_bYMinGrid = pSettings->value("YMinGrid", false).toBool();
+		m_p2DWidget->m_YMinStyle = pSettings->value("YMinGridStyle", 2).toInt();
+		m_p2DWidget->m_YMinWidth = pSettings->value("YMinGridWidth", 1).toInt();
+		m_p2DWidget->m_YMinColor = pSettings->value("YMinGridColor", QColor(70,70,70)).value<QColor>();
+		m_p2DWidget->m_YMinUnit  = pSettings->value("YMinGridUnit", 0.01).toDouble();
 	}
 	pSettings->endGroup();
 }
@@ -750,7 +780,7 @@ void QAFoil::onAFoilSetLERadius()
 	LEDlg leDlg(s_pMainFrame);
     leDlg.m_pBufferFoil = m_pBufferFoil;
 	leDlg.m_pMemFoil    = QXDirect::curFoil();
-    leDlg.InitDialog();
+    leDlg.initDialog();
 
     if(QDialog::Accepted == leDlg.exec())
 	{
@@ -906,7 +936,7 @@ void QAFoil::onAFoilSetFlap()
 	flDlg.m_pXFoil      = m_pXFoil;
 	flDlg.m_pMemFoil    = QXDirect::curFoil();
     flDlg.m_pBufferFoil = m_pBufferFoil;
-    flDlg.InitDialog();
+    flDlg.initDialog();
 
     if(QDialog::Accepted == flDlg.exec())
 	{
@@ -949,7 +979,8 @@ void QAFoil::onDeleteCurFoil()
 
 	fillFoilTable();
 	selectFoil(pNextFoil);
-	m_p2DWidget->update();;
+	m_p2DWidget->update();
+	emit(projectModified());
 }
 
 
@@ -1364,11 +1395,38 @@ void QAFoil::saveSettings(QSettings *pSettings)
 			pSettings->setValue(str+"_hidden", m_pctrlFoilTable->isColumnHidden(i));
 		}
 
+		pSettings->setValue("x-scale", m_p2DWidget->m_bScale);
+		pSettings->setValue("NeutralLine", m_p2DWidget->m_bNeutralLine);
+		pSettings->setValue("NeutralLineStyle", m_p2DWidget->m_NeutralStyle);
+		pSettings->setValue("NeutralLineWidth", m_p2DWidget->m_NeutralWidth);
+		pSettings->setValue("NeutralLineColor", m_p2DWidget->m_NeutralColor);
+
+		pSettings->setValue("XGrid", m_p2DWidget->m_bXGrid);
+		pSettings->setValue("XGridStyle", m_p2DWidget->m_XGridStyle);
+		pSettings->setValue("XGridWidth", m_p2DWidget->m_XGridWidth);
+		pSettings->setValue("XGridColor", m_p2DWidget->m_XGridColor);
+		pSettings->setValue("XGridUnit", m_p2DWidget->m_XGridUnit);
+
+		pSettings->setValue("YGrid", m_p2DWidget->m_bYGrid);
+		pSettings->setValue("YGridStyle", m_p2DWidget->m_YGridStyle);
+		pSettings->setValue("YGridWidth", m_p2DWidget->m_YGridWidth);
+		pSettings->setValue("YGridColor", m_p2DWidget->m_YGridColor);
+		pSettings->setValue("YGridUnit", m_p2DWidget->m_YGridUnit);
+
+		pSettings->setValue("XMinGrid", m_p2DWidget->m_bXMinGrid);
+		pSettings->setValue("XMinGridStyle", m_p2DWidget->m_XMinStyle);
+		pSettings->setValue("XMinGridWidth", m_p2DWidget->m_XMinWidth);
+		pSettings->setValue("XMinGridColor", m_p2DWidget->m_XMinColor);
+		pSettings->setValue("XMinGridUnit", m_p2DWidget->m_XMinUnit);
+
+		pSettings->setValue("YMinGrid", m_p2DWidget->m_bYMinGrid);
+		pSettings->setValue("YMinGridStyle", m_p2DWidget->m_YMinStyle);
+		pSettings->setValue("YMinGridWidth", m_p2DWidget->m_YMinWidth);
+		pSettings->setValue("YMinGridColor", m_p2DWidget->m_YMinColor);
+		pSettings->setValue("YMinGridUnit", m_p2DWidget->m_YMinUnit);
 	}
 	pSettings->endGroup();
 }
-
-
 
 
 

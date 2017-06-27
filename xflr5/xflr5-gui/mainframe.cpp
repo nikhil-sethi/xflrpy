@@ -108,6 +108,7 @@ QDir MainFrame::s_TranslationDir;
 
 bool MainFrame::s_bShowMousePos = true;
 bool MainFrame::s_bSaved = true;
+bool MainFrame::s_bOpenGL = true;
 #ifdef QT_DEBUG
 	bool MainFrame::s_bTrace = true;
 #else
@@ -124,11 +125,12 @@ QList <QColor> MainFrame::s_ColorList;
 MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(parent, flags)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
-    s_bTrace = false;
+	s_bTrace = false;
 
 	if(s_bTrace)
 	{
 		QString FileName = QDir::tempPath() + "/Trace.log";
+		Trace(FileName);
 		s_pTraceFile = new QFile(FileName);
 
 		if (!s_pTraceFile->open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) s_bTrace = false;
@@ -202,19 +204,36 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
 		Trace("product type: " +sysInfo.productType());
 		Trace("product version: " +sysInfo.productVersion());
 #endif
+		Trace("OpenGL support:");
+		Trace("    Desktop OpenGL ", qApp->testAttribute(Qt::AA_UseDesktopOpenGL));
+		Trace("    OpenGL ES      ", qApp->testAttribute(Qt::AA_UseOpenGLES));
+		Trace("    Software OpenGL", qApp->testAttribute(Qt::AA_UseSoftwareOpenGL));
 
 		QString strange;
-		strange.sprintf("Default OpengGl format:%d.%d", QSurfaceFormat::defaultFormat().majorVersion(),QSurfaceFormat::defaultFormat().minorVersion());
+		strange.sprintf("   Default OpengGl format:%d.%d", QSurfaceFormat::defaultFormat().majorVersion(),QSurfaceFormat::defaultFormat().minorVersion());
 		Trace(strange);
 	}
 
+	if(!QGLFormat::hasOpenGL())
+	{
+		QMessageBox::warning(this, tr("Warning"), tr("Your system does not provide support for OpenGL.\nXFLR5 will not operate correctly."));
+		s_bOpenGL = false;
+	}
+	else if(QSurfaceFormat::defaultFormat().majorVersion()<2)
+	{
+		QString strong = "XFLR5 requires OpenGL 2.1 or greater.\n";
+		QString strange;
+		strange.sprintf("Your system provides by default OpenGL %d.%d", QSurfaceFormat::defaultFormat().majorVersion(),QSurfaceFormat::defaultFormat().minorVersion());
+		QMessageBox::warning(this, tr("Warning"), strong+strange);
+		s_bOpenGL = false;
+	}
 
 	setWindowTitle(VERSIONNAME);
 	setWindowIcon(QIcon(":/images/xflr5_64.png"));
 
-	Settings sets(this);//to initialize the static variables
+//	Settings sets(this);//to initialize the static variables
 	//"Qt does not support style hints on X11 since this information is not provided by the window system."
-	Settings::s_TextFont.setStyleHint(QFont::TypeWriter, QFont::OpenGLCompatible);
+/*	Settings::s_TextFont.setStyleHint(QFont::TypeWriter, QFont::OpenGLCompatible);
 	Settings::s_TextFont.setStyleStrategy(QFont::OpenGLCompatible);
 	Settings::s_TextFont.setFamily(Settings::s_TextFont.defaultFamily());
 	Settings::s_TextFont.setPointSize(9);
@@ -222,7 +241,9 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
 	Settings::s_TableFont.setStyleHint(QFont::TypeWriter);
 	Settings::s_TableFont.setStyleStrategy(QFont::PreferDevice);
 	Settings::s_TableFont.setFamily(Settings::s_TableFont.defaultFamily());
-	Settings::s_TableFont.setPointSize(8);
+	Settings::s_TableFont.setPointSize(8);*/
+
+	Settings::setDefaultFonts();
 
 	Settings::s_RefGraph.setTitleFont(Settings::s_TextFont);
 	Settings::s_RefGraph.setLabelFont(Settings::s_TextFont);
@@ -230,10 +251,6 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
 //	Settings::s_StyleSheetName = "xflr5_style";
 	Settings::s_StyleSheetName = "";
 
-	if(!QGLFormat::hasOpenGL())
-	{
-		QMessageBox::warning(this, tr("Warning"), tr("Your system does not provide support for OpenGL.\nXFLR5 will not operate correctly."));
-	}
 
     m_iApp = XFLR5::NOAPP;
 	createDockWindows();
@@ -258,10 +275,13 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
 	QMiarex *pMiarex     = (QMiarex*)m_pMiarex;
 
 #if defined Q_OS_MAC && defined MAC_NATIVE_PREFS
-		QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
+#elif defined Q_OS_LINUX
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #else
-		QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
 #endif
+
 	QString str;
 	int kx=117, ky=57;
 	bool bOK;
@@ -656,10 +676,12 @@ void MainFrame::createAFoilActions()
 	m_pAFoilNormalizeFoil = new QAction(tr("Normalize the Foil"), this);
 	connect(m_pAFoilNormalizeFoil, SIGNAL(triggered()), pAFoil, SLOT(onAFoilNormalizeFoil()));
 
-	m_pAFoilRefineGlobalFoil = new QAction(tr("Refine Globally")+"\t(F3)", this);
+	m_pAFoilRefineGlobalFoil = new QAction(tr("Refine Globally")/*+"\t(F3)"*/, this);
+	m_pAFoilRefineGlobalFoil->setShortcut(Qt::Key_F3);
 	connect(m_pAFoilRefineGlobalFoil, SIGNAL(triggered()), pAFoil, SLOT(onAFoilPanels()));
 
-	m_pAFoilRefineLocalFoil = new QAction(tr("Refine Locally")+"\t(Shift+F3)", this);
+	m_pAFoilRefineLocalFoil = new QAction(tr("Refine Locally")/*+"\t(Shift+F3)"*/, this);
+	m_pAFoilRefineLocalFoil->setShortcut(QKeySequence(Qt::SHIFT+Qt::Key_F3));
 	connect(m_pAFoilRefineLocalFoil, SIGNAL(triggered()), pAFoil, SLOT(onAFoilCadd()));
 
 	m_pAFoilEditCoordsFoil = new QAction(tr("Edit Foil Coordinates"), this);
@@ -1030,11 +1052,11 @@ void MainFrame::createDockWindows()
 	pXDirect->m_poaOpp   = &Objects2D::s_oaOpp;
 	pXDirect->m_pOpPointWidget = m_pXDirectTileWidget->opPointWidget();
 
-	pAFoil->initDialog(m_pDirect2dWidget, &Objects2D::s_oaFoil, pXDirect->m_pXFoil);
+	pAFoil->initDialog(m_pDirect2dWidget, &Objects2D::s_oaFoil, &pXDirect->m_XFoil);
 
 	QXInverse::s_p2DWidget        = m_p2dWidget;
 	pXInverse->s_pMainFrame       = this;
-	pXInverse->m_pXFoil           = pXDirect->m_pXFoil;
+	pXInverse->m_pXFoil           = &pXDirect->m_XFoil;
 	pXInverse->m_poaFoil          = &Objects2D::s_oaFoil;
 
 	GL3dWingDlg::s_poaFoil = &Objects2D::s_oaFoil;
@@ -1044,13 +1066,13 @@ void MainFrame::createDockWindows()
 
 	WingWidget::s_pMiarex         = m_pMiarex;
 	XFoilAnalysisDlg::s_pXDirect  = m_pXDirect;
-	NacaFoilDlg::s_pXFoil         = pXDirect->m_pXFoil;
-	InterpolateFoilsDlg::s_pXFoil = pXDirect->m_pXFoil;
-	CAddDlg::s_pXFoil             = pXDirect->m_pXFoil;
-	TwoDPanelDlg::s_pXFoil        = pXDirect->m_pXFoil;
-	FoilGeomDlg::s_pXFoil         = pXDirect->m_pXFoil;
-	TEGapDlg::s_pXFoil            = pXDirect->m_pXFoil;
-	LEDlg::s_pXFoil               = pXDirect->m_pXFoil;
+	NacaFoilDlg::s_pXFoil         = &pXDirect->m_XFoil;
+	InterpolateFoilsDlg::s_pXFoil = &pXDirect->m_XFoil;
+	CAddDlg::s_pXFoil             = &pXDirect->m_XFoil;
+	TwoDPanelDlg::s_pXFoil        = &pXDirect->m_XFoil;
+	FoilGeomDlg::s_pXFoil         = &pXDirect->m_XFoil;
+	TEGapDlg::s_pXFoil            = &pXDirect->m_XFoil;
+	LEDlg::s_pXFoil               = &pXDirect->m_XFoil;
 	BatchDlg::s_pXDirect          = m_pXDirect;
 	BatchThreadDlg::s_pXDirect    = m_pXDirect;
 
@@ -1064,6 +1086,8 @@ void MainFrame::createDockWindows()
 
 
 	pMiarex->connectSignals();
+
+
 }
 
 
@@ -1234,6 +1258,7 @@ void MainFrame::createMiarexActions()
 	m_pW3DAct->setCheckable(true);
 	m_pW3DAct->setStatusTip(tr("Switch to the 3D view"));
 	connect(m_pW3DAct, SIGNAL(triggered()), pMiarex, SLOT(on3DView()));
+	if(!hasOpenGL()) m_pW3DAct->setEnabled(false);
 
 	m_pCpViewAct = new QAction(QIcon(":/images/OnCpView.png"), tr("Cp View")+"\tF9", this);
 	m_pCpViewAct->setCheckable(true);
@@ -1266,11 +1291,13 @@ void MainFrame::createMiarexActions()
 	m_pW3DLightAct->setStatusTip(tr("Define the light options in 3D view"));
 	connect(m_pW3DLightAct, SIGNAL(triggered()), pMiarex, SLOT(onSetupLight()));
 
-	m_pDefinePlaneAct = new QAction(tr("Define a New Plane")+"\tF3", this);
+	m_pDefinePlaneAct = new QAction(tr("Define a New Plane")/*+"\tF3"*/, this);
+	m_pDefinePlaneAct->setShortcut(Qt::Key_F3);
 	m_pDefinePlaneAct->setStatusTip(tr("Shows a dialogbox to create a new plane definition"));
 	connect(m_pDefinePlaneAct, SIGNAL(triggered()), pMiarex, SLOT(onNewPlane()));
 
-	m_pDefinePlaneObjectAct = new QAction(tr("Define... (Advanced users)")+"\tF3", this);
+	m_pDefinePlaneObjectAct = new QAction(tr("Define... (Advanced users)")/*+"\tF3"*/, this);
+	m_pDefinePlaneObjectAct->setShortcut(QKeySequence(Qt::SHIFT+Qt::Key_F3));
 	m_pDefinePlaneObjectAct->setStatusTip(tr("Shows a dialogbox to create a new plane definition"));
 	connect(m_pDefinePlaneObjectAct, SIGNAL(triggered()), pMiarex, SLOT(onNewPlaneObject()));
 
@@ -1473,9 +1500,9 @@ void MainFrame::createMiarexActions()
 	m_pSavePlaneAsProjectAct->setStatusTip(tr("Save the currently selected wing or plane as a new separate project"));
 	connect(m_pSavePlaneAsProjectAct, SIGNAL(triggered()), this, SLOT(onSavePlaneAsProject()));
 
-	m_pRrenameCurWPolar = new QAction(tr("Rename...")+"\t(Shift+F2)", this);
-	m_pRrenameCurWPolar->setStatusTip(tr("Rename the currently selected polar"));
-	connect(m_pRrenameCurWPolar, SIGNAL(triggered()), pMiarex, SLOT(onRenameCurWPolar()));
+	m_pRenameCurWPolar = new QAction(tr("Rename...")+"\t(Shift+F2)", this);
+	m_pRenameCurWPolar->setStatusTip(tr("Rename the currently selected polar"));
+	connect(m_pRenameCurWPolar, SIGNAL(triggered()), pMiarex, SLOT(onRenameCurWPolar()));
 
 	m_pExportCurWPolar = new QAction(tr("Export results"), this);
 	m_pExportCurWPolar->setStatusTip(tr("Export the currently selected polar to a text or csv file"));
@@ -1598,7 +1625,7 @@ void MainFrame::createMiarexMenus()
 			m_pCurWPlrMenu->addAction(m_pEditWPolarAct);
 			m_pCurWPlrMenu->addAction(m_pEditWPolarObjectAct);
 			m_pCurWPlrMenu->addAction(m_pEditWPolarPts);
-			m_pCurWPlrMenu->addAction(m_pRrenameCurWPolar);
+			m_pCurWPlrMenu->addAction(m_pRenameCurWPolar);
 			m_pCurWPlrMenu->addAction(m_pDeleteCurWPolar);
 			m_pCurWPlrMenu->addAction(m_pResetCurWPolar);
 			m_pCurWPlrMenu->addSeparator();
@@ -1707,7 +1734,7 @@ void MainFrame::createMiarexMenus()
 			m_pCurWPlrMenu_WOppCtxMenu->addAction(m_pEditWPolarAct);
 			m_pCurWPlrMenu_WOppCtxMenu->addAction(m_pEditWPolarObjectAct);
 			m_pCurWPlrMenu_WOppCtxMenu->addAction(m_pEditWPolarPts);
-			m_pCurWPlrMenu_WOppCtxMenu->addAction(m_pRrenameCurWPolar);
+			m_pCurWPlrMenu_WOppCtxMenu->addAction(m_pRenameCurWPolar);
 			m_pCurWPlrMenu_WOppCtxMenu->addAction(m_pDeleteCurWPolar);
 			m_pCurWPlrMenu_WOppCtxMenu->addAction(m_pResetCurWPolar);
 			m_pCurWPlrMenu_WOppCtxMenu->addSeparator();
@@ -1804,7 +1831,7 @@ void MainFrame::createMiarexMenus()
 			m_pCurWPlrMenu_WCpCtxMenu->addAction(m_pEditWPolarAct);
 			m_pCurWPlrMenu_WCpCtxMenu->addAction(m_pEditWPolarObjectAct);
 			m_pCurWPlrMenu_WCpCtxMenu->addAction(m_pEditWPolarPts);
-			m_pCurWPlrMenu_WCpCtxMenu->addAction(m_pRrenameCurWPolar);
+			m_pCurWPlrMenu_WCpCtxMenu->addAction(m_pRenameCurWPolar);
 			m_pCurWPlrMenu_WCpCtxMenu->addAction(m_pDeleteCurWPolar);
 			m_pCurWPlrMenu_WCpCtxMenu->addAction(m_pResetCurWPolar);
 			m_pCurWPlrMenu_WCpCtxMenu->addSeparator();
@@ -1886,7 +1913,7 @@ void MainFrame::createMiarexMenus()
 			m_pCurWPlrMenu_WTimeCtxMenu->addAction(m_pEditWPolarAct);
 			m_pCurWPlrMenu_WTimeCtxMenu->addAction(m_pEditWPolarObjectAct);
 			m_pCurWPlrMenu_WTimeCtxMenu->addAction(m_pEditWPolarPts);
-			m_pCurWPlrMenu_WTimeCtxMenu->addAction(m_pRrenameCurWPolar);
+			m_pCurWPlrMenu_WTimeCtxMenu->addAction(m_pRenameCurWPolar);
 			m_pCurWPlrMenu_WTimeCtxMenu->addAction(m_pDeleteCurWPolar);
 			m_pCurWPlrMenu_WTimeCtxMenu->addAction(m_pResetCurWPolar);
 			m_pCurWPlrMenu_WTimeCtxMenu->addSeparator();
@@ -1908,11 +1935,18 @@ void MainFrame::createMiarexMenus()
         }
         //m_pWTimeCtxMenu->addMenu(m_pCurWOppMenu);
 		m_pWTimeCtxMenu->addSeparator();
-		m_pWTimeCtxMenu->addAction(m_pShowCurWOppOnly);
+		QMenu *pCurGraphTimeCtxMenu = m_pWTimeCtxMenu->addMenu(tr("Current Graph"));
+		{
+			pCurGraphTimeCtxMenu->addAction(m_pResetCurGraphScales);
+			pCurGraphTimeCtxMenu->addAction(m_pCurGraphDlgAct);
+			pCurGraphTimeCtxMenu->addAction(m_pExportCurGraphAct);
+		}
+		m_pWTimeCtxMenu->addSeparator();
+/*		m_pWTimeCtxMenu->addAction(m_pShowCurWOppOnly);
 		m_pWTimeCtxMenu->addAction(m_pShowAllWOpps);
 		m_pWTimeCtxMenu->addAction(m_pHideAllWOpps);
 		m_pWTimeCtxMenu->addAction(m_pDeleteAllWOpps);
-		m_pWTimeCtxMenu->addSeparator();
+		m_pWTimeCtxMenu->addSeparator();*/
 		m_pWTimeCtxMenu->addAction(m_pViewLogFile);
 		m_pWTimeCtxMenu->addAction(m_pSaveViewToImageFileAct);
 	}
@@ -1968,7 +2002,7 @@ void MainFrame::createMiarexMenus()
 			m_pCurWPlrMenu_WPlrCtxMenu->addAction(m_pEditWPolarAct);
 			m_pCurWPlrMenu_WPlrCtxMenu->addAction(m_pEditWPolarObjectAct);
 			m_pCurWPlrMenu_WPlrCtxMenu->addAction(m_pEditWPolarPts);
-			m_pCurWPlrMenu_WPlrCtxMenu->addAction(m_pRrenameCurWPolar);
+			m_pCurWPlrMenu_WPlrCtxMenu->addAction(m_pRenameCurWPolar);
 			m_pCurWPlrMenu_WPlrCtxMenu->addAction(m_pDeleteCurWPolar);
 			m_pCurWPlrMenu_WPlrCtxMenu->addAction(m_pResetCurWPolar);
 			m_pCurWPlrMenu_WPlrCtxMenu->addSeparator();
@@ -2049,7 +2083,7 @@ void MainFrame::createMiarexMenus()
             m_pCurWPlrMenu_W3DCtxMenu->addAction(m_pEditWPolarAct);
             m_pCurWPlrMenu_W3DCtxMenu->addAction(m_pEditWPolarObjectAct);
             m_pCurWPlrMenu_W3DCtxMenu->addAction(m_pEditWPolarPts);
-            m_pCurWPlrMenu_W3DCtxMenu->addAction(m_pRrenameCurWPolar);
+			m_pCurWPlrMenu_W3DCtxMenu->addAction(m_pRenameCurWPolar);
             m_pCurWPlrMenu_W3DCtxMenu->addAction(m_pDeleteCurWPolar);
             m_pCurWPlrMenu_W3DCtxMenu->addAction(m_pExportCurWPolar);
             m_pCurWPlrMenu_W3DCtxMenu->addAction(m_pResetCurWPolar);
@@ -2133,7 +2167,7 @@ void MainFrame::createMiarexMenus()
             m_pCurWPlrMenu_W3DStabCtxMenu->addAction(m_pEditWPolarAct);
             m_pCurWPlrMenu_W3DStabCtxMenu->addAction(m_pEditWPolarObjectAct);
             m_pCurWPlrMenu_W3DStabCtxMenu->addAction(m_pEditWPolarPts);
-            m_pCurWPlrMenu_W3DStabCtxMenu->addAction(m_pRrenameCurWPolar);
+			m_pCurWPlrMenu_W3DStabCtxMenu->addAction(m_pRenameCurWPolar);
             m_pCurWPlrMenu_W3DStabCtxMenu->addAction(m_pDeleteCurWPolar);
             m_pCurWPlrMenu_W3DStabCtxMenu->addAction(m_pExportCurWPolar);
             m_pCurWPlrMenu_W3DStabCtxMenu->addAction(m_pResetCurWPolar);
@@ -2306,7 +2340,8 @@ void MainFrame::createXDirectActions()
 	m_pDeleteCurFoil = new QAction(tr("Delete..."), this);
 	connect(m_pDeleteCurFoil, SIGNAL(triggered()), pXDirect, SLOT(onDeleteCurFoil()));
 
-	m_pRenameCurFoil = new QAction(tr("Rename...")+"\tF2", this);
+	m_pRenameCurFoil = new QAction(tr("Rename...")/*+"\tF2"*/, this);
+	m_pRenameCurFoil->setShortcut(Qt::Key_F2);
 	connect(m_pRenameCurFoil, SIGNAL(triggered()), pXDirect, SLOT(onRenameCurFoil()));
 
 	m_pExportCurFoil = new QAction(tr("Export..."), this);
@@ -2355,15 +2390,18 @@ void MainFrame::createXDirectActions()
 	m_pDeleteFoilOpps = new QAction(tr("Delete associated OpPoints"), this);
 	connect(m_pDeleteFoilOpps, SIGNAL(triggered()), pXDirect, SLOT(onDeleteFoilOpps()));
 
-	m_pDefinePolarAct = new QAction(tr("Define an Analysis")+"\tF6", this);
+	m_pDefinePolarAct = new QAction(tr("Define an Analysis")/*+"\tF6"*/, this);
+	m_pDefinePolarAct->setShortcut(Qt::Key_F6);
 	m_pDefinePolarAct->setStatusTip(tr("Defines a single analysis/polar"));
 	connect(m_pDefinePolarAct, SIGNAL(triggered()), pXDirect, SLOT(onDefinePolar()));
 
-	m_pBatchAnalysisAct = new QAction(tr("Batch Analysis")+"\tShift+F6", this);
+	m_pBatchAnalysisAct = new QAction(tr("Batch Analysis")/*+"\tShift+F6"*/, this);
+	m_pBatchAnalysisAct->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_F6));
 	m_pBatchAnalysisAct->setStatusTip(tr("Launches a batch of analysis calculation for a specified range or list of Reynolds numbers"));
 	connect(m_pBatchAnalysisAct, SIGNAL(triggered()), pXDirect, SLOT(onBatchAnalysis()));
 
-	m_pMultiThreadedBatchAct = new QAction(tr("Multi-threaded Batch Analysis")+"\tCtrl+F6", this);
+	m_pMultiThreadedBatchAct = new QAction(tr("Multi-threaded Batch Analysis")/*+"\tCtrl+F6"*/, this);
+	m_pMultiThreadedBatchAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F6));
 	m_pMultiThreadedBatchAct->setStatusTip(tr("Launches a batch of analysis calculation using all available computer CPU cores"));
 	connect(m_pMultiThreadedBatchAct, SIGNAL(triggered()), pXDirect, SLOT(onMultiThreadedBatchAnalysis()));
 
@@ -2402,7 +2440,8 @@ void MainFrame::createXDirectActions()
 	m_pManageFoilsAct->setShortcut(Qt::Key_F7);
 	connect(m_pManageFoilsAct, SIGNAL(triggered()), this, SLOT(onManageFoils()));
 
-	m_pRenamePolarAct = new QAction(tr("Rename")+"\t(Shift+F2)", this);
+	m_pRenamePolarAct = new QAction(tr("Rename")/*+"\t(Shift+F2)"*/, this);
+	m_pRenamePolarAct->setShortcut(QKeySequence(Qt::SHIFT +Qt::Key_F2));
 	connect(m_pRenamePolarAct, SIGNAL(triggered()), pXDirect, SLOT(onRenameCurPolar()));
 
 
@@ -2453,16 +2492,19 @@ void MainFrame::createXDirectActions()
 	m_pNormalizeFoil = new QAction(tr("Normalize the Foil"), this);
 	connect(m_pNormalizeFoil, SIGNAL(triggered()), pXDirect, SLOT(onNormalizeFoil()));
 
-	m_pRefineLocalFoil = new QAction(tr("Refine Locally")+"\t(Shift+F3)", this);
+	m_pRefineLocalFoil = new QAction(tr("Refine Locally")/*+"\t(Shift+F3)"*/, this);
+	m_pRefineLocalFoil->setShortcut(QKeySequence(Qt::SHIFT +Qt::Key_F3));
 	connect(m_pRefineLocalFoil, SIGNAL(triggered()), pXDirect, SLOT(onCadd()));
 
-	m_pRefineGlobalFoil = new QAction(tr("Refine Globally")+"\t(F3)", this);
+	m_pRefineGlobalFoil = new QAction(tr("Refine Globally")/*+"\t(F3)"*/, this);
+	m_pRefineGlobalFoil->setShortcut(Qt::Key_F3);
 	connect(m_pRefineGlobalFoil, SIGNAL(triggered()), pXDirect, SLOT(onRefinePanelsGlobally()));
 
 	m_pEditCoordsFoil = new QAction(tr("Edit Foil Coordinates"), this);
 	connect(m_pEditCoordsFoil, SIGNAL(triggered()), pXDirect, SLOT(onFoilCoordinates()));
 
-	m_pScaleFoil = new QAction(tr("Scale camber and thickness")+"\t(F9)", this);
+	m_pScaleFoil = new QAction(tr("Scale camber and thickness")/*+"\t(F9)"*/, this);
+	m_pScaleFoil->setShortcut(Qt::Key_F9);
 	connect(m_pScaleFoil, SIGNAL(triggered()), pXDirect, SLOT(onFoilGeom()));
 
 	m_pSetTEGap = new QAction(tr("Set T.E. Gap"), this);
@@ -2471,10 +2513,12 @@ void MainFrame::createXDirectActions()
 	m_pSetLERadius = new QAction(tr("Set L.E. Radius"), this);
 	connect(m_pSetLERadius, SIGNAL(triggered()), pXDirect, SLOT(onSetLERadius()));
 
-	m_pSetFlap = new QAction(tr("Set Flap")+"\t(F10)", this);
+	m_pSetFlap = new QAction(tr("Set Flap")/*+"\t(F10)"*/, this);
+	m_pSetFlap->setShortcut(Qt::Key_F10);
 	connect(m_pSetFlap, SIGNAL(triggered()), pXDirect, SLOT(onSetFlap()));
 
-	m_pInterpolateFoils = new QAction(tr("Interpolate Foils")+"\t(F11)", this);
+	m_pInterpolateFoils = new QAction(tr("Interpolate Foils")/*+"\t(F11)"*/, this);
+	m_pInterpolateFoils->setShortcut(Qt::Key_F11);
 	connect(m_pInterpolateFoils, SIGNAL(triggered()), pXDirect, SLOT(onInterpolateFoils()));
 
 	m_pNacaFoils = new QAction(tr("Naca Foils"), this);
@@ -3321,7 +3365,7 @@ bool MainFrame::loadPolarFileV3(QDataStream &ar, bool bIsStoring, int ArchiveFor
 		if (!serializeFoil(pFoil, ar, false))
 		{
 			delete pFoil;
-			return NULL;
+			return false;
 		}
 
 		Objects2D::insertThisFoil(pFoil);
@@ -3338,7 +3382,7 @@ bool MainFrame::loadPolarFileV3(QDataStream &ar, bool bIsStoring, int ArchiveFor
 		if (!serializePolar(pPolar, ar, false))
 		{
 			delete pPolar;
-			return NULL;
+			return false;
 		}
 		for (l=0; l<Objects2D::s_oaPolar.size(); l++)
 		{
@@ -3442,9 +3486,11 @@ bool MainFrame::loadSettings()
 	
 
 #if defined Q_OS_MAC && defined MAC_NATIVE_PREFS
-		QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
+#elif defined Q_OS_LINUX
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #else
-        QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
 #endif
 
 	settings.beginGroup("MainFrame");
@@ -3783,11 +3829,6 @@ void MainFrame::onCurFoilStyle()
 		QXDirect::curFoil()->foilLineWidth() = dlg.lineWidth();
 		QXDirect::curFoil()->foilPointStyle() = dlg.pointStyle();
 
-		QXDirect *pXDirect = (QXDirect*)m_pXDirect;
-		pXDirect->m_BufferFoil.setColor(QXDirect::curFoil()->red(), QXDirect::curFoil()->green(), QXDirect::curFoil()->blue(), QXDirect::curFoil()->alphaChannel());
-		pXDirect->m_BufferFoil.foilLineStyle()  = QXDirect::curFoil()->foilLineStyle();
-		pXDirect->m_BufferFoil.foilLineWidth()  = QXDirect::curFoil()->foilLineWidth();
-		pXDirect->m_BufferFoil.foilPointStyle() = QXDirect::curFoil()->foilPointStyle();
 		setSaveState(false);
 	}
 
@@ -4041,11 +4082,15 @@ void MainFrame::onResetSettings()
 	if(resp == QMessageBox::Yes)
 	{
 		QMessageBox::warning(this,tr("Default Settings"), tr("The settings will be reset at the next session"));
+
 #if defined Q_OS_MAC && defined MAC_NATIVE_PREFS
-		QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
+#elif defined Q_OS_LINUX
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #else
-        QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
 #endif
+
 		settings.clear();
 		Settings::s_LastDirName = QDir::homePath();
 		// do not save on exit
@@ -4288,8 +4333,8 @@ void MainFrame::onSaveViewToImageFile()
 				{
 					QPixmap outPix = m_pgl3dMiarexView->grab();
 					QPainter painter(&outPix);
-					painter.drawPixmap(0,0, pMiarex->m_PixText);
-					painter.drawPixmap(0,0, m_pgl3dMiarexView->m_PixTextOverlay);
+					if(!pMiarex->m_PixText.isNull())                  painter.drawPixmap(0,0, pMiarex->m_PixText);
+					if(!m_pgl3dMiarexView->m_PixTextOverlay.isNull()) painter.drawPixmap(0,0, m_pgl3dMiarexView->m_PixTextOverlay);
 
 					outPix.save(FileName);
 				}
@@ -4297,8 +4342,8 @@ void MainFrame::onSaveViewToImageFile()
 				{
 					QImage outImg = m_pgl3dMiarexView->grabFramebuffer();
 					QPainter painter(&outImg);
-					painter.drawPixmap(0,0, pMiarex->m_PixText);
-					painter.drawPixmap(0,0, m_pgl3dMiarexView->m_PixTextOverlay);
+					if(!pMiarex->m_PixText.isNull())                  painter.drawPixmap(0,0, pMiarex->m_PixText);
+					if(!m_pgl3dMiarexView->m_PixTextOverlay.isNull()) painter.drawPixmap(0,0, m_pgl3dMiarexView->m_PixTextOverlay);
 
 					outImg.save(FileName);
 				}
@@ -5002,17 +5047,21 @@ bool MainFrame::serializePlaneProject(QDataStream &ar)
 
 void MainFrame::saveSettings()
 {
-	QAFoil *pAFoil = (QAFoil*)m_pAFoil;
-	QMiarex *pMiarex = (QMiarex*)m_pMiarex;
-	QXDirect *pXDirect = (QXDirect*)m_pXDirect;
+	QAFoil *pAFoil       = (QAFoil*)m_pAFoil;
+	QMiarex *pMiarex     = (QMiarex*)m_pMiarex;
+	QXDirect *pXDirect   = (QXDirect*)m_pXDirect;
 	QXInverse *pXInverse = (QXInverse*)m_pXInverse;
 
 	if(!m_bSaveSettings) return;
+
 #if defined Q_OS_MAC && defined MAC_NATIVE_PREFS
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
+#elif defined Q_OS_LINUX
 	QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #else
 	QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
 #endif
+
 	settings.beginGroup("MainFrame");
 	{
 		settings.setValue("SettingsFormat", SETTINGSFORMAT);
@@ -5809,7 +5858,7 @@ bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
 				if(pWPolar) delete pWPolar;
 				return false;
 			}
-			if(!pWPolar->analysisMethod()==XFLR5::LLTMETHOD && ArchiveFormat <100003)	pWPolar->clearData();//former VLM version was flawed
+			if(pWPolar->analysisMethod()!=XFLR5::LLTMETHOD && ArchiveFormat <100003)	pWPolar->clearData();//former VLM version was flawed
 //			if(pWPolar->polarType()==STABILITYPOLAR)	pWPolar->bThinSurfaces() = true;
 
 			if(pWPolar->polarFormat()!=1020 || pWPolar->polarType()!=XFLR5::STABILITYPOLAR)
@@ -5946,7 +5995,7 @@ bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
 						if(pWPolar) delete pWPolar;
 						return false;
 					}
-					if(!pWPolar->analysisMethod()==XFLR5::LLTMETHOD && ArchiveFormat <100003)
+					if(pWPolar->analysisMethod()!=XFLR5::LLTMETHOD && ArchiveFormat <100003)
 						pWPolar->clearData();
 					Objects3D::addWPolar(pWPolar);
 				}
@@ -6511,7 +6560,6 @@ void MainFrame::setupDataDir()
 	s_TranslationDir.setPath("/usr/share/xflr5/translations");
 	s_StylesheetDir.setPath("/usr/share/xflr5/qss");
 #endif
-
 }
 
 

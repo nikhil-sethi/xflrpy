@@ -8,7 +8,7 @@ QT       -= gui
 
 TARGET = XFoil-lib
 TEMPLATE = lib
-
+CONFIG += staticlib
 
 DEFINES += XFOILLIB_LIBRARY
 

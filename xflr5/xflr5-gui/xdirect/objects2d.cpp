@@ -855,4 +855,69 @@ void Objects2D::addXFoilData(OpPoint *pOpp, void *pXFoilPtr, void *pFoilPtr)
 		pOpp->nd3++;
 	}
 
+	pOpp->tklam = pXFoil->tklam;
+	pOpp->qinf = pXFoil->qinf;
+
+	memcpy(pOpp->thet, pXFoil->thet, IVX * ISX * sizeof(double));
+	memcpy(pOpp->tau,  pXFoil->tau,  IVX * ISX * sizeof(double));
+	memcpy(pOpp->ctau, pXFoil->ctau, IVX * ISX * sizeof(double));
+	memcpy(pOpp->ctq,  pXFoil->ctq,  IVX * ISX * sizeof(double));
+	memcpy(pOpp->dis,  pXFoil->dis,  IVX * ISX * sizeof(double));
+	memcpy(pOpp->uedg, pXFoil->ctau, IVX * ISX * sizeof(double));
+	memcpy(pOpp->dstr, pXFoil->dstr, IVX * ISX * sizeof(double));
+	memcpy(pOpp->itran, pXFoil->itran, 3 * sizeof(int));
+
+	pXFoil->CreateXBL(pXFoil->xbl, pXFoil->nside1, pXFoil->nside2);
+	pXFoil->FillHk(pXFoil->Hk, pXFoil->nside1, pXFoil->nside2);
+	pXFoil->FillRTheta(pXFoil->RTheta, pXFoil->nside1, pXFoil->nside2);
+	memcpy(pOpp->xbl, pXFoil->xbl, IVX * ISX * sizeof(double));
+	memcpy(pOpp->Hk, pXFoil->Hk, IVX * ISX * sizeof(double));
+	memcpy(pOpp->RTheta, pXFoil->RTheta, IVX * ISX * sizeof(double));
+	pOpp->nside1 = pXFoil->nside1;
+	pOpp->nside2 = pXFoil->nside2;
 }
+
+
+void Objects2D::deleteFoilResults(Foil *pFoil, bool bDeletePolars)
+{
+	for (int j=s_oaOpp.size()-1; j>=0; j--)
+	{
+		OpPoint *pOpPoint = s_oaOpp[j];
+		if(pOpPoint->foilName() == pFoil->foilName())
+		{
+			if(pOpPoint==QXDirect::curOpp()) QXDirect::setCurOpp(NULL);
+			s_oaOpp.removeAt(j);
+			delete pOpPoint;
+		}
+	}
+
+	for (int j=s_oaPolar.size()-1; j>=0; j--)
+	{
+		Polar *pPolar = (Polar*)s_oaPolar.at(j);
+		if(pPolar->foilName() == pFoil->foilName())
+		{
+			if(bDeletePolars)
+			{
+				if(pPolar==QXDirect::curPolar()) QXDirect::setCurPolar(NULL);
+				s_oaPolar.removeAt(j);
+				delete pPolar;
+			}
+			else
+			{
+				pPolar->resetPolar();
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+

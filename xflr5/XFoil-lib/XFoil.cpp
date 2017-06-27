@@ -3469,15 +3469,11 @@ bool XFoil::initialize()
 	memset(cij, 0, sizeof(cij));
 	memset(cpi, 0, sizeof(cpi));
 	memset(cpv, 0, sizeof(cpv));
-	memset(ctau, 0, sizeof(ctau));
-	memset(ctq, 0, sizeof(ctq));
 	memset(dij, 0, sizeof(dij));
-	memset(dis, 0, sizeof(dis));
 	memset(dq, 0, sizeof(dq));
 	memset(dqdg, 0, sizeof(dqdg));
 	memset(dqdm, 0, sizeof(dqdm));
 	memset(delt, 0, sizeof(delt));
-	memset(dstr, 0, sizeof(dstr));
 	memset(dzdg, 0, sizeof(dzdg));
 	memset(dzdm, 0, sizeof(dzdm));
 	memset(dzdn, 0, sizeof(dzdn));
@@ -3508,9 +3504,6 @@ bool XFoil::initialize()
 	memset(sig, 0, sizeof(sig));
 	memset(snew, 0, sizeof(snew));
 	memset(sig, 0, sizeof(sig));
-	memset(tau, 0, sizeof(tau));
-	memset(thet, 0, sizeof(thet));
-	memset(uedg, 0, sizeof(uedg));
 	memset(uinv, 0, sizeof(uinv));
 	memset(uslp, 0, sizeof(uslp));
 	memset(vti, 0, sizeof(vti));
@@ -3544,6 +3537,18 @@ bool XFoil::initialize()
 	memset(w7, 0, sizeof(w7));
 	memset(w8, 0, sizeof(w8));
 
+	memset(ctau,   0, sizeof(ctau));
+	memset(ctq,    0, sizeof(ctq));
+	memset(dis,    0, sizeof(dis));
+	memset(dstr,   0, sizeof(dstr));
+	memset(tau,    0, sizeof(tau));
+	memset(thet,   0, sizeof(thet));
+	memset(uedg,   0, sizeof(uedg));
+	memset(xbl,    0, sizeof(xbl));
+	memset(Hk,     0, sizeof(Hk));
+	memset(RTheta, 0, sizeof(RTheta));
+	memset(itran,  0, sizeof(itran));
+	nside1 = nside2 = 0;
 //mdes
 	memset(wc, 0, sizeof(wc));
 	memset(sc, 0, sizeof(sc));

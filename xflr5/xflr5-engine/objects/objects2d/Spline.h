@@ -84,7 +84,6 @@ public:
 	int m_iRes;                      /**< the number of output points to draw the spline */
 	int m_iDegree;                   /**< the spline's degree */
 
-	double m_PtWeight;               /**< the common weight of all control points. Default is 1. The higher the value, the more the curve will be pulled towards the control points. */
 
 	QList<double> m_knot;            /**< the array of the values of the spline's knot */
 	QList<Vector3d> m_CtrlPoint;      /**< the array of the positions of the spline's control points */

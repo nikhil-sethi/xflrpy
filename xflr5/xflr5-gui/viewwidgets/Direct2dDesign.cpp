@@ -306,7 +306,7 @@ int Direct2dDesign::highlightPoint(Vector3d real)
 	if(!m_pSF->isVisible()) return -1;
 	{
 		int n = m_pSF->extrados()->isControlPoint(real, m_fScale/m_fRefScale);
-		if (n>0 && n<m_pSF->extrados()->m_CtrlPoint.size())
+		if (n>=0 && n<m_pSF->extrados()->m_CtrlPoint.size())
 		{
 			m_pSF->extrados()->m_iHighlight = n;
 			return n;
@@ -320,7 +320,7 @@ int Direct2dDesign::highlightPoint(Vector3d real)
 		}
 
 		n = m_pSF->intrados()->isControlPoint(real, m_fScale/m_fRefScale);
-		if (n>0 && n<m_pSF->intrados()->m_CtrlPoint.size())
+		if (n>=0 && n<m_pSF->intrados()->m_CtrlPoint.size())
 		{
 			m_pSF->intrados()->m_iHighlight = n;
 			return n;

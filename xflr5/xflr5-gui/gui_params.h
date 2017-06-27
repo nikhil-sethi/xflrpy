@@ -12,11 +12,11 @@
 #define GUI_PARAMS_H
 
 
-#define VERSIONNAME     "xflr5 v6.33"
+#define VERSIONNAME     "xflr5 v6.38"
 
 //General
 #define MAXRECENTFILES         8  /**< Defines the maximum number of file names in the recent file list */
-#define SETTINGSFORMAT     53753  /**< A random number which defines the format of the settings file */
+#define SETTINGSFORMAT     53773  /**< A random number which defines the format of the settings file */
 
 
 

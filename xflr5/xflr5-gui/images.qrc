@@ -20,7 +20,6 @@
         <file>images/OnZoomYScale.png</file>
         <file>images/OnStabView.png</file>
         <file>images/OnRootLocus.png</file>
-        <file>images/xflr5_64.png</file>
         <file>images/OnYView.png</file>
         <file>images/OnXView.png</file>
         <file>images/OnZView.png</file>
@@ -29,5 +28,6 @@
         <file>images/OnUndo.png</file>
         <file>images/splash.png</file>
         <file>images/xflr5_full.png</file>
+        <file>images/xflr5_64.png</file>
     </qresource>
 </RCC>

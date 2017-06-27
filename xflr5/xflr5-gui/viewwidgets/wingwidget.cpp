@@ -168,7 +168,7 @@ void WingWidget::paintEvent(QPaintEvent *event)
 		painter.setOpacity(1);
 
 		if(pMiarex->m_bResetTextLegend) pMiarex->drawTextLegend();
-		painter.drawPixmap(QPoint(0,0), pMiarex->m_PixText);
+		if(!pMiarex->m_PixText.isNull()) painter.drawPixmap(QPoint(0,0), pMiarex->m_PixText);
 	}
 	painter.restore();
 }

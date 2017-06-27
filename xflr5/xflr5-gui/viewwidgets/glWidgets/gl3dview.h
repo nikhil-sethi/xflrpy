@@ -33,7 +33,7 @@
 #include "gui_params.h"
 #include "gui_enums.h"
 #include <miarex/view/GLLightDlg.h>
-#include <viewwidgets/ArcBall.h>
+#include <viewwidgets/glWidgets/ArcBall.h>
 #include <objects3d/PointMass.h>
 #include <QTimer>
 
@@ -116,7 +116,6 @@ protected:
 	void glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, Vector3d *pNode, Panel *pPanel, PlaneOpp *pPOpp);
 	void glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody);
 	void glMakeWingMesh(Wing *pWing);
-	void glMakeBodyMesh(Body *pBody);
 	void glMakeWingSectionHighlight(Wing *pWing, int iSectionHighLight, bool bRightSide);
 	void glMakeBodyFrameHighlight(Body *pBody, Vector3d bodyPos, int iFrame);
 	void glRenderText(int x, int y, const QString & str, QColor textColor = QColor(Qt::white));
@@ -131,7 +130,6 @@ protected:
 	void paintArcBall();
 	void paintAxes();
 	void paintMesh(int nPanels);
-	void paintBodyMesh(Body *pBody);
 	void paintWingMesh(Wing *pWing);
 	void paintSectionHighlight();
 	void paintBody(Body *pBody);
@@ -226,7 +224,7 @@ protected:
 
 	bool m_bUse120StyleShaders;
 
-	QMatrix4x4 m_OrthoMatrix;
+	QMatrix4x4 m_orthoMatrix;
 	QMatrix4x4 m_pvmMatrix;
 	QMatrix4x4 m_viewMatrix;
 	QMatrix4x4 m_modelMatrix;

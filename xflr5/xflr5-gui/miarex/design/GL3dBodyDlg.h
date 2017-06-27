@@ -41,7 +41,7 @@
 #include "BodyTableDelegate.h"
 #include <misc/DoubleEdit.h>
 #include <misc/ColorButton.h>
-#include <viewwidgets/ArcBall.h>
+#include <viewwidgets/glWidgets/ArcBall.h>
 #include <gl3dbodyview.h>
 #include <objects3d/Body.h>
 #include "BodyLineWidget.h"

@@ -60,7 +60,6 @@ public:
 	bool intersectObject(Vector3d AA,  Vector3d U, Vector3d &I);
 	void connectSignals();
 	void glMake3DObjects();
-	void glCreateWingSectionHighlight(Wing *pWing);
 	void identifySelection(const QModelIndex &indexSel);
 	void initDialog(Plane *pPlane);
 	void setupLayout();

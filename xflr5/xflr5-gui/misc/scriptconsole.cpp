@@ -56,12 +56,13 @@ void ScriptConsole::setupLayout()
 
 void ScriptConsole::showEvent(QShowEvent *event)
 {
+	Q_UNUSED(event);
 	m_pInput->setFocus();
 }
 
 void ScriptConsole::keyPressEvent(QKeyEvent *event)
 {
-	bool bCtrl = (event->modifiers() & Qt::ControlModifier);
+//	bool bCtrl = (event->modifiers() & Qt::ControlModifier);
 
 	switch (event->key())
 	{

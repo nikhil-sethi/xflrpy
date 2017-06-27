@@ -61,22 +61,22 @@ GridSettingsDlg::GridSettingsDlg(QWidget *pParent): QDialog(pParent)
 	m_NeutralWidth = 1;
 	m_NeutralColor = QColor(70,70,70);
 
-	SetupLayout();
+	setupLayout();
 
-	connect(OKButton, SIGNAL(clicked()),this, SLOT(OnOK()));
+	connect(OKButton, SIGNAL(clicked()),this, SLOT(onOK()));
 	connect(CancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
-	connect(m_pctrlScale, SIGNAL(clicked()), this, SLOT(OnScale()));
-	connect(m_pctrlNeutralShow, SIGNAL(clicked(bool)), this, SLOT(OnNeutralShow(bool)));
-	connect(m_pctrlXMajShow, SIGNAL(clicked(bool)), this, SLOT(OnXMajShow(bool)));
-	connect(m_pctrlYMajShow, SIGNAL(clicked(bool)), this, SLOT(OnYMajShow(bool)));
-	connect(m_pctrlXMinShow, SIGNAL(clicked(bool)), this, SLOT(OnXMinShow(bool)));
-	connect(m_pctrlYMinShow, SIGNAL(clicked(bool)), this, SLOT(OnYMinShow(bool)));
-    connect(m_pctrlNeutralStyle, SIGNAL(clickedLB()), this, SLOT(OnNeutralStyle()));
-    connect(m_pctrlXMajStyle, SIGNAL(clickedLB()), this, SLOT(OnXMajStyle()));
-    connect(m_pctrlYMajStyle, SIGNAL(clickedLB()), this, SLOT(OnYMajStyle()));
-    connect(m_pctrlXMinStyle, SIGNAL(clickedLB()), this, SLOT(OnXMinStyle()));
-    connect(m_pctrlYMinStyle, SIGNAL(clickedLB()), this, SLOT(OnYMinStyle()));
+	connect(m_pctrlScale, SIGNAL(clicked()), this, SLOT(onScale()));
+	connect(m_pctrlNeutralShow, SIGNAL(clicked(bool)), this, SLOT(onNeutralShow(bool)));
+	connect(m_pctrlXMajShow, SIGNAL(clicked(bool)), this, SLOT(onXMajShow(bool)));
+	connect(m_pctrlYMajShow, SIGNAL(clicked(bool)), this, SLOT(onYMajShow(bool)));
+	connect(m_pctrlXMinShow, SIGNAL(clicked(bool)), this, SLOT(onXMinShow(bool)));
+	connect(m_pctrlYMinShow, SIGNAL(clicked(bool)), this, SLOT(onYMinShow(bool)));
+    connect(m_pctrlNeutralStyle, SIGNAL(clickedLB()), this, SLOT(onNeutralStyle()));
+    connect(m_pctrlXMajStyle, SIGNAL(clickedLB()), this, SLOT(onXMajStyle()));
+    connect(m_pctrlYMajStyle, SIGNAL(clickedLB()), this, SLOT(onYMajStyle()));
+    connect(m_pctrlXMinStyle, SIGNAL(clickedLB()), this, SLOT(onXMinStyle()));
+    connect(m_pctrlYMinStyle, SIGNAL(clickedLB()), this, SLOT(onYMinStyle()));
 
 }
 
@@ -142,7 +142,7 @@ void GridSettingsDlg::initDialog()
 }
 
 
-void GridSettingsDlg::SetupLayout()
+void GridSettingsDlg::setupLayout()
 {
 	QGridLayout *pGridData = new QGridLayout;
 	{
@@ -208,7 +208,7 @@ void GridSettingsDlg::SetupLayout()
 }
 
 
-void GridSettingsDlg::OnNeutralStyle()
+void GridSettingsDlg::onNeutralStyle()
 {
     LinePickerDlg dlg(this);
 	dlg.initDialog(0,m_NeutralStyle,m_NeutralWidth,m_NeutralColor);
@@ -225,7 +225,7 @@ void GridSettingsDlg::OnNeutralStyle()
 }
 
 
-void GridSettingsDlg::OnXMajStyle()
+void GridSettingsDlg::onXMajStyle()
 {
     LinePickerDlg dlg(this);
 	dlg.initDialog(0,m_XStyle,m_XWidth,m_XColor);
@@ -241,7 +241,7 @@ void GridSettingsDlg::OnXMajStyle()
 	}
 }
 
-void GridSettingsDlg::OnXMinStyle()
+void GridSettingsDlg::onXMinStyle()
 {
     LinePickerDlg dlg(this);
 	dlg.initDialog(0,m_XMinStyle,m_XMinWidth,m_XMinColor);
@@ -258,7 +258,7 @@ void GridSettingsDlg::OnXMinStyle()
 
 }
 
-void GridSettingsDlg::OnYMajStyle()
+void GridSettingsDlg::onYMajStyle()
 {
     LinePickerDlg dlg(this);
 
@@ -275,7 +275,7 @@ void GridSettingsDlg::OnYMajStyle()
 	}
 }
 
-void GridSettingsDlg::OnYMinStyle()
+void GridSettingsDlg::onYMinStyle()
 {
     LinePickerDlg dlg(this);
 
@@ -292,19 +292,19 @@ void GridSettingsDlg::OnYMinStyle()
 	}
 }
 
-void GridSettingsDlg::OnNeutralShow(bool bShow)
+void GridSettingsDlg::onNeutralShow(bool bShow)
 {
 	m_bNeutralLine = bShow;
 	m_pctrlNeutralStyle->setEnabled(m_bNeutralLine);
 }
 
-void GridSettingsDlg::OnScale()
+void GridSettingsDlg::onScale()
 {
 	m_bScale = m_pctrlScale->isChecked();
 }
 
 
-void GridSettingsDlg::OnXMajShow(bool bShow)
+void GridSettingsDlg::onXMajShow(bool bShow)
 {
 	m_bXGrid = bShow;
 	m_pctrlXMajStyle->setEnabled(m_bXGrid);
@@ -315,7 +315,7 @@ void GridSettingsDlg::OnXMajShow(bool bShow)
 
 
 
-void GridSettingsDlg::OnYMajShow(bool bShow)
+void GridSettingsDlg::onYMajShow(bool bShow)
 {
 	m_bYGrid = bShow;
 	m_pctrlYMajStyle->setEnabled(m_bYGrid);
@@ -323,7 +323,7 @@ void GridSettingsDlg::OnYMajShow(bool bShow)
 }
 
 
-void GridSettingsDlg::OnXMinShow(bool bShow)
+void GridSettingsDlg::onXMinShow(bool bShow)
 {
 	m_bXMinGrid = bShow;
 	m_pctrlXMinStyle->setEnabled(m_bXMinGrid);
@@ -331,14 +331,14 @@ void GridSettingsDlg::OnXMinShow(bool bShow)
 }
 
 
-void GridSettingsDlg::OnYMinShow(bool bShow)
+void GridSettingsDlg::onYMinShow(bool bShow)
 {
 	m_bYMinGrid = bShow;
 	m_pctrlYMinStyle->setEnabled(m_bYMinGrid);
 	m_pctrlYMinUnit->setEnabled(m_bYMinGrid);
 }
 
-void GridSettingsDlg::OnOK()
+void GridSettingsDlg::onOK()
 {
 	m_XUnit = m_pctrlXUnit->value();
 	m_YUnit = m_pctrlYUnit->value();

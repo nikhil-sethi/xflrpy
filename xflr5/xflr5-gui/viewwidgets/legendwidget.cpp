@@ -110,7 +110,7 @@ void LegendWidget::paintEvent(QPaintEvent *event)
 
 
 
-QSize LegendWidget::sizeHint()
+QSize LegendWidget::sizeHint() const
 {
 	return QSize(150,150);
 }
@@ -171,7 +171,7 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 	strPlaneList.sort();
 #endif
 
-	painter.setBackgroundMode(Qt::TransparentMode);
+//	painter.setBackgroundMode(Qt::TransparentMode);
 	QBrush LegendBrush(Settings::s_BackgroundColor);
 	painter.setBrush(LegendBrush);
 
@@ -298,7 +298,6 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 		}
 	}
 
-	painter.setBackgroundMode(Qt::TransparentMode);
 
 	painter.setFont(Settings::s_TextFont);
 
@@ -309,8 +308,9 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 	painter.setPen(TextPen);
 	TextPen.setWidth(1);
 
-//	QBrush LegendBrush(Settings::s_BackgroundColor);
-//	painter.setBrush(LegendBrush);
+//	painter.setBackgroundMode(Qt::TransparentMode);
+	QBrush LegendBrush(Settings::s_BackgroundColor);
+	painter.setBrush(LegendBrush);
 
 	QPen LegendPen;
 	LegendPen.setWidth(1);
@@ -599,7 +599,9 @@ void LegendWidget::drawPolarLegend(QPainter &painter, QPointF place, int bottom)
 
 	nFoils= str.size();
 
-	painter.setBackgroundMode(Qt::TransparentMode);
+//	painter.setBackgroundMode(Qt::TransparentMode);
+	QBrush LegendBrush(Settings::s_BackgroundColor);
+	painter.setBrush(LegendBrush);
 
 	QPen LegendPen;
 	LegendPen.setWidth(1);
@@ -657,7 +659,7 @@ void LegendWidget::drawPolarLegend(QPainter &painter, QPointF place, int bottom)
 						x1 = place.x() + 1.5*LegendSize;
 						y1 = place.y() + 1.*legendHeight*ny;
 //						painter.drawRect(x1-2, place.y() + 1.*legendHeight*ny, 4, 4);
-						drawPoint(painter, pPolar->polarStyle(), QPoint(x1, y1));
+						drawPoint(painter, pPolar->pointStyle(), QPoint(x1, y1));
 					}
 
 					painter.setPen(TextPen);

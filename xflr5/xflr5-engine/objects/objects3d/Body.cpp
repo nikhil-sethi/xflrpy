@@ -1500,7 +1500,7 @@ bool Body::serializeBodyWPA(QDataStream &ar, bool bIsStoring)
 {
 	int ArchiveFormat;
 	int k, p, nStations;
-	float f,g,h;
+	float f,h;
 	double x,y,z;
 
 	if(bIsStoring)

@@ -188,7 +188,7 @@ bool XFoilTask::alphaSequence()
 		{
 			MaxSeries = 2;
 			SpMin = 0.0;
-            SpMax = SpMax;
+//            SpMax = SpMax;
 		}
 	}
 	else
@@ -283,7 +283,8 @@ bool XFoilTask::alphaSequence()
 				m_bErrors = true;
 			}
 
-            qApp->postEvent((QObject*)m_pParent, new XFoilOppEvent(m_pFoil, m_pPolar, &XFoilInstance));
+			XFoil *pXFoil = new XFoil(XFoilInstance);
+			qApp->postEvent((QObject*)m_pParent, new XFoilOppEvent(m_pFoil, m_pPolar, pXFoil));
 
             if(XFoil::s_bFullReport)
 			{
@@ -380,7 +381,8 @@ bool XFoilTask::ReSequence()
 
 		m_Iterations = 0;
 
-        qApp->postEvent((QObject*)m_pParent, new XFoilOppEvent(m_pFoil, m_pPolar, &XFoilInstance));
+		XFoil *pXFoil = new XFoil(XFoilInstance);
+		qApp->postEvent((QObject*)m_pParent, new XFoilOppEvent(m_pFoil, m_pPolar, pXFoil));
 
         if(XFoil::s_bFullReport)
 		{

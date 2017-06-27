@@ -40,9 +40,14 @@ CAddDlg::CAddDlg(QWidget *pParent) : QDialog(pParent)
 
 	setupLayout();
 
-	connect(ApplyButton, SIGNAL(clicked()),this, SLOT(onApply()));
-	connect(OKButton, SIGNAL(clicked()),this, SLOT(accept()));
-	connect(CancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+	connect(m_pctrlTo,     SIGNAL(editingFinished()), this, SLOT(onApply()));
+	connect(m_pctrlFrom,   SIGNAL(editingFinished()), this, SLOT(onApply()));
+	connect(m_pctrlAngTol, SIGNAL(editingFinished()), this, SLOT(onApply()));
+	connect(m_pctrlrb1,    SIGNAL(toggled(bool)),     this, SLOT(onApply()));
+	connect(m_pctrlrb2,    SIGNAL(toggled(bool)),     this, SLOT(onApply()));
+	connect(ApplyButton,   SIGNAL(clicked()),         this, SLOT(onApply()));
+	connect(OKButton,      SIGNAL(clicked()),         this, SLOT(accept()));
+	connect(CancelButton,  SIGNAL(clicked()),         this, SLOT(reject()));
 }
 
 void CAddDlg::setupLayout()

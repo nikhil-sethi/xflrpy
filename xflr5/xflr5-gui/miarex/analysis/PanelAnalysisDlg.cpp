@@ -30,6 +30,7 @@
 #include <QTimer>
 #include <QDir>
 #include <QKeyEvent>
+#include <QFontDatabase>
 #include <math.h>
 
 #include "PanelAnalysisDlg.h"
@@ -52,8 +53,6 @@ PanelAnalysisDlg::PanelAnalysisDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setWindowTitle(tr("3D Panel Analysis"));
 	setupLayout();
-
-	m_pctrlTextOutput->setFont(Settings::s_TableFont);
 
 	m_pTheTask = NULL;
 }
@@ -142,7 +141,7 @@ void PanelAnalysisDlg::setupLayout()
 	m_pctrlTextOutput->setReadOnly(true);
 	m_pctrlTextOutput->setLineWrapMode(QTextEdit::NoWrap);
 	m_pctrlTextOutput->setWordWrapMode(QTextOption::NoWrap);
-//	m_pctrlTextOutput->setFont(Settings::m_TableFont);
+	m_pctrlTextOutput->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 
 	m_pctrlProgress = new QProgressBar(this);
 	m_pctrlProgress->setOrientation(Qt::Horizontal);
