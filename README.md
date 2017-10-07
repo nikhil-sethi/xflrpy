@@ -1,6 +1,6 @@
 # XFLR5 for Ubuntu
 
-*This repo provides the latest [XFLR5](http://www.xflr5.com/xflr5.htm) (currently v6.38) patched for Ubuntu 16.04 LTS using Qt 5.9*
+*This repo provides the latest [XFLR5](http://www.xflr5.com/xflr5.htm) (currently v6.39) patched for Ubuntu 16.04 LTS using Qt 5.9*
 
 ## Installation
 
@@ -42,7 +42,7 @@ At this point, you should be all ready to go. You can check by running XFLR5 fro
 cd /path/to/repo
 mv xflr5.desktop ~/.local/share/applications/
 ```
-And now you should be able to launch *XFLR5 v6.38* from the Dash.
+And now you should be able to launch *XFLR5* from the Dash.
 
 ## Credits
 
