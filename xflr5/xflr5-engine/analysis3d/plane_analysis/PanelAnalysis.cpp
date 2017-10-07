@@ -1240,6 +1240,7 @@ void PanelAnalysis::computeFarField(double QInf, double Alpha0, double AlphaDelt
 			if(m_pWPolar->polarType()==XFLR5::FIXEDAOAPOLAR)       alpha = m_OpAlpha;
 			else if(m_pWPolar->polarType()==XFLR5::BETAPOLAR)      alpha = m_OpAlpha;
 			else if(m_pWPolar->polarType()==XFLR5::STABILITYPOLAR) alpha = m_OpAlpha;
+			else if(fabs(m_pWPolar->Beta())>PRECISION)             alpha = m_OpAlpha;
 			else                                                   alpha = Alpha0 + q*AlphaDelta;
 		}
 		WindNormal.set(-sin(alpha*PI/180.0), 0.0, cos(alpha*PI/180.0));
@@ -5409,6 +5410,7 @@ void PanelAnalysis::panelTrefftz(Wing *pWing, double QInf, double Alpha, double 
 	{
 		if(pWing->m_Surface.at(j)->m_bIsTipLeft && !pWPolar->bThinSurfaces()) p+=pWing->m_Surface.at(j)->m_NXPanels;//tip patch panels
 
+		Vector3d surfaceNormal(pWing->m_Surface.at(j)->Normal);
 		for (k=0; k<pWing->m_Surface.at(j)->m_NYPanels; k++)
 		{
 			pp = p;
@@ -5438,7 +5440,7 @@ void PanelAnalysis::panelTrefftz(Wing *pWing, double QInf, double Alpha, double 
 				getSpeedVector(C, Mu, Sigma, Wg, false);
 
 				pWing->m_Vd[m] = Wg;
-				InducedAngle = atan2(Wg.dot(WindNormal), QInf);
+				InducedAngle = atan2(Wg.dot(surfaceNormal), QInf);
 				pWing->m_Ai[m]      =       InducedAngle*180/PI;
 
 				// ____________________________
@@ -5458,8 +5460,8 @@ void PanelAnalysis::panelTrefftz(Wing *pWing, double QInf, double Alpha, double 
 
 				//____________________________
 				// Project on wind axes
-				pWing->m_Cl[m]    = StripForce.dot(WindNormal)   /pWing->m_StripArea[m];
-				pWing->m_ICd[m]   = StripForce.dot(WindDirection)/pWing->m_StripArea[m];
+				pWing->m_Cl[m]    = StripForce.dot(surfaceNormal)   /pWing->m_StripArea[m];
+				pWing->m_ICd[m]   = StripForce.dot(WindDirection)   /pWing->m_StripArea[m];
 				WingIDrag += StripForce.dot(WindDirection);          // N/q
 			}
 			else
@@ -5482,7 +5484,7 @@ void PanelAnalysis::panelTrefftz(Wing *pWing, double QInf, double Alpha, double 
 						if(pWing->m_pWingPanel[pp].m_bIsTrailing)
 						{
 							pWing->m_Vd[m]      = Wg;
-							InducedAngle = atan2(Wg.dot(WindNormal), QInf);
+							InducedAngle = atan2(Wg.dot(surfaceNormal), QInf);
 							pWing->m_Ai[m]      = InducedAngle*180/PI;
 						}
 
@@ -5500,7 +5502,7 @@ void PanelAnalysis::panelTrefftz(Wing *pWing, double QInf, double Alpha, double 
 
 				//____________________________
 				// Project on wind axes
-				pWing->m_Cl[m]    = StripForce.dot(WindNormal)   /pWing->m_StripArea[m];
+				pWing->m_Cl[m]    = StripForce.dot(surfaceNormal)   /pWing->m_StripArea[m];
 				pWing->m_ICd[m]   = StripForce.dot(WindDirection)/pWing->m_StripArea[m];
 				pWing->m_WingCL      += StripForce.dot(WindNormal);                // N/q
 				WingIDrag += StripForce.dot(WindDirection);          // N/q

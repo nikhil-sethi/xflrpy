@@ -42,31 +42,30 @@ FlapDlg::FlapDlg(QWidget *pParent) : QDialog(pParent)
 	m_LEFlapAngle = 0.0;
 	m_LEXHinge    = 20.0;//%
 	m_LEYHinge    = 50.0;//%
-	m_pXFoil    = NULL;
 
 	m_bModified   = false;
 	m_bApplied    = true;
 
-	SetupLayout();
+	setupLayout();
 
-	connect(ApplyButton, SIGNAL(clicked()),this, SLOT(OnApply()));
+	connect(ApplyButton, SIGNAL(clicked()),this, SLOT(onApply()));
 	connect(OKButton, SIGNAL(clicked()),this, SLOT(OnOK()));
 	connect(CancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
-	connect(m_pctrlLEFlapCheck, SIGNAL(stateChanged(int)), this, SLOT(OnLEFlapCheck(int)));
-	connect(m_pctrlTEFlapCheck, SIGNAL(stateChanged(int)), this, SLOT(OnTEFlapCheck(int)));
+	connect(m_pctrlLEFlapCheck, SIGNAL(stateChanged(int)), this, SLOT(onLEFlapCheck(int)));
+	connect(m_pctrlTEFlapCheck, SIGNAL(stateChanged(int)), this, SLOT(onTEFlapCheck(int)));
 
-	connect(m_pctrlLEXHinge, SIGNAL(editingFinished()), this, SLOT(OnChanged()));
-	connect(m_pctrlLEYHinge, SIGNAL(editingFinished()), this, SLOT(OnChanged()));
-	connect(m_pctrlTEXHinge, SIGNAL(editingFinished()), this, SLOT(OnChanged()));
-	connect(m_pctrlTEYHinge, SIGNAL(editingFinished()), this, SLOT(OnChanged()));
-	connect(m_pctrlLEFlapAngle, SIGNAL(editingFinished()), this, SLOT(OnChanged()));
-	connect(m_pctrlTEFlapAngle, SIGNAL(editingFinished()), this, SLOT(OnChanged()));
+	connect(m_pctrlLEXHinge, SIGNAL(editingFinished()), this, SLOT(onChanged()));
+	connect(m_pctrlLEYHinge, SIGNAL(editingFinished()), this, SLOT(onChanged()));
+	connect(m_pctrlTEXHinge, SIGNAL(editingFinished()), this, SLOT(onChanged()));
+	connect(m_pctrlTEYHinge, SIGNAL(editingFinished()), this, SLOT(onChanged()));
+	connect(m_pctrlLEFlapAngle, SIGNAL(editingFinished()), this, SLOT(onChanged()));
+	connect(m_pctrlTEFlapAngle, SIGNAL(editingFinished()), this, SLOT(onChanged()));
 
 }
 
 
-void FlapDlg::SetupLayout()
+void FlapDlg::setupLayout()
 {
 	QGridLayout *pFlapDataLayout = new QGridLayout;
 	{
@@ -128,20 +127,20 @@ void FlapDlg::initDialog()
 {
 	m_pctrlTEFlapCheck->setChecked(m_pMemFoil->m_bTEFlap);
 
-	EnableTEFlap(m_pMemFoil->m_bTEFlap);
+	enableTEFlap(m_pMemFoil->m_bTEFlap);
 	m_pctrlTEFlapAngle->setValue(m_pMemFoil->m_TEFlapAngle);
 	m_pctrlTEXHinge->setValue(m_pMemFoil->m_TEXHinge);
 	m_pctrlTEYHinge->setValue(m_pMemFoil->m_TEYHinge);
 
 	m_pctrlLEFlapCheck->setChecked(m_pMemFoil->m_bLEFlap);
-	EnableLEFlap(m_pMemFoil->m_bLEFlap);
+	enableLEFlap(m_pMemFoil->m_bLEFlap);
 	m_pctrlLEFlapAngle->setValue(m_pMemFoil->m_LEFlapAngle);
 	m_pctrlLEXHinge->setValue(m_pMemFoil->m_LEXHinge);
 	m_pctrlLEYHinge->setValue(m_pMemFoil->m_LEYHinge);
 }
 
 
-void FlapDlg::ReadParams()
+void FlapDlg::readParams()
 {
 	m_bLEFlap = m_pctrlLEFlapCheck->isChecked();
 	m_LEFlapAngle = m_pctrlLEFlapAngle->value();
@@ -162,12 +161,12 @@ void FlapDlg::ReadParams()
 }
 
 
-void FlapDlg::OnApply()
+void FlapDlg::onApply()
 {
 	if(m_bApplied) return;
 	//reset everything and retry
 
-	ReadParams();
+	readParams();
 
 	m_pBufferFoil->setTEFlapData(m_bTEFlap, m_TEXHinge, m_TEYHinge, m_TEFlapAngle);
 	m_pBufferFoil->setLEFlapData(m_bLEFlap, m_LEXHinge, m_LEYHinge, m_LEFlapAngle);
@@ -194,7 +193,7 @@ void FlapDlg::keyPressEvent(QKeyEvent *event)
 		{
 			if(!OKButton->hasFocus() && !CancelButton->hasFocus())
 			{
-				OnApply();
+				onApply();
 				OKButton->setFocus();
 				m_bApplied  = true;
 			}
@@ -210,56 +209,61 @@ void FlapDlg::keyPressEvent(QKeyEvent *event)
 	}
 }
 
-void FlapDlg::EnableLEFlap(bool bEnable)
+void FlapDlg::enableLEFlap(bool bEnable)
 {
 	m_pctrlLEFlapAngle->setEnabled(bEnable);
 	m_pctrlLEXHinge->setEnabled(bEnable);
 	m_pctrlLEYHinge->setEnabled(bEnable);
 }
 
-void FlapDlg::EnableTEFlap(bool bEnable)
+void FlapDlg::enableTEFlap(bool bEnable)
 {
 	m_pctrlTEFlapAngle->setEnabled(bEnable);
 	m_pctrlTEXHinge->setEnabled(bEnable);
 	m_pctrlTEYHinge->setEnabled(bEnable);
 }
 
-void FlapDlg::OnTEFlapCheck(int)
+
+void FlapDlg::onTEFlapCheck(int)
 {
 	if(m_pctrlTEFlapCheck->isChecked())
 	{
-		EnableTEFlap(true);
+		enableTEFlap(true);
 		m_pctrlTEFlapAngle->setFocus();
 	}
 	else
-		EnableTEFlap(false);
+		enableTEFlap(false);
 	m_bApplied = false;
-	OnApply();
+	onApply();
 }
 
-void FlapDlg::OnLEFlapCheck(int)
+
+void FlapDlg::onLEFlapCheck(int)
 {
 	if(m_pctrlLEFlapCheck->isChecked())
 	{
-		EnableLEFlap(true);
+		enableLEFlap(true);
 		m_pctrlLEFlapAngle->setFocus();
 	}
 	else
-		EnableLEFlap(false);
+		enableLEFlap(false);
 	m_bApplied = false;
-	OnApply();
+	onApply();
 }
 
-void FlapDlg::OnChanged()
+
+void FlapDlg::onChanged()
 {
 	m_bApplied = false;
+	onApply();
 }
+
 
 void FlapDlg::OnOK()
 {
 	if(!m_bApplied)
 	{
-		OnApply();
+		onApply();
 		accept();
 	}
 	else done(1);

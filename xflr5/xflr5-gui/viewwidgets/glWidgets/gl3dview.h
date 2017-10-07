@@ -113,7 +113,6 @@ protected:
 	void glMakeArcBall();
 	void glMakeBody3DFlatPanels(Body *pBody);
 	void glMakeBodySplines(Body *pBody);
-	void glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, Vector3d *pNode, Panel *pPanel, PlaneOpp *pPOpp);
 	void glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody);
 	void glMakeWingMesh(Wing *pWing);
 	void glMakeWingSectionHighlight(Wing *pWing, int iSectionHighLight, bool bRightSide);
@@ -129,7 +128,6 @@ protected:
 	virtual void paintOverlay() = 0;
 	void paintArcBall();
 	void paintAxes();
-	void paintMesh(int nPanels);
 	void paintWingMesh(Wing *pWing);
 	void paintSectionHighlight();
 	void paintBody(Body *pBody);
@@ -157,7 +155,6 @@ protected:
 	QOpenGLBuffer m_vboWingSurface[MAXWINGS], m_vboWingOutline[MAXWINGS];
 	QOpenGLBuffer m_vboEditMesh;
 	QOpenGLBuffer m_vboHighlight;
-	QOpenGLBuffer m_vboMesh, m_vboLegendColor;
 	QOpenGLBuffer m_vboSphere;
 	QOpenGLTexture 	*m_pLeftBodyTexture, *m_pRightBodyTexture;
 	QOpenGLTexture 	*m_pWingTopLeftTexture[MAXWINGS], *m_pWingTopRightTexture[MAXWINGS], *m_pWingBotLeftTexture[MAXWINGS], *m_pWingBotRightTexture[MAXWINGS];

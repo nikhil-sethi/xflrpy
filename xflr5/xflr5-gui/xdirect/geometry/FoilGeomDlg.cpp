@@ -240,7 +240,9 @@ void FoilGeomDlg::apply()
 	//reset everything and retry
 	int i,j;
 
-	for (i=0; i< m_pMemFoil->nb; i++)
+	m_pBufferFoil->copyFoil(m_pMemFoil);
+	pXFoil->initXFoilGeometry(m_pBufferFoil->n, m_pBufferFoil->x, m_pBufferFoil->y, m_pBufferFoil->nx, m_pBufferFoil->ny);
+/*	for (i=0; i< m_pMemFoil->nb; i++)
 	{
 		pXFoil->xb[i+1] = m_pMemFoil->xb[i];
 		pXFoil->yb[i+1] = m_pMemFoil->yb[i];
@@ -252,17 +254,12 @@ void FoilGeomDlg::apply()
 	if(pXFoil->Preprocess())
 	{
 		pXFoil->CheckAngles();
-/*		for (int k=0; k<pXFoil->n;k++){
-			m_pMemFoil->nx[k] = pXFoil->nx[k+1];
-			m_pMemFoil->ny[k] = pXFoil->ny[k+1];
-		}
-		m_pMemFoil->n = pXFoil->n;*/
 	}
 	else
 	{
 		QMessageBox::information(window(), tr("Warning"), "Unrecognized foil format");
 		return;
-	}
+	}*/
 
 //	if(!m_bApplied)
 	{

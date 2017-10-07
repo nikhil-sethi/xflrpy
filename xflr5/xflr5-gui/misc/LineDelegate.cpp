@@ -23,6 +23,8 @@
 #include "LineDelegate.h"
 #include "LineCbBox.h"
 #include <globals.h>
+#include <graph_globals.h>
+
 
 LineDelegate::LineDelegate(QObject *parent)
     : QAbstractItemDelegate(parent)
@@ -68,7 +70,7 @@ void LineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 	{
 		LinePen.setStyle(Qt::SolidLine);
 		painter->setPen(LinePen);
-		drawPoint(*painter, m_PointStyle[index.row()], option.rect.center());
+		drawPoint(*painter, m_PointStyle[index.row()], QColor(255,255,255), option.rect.center());
 	}
 	painter->restore();
 }

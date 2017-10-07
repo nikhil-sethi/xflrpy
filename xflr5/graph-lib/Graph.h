@@ -169,7 +169,7 @@ public:
 	void resetYLimits();
 
 	int curveCount() {return m_oaCurves.size();}
-	QList<void*> *getCurves(){return &m_oaCurves;}
+	QList<Curve*> *getCurves(){return &m_oaCurves;}
 
 
 	QColor backgroundColor(){return m_BkColor;}
@@ -213,7 +213,7 @@ private:
 
 	QString m_XTitle;
 	QString m_YTitle;
-	QList<void*> m_oaCurves;
+	QList<Curve*> m_oaCurves;
 
 	QPoint m_ptoffset; //in screen coordinates, w.r.t. the client area
 

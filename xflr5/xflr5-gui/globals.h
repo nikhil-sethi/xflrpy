@@ -62,9 +62,6 @@ void Trace(QString msg, int n);
 void Trace(QString msg, double f);
 
 
-Qt::PenStyle getStyle(int s);
-
-
 
 void GLLineStipple(int style);
 
@@ -95,8 +92,8 @@ void * readPolarFile(QFile &plrFile, QList<Polar*> &polarList);
 
 void drawFoil(QPainter &painter, Foil*pFoil, double const &alpha, double const &scalex, double const &scaley, QPointF const &Offset);
 void drawMidLine(QPainter &painter, Foil*pFoil, double const &scalex, double const &scaley, QPointF const &Offset);
-void drawPoints(QPainter &painter, Foil*pFoil, double alpha, double const &scalex, double const &scaley, QPointF const &Offset);
-void drawPoint(QPainter &painter, int pointStyle, QPoint pt);
+void drawPoints(QPainter &painter, Foil*pFoil, double alpha, double const &scalex, double const &scaley, QPointF const &Offset, QColor backColor);
+void drawPoint(QPainter &painter, int pointStyle, QColor bkColor, QPoint pt);
 
 bool stringToBool(QString str);
 QString referenceDimension(XFLR5::enumRefDimension refDimension);

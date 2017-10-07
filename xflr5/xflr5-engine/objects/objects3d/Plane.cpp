@@ -470,7 +470,7 @@ void Plane::setPlaneName(QString planeName)
 void Plane::createSurfaces()
 {
 	m_Wing[0].createSurfaces(m_WingLE[0],   0.0, m_WingTiltAngle[0]);
-	if(wing(1)) m_Wing[1].createSurfaces(m_WingLE[1],   0.0, m_WingTiltAngle[1]);
+	if(wing(1))	m_Wing[1].createSurfaces(m_WingLE[1],   0.0, m_WingTiltAngle[1]);
 	if(wing(2)) m_Wing[2].createSurfaces(m_WingLE[2],   0.0, m_WingTiltAngle[2]);
 	if(wing(3)) m_Wing[3].createSurfaces(m_WingLE[3], -90.0, m_WingTiltAngle[3]);
 

@@ -20,11 +20,15 @@
 *****************************************************************************/
 
 #include <globals.h>
+#include <graph_globals.h>
 #include "./Settings.h"
 #include "LineCbBox.h"
 #include <QtDebug>
 #include <QPainter>
 #include <QPaintEvent>
+
+
+
 
 LineCbBox::LineCbBox(QWidget *pParent)
 	:QComboBox(pParent)
@@ -78,35 +82,29 @@ void LineCbBox::paintEvent (QPaintEvent *event)
 
 	painter.save();
 
-//	painter.setRenderHint(QPainter::Antialiasing);
-
-	QColor ContourColor = Qt::gray;
-
-	if(!isEnabled()) ContourColor = Qt::lightGray;
-
-	QRect r = event->rect();
-//	QRect g = rect();
-	painter.setBrush(Qt::NoBrush);
-	painter.setBackgroundMode(Qt::TransparentMode);
-
-	QPen LinePen(m_LineStyle.m_Color);
-	LinePen.setStyle(getStyle(m_LineStyle.m_Style));
-	LinePen.setWidth(m_LineStyle.m_Width);
-	painter.setPen(LinePen);
-	painter.drawLine(r.left()+5, r.center().y(), r.width()-10, r.center().y());
-
-	if(m_bShowPoints)
+	if(isEnabled())
 	{
-		LinePen.setStyle(Qt::SolidLine);
+
+		QRect r = event->rect();
+	//	QRect g = rect();
+		painter.setBrush(Qt::NoBrush);
+		painter.setBackgroundMode(Qt::TransparentMode);
+
+		QPen LinePen(m_LineStyle.m_Color);
+		LinePen.setStyle(getStyle(m_LineStyle.m_Style));
+		LinePen.setWidth(m_LineStyle.m_Width);
 		painter.setPen(LinePen);
+		painter.drawLine(r.left()+5, r.center().y(), r.width()-10, r.center().y());
 
-		drawPoint(painter, m_LineStyle.m_PointStyle, r.center());
+		if(m_bShowPoints)
+		{
+			LinePen.setStyle(Qt::SolidLine);
+			painter.setPen(LinePen);
+
+			QPalette palette;
+			drawPoint(painter, m_LineStyle.m_PointStyle, palette.window().color(), r.center());
+		}
 	}
-
-//	QPen ContourPen(ContourColor);
-//	painter.setPen(ContourPen);
-//	r.adjust(0,2,-1,-3);
-//	painter.drawRoundRect(r,5,40);
 
 	painter.restore();
 }

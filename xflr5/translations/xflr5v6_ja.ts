@@ -140,7 +140,7 @@
     </message>
     <message>
         <source>This program has been developed exclusively for the analysis of model aircraft</source>
-        <translation>This program has been developed exclusively for the analysis of model aircraft</translation>
+        <translation type="vanished">This program has been developed exclusively for the analysis of model aircraft</translation>
     </message>
     <message>
         <source>Any other usage is strongly disapproved</source>
@@ -175,16 +175,17 @@
     </message>
     <message>
         <source>Copyright (C) Andre Deperrois 2003-2014</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
              {2003-2014?}</translation>
-    </message>
-    <message>
-        <source>Any other usage is expressly prohibited</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>German translation by Martin Willner</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copyright (C) Andre Deperrois 2003-2016</source>
+        <translation type="unfinished">
+             {2003-2016?}</translation>
     </message>
 </context>
 <context>
@@ -474,6 +475,10 @@ CpCalc: local speed too large
         <source> ...some points are unconverged</source>
         <translation type="unfinished"> ...いくつかの点で未収束です</translation>
     </message>
+    <message>
+        <source>Iterations control</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>BatchThreadDlg</name>
@@ -572,7 +577,7 @@ CpCalc: local speed too large
     </message>
     <message>
         <source>Update the polar graphs after the completion of each foil/polar pair</source>
-        <translation>翼型と曲線のペア完了したときにグラフを更新します</translation>
+        <translation type="vanished">翼型と曲線のペア完了したときにグラフを更新します</translation>
     </message>
     <message>
         <source>Close</source>
@@ -593,6 +598,54 @@ CpCalc: local speed too large
     <message>
         <source>Advanced Settings</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update the polar graphs after the completion of each foil/polar pair.
+Uncheck for increased analysis speed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max. Threads to use for the analysis:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BodyFrameWidget</name>
+    <message>
+        <source>Scale Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert Control Point</source>
+        <translation type="unfinished">操作点の挿入</translation>
+    </message>
+    <message>
+        <source>Remove Control Point</source>
+        <translation type="unfinished">操作点の削除</translation>
+    </message>
+    <message>
+        <source>Show Current Frame Only</source>
+        <translation type="unfinished">現在のフレームのみを表示</translation>
+    </message>
+    <message>
+        <source>Reset Scales</source>
+        <translation type="unfinished">縮尺をリセット</translation>
+    </message>
+    <message>
+        <source>Grid Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load background image</source>
+        <translation type="unfinished">背景画像の読み込み</translation>
+    </message>
+    <message>
+        <source>Clear background image</source>
+        <translation type="unfinished">背景画像のクリア</translation>
     </message>
 </context>
 <context>
@@ -635,6 +688,37 @@ CpCalc: local speed too large
     <message>
         <source>Cancel</source>
         <translation>キャンセル</translation>
+    </message>
+</context>
+<context>
+    <name>BodyLineWidget</name>
+    <message>
+        <source>Scale Body</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert Control Point</source>
+        <translation type="unfinished">操作点の挿入</translation>
+    </message>
+    <message>
+        <source>Remove Control Point</source>
+        <translation type="unfinished">操作点の削除</translation>
+    </message>
+    <message>
+        <source>Reset Scales</source>
+        <translation type="unfinished">縮尺をリセット</translation>
+    </message>
+    <message>
+        <source>Grid Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load background image</source>
+        <translation type="unfinished">背景画像の読み込み</translation>
+    </message>
+    <message>
+        <source>Clear background image</source>
+        <translation type="unfinished">背景画像のクリア</translation>
     </message>
 </context>
 <context>
@@ -864,7 +948,7 @@ CpCalc: local speed too large
     <name>EditBodyDlg</name>
     <message>
         <source>Insert Before</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -976,12 +1060,8 @@ CpCalc: local speed too large
     </message>
     <message>
         <source>Clip:</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
-    </message>
-    <message>
-        <source>Reset view</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save the changes ?</source>
@@ -990,6 +1070,72 @@ CpCalc: local speed too large
     <message>
         <source>Question</source>
         <translation type="unfinished">確認</translation>
+    </message>
+    <message>
+        <source>Insert before</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation type="unfinished">拡大縮小</translation>
+    </message>
+    <message>
+        <source>Export Body Geometry to text File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export body definition to an XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import body definition from an XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Define Inertia</source>
+        <translation type="unfinished">慣性の設定</translation>
+    </message>
+    <message>
+        <source>Translate</source>
+        <translation type="unfinished">移動</translation>
+    </message>
+    <message>
+        <source>Actions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Actions...</source>
+        <translation type="unfinished">アクション...</translation>
+    </message>
+    <message>
+        <source>Flip View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export plane definition to xml file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open XML File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plane XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not read the file
+</source>
+        <translation type="unfinished">ファイルを読み込めませんでした
+</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation type="unfinished">警告</translation>
     </message>
 </context>
 <context>
@@ -1112,10 +1258,6 @@ CpCalc: local speed too large
         <translation type="unfinished">等角表示</translation>
     </message>
     <message>
-        <source>Reset view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Clip:</source>
         <translation type="unfinished">
             </translation>
@@ -1215,6 +1357,14 @@ CpCalc: local speed too large
     </message>
     <message>
         <source>TailVolume     =</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flip View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset scale</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1573,6 +1723,10 @@ CpCalc: local speed too large
         <source>Alpha =</source>
         <translation>迎え角 =</translation>
     </message>
+    <message>
+        <source> </source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FoilSelectionDlg</name>
@@ -1588,112 +1742,84 @@ CpCalc: local speed too large
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>
+    <message>
+        <source>Select All</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FoilWidget</name>
     <message>
         <source>Thickness         = %1</source>
-        <translation type="unfinished">翼厚 = %1</translation>
+        <translation type="obsolete">翼厚 = %1</translation>
     </message>
     <message>
         <source>Max. Thick.pos.   = %1</source>
-        <translation type="unfinished">最大翼厚位置 = %1</translation>
+        <translation type="obsolete">最大翼厚位置 = %1</translation>
     </message>
     <message>
         <source>Max. Camber       = %1</source>
-        <translation type="unfinished">最大キャンバ = %1</translation>
+        <translation type="obsolete">最大キャンバ = %1</translation>
     </message>
     <message>
         <source>Max. Camber pos.  = %1</source>
-        <translation type="unfinished">最大キャンバ位置 = %1</translation>
+        <translation type="obsolete">最大キャンバ位置 = %1</translation>
     </message>
     <message>
         <source>Number of Panels  =  %1</source>
-        <translation type="unfinished">パネル数 = %1</translation>
+        <translation type="obsolete">パネル数 = %1</translation>
     </message>
     <message>
         <source>Flap Angle = %1</source>
-        <translation type="unfinished">フラップ角度 = %1</translation>
+        <translation type="obsolete">フラップ角度 = %1</translation>
     </message>
     <message>
         <source>XHinge     = %1</source>
-        <translation type="unfinished">XHinge = %1</translation>
+        <translation type="obsolete">XHinge = %1</translation>
     </message>
     <message>
         <source>YHinge     = %1</source>
-        <translation type="unfinished">YHinge = %1</translation>
+        <translation type="obsolete">YHinge = %1</translation>
     </message>
     <message>
         <source>TE Hinge Moment/span = 0123456789</source>
-        <translation type="unfinished">TE Hinge Moment/span = 0123456789</translation>
-    </message>
-    <message>
-        <source>Fixed speed polar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fixed lift polar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rubber chord polar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fixed a.o.a. polar</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">TE Hinge Moment/span = 0123456789</translation>
     </message>
     <message>
         <source>Re.sqrt(Cl) = </source>
-        <translation type="unfinished">Re.sqrt(Cl) = </translation>
+        <translation type="obsolete">Re.sqrt(Cl) = </translation>
     </message>
     <message>
         <source>M.sqrt(Cl) = %1</source>
-        <translation type="unfinished">M.sqrt(Cl) = %1</translation>
+        <translation type="obsolete">M.sqrt(Cl) = %1</translation>
     </message>
     <message>
         <source>Forced Upper Trans. = %1</source>
-        <translation type="unfinished">上面強制遷移 = %1</translation>
+        <translation type="obsolete">上面強制遷移 = %1</translation>
     </message>
     <message>
         <source>Forced Lower Trans. = %1</source>
-        <translation type="unfinished">下面強制遷移 =%1</translation>
-    </message>
-    <message>
-        <source>Alpha = %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cl = %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">下面強制遷移 =%1</translation>
     </message>
     <message>
         <source>Cm = %1</source>
-        <translation type="unfinished">モーメント係数＝  {1?}</translation>
-    </message>
-    <message>
-        <source>Cd = %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>L/D = %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">モーメント係数＝  {1?}</translation>
     </message>
     <message>
         <source>Upper Trans. = %1</source>
-        <translation type="unfinished">上面遷移 = %1</translation>
+        <translation type="obsolete">上面遷移 = %1</translation>
     </message>
     <message>
         <source>Lower Trans. = %1</source>
-        <translation type="unfinished">下面遷移 = %1</translation>
+        <translation type="obsolete">下面遷移 = %1</translation>
     </message>
     <message>
         <source>TE Hinge Moment/span = %1</source>
-        <translation type="unfinished">後縁ヒンジモーメント/スパン = %1</translation>
+        <translation type="obsolete">後縁ヒンジモーメント/スパン = %1</translation>
     </message>
     <message>
         <source>LE Hinge Moment/span = %1</source>
-        <translation type="unfinished">前縁ヒンジモーメント/スパン = %1</translation>
+        <translation type="obsolete">前縁ヒンジモーメント/スパン = %1</translation>
     </message>
 </context>
 <context>
@@ -1808,7 +1934,7 @@ CpCalc: local speed too large
     </message>
     <message>
         <source>Show Current Frame Only</source>
-        <translation>現在のフレームのみを表示</translation>
+        <translation type="vanished">現在のフレームのみを表示</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -1845,11 +1971,11 @@ CpCalc: local speed too large
     </message>
     <message>
         <source>Frame %1</source>
-        <translation>フレーム %1</translation>
+        <translation type="vanished">フレーム %1</translation>
     </message>
     <message>
         <source>Scale = %1</source>
-        <translation>スケール = %1</translation>
+        <translation type="vanished">スケール = %1</translation>
     </message>
     <message>
         <source>NPanels</source>
@@ -1863,11 +1989,11 @@ CpCalc: local speed too large
     </message>
     <message>
         <source>Insert Point</source>
-        <translation>点の挿入</translation>
+        <translation type="vanished">点の挿入</translation>
     </message>
     <message>
         <source>Remove Point</source>
-        <translation>点の削除</translation>
+        <translation type="vanished">点の削除</translation>
     </message>
     <message>
         <source>Save the Body ?</source>
@@ -1880,7 +2006,7 @@ CpCalc: local speed too large
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -1902,11 +2028,11 @@ CpCalc: local speed too large
     </message>
     <message>
         <source>Pick Center</source>
-        <translation>中心に移動</translation>
+        <translation type="vanished">中心に移動</translation>
     </message>
     <message>
         <source>Clip Plane</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -1998,7 +2124,7 @@ CpCalc: local speed too large
     </message>
     <message>
         <source>Context Menu</source>
-        <translation>コンテキストメニュー</translation>
+        <translation type="vanished">コンテキストメニュー</translation>
     </message>
     <message>
         <source>Define Inertia</source>
@@ -2054,6 +2180,30 @@ CpCalc: local speed too large
         <source>Warning</source>
         <translation type="unfinished">警告</translation>
     </message>
+    <message>
+        <source>Flip View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation type="unfinished">スタイル</translation>
+    </message>
+    <message>
+        <source>Textures</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">種類</translation>
+    </message>
 </context>
 <context>
     <name>GL3dWingDlg</name>
@@ -2063,7 +2213,7 @@ CpCalc: local speed too large
     </message>
     <message>
         <source>Warning : Panel sequence is inconsistent</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -2361,15 +2511,39 @@ Reduce the mesh size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Other</source>
         <translation type="unfinished">その他</translation>
     </message>
     <message>
         <source>Actions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning : Panel sequence is inconsistent. The sections should be ordered from root to tip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zero length chords will cause a division by zero and should be avoided.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zero length flaps will cause a division by zero and should be avoided.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Textures</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flip View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset scale</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2429,44 +2603,44 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Emissions</source>
-        <translation>放射</translation>
+        <translation type="vanished">放射</translation>
     </message>
     <message>
         <source>Shininess</source>
-        <translation>輝き</translation>
+        <translation type="vanished">輝き</translation>
     </message>
     <message>
         <source>Material</source>
-        <translation>素材</translation>
+        <translation type="vanished">素材</translation>
     </message>
     <message>
         <source>Color Material</source>
-        <translation>色をつける</translation>
+        <translation type="vanished">色をつける</translation>
     </message>
     <message>
         <source>Cull Faces</source>
-        <translation>面の抜粋</translation>
+        <translation type="vanished">面の抜粋</translation>
     </message>
     <message>
         <source>Smooth Quads</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
         <source>Depth Test</source>
-        <translation>深度テスト</translation>
+        <translation type="vanished">深度テスト</translation>
     </message>
     <message>
         <source>Smooth Shading</source>
-        <translation>スムースシェーディング</translation>
+        <translation type="vanished">スムースシェーディング</translation>
     </message>
     <message>
         <source>Local View</source>
-        <translation>ローカルビュー</translation>
+        <translation type="vanished">ローカルビュー</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>オプション</translation>
+        <translation type="vanished">オプション</translation>
     </message>
     <message>
         <source>Close</source>
@@ -2479,6 +2653,21 @@ Reduce the mesh size</source>
     <message>
         <source>Light</source>
         <translation>ライト</translation>
+    </message>
+    <message>
+        <source>Attenuation factor=1/(</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Material Shininess</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GLRenderWindow</name>
+    <message>
+        <source>makeCurrent() failed</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3495,6 +3684,10 @@ Reduce the mesh size</source>
         <source>    ...unconverged after %1 iterations</source>
         <translation type="vanished">    ...%1 回の反復後に収束しませんでした</translation>
     </message>
+    <message>
+        <source>Keep this window opened on errors</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LengthUnitDlg</name>
@@ -3548,6 +3741,10 @@ Reduce the mesh size</source>
     <message>
         <source>Cancel</source>
         <translation>キャンセル</translation>
+    </message>
+    <message>
+        <source>Points</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3959,7 +4156,7 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Define the style and color preferences for the 3D view</source>
-        <translation>3D表示のスタイルと色を設定します</translation>
+        <translation type="vanished">3D表示のスタイルと色を設定します</translation>
     </message>
     <message>
         <source>Define which type of polars should be shown or hidden</source>
@@ -4020,7 +4217,7 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Import a polar from a text file</source>
-        <translation>テキストファイルからポーラーを読み込みます</translation>
+        <translation type="vanished">テキストファイルからポーラーを読み込みます</translation>
     </message>
     <message>
         <source>Define the inertia for the current plane or wing</source>
@@ -4285,7 +4482,7 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>3D Color Preferences</source>
-        <translation>3Dの色選択</translation>
+        <translation type="vanished">3Dの色選択</translation>
     </message>
     <message>
         <source>Polar Filter</source>
@@ -4439,7 +4636,7 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Import Polar</source>
-        <translation>ポーラーカーブのインポート</translation>
+        <translation type="vanished">ポーラーカーブのインポート</translation>
     </message>
     <message>
         <source>Define Inertia</source>
@@ -4549,7 +4746,7 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Export ...</source>
-        <translation>エクスポート ...</translation>
+        <translation type="vanished">エクスポート ...</translation>
     </message>
     <message>
         <source>Reset ...</source>
@@ -4724,11 +4921,11 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Show Panels</source>
-        <translation>パネルの表示</translation>
+        <translation type="vanished">パネルの表示</translation>
     </message>
     <message>
         <source>Show the foil&apos;s panels</source>
-        <translation>翼型のパネルを表示します</translation>
+        <translation type="vanished">翼型のパネルを表示します</translation>
     </message>
     <message>
         <source>Reset Foil Scale</source>
@@ -4847,7 +5044,7 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Import XFoil Polar</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -4935,16 +5132,16 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Zoom X Scale</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
         <source>Zoom X Scale Only</source>
-        <translation>X方向のみ拡大</translation>
+        <translation type="vanished">X方向のみ拡大</translation>
     </message>
     <message>
         <source>Zoom Y Scale</source>
-        <translation>Y方向を拡大</translation>
+        <translation type="vanished">Y方向を拡大</translation>
     </message>
     <message>
         <source>&amp;Graph</source>
@@ -5039,11 +5236,11 @@ XFLR5は正常に動作しません.</translation>
     </message>
     <message>
         <source>Save Options</source>
-        <translation>保存オプション</translation>
+        <translation type="vanished">保存オプション</translation>
     </message>
     <message>
         <source>Define the save options for operating points</source>
-        <translation>計算点のための保存オプションを設定</translation>
+        <translation type="vanished">計算点のための保存オプションを設定</translation>
     </message>
     <message>
         <source>Units...</source>
@@ -5225,10 +5422,6 @@ Please enter a new name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Inverse foil analysis</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Plane analysis</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5274,10 +5467,6 @@ Please enter a new name</source>
     </message>
     <message>
         <source>Export to xml file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Import plane from xml file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5346,11 +5535,127 @@ Please enter a new name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Support for OpenGL provided by your system:</source>
+        <source>Set a transparent background ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set a transparent background ?</source>
+        <source>Load Last Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loads the last saved project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load and Save Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Execute Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Executes a set of foil and plane analysis defined in an xml file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set chord line level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inverse foil design</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display mouse coordinates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display the coordinates of the mouse on the top right corner of the graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>3D View Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Define the preferences for the 3D view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resets the display scale so that the plane fits in the window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show flap moments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display the flap moment values together with the other operating point results</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit elevator...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit fin...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export to STL...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export the current wing to a file in the STL format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Polar(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import polar(s) from text file(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export polar(s) to text file(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Only Associated OpPoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export results</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import plane(s) from xml file(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export analysis to xml file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import analysis from xml file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import analysis definition(s) from XML file(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import XFoil Polar(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Analysis from xml file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5736,6 +6041,228 @@ Continue ?</source>
     </message>
 </context>
 <context>
+    <name>OpPointWidget</name>
+    <message>
+        <source>Thickness         = %1</source>
+        <translation type="unfinished">翼厚 = %1</translation>
+    </message>
+    <message>
+        <source>Max. Thick.pos.   = %1</source>
+        <translation type="unfinished">最大翼厚位置 = %1</translation>
+    </message>
+    <message>
+        <source>Max. Camber       = %1</source>
+        <translation type="unfinished">最大キャンバ = %1</translation>
+    </message>
+    <message>
+        <source>Max. Camber pos.  = %1</source>
+        <translation type="unfinished">最大キャンバ位置 = %1</translation>
+    </message>
+    <message>
+        <source>Number of Panels  =  %1</source>
+        <translation type="unfinished">パネル数 = %1</translation>
+    </message>
+    <message>
+        <source>Flap Angle = %1</source>
+        <translation type="unfinished">フラップ角度 = %1</translation>
+    </message>
+    <message>
+        <source>XHinge     = %1</source>
+        <translation type="unfinished">XHinge = %1</translation>
+    </message>
+    <message>
+        <source>YHinge     = %1</source>
+        <translation type="unfinished">YHinge = %1</translation>
+    </message>
+    <message>
+        <source>TE Hinge Moment/span = 0123456789</source>
+        <translation type="unfinished">TE Hinge Moment/span = 0123456789</translation>
+    </message>
+    <message>
+        <source>Fixed speed polar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fixed lift polar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubber chord polar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fixed a.o.a. polar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Re.sqrt(Cl) = </source>
+        <translation type="unfinished">Re.sqrt(Cl) = </translation>
+    </message>
+    <message>
+        <source>M.sqrt(Cl) = %1</source>
+        <translation type="unfinished">M.sqrt(Cl) = %1</translation>
+    </message>
+    <message>
+        <source>Forced Upper Trans. = %1</source>
+        <translation type="unfinished">上面強制遷移 = %1</translation>
+    </message>
+    <message>
+        <source>Forced Lower Trans. = %1</source>
+        <translation type="unfinished">下面強制遷移 =%1</translation>
+    </message>
+    <message>
+        <source>Alpha = %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cl = %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cm = %1</source>
+        <translation type="unfinished">モーメント係数＝  {1?}</translation>
+    </message>
+    <message>
+        <source>Cd = %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>L/D = %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Upper Trans. = %1</source>
+        <translation type="unfinished">上面遷移 = %1</translation>
+    </message>
+    <message>
+        <source>Lower Trans. = %1</source>
+        <translation type="unfinished">下面遷移 = %1</translation>
+    </message>
+    <message>
+        <source>TE Hinge Moment/span = %1</source>
+        <translation type="unfinished">後縁ヒンジモーメント/スパン = %1</translation>
+    </message>
+    <message>
+        <source>LE Hinge Moment/span = %1</source>
+        <translation type="unfinished">前縁ヒンジモーメント/スパン = %1</translation>
+    </message>
+</context>
+<context>
+    <name>OpenGLInfoDlg</name>
+    <message>
+        <source>Context &amp;version: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create context</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation type="unfinished">オプション</translation>
+    </message>
+    <message>
+        <source>Failed to create context</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OpenGL version: %1.%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Options: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Depth buffer size: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stencil buffer size: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Red buffer size: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Green buffer size: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blue buffer size: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alpha buffer size: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Swap interval: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>*** Context information ***</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vendor: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Renderer: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OpenGL version: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GLSL version: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+*** QSurfaceFormat from context ***</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+*** QSurfaceFormat from window surface ***</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+*** Qt build information ***</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Qt OpenGL configuration: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Qt OpenGL library handle: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error has occurred:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PanelAnalysisDlg</name>
     <message>
         <source>3D Panel Analysis</source>
@@ -5904,6 +6431,10 @@ Continue ?</source>
         <source>      Wake iteration %1</source>
         <translation type="obsolete">
             </translation>
+    </message>
+    <message>
+        <source>Keep this window opened on errors</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6127,6 +6658,22 @@ Check the guidelines for explanations.</source>
     <message>
         <source>Actions...</source>
         <translation type="unfinished">アクション...</translation>
+    </message>
+    <message>
+        <source>Revert to the default body definition ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation type="unfinished">編集</translation>
+    </message>
+    <message>
+        <source>Define (Advanced users)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset default</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6457,7 +7004,7 @@ Continue ?</source>
     </message>
     <message>
         <source>Time =</source>
-        <translation>時間=</translation>
+        <translation type="vanished">時間=</translation>
     </message>
     <message>
         <source>Are you sure you want to delete the polars associated to :
@@ -7098,7 +7645,7 @@ Continue ?</source>
     </message>
     <message>
         <source>Panel Forces</source>
-        <translation>Panel Forces</translation>
+        <translation type="vanished">Panel Forces</translation>
     </message>
     <message>
         <source>Display the force 1/2.rho.V2.S.Cp acting on the panel</source>
@@ -7183,7 +7730,7 @@ Continue ?</source>
     </message>
     <message>
         <source>Vortices</source>
-        <translation>渦(複数形)</translation>
+        <translation type="vanished">渦(複数形)</translation>
     </message>
     <message>
         <source>Masses</source>
@@ -7422,14 +7969,6 @@ Continue ?</source>
         <translation type="unfinished">吹き下ろし</translation>
     </message>
     <message>
-        <source>Normals</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Operating point Properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7443,6 +7982,54 @@ Continue ?</source>
     </message>
     <message>
         <source>Plane XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cp Curves are only available for VLM and panel methods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Directory</source>
+        <translation type="unfinished">ディレクトリを書き出す</translation>
+    </message>
+    <message>
+        <source>Flip View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resets the display scale so that the plane fits in the window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export to STL File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>STL File (*.stl)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attaching the analysis to the active plane</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No plane to attach the polar to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export analysis definition to xml file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7597,7 +8184,7 @@ Continue ?</source>
     </message>
     <message>
         <source>i</source>
-        <translation>i</translation>
+        <translation type="vanished">i</translation>
     </message>
     <message>
         <source>Cn</source>
@@ -7605,7 +8192,7 @@ Continue ?</source>
     </message>
     <message>
         <source>Ci</source>
-        <translation>Ci</translation>
+        <translation type="vanished">Ci</translation>
     </message>
     <message>
         <source>Wing</source>
@@ -7713,7 +8300,7 @@ Frames have different number of side points</source>
     </message>
     <message>
         <source>Please select a Frame before inserting a point</source>
-        <translation>点を挿入する前に、フレームを選択して下さい</translation>
+        <translation type="vanished">点を挿入する前に、フレームを選択して下さい</translation>
     </message>
     <message>
         <source>Stability analysis</source>
@@ -8542,25 +9129,8 @@ CpCalc: local speed too large
             </translation>
     </message>
     <message>
-        <source>Body option</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Body Panels Ignored</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not open the file for reading</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unable to import wing definition
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Could not open the file for writing</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -8590,10 +9160,6 @@ Non *.dat files will be ignored.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Beta range</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8618,22 +9184,42 @@ Non *.dat files will be ignored.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Ref. area  = </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ref. span  = </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ref. chord = </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Target segment cannot include
 stagnation point in mixed-inverse</source>
         <translation type="unfinished">
             </translation>
+    </message>
+    <message>
+        <source>Body panels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ignored</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>included</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ref. area  =</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ref. span  =</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ref. chord =</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file is not an xflr5 polar version 1.0 file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file is not an xflr5 readable script</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9154,6 +9740,26 @@ Bottom Side
         <source>Enter the foil&apos;s new name</source>
         <translation type="unfinished">翼型の新しい名前を入れてください</translation>
     </message>
+    <message>
+        <source>Open XML File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis XML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attaching the analysis to the active foil</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No foil to attach the polar to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export analysis definition to xml file</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QXInverse</name>
@@ -9202,7 +9808,7 @@ Bottom Side
     </message>
     <message>
         <source>Drag points to modify splines, Apply, and Execute to generate the new geometry</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -9225,7 +9831,7 @@ Bottom Side
     </message>
     <message>
         <source>Mark target segment for smoothing, or type &apos;Return&apos; to smooth the entire distribution</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -9413,6 +10019,60 @@ Bottom Side
         <source>Hanning Filter</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Drag the points to modify the spline, Apply, and Execute to generate the new geometry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spline is applied</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mark target segment for smoothing, or type &apos;Return&apos; to smooth the entire distribution, then Execute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a value + &quot;Enter&quot; to generate the reference QSpec curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles the visibility of the spline used to modify the QSpec curve.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When checked, forces the spline to be tangent to the QSpec curve at the 
+spline&apos;s endpoints. This is done by constraining the position of the spline&apos;s
+second and penultimate control points.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to initiate the definition of a new spline, then select two points
+on the QSpec curve.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to modify the QSpec curve using the spline geometry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resets the QSpec curve to match the base foil&apos;s geometry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smoothing the entire distribution.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smoothing the selected portion.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ReListDlg</name>
@@ -9489,6 +10149,74 @@ Bottom Side
     </message>
 </context>
 <context>
+    <name>STLExportDialog</name>
+    <message>
+        <source>File format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Binary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ASCII</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Object to export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Body</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main Wing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Second Wing</source>
+        <translation type="unfinished">
+            </translation>
+    </message>
+    <message>
+        <source>Elevator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output Resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">キャンセル</translation>
+    </message>
+    <message>
+        <source>Number of x-panels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of hoop panels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of chordwise panels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of span panels per surface</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SaveOptionsDlg</name>
     <message>
         <source>Save Options</source>
@@ -9513,6 +10241,26 @@ Bottom Side
     <message>
         <source>Cancel</source>
         <translation>キャンセル</translation>
+    </message>
+    <message>
+        <source>Load options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load last project on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Operating point save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Autosave setting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Every</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9562,7 +10310,7 @@ Bottom Side
     </message>
     <message>
         <source>Background Color</source>
-        <translation type="unfinished">背景色</translation>
+        <translation type="obsolete">背景色</translation>
     </message>
     <message>
         <source>Fonts</source>
@@ -9586,8 +10334,32 @@ Bottom Side
     </message>
     <message>
         <source>Enable 3D transparency</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
+    </message>
+    <message>
+        <source>Widget Style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display</source>
+        <translation type="unfinished">表示</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Background Colors</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9618,7 +10390,7 @@ Bottom Side
     </message>
     <message>
         <source>Point Weight =</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -9907,6 +10679,18 @@ only if all the flap controls are inactive</source>
         <source>Aero data</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Extra drag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra drag coef.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>StabViewDlg</name>
@@ -9989,11 +10773,11 @@ only if all the flap controls are inactive</source>
     </message>
     <message>
         <source>F1 =</source>
-        <translation>F1 =</translation>
+        <translation type="vanished">F1 =</translation>
     </message>
     <message>
         <source>z =</source>
-        <translation>z =</translation>
+        <translation type="vanished">z =</translation>
     </message>
     <message>
         <source>Mode properties</source>
@@ -10119,6 +10903,26 @@ only if all the flap controls are inactive</source>
     </message>
     <message>
         <source>&lt;small&gt;Mode Properties:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Natural frequency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Damped natural frequency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Damping ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time to double</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time constant</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -10347,6 +11151,14 @@ only if all the flap controls are inactive</source>
         <source>Cancel</source>
         <translation type="unfinished">キャンセル</translation>
     </message>
+    <message>
+        <source>Pressure</source>
+        <translation type="unfinished">圧力</translation>
+    </message>
+    <message>
+        <source>Inertia</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>UnitsDlg</name>
@@ -10456,7 +11268,7 @@ only if all the flap controls are inactive</source>
     </message>
     <message>
         <source>Show Wake Panels</source>
-        <translation>後流のメッシュを表示</translation>
+        <translation type="vanished">後流のメッシュを表示</translation>
     </message>
     <message>
         <source>OK</source>
@@ -10473,6 +11285,44 @@ only if all the flap controls are inactive</source>
     <message>
         <source>Reset Defaults</source>
         <translation type="unfinished">初期値に戻す</translation>
+    </message>
+    <message>
+        <source>Color settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tessellation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Increase the number of points to improve the resolution
+of the surfaces.This may reduce the display speed.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wing chordwise direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Body axial direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Body hoop direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Animate view transitions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto Ajust 3D scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatically adjust the 3D scale to fit the plane in the display when switching between planes</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10832,6 +11682,18 @@ only if all the flap controls are inactive</source>
         <source>Aero data</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Extra drag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra drag coef.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>WingDelegate</name>
@@ -10922,6 +11784,10 @@ only if all the flap controls are inactive</source>
     </message>
     <message>
         <source>Aspect ratio scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Taper ratio scaling</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -11123,6 +11989,29 @@ CpCalc: local speed too large
     <message>
         <source> ...some points are unconverged</source>
         <translation type="unfinished"> ...いくつかの点で未収束です</translation>
+    </message>
+    <message>
+        <source>Keep this window opened on errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>gl3dMiarexView</name>
+    <message>
+        <source>Time =</source>
+        <translation type="unfinished">時間=</translation>
+    </message>
+    <message>
+        <source>Streamlines calculation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abort</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocities calculation</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

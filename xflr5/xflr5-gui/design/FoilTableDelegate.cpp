@@ -25,6 +25,7 @@
 #include "AFoil.h"
 #include <xdirect/objects2d.h>
 #include <globals.h>
+#include <graph_globals.h>
 #include <misc/Settings.h>
 
 
@@ -169,35 +170,11 @@ void FoilTableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
 			LinePen.setStyle(Qt::SolidLine);
 			painter->setPen(LinePen);
-			switch(pointStyle)
-			{
-				case 0: break;
-				case 1:
-				{
-					int ptSide = 2;
-					painter->drawEllipse(r.center().x()-ptSide, r.center().y()-ptSide, 2*ptSide, 2*ptSide );
-					break;
-				}
-				case 2:
-				{
-					int ptSide = 4;
-					painter->drawEllipse(r.center().x()-ptSide, r.center().y()-ptSide, 2*ptSide, 2*ptSide );
-					break;
-				}
-				case 3:
-				{
-					int ptSide = 2;
-					painter->drawEllipse(r.center().x()-ptSide, r.center().y()-ptSide, 2*ptSide, 2*ptSide );
-					break;
-				}
-				case 4:
-				{
-					int ptSide = 4;
-					painter->drawRect(r.center().x()-ptSide, r.center().y()-ptSide, 2*ptSide, 2*ptSide );
-					break;
-				}
-				default: break;
-			}
+			QColor backColor;
+			if (option.state & QStyle::State_Selected) backColor = option.palette.highlight().color();
+			else                                       backColor = option.palette.base().color();
+
+			drawPoint(*painter, pointStyle, backColor, r.center());
 
 			painter->restore();
 		}

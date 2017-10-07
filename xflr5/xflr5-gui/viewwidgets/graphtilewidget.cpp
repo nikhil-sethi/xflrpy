@@ -213,10 +213,10 @@ void GraphTileWidget::keyPressEvent(QKeyEvent *event)
 					pMiarex->setView(XFLR5::ONEGRAPH);
 				}
 				m_nGraphWidgets = 1;
-				if(iGraph<m_GraphWidget.count())
+				if(iGraph>=0 && iGraph<m_GraphWidget.count())
 				{
 					m_iActiveGraphWidget = iGraph;
-					if(iGraph<m_GraphWidget.count()) m_pLegendWidget->setGraph(m_GraphWidget.at(iGraph)->graph());
+					m_pLegendWidget->setGraph(m_GraphWidget.at(iGraph)->graph());
 					adjustLayout();
 				}
 

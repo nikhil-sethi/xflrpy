@@ -226,7 +226,7 @@ void Graph::deleteCurve(Curve *pCurve)
 	Curve *pOldCurve = NULL;
 	for(int i=0; i<m_oaCurves.size(); i++)
 	{
-		pOldCurve = (Curve*)m_oaCurves.at(i);
+		pOldCurve = m_oaCurves.at(i);
 		if(pOldCurve==pCurve)
 		{
 			m_oaCurves.removeAt(i);
@@ -242,7 +242,7 @@ void Graph::deleteCurve(QString CurveTitle)
 	Curve *pOldCurve = NULL;
 	for(int i=0; i<m_oaCurves.size(); i++)
 	{
-		pOldCurve = (Curve*)m_oaCurves.at(i);
+		pOldCurve = m_oaCurves.at(i);
 		if(pOldCurve->m_CurveName==CurveTitle)
 		{
 			m_oaCurves.removeAt(i);
@@ -339,7 +339,7 @@ QRect * Graph::clientRect()
 Curve* Graph::curve(int nIndex)
 {
     if(m_oaCurves.size()>nIndex)
-		return (Curve*)m_oaCurves[nIndex];
+		return m_oaCurves[nIndex];
 	else return NULL;
 }
 
@@ -350,7 +350,7 @@ Curve* Graph::curve(QString CurveTitle)
 	Curve * pCurve;
 	for(int i=0; i<m_oaCurves.size(); i++)
 	{
-		pCurve = (Curve*)m_oaCurves.at(i);
+		pCurve = m_oaCurves.at(i);
 		if(pCurve)
 		{
 			pCurve->curveName(strong);
@@ -551,7 +551,7 @@ void Graph::resetCurves()
 	Curve *pCurve;
 	for(int i=0; i<m_oaCurves.size(); i++)
 	{
-		pCurve = (Curve*)m_oaCurves.at(i);
+		pCurve = m_oaCurves.at(i);
 		pCurve->clear();
 	}
 }
@@ -946,7 +946,7 @@ bool Graph::setXScale()
 			//init only if we have a curve
 			for (nc=0; nc < m_oaCurves.size(); nc++)
 			{
-				pCurve = (Curve*)m_oaCurves[nc];
+				pCurve = m_oaCurves[nc];
 				if ((pCurve->isVisible() ||pCurve->pointsVisible()) && pCurve->size()>1)
 				{
 					bCurve = true;
@@ -960,7 +960,7 @@ bool Graph::setXScale()
 			Cxmax = -9999999.0;
 			for (nc=0; nc < m_oaCurves.size(); nc++)
 			{
-				pCurve = (Curve*)m_oaCurves[nc];
+				pCurve = m_oaCurves[nc];
 				if ((pCurve->isVisible() ||pCurve->pointsVisible())  && pCurve->size()>0)
 				{
 					Cxmin = qMin(Cxmin, pCurve->xMin());
@@ -990,7 +990,7 @@ bool Graph::setXScale()
 			// until things are made clear
 			for (nc=0; nc < m_oaCurves.size(); nc++)
 			{
-				pCurve = (Curve*)m_oaCurves[nc];
+				pCurve = m_oaCurves[nc];
 				if ((pCurve->isVisible() ||pCurve->pointsVisible())  && pCurve->size()>0)
 				{
 					xmin = qMin(xmin, pCurve->x[0]);
@@ -1111,7 +1111,7 @@ bool Graph::setYScale()
 			//init only if we have a curve
 			for (nc=0; nc < m_oaCurves.size(); nc++)
 			{
-				pCurve = (Curve*)m_oaCurves[nc];
+				pCurve = m_oaCurves[nc];
 				if ((pCurve->isVisible() ||pCurve->pointsVisible())  && pCurve->size()>0)
 					{
 						bCurve = true;
@@ -1125,7 +1125,7 @@ bool Graph::setYScale()
 			Cymax = -9999999.0;
 			for (nc=0; nc < m_oaCurves.size(); nc++)
 			{
-				pCurve = (Curve*)m_oaCurves[nc];
+				pCurve = m_oaCurves[nc];
 				if ((pCurve->isVisible() ||pCurve->pointsVisible()) && pCurve->size()>0)
 				{
 					Cymin = qMin(Cymin, pCurve->yMin());
@@ -1155,7 +1155,7 @@ bool Graph::setYScale()
 			// until things are made clear
 			for (int nc=0; nc < m_oaCurves.size(); nc++)
 			{
-				pCurve = (Curve*)m_oaCurves[nc];
+				pCurve = m_oaCurves[nc];
 				if ((pCurve->isVisible() ||pCurve->pointsVisible())  && pCurve->size()>0)
 				{
 					ymin = qMin(ymin, pCurve->y[0]);
@@ -1289,7 +1289,7 @@ Curve*  Graph::getClosestPoint(const double &x, const double &y, double &xSel, d
 	
 	for(i=0; i<m_oaCurves.size(); i++)
 	{
-		pOldCurve = (Curve*)m_oaCurves.at(i);
+		pOldCurve = m_oaCurves.at(i);
 		pOldCurve->closestPoint(x, y, x1, y1, dist, n1);
 		if(dist<dmax)
 		{
@@ -1314,7 +1314,7 @@ Curve* Graph::getCurvePoint(const int &xClt, const int &yClt,int &nSel)
 	y= clientToy(yClt);
 	for(i=0; i<m_oaCurves.size(); i++)
 	{
-		pOldCurve = (Curve*)m_oaCurves.at(i);
+		pOldCurve = m_oaCurves.at(i);
 		pOldCurve->closestPoint(x, y, x1, y1, dist, n);
 
 		xc = xToClient(x1);
@@ -1344,7 +1344,7 @@ bool Graph::selectPoint(QString const &CurveName, int sel)
 	
 	for(int i=0; i<m_oaCurves.size(); i++)
 	{
-		pCurve = (Curve*)m_oaCurves.at(i);
+		pCurve = m_oaCurves.at(i);
 		pCurve->curveName(str);
 		if(str == CurveName)
 		{
@@ -1371,7 +1371,7 @@ void Graph::deselectPoint()
 	Curve *pCurve;
 	for(int i=0; i<m_oaCurves.size(); i++)
 	{
-		pCurve = (Curve*)m_oaCurves.at(i);
+		pCurve = m_oaCurves.at(i);
 		pCurve->setSelected(-1);
 	}
 }

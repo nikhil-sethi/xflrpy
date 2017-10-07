@@ -4,7 +4,7 @@
 #include <QPainter>
 
 
-void drawPoint(QPainter &painter, int pointStyle, QPoint pt);
+void drawPoint(QPainter &painter, int pointStyle, QPoint pt, QColor backColor);
 Qt::PenStyle getStyle(int s);
 
 

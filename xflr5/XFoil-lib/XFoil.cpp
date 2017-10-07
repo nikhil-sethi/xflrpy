@@ -3548,7 +3548,7 @@ bool XFoil::initialize()
 	memset(Hk,     0, sizeof(Hk));
 	memset(RTheta, 0, sizeof(RTheta));
 	memset(itran,  0, sizeof(itran));
-	nside1 = nside2 = 0;
+	m_nSide1 = m_nSide2 = 0;
 //mdes
 	memset(wc, 0, sizeof(wc));
 	memset(sc, 0, sizeof(sc));
@@ -13342,11 +13342,12 @@ bool XFoil::naca5(int ides, int nside)
 	return true;
 }
 
-void XFoil::FillHk(double ws[IVX][3], int nside1, int nside2)
+
+void XFoil::FillHk(double ws[IVX][3])
 {
 	int nside[3];
-	nside[1] = nside1;
-	nside[2] = nside2;
+	nside[1] = m_nSide1;
+	nside[2] = m_nSide2;
 	double thi, dsi, uei, uc, amsq, dummy;
 	double hstinv = gamm1*(minf/qinf)*(minf/qinf) / (1.0 + 0.5*gamm1*minf*minf);
 	
@@ -13365,11 +13366,11 @@ void XFoil::FillHk(double ws[IVX][3], int nside1, int nside2)
 }
 
 
-void XFoil::FillRTheta(double ws[IVX][3], int nside1, int nside2)
+void XFoil::FillRTheta(double ws[IVX][3])
 {
 	int nside[3];
-	nside[1] = nside1;
-	nside[2] = nside2;
+	nside[1] = m_nSide1;
+	nside[2] = m_nSide2;
 	double ue, herat, rhoe, amue, uei;
 //---- 1 / (total enthalpy)
 	double hstinv = gamm1*(minf/qinf)*(minf/qinf) / (1.0 + 0.5*gamm1*minf*minf);
@@ -13392,7 +13393,7 @@ void XFoil::FillRTheta(double ws[IVX][3], int nside1, int nside2)
 }
 
 
-void XFoil::CreateXBL(double xs[IVX][3],int &nside1, int &nside2)
+void XFoil::CreateXBL(double xs[IVX][3])
 {
 //	double xxtr[3];
 
@@ -13406,8 +13407,8 @@ void XFoil::CreateXBL(double xs[IVX][3],int &nside1, int &nside2)
 		}
 	}
 	
-	nside1 = nbl[2] + iblte[1] - iblte[2];
-	nside2 = nbl[2];
+	m_nSide1 = nbl[2] + iblte[1] - iblte[2];
+	m_nSide2 = nbl[2];
 	
 	for( int iblw=1; iblw <= nbl[2]-iblte[2]; iblw++)
 		xs[iblte[1]+iblw][1] = xs[iblte[2]+iblw][2];

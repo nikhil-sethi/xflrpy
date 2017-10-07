@@ -33,7 +33,6 @@
 //#include <gui_params.h>
 #include <QVarLengthArray>
 #include <QColor>
-#include "graph_globals.h"
 #include "linestyle.h"
 #include "graph-lib_global.h"
 

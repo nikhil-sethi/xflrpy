@@ -113,16 +113,26 @@ void GraphDlg::fillVariableList()
 	{
 		case  QGRAPH::INVERSEGRAPH:
 		{
-			m_pctrlXSel->addItem(tr("X - Chord"));
-			m_pctrlYSel->addItem(tr("Q - Speed"));
+			m_pctrlXSel->addItem("X - Chord");
+			m_pctrlYSel->addItem("Q - Velocity");
 			break;
 		}
 		case QGRAPH::OPPGRAPH:
 		{
 			//foil oppoint graph variables
-			m_pctrlXSel->addItem(tr("X - chord"));
-			m_pctrlYSel->addItem(tr("Cp"));
-			m_pctrlYSel->addItem(tr("Q - Speed"));
+			m_pctrlXSel->addItem("X - chord");
+			m_pctrlYSel->addItem("Cp");
+			m_pctrlYSel->addItem("Q - Velocity");
+			m_pctrlYSel->addItem("Max. Shear Coefficient");
+			m_pctrlYSel->addItem("Top Side D* and Theta");
+			m_pctrlYSel->addItem("Bottom Side D* and Theta");
+			m_pctrlYSel->addItem("Log(Re_Theta)");
+			m_pctrlYSel->addItem("Re_Theta");
+			m_pctrlYSel->addItem("Amplification Ratio");
+			m_pctrlYSel->addItem("Dissipation Coefficient");
+			m_pctrlYSel->addItem("Skin Friction Coefficient");
+			m_pctrlYSel->addItem("Edge Velocity");
+			m_pctrlYSel->addItem("Kinematic Shape Parameter");
 			break;
 		}
 		case QGRAPH::POLARGRAPH:

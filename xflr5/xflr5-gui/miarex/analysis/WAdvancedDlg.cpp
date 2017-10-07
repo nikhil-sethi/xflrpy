@@ -176,9 +176,9 @@ void WAdvancedDlg::setupLayout()
 		QVBoxLayout *pPanelBCLayout = new QVBoxLayout;
 		{
 			m_pctrlDirichlet = new QRadioButton("Dirichlet (Recommended)");
-			m_pCtrlNeumann = new QRadioButton("Neumann");
+			m_pctrlNeumann = new QRadioButton("Neumann");
 			pPanelBCLayout->addWidget(m_pctrlDirichlet);
-			pPanelBCLayout->addWidget(m_pCtrlNeumann);
+			pPanelBCLayout->addWidget(m_pctrlNeumann);
 		}
 		pPanelBCBox->setLayout((pPanelBCLayout));
 	}
@@ -277,8 +277,12 @@ void WAdvancedDlg::initDialog()
 
 	m_pctrlVortexPos->setEnabled(false);
 	m_pctrlControlPos->setEnabled(false);
+
+	m_bDirichlet = true;
 	m_pctrlDirichlet->setChecked(m_bDirichlet);
-	m_pCtrlNeumann->setChecked(!m_bDirichlet);
+	m_pctrlNeumann->setChecked(!m_bDirichlet);
+	m_pctrlDirichlet->setEnabled(false);
+	m_pctrlNeumann->setEnabled(false);
 }
 
 

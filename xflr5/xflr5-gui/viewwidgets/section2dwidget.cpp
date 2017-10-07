@@ -23,6 +23,7 @@
 #include "section2dwidget.h"
 #include <misc/Settings.h>
 #include <design/GridSettingsDlg.h>
+#include <graph_globals.h>
 #include <QPainter>
 #include <QFileDialog>
 #include <QtDebug>

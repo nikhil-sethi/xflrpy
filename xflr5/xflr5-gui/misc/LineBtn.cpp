@@ -28,6 +28,7 @@
 #include "./Settings.h"
 #include "LineBtn.h"
 #include <globals.h>
+#include <graph_globals.h>
 
 
 LineBtn::LineBtn(QWidget *parent)
@@ -112,50 +113,18 @@ void LineBtn::paintEvent(QPaintEvent *event)
 
 	QRect r = rect();
 
-//	QStyleOption opt;
-//	opt.initFrom(this);
-//	style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
 
-
-//	painter.setBrush(Qt::DiagCrossPattern);
-	painter.setBackgroundMode(Qt::TransparentMode);
-
-	QPen LinePen(m_LineStyle.m_Color);
-	LinePen.setStyle(::getStyle(m_LineStyle.m_Style));
-	LinePen.setWidth(m_LineStyle.m_Width);
-	painter.setPen(LinePen);
-	painter.drawLine(r.left()+5, r.height()/2, r.width()-5, r.height()/2);
-
-/*
-	switch(m_LineStyle.m_PointStyle)
+	if(isEnabled())
 	{
-		case 0: break;
-		case 1:
-		{
-			int ptSide = 2;
-			painter.drawEllipse(r.center().x()-ptSide, r.center().y()-ptSide, 2*ptSide, 2*ptSide );
-			break;
-		}
-		case 2:
-		{
-			int ptSide = 4;
-			painter.drawEllipse(r.center().x()-ptSide, r.center().y()-ptSide, 2*ptSide, 2*ptSide );
-			break;
-		}
-		case 3:
-		{
-			int ptSide = 2;
-			painter.drawRect(r.center().x()-ptSide, r.center().y()-ptSide, 2*ptSide, 2*ptSide );
-			break;
-		}
-		case 4:
-		{
-			int ptSide = 4;
-			painter.drawRect(r.center().x()-ptSide, r.center().y()-ptSide, 2*ptSide, 2*ptSide );
-			break;
-		}
-		default: break;
-	}*/
+	//	painter.setBrush(Qt::DiagCrossPattern);
+		painter.setBackgroundMode(Qt::TransparentMode);
+
+		QPen LinePen(m_LineStyle.m_Color);
+		LinePen.setStyle(getStyle(m_LineStyle.m_Style));
+		LinePen.setWidth(m_LineStyle.m_Width);
+		painter.setPen(LinePen);
+		painter.drawLine(r.left()+5, r.height()/2, r.width()-5, r.height()/2);
+	}
 
 	painter.restore();
 	event->accept();

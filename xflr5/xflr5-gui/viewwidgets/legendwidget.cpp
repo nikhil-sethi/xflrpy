@@ -23,6 +23,7 @@
 #include "legendwidget.h"
 #include "graphtilewidget.h"
 #include <globals.h>
+#include <graph_globals.h>
 #include <mainframe.h>
 #include <objects3d/Plane.h>
 #include <objects3d/WPolar.h>
@@ -239,7 +240,7 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 							x1 = place.x() + 1.0*LegendSize;
 							y1 = place.y() + 1.*ypos*ny;
 
-							drawPoint(painter, pWPolar->points(), QPoint(x1, y1));
+							drawPoint(painter, pWPolar->points(), Settings::s_BackgroundColor, QPoint(x1, y1));
 						}
 
 						painter.setPen(TextPen);
@@ -341,7 +342,7 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 			y1 = place.y() + 1.*ypos*ny;
 //			painter.drawRect(x1-2, place.y() + 1.*ypos*ny-2, 4, 4);
 
-			drawPoint(painter, pMiarex->curPOpp()->points(), QPoint(x1,y1));
+			drawPoint(painter, pMiarex->curPOpp()->points(), Settings::s_BackgroundColor, QPoint(x1,y1));
 		}
 
 		painter.setPen(TextPen);
@@ -406,7 +407,7 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 							x1 = place.x() + 2.0*LegendSize;
 							y1 = place.y() + 1.*ypos*ny;
 //							painter.drawRect(x1-2, place.y() + 1.*ypos*ny-2, 4, 4);
-							drawPoint(painter, pPOpp->points(), QPoint(x1,y1));
+							drawPoint(painter, pPOpp->points(), Settings::s_BackgroundColor, QPoint(x1,y1));
 						}
 
 
@@ -478,7 +479,7 @@ void LegendWidget::drawCpLegend(QPainter &painter, QGraph *pGraph, QPointF place
 				x1 = place.x() + 2.0*LegendSize;
 				y1 = place.y() + 1.*dny*ny;
 //				painter.drawRect(x1-2, place.y() + 1.*dny*ny-2,4,4);
-				drawPoint(painter, pCurve->pointStyle(), QPoint(x1,y1));
+				drawPoint(painter, pCurve->pointStyle(), Settings::s_BackgroundColor, QPoint(x1,y1));
 			}
 
 			pCurve->curveName(strong);
@@ -541,7 +542,7 @@ void LegendWidget::drawStabTimeLegend(QPainter &painter, QGraph *pGraph, QPointF
 				x1 = place.x() + (int)(2.0*LegendSize);
 				y1 = place.y() + 1.*dny*ny;
 //				painter.drawRect(x1-2, place.y() + 1.*dny*ny-2,4,4);
-				drawPoint(painter, pCurve->pointStyle(), QPoint(x1,y1));
+				drawPoint(painter, pCurve->pointStyle(), Settings::s_BackgroundColor, QPoint(x1,y1));
 			}
 
 			pCurve->curveName(strong);
@@ -659,7 +660,7 @@ void LegendWidget::drawPolarLegend(QPainter &painter, QPointF place, int bottom)
 						x1 = place.x() + 1.5*LegendSize;
 						y1 = place.y() + 1.*legendHeight*ny;
 //						painter.drawRect(x1-2, place.y() + 1.*legendHeight*ny, 4, 4);
-						drawPoint(painter, pPolar->pointStyle(), QPoint(x1, y1));
+						drawPoint(painter, pPolar->pointStyle(), Settings::s_BackgroundColor, QPoint(x1, y1));
 					}
 
 					painter.setPen(TextPen);

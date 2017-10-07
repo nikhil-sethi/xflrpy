@@ -21,6 +21,7 @@
 *****************************************************************************/
 
 #include <globals.h>
+#include <graph_globals.h>
 #include "Spline5.h"
 #include <math.h>
 

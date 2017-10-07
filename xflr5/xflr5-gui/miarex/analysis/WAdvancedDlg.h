@@ -56,7 +56,7 @@ private:
 	QPushButton *OKButton, *CancelButton;
 	QCheckBox *m_pctrlLogFile;
 	QCheckBox *m_pctrlKeepOutOpps;
-	QRadioButton *m_pctrlDirichlet, *m_pCtrlNeumann;
+	QRadioButton *m_pctrlDirichlet, *m_pctrlNeumann;
 	DoubleEdit *m_pctrlRelax;
 	DoubleEdit *m_pctrlAlphaPrec;
 	DoubleEdit *m_pctrlMinPanelSize;

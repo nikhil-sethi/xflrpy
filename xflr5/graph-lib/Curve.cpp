@@ -23,6 +23,7 @@
 #include "Curve.h"
 #include "math.h"
 #include "Graph.h"
+#include "graph_globals.h"
 
 /**
  * The public constructor

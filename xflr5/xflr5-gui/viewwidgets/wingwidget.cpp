@@ -21,6 +21,7 @@
 
 #include <QPainter>
 #include <globals.h>
+#include <graph_globals.h>
 #include "wingwidget.h"
 #include "Settings.h"
 #include "miarex/Objects3D.h"

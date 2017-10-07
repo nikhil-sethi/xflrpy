@@ -37,6 +37,7 @@
 #include <qopengl.h>
 #include <objects3d/WPolar.h>
 #include <misc/Units.h>
+#include <graph_globals.h>
 
 
 /** 
@@ -62,21 +63,6 @@ void ExpFormat(double &f, int &exp)
 	f = f/pow(10.0,exp);
 }
 
-
-/**
-* Returns the index of a Qt-style based on the index of the style in the array 
-*@param s the index of the style
-*@return The index of the Qt-style 
-*/
-Qt::PenStyle getStyle(int s)
-{
-	if(s==0)      return Qt::SolidLine;
-	else if(s==1) return Qt::DashLine;
-	else if(s==2) return Qt::DotLine;
-	else if(s==3) return Qt::DashDotLine;
-	else if(s==4) return Qt::DashDotDotLine;
-	return Qt::SolidLine;
-}
 
 
 
@@ -789,7 +775,8 @@ void drawMidLine(QPainter &painter, Foil*pFoil, double const &scalex, double con
  * @param scaley the scaling factor in the y-direction
  * @param Offset the foil offset in the client area
  */
-void drawPoints(QPainter &painter, Foil*pFoil, double alpha, double const &scalex, double const &scaley, QPointF const &Offset)
+void drawPoints(QPainter &painter, Foil*pFoil, double alpha, double const &scalex, double const &scaley,
+				QPointF const &Offset, QColor backColor)
 {
 	QPen FoilPen, HighPen;
 	FoilPen.setColor(colour(pFoil));
@@ -819,7 +806,7 @@ void drawPoints(QPainter &painter, Foil*pFoil, double alpha, double const &scale
 
 		QPoint pt( xa*scalex + Offset.x(), -ya*scaley + Offset.y());
 
-		drawPoint(painter, pFoil->foilPointStyle(), pt);
+		drawPoint(painter, pFoil->foilPointStyle(), backColor, pt);
 	}
 
 	if(pFoil->iHighLight()>=0)
@@ -833,12 +820,16 @@ void drawPoints(QPainter &painter, Foil*pFoil, double alpha, double const &scale
 
 		QPoint pt( xa*scalex + Offset.x(), -ya*scaley + Offset.y());
 
-		drawPoint(painter, pFoil->foilPointStyle(), pt);
+		drawPoint(painter, pFoil->foilPointStyle(), backColor, pt);
 	}
 }
 
-void drawPoint(QPainter &painter, int pointStyle, QPoint pt)
+
+void drawPoint(QPainter &painter, int pointStyle, QColor bkColor, QPoint pt)
 {
+	painter.save();
+	QBrush backBrush(bkColor);
+	painter.setBrush(backBrush);
 	switch(pointStyle)
 	{
 		case 0: break;
@@ -868,6 +859,7 @@ void drawPoint(QPainter &painter, int pointStyle, QPoint pt)
 		}
 		default: break;
 	}
+	painter.restore();
 }
 
 
@@ -1059,6 +1051,8 @@ void setAutoWPolarName(void * ptrWPolar, void *ptrPlane)
 		pWPolar->polarName() += "-NoBodyPanels";
 	}
 	if(pWPolar->referenceDim()==XFLR5::PROJECTEDREFDIM) pWPolar->polarName() += "-proj_area";
+
+	if(pWPolar->bTilted()) pWPolar->polarName() += "-TG";
 
 	for(int i=0; i<MAXEXTRADRAG; i++)
 	{

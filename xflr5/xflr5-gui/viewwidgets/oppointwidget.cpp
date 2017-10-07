@@ -28,6 +28,7 @@
 #include <QStatusBar>
 #include <mainframe.h>
 #include <globals.h>
+#include <graph_globals.h>
 #include "misc/Settings.h"
 #include "QGraph.h"
 #include <xdirect/XDirect.h>
@@ -294,6 +295,7 @@ void OpPointWidget::resizeEvent(QResizeEvent *event)
 		QRect rGraphRect = QRect(0, 0, + rect().width(), rect().height()-h4);
 		m_pCpGraph->setMargin(50);
 		m_pCpGraph->setDrawRect(rGraphRect);
+		m_pCpGraph->initializeGraph();
 	}
 	setFoilScale();
 }
@@ -322,13 +324,13 @@ void OpPointWidget::setFoilScale()
 		h =  m_pCpGraph->clientRect()->height();
 		m_FoilOffset.rx() = rect().left() + iMargin;
 		m_FoilOffset.ry() = (rect().height()+h)/2;
-		m_fScale = rect().width()-2.0*iMargin;
-/*		if(m_pCpGraph && m_pCpGraph->yVariable()<2)
+//		m_fScale = rect().width()-2.0*iMargin;
+//		if(m_pCpGraph && m_pCpGraph->yVariable()<2)
 		{
 			double p0  = m_pCpGraph->xToClient(0.0);
 			double p1  = m_pCpGraph->xToClient(1.0);
 			m_fScale =  (p1-p0);
-		}*/
+		}
 	}
 	else
 	{
@@ -539,7 +541,9 @@ void OpPointWidget::paintOpPoint(QPainter &painter)
 
 
 	drawFoil(painter, QXDirect::curFoil(), -Alpha, m_fScale, m_fScale*m_fYScale, m_FoilOffset);
-	if(QXDirect::curFoil()->foilPointStyle()>0) drawPoints(painter, QXDirect::curFoil(), -Alpha, m_fScale,m_fScale*m_fYScale, m_FoilOffset);
+	if(QXDirect::curFoil()->foilPointStyle()>0)
+		drawPoints(painter, QXDirect::curFoil(), -Alpha, m_fScale,m_fScale*m_fYScale, m_FoilOffset, Settings::s_BackgroundColor);
+
 
 /*	if(m_bShowPanels)
 	{

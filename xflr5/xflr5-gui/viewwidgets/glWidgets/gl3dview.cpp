@@ -105,7 +105,7 @@ gl3dView::gl3dView(QWidget *pParent) : QOpenGLWidget(pParent)
 
 	m_glScaled = m_glScaledRef = 1.0;
 	m_glScaleIncrement = 0.0;
-	m_ClipPlanePos  = 5.0;
+	m_ClipPlanePos  = 50.0;
 
 	m_bTrans = false;
 
@@ -175,9 +175,7 @@ gl3dView::~gl3dView()
 	m_vboArcPoint.destroy();
 	m_vboSphere.destroy();
 	m_vboBody.destroy();
-	m_vboMesh.destroy();
 	m_vboEditMesh.destroy();
-
 
 	for(int iWing=0; iWing<MAXWINGS; iWing++)
 	{
@@ -223,7 +221,7 @@ QSize gl3dView::minimumSizeHint() const
 void gl3dView::onClipPlane(int pos)
 {
 	double planepos =  (double)pos/100.0;
-	m_ClipPlanePos = sinh(planepos) * 0.5;
+	m_ClipPlanePos = sinh(planepos) * m_glScaled;
 	update();
 }
 
@@ -389,10 +387,6 @@ void gl3dView::mousePressEvent(QMouseEvent *event)
 	}
 
 	m_LastPoint = point;
-	QVector4D  x1(1.0, 0.0, 0.0, 1.0);
-	QVector4D  y1(0.0, 1.0, 0.0, 1.0);
-	QVector4D  z1(0.0, 0.0, 1.0, 1.0);
-
 }
 
 
@@ -1748,55 +1742,6 @@ void gl3dView::paintMasses(double volumeMass, Vector3d pos, QString tag, const Q
 
 
 
-void gl3dView::paintMesh(int nPanels)
-{
-	m_ShaderProgramLine.bind();
-	m_ShaderProgramLine.enableAttributeArray(m_VertexLocationLine);
-	m_vboMesh.bind();
-	m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3, 6 * sizeof(GLfloat));
-	m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, W3dPrefsDlg::s_VLMColor);
-
-	m_ShaderProgramLine.setUniformValue(m_pvmMatrixLocationLine, m_pvmMatrix);
-	m_ShaderProgramLine.setUniformValue(m_vMatrixLocationLine, m_viewMatrix);
-
-	glLineWidth(W3dPrefsDlg::s_VLMWidth);
-	glEnable(GL_LINE_STIPPLE);
-	switch(W3dPrefsDlg::s_VLMStyle)
-	{
-		case 1:  glLineStipple (1, 0xCFCF); break;
-		case 2:  glLineStipple (1, 0x6666); break;
-		case 3:  glLineStipple (1, 0xFF18); break;
-		case 4:  glLineStipple (1, 0x7E66); break;
-		default: glLineStipple (1, 0xFFFF); break;
-	}
-	int pos = 0;
-	for(int p=0; p<nPanels*2; p++)
-	{
-		glDrawArrays(GL_LINE_STRIP, pos, 3);
-		pos +=3 ;
-	}
-	glDisable (GL_LINE_STIPPLE);
-
-	m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, Settings::s_BackgroundColor);
-
-	QMiarex *pMiarex = (QMiarex*)s_pMiarex;
-	if(!m_bSurfaces)
-	{
-		if(!pMiarex->m_pCurPOpp || !pMiarex->m_b3DCp)
-		{
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(1.0, 1.0);
-			glDrawArrays(GL_TRIANGLES, 0, nPanels*2*3);
-			glDisable(GL_POLYGON_OFFSET_FILL);
-		}
-	}
-	m_ShaderProgramLine.disableAttributeArray(m_VertexLocationLine);
-	m_vboMesh.release();
-	m_ShaderProgramLine.release();
-}
-
-
-
 /** used only in GL3DWingDlg*/
 void gl3dView::paintSectionHighlight()
 {
@@ -2494,249 +2439,6 @@ void gl3dView::paintSphere(Vector3d place, double radius, QColor sphereColor, bo
 	m_ShaderProgramSurface.release();
 }
 
-
-
-
-
-void gl3dView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, Vector3d *pNode, Panel *pPanel, PlaneOpp *pPOpp)
-{
-	if(!pPanel || !pNode || !nPanels) return;
-
-	int pp, n, averageInf, averageSup, average100;
-
-	double color;
-	double lmin, lmax, range;
-	double *tab = NULL;
-	if(pPOpp) tab= pPOpp->m_dCp;
-
-	Vector3d TA,LA, TB, LB;
-
-	double *CpInf = new double[2*nPanels];
-	double *CpSup = new double[2*nPanels];
-	double *Cp100 = new double[2*nPanels];
-
-	lmin =  10000.0;
-	lmax = -10000.0;
-	// find min and max Cp for scale set
-	if(pPOpp)
-	{
-		for (n=0; n<nNodes; n++)
-		{
-			averageInf = 0; averageSup = 0; average100 = 0;
-			CpInf[n] = 0.0; CpSup[n] = 0.0; Cp100[n] = 0.0;
-			for (pp=0; pp< nPanels; pp++)
-			{
-				if (pNode[pPanel[pp].m_iLA].isSame(pNode[n]) || pNode[pPanel[pp].m_iTA].isSame(pNode[n]) ||
-					pNode[pPanel[pp].m_iTB].isSame(pNode[n]) || pNode[pPanel[pp].m_iLB].isSame(pNode[n]))
-				{
-					if(pPanel[pp].m_Pos==TOPSURFACE)
-					{
-						CpSup[n] +=tab[pp];
-						averageSup++;
-					}
-					else if(pPanel[pp].m_Pos<=MIDSURFACE)
-					{
-						CpInf[n] +=tab[pp];
-						averageInf++;
-					}
-					else if(pPanel[pp].m_Pos==BODYSURFACE)
-					{
-						Cp100[n] +=tab[pp];
-						average100++;
-					}
-				}
-			}
-			if(averageSup>0)
-			{
-				CpSup[n] /= averageSup;
-				if(CpSup[n]<lmin) lmin = CpSup[n];
-				if(lmax<CpSup[n]) lmax = CpSup[n];
-			}
-			if(averageInf>0)
-			{
-				CpInf[n] /= averageInf;
-				if(CpInf[n]<lmin) lmin = CpInf[n];
-				if(lmax<CpInf[n]) lmax = CpInf[n];
-			}
-			if(average100>0)
-			{
-				Cp100[n] /= average100;
-				if(Cp100[n]<lmin) lmin = Cp100[n];
-				if(lmax<Cp100[n]) lmax = Cp100[n];
-			}
-
-			if(QMiarex::s_bAutoCpScale)
-			{
-				QMiarex::s_LegendMin = lmin;
-				QMiarex::s_LegendMax = lmax;
-			}
-			else
-			{
-				lmin = QMiarex::s_LegendMin;
-				lmax = QMiarex::s_LegendMax;
-			}
-		}
-	}
-
-
-	range = lmax - lmin;
-
-	// unfortunately we can't just use nodes and colors, because the trailing edges are merged
-	// and the colors would be mixed
-	// so write as many nodes as there are triangles.
-	//
-	// vertices array size:
-	//		nPanels
-	//      x2 triangles per panels
-	//      x3 nodes per triangle
-	//		x6 = 3 vertex components + 3 color components
-
-	int nodeVertexSize = nPanels * 2 * 3 * 6;
-	float *nodeVertexArray = new float[nodeVertexSize];
-
-	Q_ASSERT(nPanels==nPanels);
-
-	int iv=0;
-	for (int p=0; p<nPanels; p++)
-	{
-		TA.copy(pNode[pPanel[p].m_iTA]);
-		TB.copy(pNode[pPanel[p].m_iTB]);
-		LA.copy(pNode[pPanel[p].m_iLA]);
-		LB.copy(pNode[pPanel[p].m_iLB]);
-		// each quad is two triangles
-		// write the first one
-		nodeVertexArray[iv++] = TA.x;
-		nodeVertexArray[iv++] = TA.y;
-		nodeVertexArray[iv++] = TA.z;
-		if(pPOpp)
-		{
-			if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iTA]-lmin)/range;
-			else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iTA]-lmin)/range;
-			else                                 color = (Cp100[pPanel[p].m_iTA]-lmin)/range;
-			nodeVertexArray[iv++] = GLGetRed(color);
-			nodeVertexArray[iv++] = GLGetGreen(color);
-			nodeVertexArray[iv++] = GLGetBlue(color);
-		}
-		else
-		{
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
-		}
-
-		nodeVertexArray[iv++] = LA.x;
-		nodeVertexArray[iv++] = LA.y;
-		nodeVertexArray[iv++] = LA.z;
-		if(pPOpp)
-		{
-
-			if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iLA]-lmin)/range;
-			else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iLA]-lmin)/range;
-			else                                 color = (Cp100[pPanel[p].m_iLA]-lmin)/range;
-			nodeVertexArray[iv++] = GLGetRed(color);
-			nodeVertexArray[iv++] = GLGetGreen(color);
-			nodeVertexArray[iv++] = GLGetBlue(color);
-		}
-		else
-		{
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
-		}
-
-		nodeVertexArray[iv++] = LB.x;
-		nodeVertexArray[iv++] = LB.y;
-		nodeVertexArray[iv++] = LB.z;
-		if(pPOpp)
-		{
-			if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iLB]-lmin)/range;
-			else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iLB]-lmin)/range;
-			else                                 color = (Cp100[pPanel[p].m_iLB]-lmin)/range;
-			nodeVertexArray[iv++] = GLGetRed(color);
-			nodeVertexArray[iv++] = GLGetGreen(color);
-			nodeVertexArray[iv++] = GLGetBlue(color);
-		}
-		else
-		{
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
-		}
-
-		// write the second one
-		nodeVertexArray[iv++] = LB.x;
-		nodeVertexArray[iv++] = LB.y;
-		nodeVertexArray[iv++] = LB.z;
-
-		if(pPOpp)
-		{
-			if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iLB]-lmin)/range;
-			else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iLB]-lmin)/range;
-			else                                 color = (Cp100[pPanel[p].m_iLB]-lmin)/range;
-			nodeVertexArray[iv++] = GLGetRed(color);
-			nodeVertexArray[iv++] = GLGetGreen(color);
-			nodeVertexArray[iv++] = GLGetBlue(color);
-		}
-		else
-		{
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
-		}
-
-		nodeVertexArray[iv++] = TB.x;
-		nodeVertexArray[iv++] = TB.y;
-		nodeVertexArray[iv++] = TB.z;
-		if(pPOpp)
-		{
-			if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iTB]-lmin)/range;
-			else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iTB]-lmin)/range;
-			else                                 color = (Cp100[pPanel[p].m_iTB]-lmin)/range;
-			nodeVertexArray[iv++] = GLGetRed(color);
-			nodeVertexArray[iv++] = GLGetGreen(color);
-			nodeVertexArray[iv++] = GLGetBlue(color);
-		}
-		else
-		{
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
-		}
-
-		nodeVertexArray[iv++] = TA.x;
-		nodeVertexArray[iv++] = TA.y;
-		nodeVertexArray[iv++] = TA.z;
-		if(pPOpp)
-		{
-			if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iTA]-lmin)/range;
-			else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iTA]-lmin)/range;
-			else                                 color = (Cp100[pPanel[p].m_iTA]-lmin)/range;
-			nodeVertexArray[iv++] = GLGetRed(color);
-			nodeVertexArray[iv++] = GLGetGreen(color);
-			nodeVertexArray[iv++] = GLGetBlue(color);
-		}
-		else
-		{
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-			nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
-		}
-	}
-
-	Q_ASSERT(iv==nodeVertexSize);
-	Q_ASSERT(iv==nPanels*2*3*6);
-
-	vbo.destroy();
-	vbo.create();
-	vbo.bind();
-	vbo.allocate(nodeVertexArray, nodeVertexSize * sizeof(GLfloat));
-	vbo.release();
-
-	delete [] nodeVertexArray;
-	delete [] CpInf;
-	delete [] CpSup;
-	delete [] Cp100;
-}
 
 
 void gl3dView::glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody)

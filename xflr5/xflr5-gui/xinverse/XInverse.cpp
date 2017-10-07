@@ -26,13 +26,15 @@
 #include <QtDebug>
 
 #include "XInverse.h" 
-#include <xdirect/objects2d.h>
 #include <viewwidgets/inverseviewwidget.h>
 #include "FoilSelectionDlg.h"
 #include "PertDlg.h"
 #include "InverseOptionsDlg.h"
 #include <globals.h>
+#include <graph_globals.h>
 #include <mainframe.h>
+#include <xdirect/XDirect.h>
+#include <xdirect/objects2d.h>
 #include <objects2d/Foil.h>
 #include <misc/RenameDlg.h>
 #include <misc/Settings.h>
@@ -2034,7 +2036,7 @@ void QXInverse::paintFoil(QPainter &painter)
 		CtrlPen.setWidth(m_pRefFoil->foilLineWidth());
 		painter.setPen(CtrlPen);
 
-		drawPoints(painter, m_pRefFoil, -alpha, 1.0,  1.0, m_ptOffset);
+		drawPoints(painter, m_pRefFoil, -alpha, 1.0,  1.0, m_ptOffset, Settings::s_BackgroundColor);
 	}
 
 	painter.setFont(Settings::s_TextFont);

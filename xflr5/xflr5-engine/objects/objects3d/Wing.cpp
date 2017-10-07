@@ -1650,7 +1650,7 @@ void Wing::panelComputeOnBody(double QInf, double Alpha, double *Cp, double *Gam
 	int  j, k, l, p, m, nFlap, coef;
 	double CPStrip, tau, NForce, cosa, sina;
 	Vector3d HingeLeverArm,  PtC4Strip, PtLEStrip, ForcePt, SurfaceNormal, LeverArmC4CoG, LeverArmPanelC4, LeverArmPanelCoG;
-	Vector3d Force, PanelForce, StripForce, DragVector, Moment0, HingeMoment, DragMoment, GeomMoment;
+	Vector3d Force, PanelForce, StripForce, viscousDragVector, Moment0, HingeMoment, viscousDragMoment, GeomMoment;
 	Vector3d WindNormal, WindDirection;
 	Vector3d Origin(0.0,0.0,0.0);
 
@@ -1694,7 +1694,7 @@ void Wing::panelComputeOnBody(double QInf, double Alpha, double *Cp, double *Gam
 		for (k=0; k<m_Surface.at(j)->m_NYPanels; k++)
 		{
 			//initialize
-			DragVector.set(0.0,0.0,0.0);
+			viscousDragVector.set(0.0,0.0,0.0);
 			StripForce.set(0.0,0.0,0.0);
 			GeomMoment.set(0.0,0.0,0.0);
 
@@ -1771,24 +1771,24 @@ void Wing::panelComputeOnBody(double QInf, double Alpha, double *Cp, double *Gam
 			m_XCPSpanAbs[m]    =  CPStrip/NForce ;
 
 			// add viscous properties, if required
-			if(pWPolar->bViscous()) DragVector = WindDirection * m_PCd[m] * m_StripArea[m];   // N/q
-			else                    DragVector.set(0.0,0.0,0.0);
+			if(pWPolar->bViscous()) viscousDragVector = WindDirection * (-m_PCd[m]) * m_StripArea[m];   // N/q
+			else                    viscousDragVector.set(0.0,0.0,0.0);
 
 			// global moments, in N.m/q
-			DragMoment =  LeverArmC4CoG * DragVector;
+			viscousDragMoment =  LeverArmC4CoG * viscousDragVector;
 
 			m_GRm += GeomMoment.dot(WindDirection);
 
-			m_VYm += DragMoment.dot(WindNormal);
+			m_VYm += viscousDragMoment.dot(WindNormal);
 
 //			m_IYm += -m_ICd[m] * m_StripArea[m] * PtC4Strip.y ;
 			m_IYm += GeomMoment.dot(WindNormal);
 
-			m_VCm += DragMoment.y;
+			m_VCm += viscousDragMoment.y;
 			m_ICm += GeomMoment.y;
 
 			m_CmAirfoil[m] *= 1.0                          /m_Chord[m]/m_StripArea[m];
-			m_Cm[m]         = (GeomMoment.y + DragMoment.y)/m_Chord[m]/m_StripArea[m];
+			m_Cm[m]         = (GeomMoment.y + viscousDragMoment.y)/m_Chord[m]/m_StripArea[m];
 			m++;
 		}
 		//do not consider right tip patch

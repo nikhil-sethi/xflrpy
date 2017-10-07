@@ -29,6 +29,7 @@ public:
 	void glMakeDownwash(int iWing, Wing *pWing, WPolar *pWPolar, WingOpp *pWOpp);
 	void glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, WingOpp *pWOpp, double beta);
 	void glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPolar, PlaneOpp *pPOpp);
+	void glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, Vector3d *pNode, Panel *pPanel, PlaneOpp *pPOpp);
 
 	void paintLift(int iWing);
 	void paintMoments();
@@ -40,6 +41,7 @@ public:
 	void paintCpLegendClr();
 	void paintPanelCp(int nPanels);
 	void paintPanelForces(int nPanels);
+	void paintMesh(int nPanels);
 
 public slots:
 	void on3DReset();
@@ -48,6 +50,7 @@ public:
 	QOpenGLBuffer m_vboSurfaceVelocities, m_vboPanelCp, m_vboPanelForces, m_vboStreamLines;
 	QOpenGLBuffer m_vboLiftForce, m_vboMoments;
 	QOpenGLBuffer m_vboICd[MAXWINGS], m_vboVCd[MAXWINGS], m_vboLiftStrips[MAXWINGS], m_vboTransitions[MAXWINGS], m_vboDownwash[MAXWINGS];
+	QOpenGLBuffer m_vboMesh, m_vboLegendColor;
 
 };
 

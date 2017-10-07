@@ -36,6 +36,7 @@
 #include "LECircleDlg.h"
 #include <globals.h>
 #include <mainframe.h>
+#include <xdirect/XDirect.h>
 #include <misc/Settings.h>
 #include <misc/LinePickerDlg.h>
 #include <misc/RenameDlg.h>
@@ -535,9 +536,12 @@ void QAFoil::onAFoilCadd()
 		pNewFoil->foilLineWidth() = 1;
 		pNewFoil->foilPointStyle() = 0;
 
-		addNewFoil(pNewFoil);
-		fillFoilTable();
-		selectFoil(pNewFoil);
+		if(addNewFoil(pNewFoil))
+		{
+			fillFoilTable();
+			selectFoil(pNewFoil);
+		}
+		else delete pNewFoil;
 	}
 	else
 	{
@@ -601,9 +605,13 @@ void QAFoil::onAFoilPanels()
 		pNewFoil->foilLineWidth() = 1;
 		pNewFoil->foilPointStyle() = 0;
 
-		addNewFoil(pNewFoil);
-		fillFoilTable();
-		selectFoil(pNewFoil);
+		if(addNewFoil(pNewFoil))
+		{
+			fillFoilTable();
+			selectFoil(pNewFoil);
+		}
+		else
+			delete pNewFoil;
 	}
 	else
 	{
@@ -695,9 +703,15 @@ void QAFoil::onAFoilFoilGeom()
 		pNewFoil->foilLineStyle() = 0;
 		pNewFoil->foilLineWidth() = 1;
 		pNewFoil->foilPointStyle() = 0;
-		addNewFoil(pNewFoil);
-		fillFoilTable();
-		selectFoil(pNewFoil);
+		if(addNewFoil(pNewFoil))
+		{
+			fillFoilTable();
+			selectFoil(pNewFoil);
+		}
+		else
+		{
+			delete pNewFoil;
+		}
 	}
 	else
 	{
@@ -742,9 +756,12 @@ void QAFoil::onAFoilSetTEGap()
 		pNewFoil->foilLineWidth() = 1;
 		pNewFoil->foilPointStyle() = 0;
 
-		addNewFoil(pNewFoil);
-		fillFoilTable();
-		selectFoil(pNewFoil);
+		if(addNewFoil(pNewFoil))
+		{
+			fillFoilTable();
+			selectFoil(pNewFoil);
+		}
+		else delete pNewFoil;
 	}
 	else
 	{
@@ -792,9 +809,13 @@ void QAFoil::onAFoilSetLERadius()
 		pNewFoil->foilLineWidth() = 1;
 		pNewFoil->foilPointStyle() = 0;
 
-		addNewFoil(pNewFoil);
-		fillFoilTable();
-		selectFoil(pNewFoil);
+		if(addNewFoil(pNewFoil))
+		{
+			fillFoilTable();
+			selectFoil(pNewFoil);
+		}
+		else
+			delete pNewFoil;
 	}
 	else
 	{
@@ -848,9 +869,12 @@ void QAFoil::onAFoilInterpolateFoils()
 		pNewFoil->foilPointStyle() = 0;
         pNewFoil->foilName() = ifDlg.m_NewFoilName;
 
-		addNewFoil(pNewFoil);
-		fillFoilTable();
-		selectFoil(pNewFoil);
+		if(addNewFoil(pNewFoil))
+		{
+			fillFoilTable();
+			selectFoil(pNewFoil);
+		}
+		else delete pNewFoil;
 
 	}
 	else
@@ -900,9 +924,12 @@ void QAFoil::onAFoilNacaFoils()
 		pNewFoil->foilPointStyle() = 0;
 		pNewFoil->foilName()   = str;
 
-		addNewFoil(pNewFoil);
-		fillFoilTable();
-		selectFoil(pNewFoil);
+		if(addNewFoil(pNewFoil))
+		{
+			fillFoilTable();
+			selectFoil(pNewFoil);
+		}
+		else delete pNewFoil;
 	}
 	else
 	{
@@ -933,7 +960,6 @@ void QAFoil::onAFoilSetFlap()
 	m_p2DWidget->update();;
 
 	FlapDlg flDlg(s_pMainFrame);
-	flDlg.m_pXFoil      = m_pXFoil;
 	flDlg.m_pMemFoil    = QXDirect::curFoil();
     flDlg.m_pBufferFoil = m_pBufferFoil;
     flDlg.initDialog();
@@ -947,9 +973,12 @@ void QAFoil::onAFoilSetFlap()
 		pNewFoil->foilLineStyle() = 0;
 		pNewFoil->foilLineWidth() = 1;
 
-		addNewFoil(pNewFoil);
-		fillFoilTable();
-		selectFoil(pNewFoil);
+		if(addNewFoil(pNewFoil))
+		{
+			fillFoilTable();
+			selectFoil(pNewFoil);
+		}
+		else delete pNewFoil;
 	}
 	else
 	{

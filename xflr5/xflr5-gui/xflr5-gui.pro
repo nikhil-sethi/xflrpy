@@ -19,7 +19,7 @@ else
 
 CONFIG += qt
 QT += opengl
-QT += script
+
 TEMPLATE = app
 
 
@@ -169,7 +169,6 @@ SOURCES += \
 	script/xflscriptreader.cpp \
 	gui_objects/Spline5.cpp \
 	gui_objects/SplineFoil.cpp \
-    misc/scriptconsole.cpp \
 	viewwidgets/glWidgets/gl3dview.cpp \
 	viewwidgets/glWidgets/gl3dbodyview.cpp \
 	viewwidgets/glWidgets/gl3dmiarexview.cpp \
@@ -298,7 +297,6 @@ HEADERS += \
 	gui_objects/SplineFoil.h \
 	gui_enums.h \
 	gui_params.h \
-    misc/scriptconsole.h \
 	viewwidgets/glWidgets/gl3dview.h \
 	viewwidgets/glWidgets/gl3dbodyview.h \
 	viewwidgets/glWidgets/gl3dmiarexview.h \

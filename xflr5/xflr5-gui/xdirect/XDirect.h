@@ -160,16 +160,6 @@ public slots:
 	void onQGraph();
 	void onCpGraph();
 	void onExportCurXFoilResults();
-	void onCtPlot();
-	void onDbPlot();
-	void onDtPlot();
-	void onRtLPlot();
-	void onRtPlot();
-	void onNPlot();
-	void onCdPlot();
-	void onCfPlot();
-	void onUePlot();
-	void onHPlot();
 
 	void onOpPointProps();
 	void onPolarProps();
@@ -300,7 +290,6 @@ private:
 	bool m_bResetCurves;       /**< true if the graph curves need to be redrawn before the next view update */
 
 	int m_posAnimate;          /**< the current aoa in the animation */
-	int m_XFoilVar;            /**< defines the variable for current XFoil results */
 
 	static int s_TimeUpdateInterval;  /**< time interval in ms between two output display updates during an XFoil analysis */
 

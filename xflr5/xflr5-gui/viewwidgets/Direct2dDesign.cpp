@@ -21,7 +21,9 @@
 
 #include "Direct2dDesign.h"
 #include <objects2d/Foil.h>
+#include <graph_globals.h>
 #include <mainframe.h>
+#include <xdirect/XDirect.h>
 #include <misc/Settings.h>
 #include <globals.h>
 #include <QPainter>
@@ -172,7 +174,7 @@ void Direct2dDesign::paintFoils(QPainter &painter)
 				drawMidLine(painter, pFoil, m_fScale, m_fScale*m_fScaleY, m_ptOffset);
 			}
 
-			drawPoints(painter, pFoil, 0.0, m_fScale,m_fScale*m_fScaleY, m_ptOffset);
+			drawPoints(painter, pFoil, 0.0, m_fScale,m_fScale*m_fScaleY, m_ptOffset, Settings::s_BackgroundColor);
 
 		}
 	}
@@ -190,7 +192,7 @@ void Direct2dDesign::paintFoils(QPainter &painter)
 
 		CtrlPen.setColor(colour(m_pBufferFoil));
 		painter.setPen(CtrlPen);
-		drawPoints(painter, m_pBufferFoil, 0.0, m_fScale,m_fScale*m_fScaleY, m_ptOffset);
+		drawPoints(painter, m_pBufferFoil, 0.0, m_fScale,m_fScale*m_fScaleY, m_ptOffset, Settings::s_BackgroundColor);
 
 	}
 	painter.restore();
@@ -279,7 +281,7 @@ void Direct2dDesign::paintLegend(QPainter &painter)
 						{
 							painter.drawRect(x1-2, Place.y() + ypos*k-2, 4,4);
 						}*/
-						drawPoint(painter, pRefFoil->foilPointStyle(), QPoint(x1, Place.y() + ypos*k));
+						drawPoint(painter, pRefFoil->foilPointStyle(), Settings::s_BackgroundColor, QPoint(x1, Place.y() + ypos*k));
 						painter.setPen(TextPen);
 						painter.drawText(Place.x() + LegendSize + fmw, Place.y() + ypos*k+delta, pRefFoil->foilName());
 						k++;

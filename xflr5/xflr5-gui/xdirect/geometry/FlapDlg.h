@@ -41,10 +41,10 @@ public:
 
 
 private:
-	void EnableTEFlap(bool bEnable);
-	void EnableLEFlap(bool bEnable);
-	void ReadParams();
-	void SetupLayout();
+	void enableTEFlap(bool bEnable);
+	void enableLEFlap(bool bEnable);
+	void readParams();
+	void setupLayout();
 
 	DoubleEdit	*m_pctrlLEYHinge;
 	DoubleEdit	*m_pctrlLEXHinge;
@@ -62,10 +62,10 @@ protected:
 	void initDialog();
 
 private slots:
-	void OnApply();
-	void OnLEFlapCheck(int);
-	void OnTEFlapCheck(int);
-	void OnChanged();
+	void onApply();
+	void onLEFlapCheck(int);
+	void onTEFlapCheck(int);
+	void onChanged();
 	virtual void OnOK();
 
 private:
@@ -77,8 +77,6 @@ private:
 	double m_LEXHinge, m_LEYHinge, m_LEFlapAngle;
 	double m_TEXHinge, m_TEYHinge, m_TEFlapAngle;
 	Foil *m_pMemFoil, *m_pBufferFoil;
-
-	void *m_pXFoil;
 
 	QWidget *m_pParent;
 

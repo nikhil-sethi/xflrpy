@@ -1,8 +1,10 @@
 
 #include "graph_globals.h"
 
-void drawPoint(QPainter &painter, int pointStyle, QPoint pt)
+void drawPoint(QPainter &painter, int pointStyle, QPoint pt, QColor backColor)
 {
+	QBrush backBrush(backColor);
+	painter.setBrush(backBrush);
 	switch(pointStyle)
 	{
 		case 0: break;
