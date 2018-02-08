@@ -9,7 +9,7 @@
 sudo apt-get install build-essential mesa-common-dev mesa-utils libgl1-mesa-dev libglu1-mesa-dev lingl-dev libqt4-dev
 ```
 
-**2** Next, head over to [Qt.io](https://www.qt.io/download-open-source/) and download the Linux installer. Run it and make sure to install Qt 5.9 for GCC 64-bit.
+**2** Next, head over to [Qt.io](https://www.qt.io/download-qt-installer) and download the Linux installer. Run it and make sure to install Qt 5.9 for GCC 64-bit.
 If you don't change the default options, it will be installed in `~/Qt/5.9`.
 
 **3** Download the files from this repo and extract them:
