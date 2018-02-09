@@ -22,11 +22,11 @@
 #include "BatchDlg.h"
 #include <gui_params.h>
 #include <globals.h>
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include <xdirect/XDirect.h>
 #include <xdirect/objects2d.h>
 #include "ReListDlg.h"
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include <xinverse/FoilSelectionDlg.h>
 
 

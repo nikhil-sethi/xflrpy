@@ -25,7 +25,7 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QLabel>
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 
 
 class WingScaleDlg : public QDialog

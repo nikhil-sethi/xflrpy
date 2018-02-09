@@ -23,7 +23,7 @@
 #define TARGETCURVEDLG_H
 
 #include <QDialog>
-#include "DoubleEdit.h"
+#include <misc/text/DoubleEdit.h>
 #include <QRadioButton>
 #include <QCheckBox>
 

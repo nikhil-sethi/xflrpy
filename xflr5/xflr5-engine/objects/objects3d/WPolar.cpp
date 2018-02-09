@@ -1074,12 +1074,12 @@ bool WPolar::serializeWPlrWPA(QDataStream &ar, bool bIsStoring)
 		ar>>k;
 		if(k==1)      m_AnalysisMethod=XFLR5::LLTMETHOD;
 		else if(k==2) m_AnalysisMethod=XFLR5::VLMMETHOD;
-		else if(k==3) m_AnalysisMethod=XFLR5::PANELMETHOD;
+		else if(k==3) m_AnalysisMethod=XFLR5::PANEL4METHOD;
 		else if(k==4) m_AnalysisMethod=XFLR5::VLMMETHOD;
 
 		if(m_AnalysisMethod==XFLR5::VLMMETHOD)
 		{
-			m_AnalysisMethod=XFLR5::PANELMETHOD;
+			m_AnalysisMethod=XFLR5::PANEL4METHOD;
 			m_bThinSurfaces = true;
 		}
 
@@ -1427,10 +1427,12 @@ bool WPolar::serializeWPlrXFL(QDataStream &ar, bool bIsStoring)
 		ar << m_Color;
 		ar << m_bIsVisible << false;
 
-		if(m_AnalysisMethod==XFLR5::LLTMETHOD)        ar<<1;
-		else if(m_AnalysisMethod==XFLR5::VLMMETHOD)   ar<<2;
-		else if(m_AnalysisMethod==XFLR5::PANELMETHOD) ar<<3;
-		else                                   ar<<0;
+		if(m_AnalysisMethod==XFLR5::LLTMETHOD)         ar<<1;
+		else if(m_AnalysisMethod==XFLR5::VLMMETHOD)    ar<<2;
+		else if(m_AnalysisMethod==XFLR5::PANEL4METHOD) ar<<3;
+		else if(m_AnalysisMethod==XFLR5::TRILINMETHOD) ar<<4;
+		else if(m_AnalysisMethod==XFLR5::TRICSTMETHOD) ar<<5;
+		else                                           ar<<0;
 
 		if(m_WPolarType==XFLR5::FIXEDSPEEDPOLAR)      ar<<1;
 		else if(m_WPolarType==XFLR5::FIXEDLIFTPOLAR)  ar<<2;
@@ -1518,7 +1520,9 @@ bool WPolar::serializeWPlrXFL(QDataStream &ar, bool bIsStoring)
 		ar >> n;
 		if(n==1)      m_AnalysisMethod=XFLR5::LLTMETHOD;
 		else if(n==2) m_AnalysisMethod=XFLR5::VLMMETHOD;
-		else if(n==3) m_AnalysisMethod=XFLR5::PANELMETHOD;
+		else if(n==3) m_AnalysisMethod=XFLR5::PANEL4METHOD;
+		else if(n==4) m_AnalysisMethod=XFLR5::TRILINMETHOD;
+		else if(n==5) m_AnalysisMethod=XFLR5::TRICSTMETHOD;
 
 		ar >> n;
 		if(n==1)      m_WPolarType=XFLR5::FIXEDSPEEDPOLAR;

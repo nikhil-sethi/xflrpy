@@ -49,11 +49,11 @@ class MainFrame;
 #include "./analysis/PanelAnalysisDlg.h"
 #include "./analysis/LLTAnalysisDlg.h"
 #include <plane_analysis/planeanalysistask.h>
-#include <misc/LineBtn.h>
-#include <misc/DoubleEdit.h>
-#include <misc/MinTextEdit.h>
-#include <misc/LineCbBox.h>
-#include <misc/LineDelegate.h>
+#include <misc/line/LineBtn.h>
+#include <misc/text/DoubleEdit.h>
+#include <misc/text/MinTextEdit.h>
+#include <misc/line/LineCbBox.h>
+#include <misc/line/LineDelegate.h>
 #include <objects3d/Body.h>
 #include <objects3d/Wing.h>
 #include <objects3d/Plane.h>
@@ -251,6 +251,7 @@ public:
 	void LLTAnalyze(double V0, double VMax, double VDelta, bool bSequence, bool bInitCalc);	
 	bool loadSettings(QSettings *pSettings);
 	int  matSize() {return m_theTask.m_MatSize;}
+	void drawColorGradient(QPainter &painter, QRect const & gradientRect);
 	void paintCpLegendText(QPainter &painter);
 	void paintPanelForceLegendText(QPainter &painter);
 	void panelAnalyze(double V0, double VMax, double VDelta, bool bSequence);
@@ -398,7 +399,6 @@ public:
 	static bool m_bResetglStream;             /**< true if the streamlines OpenGL list needs to be re-generated */
 	static bool m_bResetglLegend;             /**< true if the legend needs to be reset if the window has been resized */
 	static bool m_bResetglBody;               /**< true if the openGL list for the body needs to be re-generated */
-	static bool m_bResetglBodyMesh;           /**< true if the openGL list for panel mesh needs to be re-generated */
 	static bool m_bResetglSurfVelocities;     /**< true if the crossflow OpenGL list needs to be refreshed */
 
 	static bool s_bResetCurves;               /**< true if the curves of the active view should be regenerated before the next view update >*/
@@ -428,9 +428,9 @@ public:
 	WingOpp *m_pWOpp[MAXWINGS];   /**< an array of pointers to the operating points of the four wings of the currently selected plane */
 
 
-	static QList<void *> *m_poaPlane;			/**< for convenienece, a pointer to the array of pointers to plane objects */
-	static QList<void *> *m_poaWPolar;			/**< for convenienece, a pointer to the array of UFO polar objects */
-	static QList<void *> *m_poaPOpp;			/**< for convenienece, a pointer to the array of Plane OpPoint objects */
+	static QList<Plane*>    *m_poaPlane;		/**< for convenienece, a pointer to the array of pointers to plane objects */
+	static QList<WPolar*>   *m_poaWPolar;		/**< for convenienece, a pointer to the array of UFO polar objects */
+	static QList<PlaneOpp*> *m_poaPOpp;			/**< for convenienece, a pointer to the array of Plane OpPoint objects */
 
 
 	Plane * m_pCurPlane;          /**< the currently active Plane */
@@ -498,7 +498,7 @@ public:
 
 public:
 	static MainFrame *s_pMainFrame;       /**< a pointer to the frame class */
-	gl3dMiarexView *m_pGL3dView;              /**< a pointer to the openGL 3.0 widget where 3d calculations and rendering are performed */
+	gl3dMiarexView *m_pgl3dMiarexView;              /**< a pointer to the openGL 3.0 widget where 3d calculations and rendering are performed */
 
 
 

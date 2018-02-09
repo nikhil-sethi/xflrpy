@@ -21,14 +21,14 @@
 
 
 #include <mainframe.h>
-#include <Settings.h>
+#include <misc/options/displayoptions.h>
 #include "graphwidget.h"
 #include "graphtilewidget.h"
 #include "GraphDlg.h"
 #include <objects2d/Polar.h>
 #include <objects3d/WPolar.h>
 #include <miarex/Miarex.h>
-#include <Units.h>
+#include <misc/options/Units.h>
 #include <QPen>
 #include <QPainterPath>
 #include <QPainter>

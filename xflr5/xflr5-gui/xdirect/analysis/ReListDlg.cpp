@@ -24,8 +24,8 @@
 #include <QHeaderView>
 #include <QStringList>
 #include "ReListDlg.h"
-#include <misc/Settings.h>
-#include <misc/DoubleEdit.h>
+#include <misc/options/displayoptions.h>
+#include <misc/text/DoubleEdit.h>
 
 ReListDlg::ReListDlg(QWidget *pParent) : QDialog(pParent)
 {

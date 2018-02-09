@@ -1145,7 +1145,7 @@ void Body::computeBodyAxisInertia()
 void Body::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, double &CoGIzz, double &CoGIxz)
 {
 	//evaluate roughly the Body's wetted area
-	int i,j,k;
+
 	double ux, rho;
 	double dj, dj1;
 	Vector3d Pt, LATB, TALB, N, PLA, PTA, PLB, PTB, Top, Bot;
@@ -1160,9 +1160,9 @@ void Body::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 		// we use the panel division
 		//first get the wetted area
 
-		for (i=0; i<frameCount()-1; i++)
+		for (int i=0; i<frameCount()-1; i++)
 		{
-			for (k=0; k<sideLineCount()-1; k++)
+			for (int k=0; k<sideLineCount()-1; k++)
 			{
 				//build the four corner points of the strips
 				PLA.x =  framePosition(i);
@@ -1191,9 +1191,9 @@ void Body::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 		BodyArea *= 2.0;
 		rho = m_VolumeMass/BodyArea;
 		//First get the CoG position
-		for (i=0; i<frameCount()-1; i++)
+		for (int i=0; i<frameCount()-1; i++)
 		{
-			for (j=0; j<m_xPanels[i]; j++)
+			for (int j=0; j<m_xPanels[i]; j++)
 			{
 				dj  = (double) j   /(double)(m_xPanels[i]);
 				dj1 = (double)(j+1)/(double)(m_xPanels[i]);
@@ -1202,7 +1202,7 @@ void Body::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 				PLA.x = PLB.x = (1.0- dj) * framePosition(i)  +  dj * framePosition(i+1);
 				PTA.x = PTB.x = (1.0-dj1) * framePosition(i)  + dj1 * framePosition(i+1);
 
-				for (k=0; k<sideLineCount()-1; k++)
+				for (int k=0; k<sideLineCount()-1; k++)
 				{
 					//build the four corner points of the strips
 					PLB.y = (1.0- dj) * frame(i)->m_CtrlPoint[k].y   +  dj * frame(i+1)->m_CtrlPoint[k].y;
@@ -1240,9 +1240,9 @@ void Body::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 
 		//Then Get Inertias
 		// we could do it one calculation, for CG and inertia, by using Hyghens/steiner theorem
-		for (i=0; i<frameCount()-1; i++)
+		for (int i=0; i<frameCount()-1; i++)
 		{
-			for (j=0; j<m_xPanels[i]; j++)
+			for (int j=0; j<m_xPanels[i]; j++)
 			{
 				dj  = (double) j   /(double)(m_xPanels[i]);
 				dj1 = (double)(j+1)/(double)(m_xPanels[i]);
@@ -1251,7 +1251,7 @@ void Body::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 				PLA.x = PLB.x = (1.0- dj) * framePosition(i)   +  dj * framePosition(i+1);
 				PTA.x = PTB.x = (1.0-dj1) * framePosition(i)   + dj1 * framePosition(i+1);
 
-				for (k=0; k<sideLineCount()-1; k++)
+				for (int k=0; k<sideLineCount()-1; k++)
 				{
 					//build the four corner points of the strips
 					PLB.y = (1.0- dj) * frame(i)->m_CtrlPoint[k].y   +  dj * frame(i+1)->m_CtrlPoint[k].y;
@@ -1292,7 +1292,7 @@ void Body::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 		xpos = framePosition(0);
 		dl = length()/(double)(NSections-1);
 
-		for (j=0; j<NSections-1; j++)
+		for (int j=0; j<NSections-1; j++)
 		{
 			BodyArea += dl * (getSectionArcLength(xpos)+ getSectionArcLength(xpos+dl)) /2.0;
 			xpos += dl;
@@ -1302,7 +1302,7 @@ void Body::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 
 		// First evaluate CoG, assuming each section is a point mass
 		xpos = framePosition(0);
-		for (j=0; j<NSections-1; j++)
+		for (int j=0; j<NSections-1; j++)
 		{
 			SectionArea = dl * (getSectionArcLength(xpos)+ getSectionArcLength(xpos+dl))/2.0;
 			Pt.x = xpos + dl/2.0;
@@ -1322,7 +1322,7 @@ void Body::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 
 		// Next evaluate inertia, assuming each section is a point mass
 		xpos = framePosition(0);
-		for (j=0; j<NSections-1; j++)
+		for (int j=0; j<NSections-1; j++)
 		{
 			SectionArea = dl * (getSectionArcLength(xpos)+ getSectionArcLength(xpos+dl))/2.0;
 			Pt.x = xpos + dl/2.0;
@@ -1678,7 +1678,8 @@ bool Body::serializeBodyXFL(QDataStream &ar, bool bIsStoring)
 
 		// space allocation for the future storage of more data, without need to change the format
 		if(m_bTextures) ar << 1; else ar <<0;
-		for (int i=1; i<20; i++) ar << 0;
+		for (int i=1; i<18; i++) ar << 0;
+		ar << m_SplineSurface.uDegree()<<m_SplineSurface.vDegree();
 		for (int i=0; i<50; i++) ar << (double)0.0;
 	}
 	else
@@ -1742,7 +1743,9 @@ bool Body::serializeBodyXFL(QDataStream &ar, bool bIsStoring)
 		// space allocation
 		ar >>k;
 		if(k) m_bTextures = true; else m_bTextures = false;
-		for (int i=1; i<20; i++) ar >> k;
+		for (int i=1; i<18; i++) ar >> k;
+		ar >> k; m_SplineSurface.setuDegree(std::max(k,3));
+		ar >> k; m_SplineSurface.setvDegree(std::max(k,3));
 		for (int i=0; i<50; i++) ar >> dble;
 	}
 	return true;

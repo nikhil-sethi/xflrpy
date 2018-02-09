@@ -5,7 +5,7 @@
 namespace XFLR5
 {
 	/** @enum The different types of analysis methods for 3D calculations of wings and planes. */
-	typedef enum {LLTMETHOD, VLMMETHOD, PANELMETHOD} enumAnalysisMethod;
+	typedef enum {LLTMETHOD, VLMMETHOD, PANEL4METHOD, TRILINMETHOD, TRICSTMETHOD} enumAnalysisMethod;
 
 	/** @enum The different types of polar available for 2D and 3D calculations. */
 	typedef enum {FIXEDSPEEDPOLAR, FIXEDLIFTPOLAR, RUBBERCHORDPOLAR, FIXEDAOAPOLAR, STABILITYPOLAR, BETAPOLAR} enumPolarType;
@@ -24,7 +24,6 @@ namespace XFLR5
 
 	/** @enum The two types of boundary conditions for 3D panel analysis. VLM BC are of the NEUMANN type*/
 	typedef enum {DIRICHLET, NEUMANN} enumBC;
-
 }
 
 #endif // ENGINE_ENUMS_H

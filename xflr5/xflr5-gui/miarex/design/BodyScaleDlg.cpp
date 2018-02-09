@@ -26,7 +26,7 @@
 #include <QLabel>
 
 #include <globals.h>
-#include <misc/LinePickerDlg.h>
+#include <misc/line/LinePickerDlg.h>
 #include "BodyScaleDlg.h"
 #include "GL3dBodyDlg.h"
 

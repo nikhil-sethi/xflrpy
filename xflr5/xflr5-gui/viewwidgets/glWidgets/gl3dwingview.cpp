@@ -40,7 +40,7 @@ void gl3dWingView::glRenderView()
 	{
 		paintWing(0, m_pWing);
 		if(m_bFoilNames)  paintFoilNames(m_pWing);
-		if(m_bVLMPanels)  paintWingMesh(m_pWing);
+		if(m_bVLMPanels)  paintEditWingMesh(m_vboEditWingMesh[0]);
 		if(m_bShowMasses)
 			paintMasses(m_pWing->volumeMass(), Vector3d(0.0,0.0,0.0), "Structural mass", m_pWing->m_PointMass);
 		if(pDlg->iSection()>=0) paintSectionHighlight();

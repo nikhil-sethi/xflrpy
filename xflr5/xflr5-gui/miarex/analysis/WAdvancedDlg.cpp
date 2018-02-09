@@ -20,7 +20,7 @@
 *****************************************************************************/
 
 #include <globals.h>
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 #include "WAdvancedDlg.h"
 #include <QLabel>
 #include <QHBoxLayout>

@@ -2,7 +2,7 @@
 
 	MainFrame Class
 
-    Copyright (C) 2008-2016 Andre Deperrois adeperrois@xflr5.com
+    Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,12 +40,16 @@
 #include <QMainWindow>
 #include <QList>
 #include <gui_enums.h>
-#include <engine_enums.h>
+#include <analysis3d_enums.h>
 #include <gui_params.h>
 #include <QGraph.h>
 #include <miarex/view/GLLightDlg.h>
 #include <misc/voidwidget.h>
 
+class QMiarex;
+class QXDirect;
+class QAFoil;
+class QXInverse;
 class gl3dMiarexView;
 class InverseViewWidget;
 class QGraph;
@@ -54,6 +58,7 @@ class XDirectTileWidget;
 class MiarexTileWidget;
 class CVector;
 class GLLightDlg;
+class GL3DScales;
 class Foil;
 class Polar;
 class OpPoint;
@@ -119,6 +124,7 @@ class MainFrame : public QMainWindow
 	friend class OpPointWidget;
 	friend class gl3dView;
 	friend class gl3dMiarexView;
+	friend class LanguageOptions;
 
 	Q_OBJECT
 
@@ -148,16 +154,15 @@ private slots:
 	void onInsertProject();
 	void onHighlightOperatingPoint();
 	void onNewProject();
-	void onLanguage();
 	void onLoadFile();
 	void onLoadLastProject();
 	void onLogFile();
 	void onOpenGLInfo();
+	void onPreferences();
 	void onProjectModified();
 	void onResetCurGraphScales();
 	void onResetSettings();
 	void onRestoreToolbars();
-	void onSaveOptions();
 	bool onSaveProjectAs();
 	void onSaveTimer();
 	void onSaveViewToImageFile();
@@ -168,8 +173,6 @@ private slots:
 	void onSelChangePlaneOpp(int sel);
 	void onSelChangeWPolar(int sel);
 	void onSaveProject();
-	void onStyleSettings();
-	void onUnits();
 	void onManageFoils();
 	void onSavePlaneAsProject();
 	void onOpenRecentFile();
@@ -254,13 +257,14 @@ public:
 
 private:
 
-	void *m_pAFoil;     /**< A void pointer to the instance of the QAFoil application. The pointer will be cast to the QAFoil type at runtime. This is necessary to prevent loop includes of header files. */
-	void *m_pMiarex;    /**< A void pointer to the instance of the QMiarex application. The pointer will be cast to the QMiarex type at runtime. This is necessary to prevent loop includes of header files. */
-	void *m_pXInverse;  /**< A void pointer to the instance of the QXInverse application. The pointer will be cast to the QXInverse type at runtime. This is necessary to prevent loop includes of header files. */
-	void *m_pXDirect;   /**< A void pointer to the instance of the QXDirect application. The pointer will be cast to the QXDirect type at runtime. This is necessary to prevent loop includes of header files. */
+	QAFoil *m_pAFoil;     /**< A void pointer to the instance of the QAFoil application. The pointer will be cast to the QAFoil type at runtime. This is necessary to prevent loop includes of header files. */
+	QMiarex *m_pMiarex;    /**< A void pointer to the instance of the QMiarex application. The pointer will be cast to the QMiarex type at runtime. This is necessary to prevent loop includes of header files. */
+	QXInverse *m_pXInverse;  /**< A void pointer to the instance of the QXInverse application. The pointer will be cast to the QXInverse type at runtime. This is necessary to prevent loop includes of header files. */
+	QXDirect *m_pXDirect;   /**< A void pointer to the instance of the QXDirect application. The pointer will be cast to the QXDirect type at runtime. This is necessary to prevent loop includes of header files. */
 	void *m_pStabView;  /** < A void pointer to the instance of the StabViewDlg window. */
 	
 	GLLightDlg m_glLightDlg;
+	GL3DScales *m_pGL3DScales;
 
 
 	static QPointer<MainFrame> _self; /**< necessary for MacOS >*/
@@ -319,12 +323,12 @@ private:
 
 	//MainFrame actions
 	QAction *m_pOnXDirectAct, *m_pOnMiarexAct, *m_pOnAFoilAct, *m_pOnXInverseAct, *m_pOnMixedInverseAct;
-	QAction *m_pOpenAct, *m_pInsertAct, *m_pStyleAct;
-	QAction *m_pSaveAct, *m_pSaveProjectAsAct,*m_pNewProjectAct, *m_pCloseProjectAct, *m_pSaveOptionsAct;
-	QAction *m_pUnitsAct;
-	QAction *m_pLanguageAct;
+	QAction *m_pOpenAct, *m_pInsertAct;
+	QAction *m_pSaveAct, *m_pSaveProjectAsAct,*m_pNewProjectAct, *m_pCloseProjectAct;
+
 	QAction *m_pExitAct;
 	QAction *m_pAboutAct, *m_pAboutQtAct, *m_pOpenGLAct;
+	QAction *m_pPreferencesAct;
 	QAction *m_pRecentFileActs[MAXRECENTFILES];
 	QAction *m_pSeparatorAct;
 	QAction *m_pSaveViewToImageFileAct, *m_pResetSettingsAct;
@@ -395,7 +399,7 @@ private:
 	QAction *m_pXDirectStyleAct;
 	QAction *m_pXDirectPolarFilter;
 	QAction *m_psetQVarGraph, *m_psetCpVarGraph;
-	QAction *m_pExportCurXFoilRes;
+	QAction *m_pExportBLData;
 	QAction *m_pManageFoilsAct, *m_pRenamePolarAct;
 	QAction *m_pImportJavaFoilPolar, *m_pImportXFoilPolar;
 	QAction *m_pImportXMLFoilAnalysis, *m_pExportXMLFoilAnalysis;
@@ -449,7 +453,6 @@ public:
 	static QFile *s_pTraceFile;
 	static QString s_ProjectName;      /**< The Project's name. */
 
-	void *m_pGL3DScales;
 
 	QTranslator m_Translator;  /**< the translator object; due to a Qt bug, need to load twice: once from the main function, once from the mainframe */
 };

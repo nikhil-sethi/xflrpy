@@ -23,7 +23,7 @@
 #include <QHBoxLayout>
 #include <QtDebug>
 #include "PertDlg.h"
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 
 
 

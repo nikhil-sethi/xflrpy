@@ -25,7 +25,7 @@
 #include <QList>
 #include <QItemDelegate>
 #include <QStandardItemModel>
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 
 class FoilTableDelegate : public QItemDelegate
 {

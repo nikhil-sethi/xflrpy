@@ -15,7 +15,20 @@
 *******************************************************************************
 
 
-xflr5 v6.39 August xxxth, 2017
+xflr5 v6.40 January 7th, 2018
+	- fixed a bug which caused a stability analysis to calculate the operating point with the aoa of the previous calculation.
+	  - negligeable impact on results
+	- corrected a potential crash bug when trying to display 3D results of an LLT calculation
+	- removed the default suffix "-proj_area" from the name of plane polars
+	- restored the output of non-dimensional control derivatives in the operating point properties
+	- restored the option to export BL data to text files
+	- restored the option to enable or disable autosave which was always turned on
+	- included the missing NURBS degrees in the serialization of the body objects
+	- added a protection to the max degree of NURBS vs. point count
+	- code cleaning
+
+
+xflr5 v6.39 September 14th, 2017
 	- Improved the GUI for the plot of BL results in the XFoil Direct Analysis module; corrected a few bugs at the same time
 	- modified the calculation of the lift coefficient at each span station in VLM and Panel Analysis.
 	  Is now F.dot(SurfaceNormal)/q.S instead of F.dot(WindNormal)/q.S formerly. Increases slightly the viscous drag

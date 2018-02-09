@@ -23,7 +23,7 @@
 #include <QVBoxLayout>
 #include "FoilPolarDlg.h"
 #include <globals.h>
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 #include <xdirect/XDirect.h>
 
 int FoilPolarDlg::s_UnitType = 1;

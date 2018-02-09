@@ -33,7 +33,7 @@
 #include <QRadioButton>
 #include <QTableView>
 #include "CtrlTableDelegate.h"
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 #include <objects3d/Plane.h>
 
 /**

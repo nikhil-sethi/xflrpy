@@ -25,8 +25,8 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QCheckBox>
-#include <misc/LineBtn.h>
-#include <misc/DoubleEdit.h>
+#include <misc/line/LineBtn.h>
+#include <misc/text/DoubleEdit.h>
 
 
 class GridSettingsDlg : public QDialog

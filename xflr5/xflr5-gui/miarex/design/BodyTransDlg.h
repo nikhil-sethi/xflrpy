@@ -27,7 +27,7 @@
 #include <QCheckBox>
 #include <QLabel>
 
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 
 class BodyTransDlg : public QDialog
 {

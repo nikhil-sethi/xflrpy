@@ -30,11 +30,11 @@
 #include <QPushButton>
 
 #include <QGraph.h>
-#include <misc/DoubleEdit.h>
-#include <misc/IntEdit.h>
-#include <misc/ColorButton.h>
-#include <misc/LineBtn.h>
-#include <misc/TextClrBtn.h>
+#include <misc/text/DoubleEdit.h>
+#include <misc/text/IntEdit.h>
+#include <misc/color/ColorButton.h>
+#include <misc/line/LineBtn.h>
+#include <misc/text/TextClrBtn.h>
 
 class GraphDlg : public QDialog
 {

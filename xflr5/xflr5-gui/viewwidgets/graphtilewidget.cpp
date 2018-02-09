@@ -31,8 +31,8 @@
 #include "miarex/Miarex.h"
 #include "xdirect/XDirect.h"
 #include "xinverse/XInverse.h"
-#include <misc/Settings.h>
-#include <misc/Units.h>
+#include <misc/options/displayoptions.h>
+#include <misc/options/Units.h>
 
 
 void* GraphTileWidget::s_pMainFrame = NULL;

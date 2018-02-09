@@ -37,9 +37,9 @@
 #include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QSettings>
-#include <misc/DoubleEdit.h>
-#include <misc/IntEdit.h>
-#include <misc/MinTextEdit.h>
+#include <misc/text/DoubleEdit.h>
+#include <misc/text/IntEdit.h>
+#include <misc/text/MinTextEdit.h>
 #include <QGraph.h>
 #include <objects2d/Foil.h>
 #include <gui_objects/Spline5.h>

@@ -200,12 +200,9 @@ void FoilGeomDlg::setupLayout()
 
 	QVBoxLayout *pMainLayout = new QVBoxLayout;
 	{
-		m_pctrlXFoilMessage = new QLabel("");
 		pMainLayout->addWidget(pCamberGroup);
 		pMainLayout->addStretch(1);
 		pMainLayout->addWidget(pThicknessGroup);
-		pMainLayout->addStretch(1);
-		pMainLayout->addWidget(m_pctrlXFoilMessage);
 		pMainLayout->addStretch(1);
 		pMainLayout->addLayout(pCommandButtons);
 		setLayout(pMainLayout);
@@ -233,8 +230,6 @@ void FoilGeomDlg::setupLayout()
 
 void FoilGeomDlg::apply()
 {
-	QString strange;
-
 	XFoil *pXFoil = (XFoil*)s_pXFoil;
 
 	//reset everything and retry
@@ -305,7 +300,6 @@ void FoilGeomDlg::apply()
 	}
 	m_bModified = true;
 
-	m_pctrlXFoilMessage->setText(strange);
 	m_pParent->update();
 }
 

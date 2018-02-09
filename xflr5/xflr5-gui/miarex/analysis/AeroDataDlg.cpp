@@ -22,7 +22,7 @@
 
 
 #include "AeroDataDlg.h"
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 
 #include <QtDebug>
 #include <QHBoxLayout>

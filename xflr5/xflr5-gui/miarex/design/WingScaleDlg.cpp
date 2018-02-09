@@ -25,7 +25,7 @@
 
 #include "WingScaleDlg.h"
 #include <globals.h>
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 
 
 WingScaleDlg::WingScaleDlg(QWidget *pParent) : QDialog(pParent)

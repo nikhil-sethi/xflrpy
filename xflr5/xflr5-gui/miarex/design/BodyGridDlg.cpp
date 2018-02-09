@@ -29,8 +29,8 @@
 #include <QPushButton>
 
 #include <globals.h>
-#include <misc/Units.h>
-#include <misc/LinePickerDlg.h>
+#include <misc/options/Units.h>
+#include <misc/line/LinePickerDlg.h>
 #include "BodyGridDlg.h"
 
 

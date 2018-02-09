@@ -23,7 +23,7 @@
 #include <QMenu>
 #include <QtDebug>
 #include "mainframe.h"
-#include "misc/Settings.h"
+#include "misc/options/displayoptions.h"
 #include "QGraph.h"
 #include "xinverse/XInverse.h"
 #include "inverseviewwidget.h"

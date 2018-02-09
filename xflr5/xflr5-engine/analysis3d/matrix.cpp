@@ -951,8 +951,61 @@ void display_mat(double *mat, int rows, int cols)
 /** Simple routine for displaying a vector. */
 void display_vec(double *vec, int rows)
 {
-	int i;
+	for(int i=0; i<rows; i++)
+		qDebug("  %17.9g", vec[i]);
+}
 
-	for(i=0; i<rows; i++)
-		qDebug("\t%13.9g", vec[i]);
+
+
+void displayDouble(double d0, double d1, double d2, double d3, double d4, double d5, double d6, double d7, double d8, double d9)
+{
+	QString strong, str;
+	strong.sprintf("  %13.7g", d0);
+	if(d1>-1.0e50)
+	{
+		str.sprintf("  %13.7g", d1);
+		strong += str;
+	}
+	if(d2>-1.0e50)
+	{
+		str.sprintf("  %13.7g", d2);
+		strong += str;
+	}
+	if(d3>-1.0e50)
+	{
+		str.sprintf("  %13.7g", d3);
+		strong += str;
+	}
+	if(d4>-1.0e50)
+	{
+		str.sprintf("  %13.7g", d4);
+		strong += str;
+	}
+	if(d5>-1.0e50)
+	{
+		str.sprintf("  %13.7g", d5);
+		strong += str;
+	}
+	if(d6>-1.0e50)
+	{
+		str.sprintf("  %13.7g", d6);
+		strong += str;
+	}
+	if(d7>-1.0e50)
+	{
+		str.sprintf("  %13.7g", d7);
+		strong += str;
+	}
+	if(d8>-1.0e50)
+	{
+		str.sprintf("  %13.7g", d8);
+		strong += str;
+	}
+	if(d9>-1.0e50)
+	{
+		str.sprintf("  %13.7g", d9);
+		strong += str;
+	}
+
+	qDebug("%s", strong.toStdString().c_str());
 }

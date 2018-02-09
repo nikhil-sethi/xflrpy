@@ -31,8 +31,8 @@
 #include <QStandardItemModel>
 
 #include <gui_params.h>
-#include <misc/FloatEditDelegate.h>
-#include <misc/DoubleEdit.h>
+#include <misc/text/FloatEditDelegate.h>
+#include <misc/text/DoubleEdit.h>
 #include <objects2d/Vector3d.h>
 #include <objects3d/Plane.h>
 

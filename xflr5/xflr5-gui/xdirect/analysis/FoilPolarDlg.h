@@ -27,7 +27,7 @@
 #include <QRadioButton>
 #include <QLabel>
 #include <QString>
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 #include <objects2d/Polar.h>
 
 

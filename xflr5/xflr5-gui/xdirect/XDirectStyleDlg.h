@@ -22,7 +22,7 @@
 #define XDIRECTSTYLEDLG_H
 
 #include <QDialog>
-#include <misc/LineBtn.h>
+#include <misc/line/LineBtn.h>
 
 
 class XDirectStyleDlg : public QDialog

@@ -21,10 +21,10 @@
 
 
 #include <globals.h>
-#include <misc/LinePickerDlg.h>
-#include <misc/Settings.h>
+#include <misc/line/LinePickerDlg.h>
+#include <misc/options/displayoptions.h>
 #include <misc/LengthUnitDlg.h>
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 #include "./BodyTransDlg.h"
 #include "./InertiaDlg.h"
 #include "./BodyScaleDlg.h"
@@ -794,15 +794,15 @@ void GL3dBodyDlg::onPointCellChanged(QWidget *)
 void GL3dBodyDlg::onPointClicked()
 {
 	if(m_pFrame)
-		m_pctrlPointTable->selectRow(m_pFrame->s_iSelect);
+		m_pctrlPointTable->selectRow(m_pFrame->selectedIndex());
 }
 
 
 void GL3dBodyDlg::onPointItemClicked(const QModelIndex &index)
 {
 	if(!m_pFrame) return;
-	m_pFrame->s_iSelect = index.row();
-	m_pFrame->s_iHighlight = index.row();
+	m_pFrame->setSelected(index.row());
+	m_pFrame->setHighlighted(index.row());
 	updateView();
 }
 
@@ -845,10 +845,13 @@ void GL3dBodyDlg::onUpdateBody()
 	m_bChanged = true;
 	m_gl3dBodyview.resetGLBody(true);
 
+	m_pFrame = m_pBody->activeFrame();
+
 	fillFrameDataTable();
 	fillPointDataTable();
 	updateView();
 }
+
 
 
 void GL3dBodyDlg::onSelChangeXDegree(int sel)
@@ -859,7 +862,16 @@ void GL3dBodyDlg::onSelChangeXDegree(int sel)
 	takePicture();
 	m_bChanged = true;
 
-	m_pBody->m_SplineSurface.m_iuDegree = sel+1;
+	int deg = sel+1;
+	if(deg>=m_pBody->nurbs().frameCount())
+	{
+		QString strange = tr("The degree must be less than the number of Frames");
+		QMessageBox::warning(this, QObject::tr("Warning"), strange);
+		deg=m_pBody->nurbs().frameCount();
+		m_pctrlXDegree->setCurrentIndex(m_pBody->nurbs().frameCount()-2);
+	}
+
+	m_pBody->m_SplineSurface.setuDegree(deg);
 	m_pBody->setNURBSKnots();
 	m_gl3dBodyview.resetGLBody(true);
 
@@ -870,19 +882,27 @@ void GL3dBodyDlg::onSelChangeXDegree(int sel)
 void GL3dBodyDlg::onSelChangeHoopDegree(int sel)
 {
 	if(!m_pBody) return;
-	if (sel <0) return;
-
-	m_bChanged = true;
+	if (sel<0) return;
 
 	takePicture();
 
-	m_pBody->m_SplineSurface.m_ivDegree = sel+1;
+	m_bChanged = true;
+
+	int deg = sel+1;
+	if(deg>=m_pBody->nurbs().framePointCount())
+	{
+		QString strange = tr("The degree must be less than the number of side lines");
+		QMessageBox::warning(this, QObject::tr("Warning"), strange);
+		deg=m_pBody->nurbs().framePointCount();
+		m_pctrlHoopDegree->setCurrentIndex(m_pBody->nurbs().framePointCount()-2);
+	}
+
+	m_pBody->m_SplineSurface.setvDegree(deg);
 	m_pBody->setNURBSKnots();
 	m_gl3dBodyview.resetGLBody(true);
 
 	updateView();
 }
-
 
 void GL3dBodyDlg::onEdgeWeight()
 {
@@ -1140,6 +1160,7 @@ bool GL3dBodyDlg::initDialog(Body *pBody)
 	m_pctrlPointTable->setFont(Settings::s_TableFont);
 
 	m_gl3dBodyview.setBody(pBody);
+	m_gl3dBodyview.setScale(pBody->length());
 
 	return setBody(pBody);
 }

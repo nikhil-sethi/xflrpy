@@ -35,10 +35,7 @@
 #include <QRadioButton>
 #include <QCheckBox>
 #include <QStackedWidget>
-#include <misc/LineBtn.h>
-#include <misc/LineCbBox.h>
-#include <misc/LineDelegate.h>
-#include <misc/DoubleEdit.h>
+#include <QSlider>
 #include <objects2d/Polar.h>
 #include <objects2d/Foil.h>
 #include <xdirect/analysis/XFoilAnalysisDlg.h>
@@ -48,8 +45,11 @@
 #include <QGraph.h>
 #include <XFoil.h>
 
-
+class LineBtn;
+class LineCbBox;
+class LineDelegate;
 class MainFrame; // to shut the compiler up
+class DoubleEdit;
 
 /**
 * @class QXDirect
@@ -159,7 +159,7 @@ public slots:
 
 	void onQGraph();
 	void onCpGraph();
-	void onExportCurXFoilResults();
+	void onExportBLData();
 
 	void onOpPointProps();
 	void onPolarProps();

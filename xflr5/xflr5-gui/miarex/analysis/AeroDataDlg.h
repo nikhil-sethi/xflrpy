@@ -33,7 +33,7 @@
  *
  */
 
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 
 #include <QDialog>
 #include <QLabel>

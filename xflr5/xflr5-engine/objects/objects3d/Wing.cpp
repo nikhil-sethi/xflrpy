@@ -91,21 +91,24 @@ Wing::Wing()
 
 	m_pWingPanel     = NULL;
 
-	m_WingCL                = 0.0;
+	m_WingCL            = 0.0;
 	m_CDv               = 0.0;
 	m_CDi               = 0.0;
 	m_GYm               = 0.0;
 	m_IYm               = 0.0;
 	m_GCm               = 0.0;
 	m_GRm               = 0.0;
+	m_ICm               = 0.0;
 	m_VCm               = 0.0;
 	m_VYm               = 0.0;
 
 	m_CP.set(0.0, 0.0, 0.0);
 
+	m_Maxa = 0.0;
 //	m_AVLIndex = -(int)(qrand()/10000);//improbable value...
 
 	m_MatSize   = 0;
+	m_NStation  = 0;
 
 	m_AR         = 0.0;// Aspect ratio
 	m_TR         = 0.0;// Taper ratio
@@ -433,7 +436,7 @@ void Wing::computeGeometry()
 
 #define NXSTATIONS 20
 #define NYSTATIONS 40
-#define MAXSPANSECTIONS 1000
+
 /**
 * Calculates and returns the inertia properties of the structure based on the object's mass and on the existing geometry
 * The mass is assumed to have been set previously.
@@ -446,9 +449,9 @@ void Wing::computeGeometry()
 */
 void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, double &CoGIzz, double &CoGIxz)
 {
-	static double ElemVolume[NXSTATIONS*NYSTATIONS*MAXSPANSECTIONS*2];
-	static Vector3d PtVolume[NXSTATIONS*NYSTATIONS*MAXSPANSECTIONS*2];
-	int j,k,l;
+	std::vector<double> ElemVolume(NXSTATIONS*NYSTATIONS*m_Surface.size());
+	std::vector<Vector3d> PtVolume(NXSTATIONS*NYSTATIONS*m_Surface.size());
+
 	double rho, LocalSpan, LocalVolume;
 	double LocalChord,  LocalArea,  tau;
 	double LocalChord1, LocalArea1, tau1;
@@ -479,10 +482,10 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 	//first get the CoG - necessary for future application of Huygens/Steiner theorem
 	int p = 0;
 
-	for (j=0; j<m_Surface.size(); j++)
+	for (int j=0; j<m_Surface.size(); j++)
 	{
 		LocalSpan = m_Surface.at(j)->m_Length/(double)NYSTATIONS;
-		for (k=0; k<NYSTATIONS; k++)
+		for (int k=0; k<NYSTATIONS; k++)
 		{
 			tau  = (double)k     / (double)NYSTATIONS;
 			tau1 = (double)(k+1) / (double)NYSTATIONS;
@@ -496,7 +499,7 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 			PtC4.z = (Pt.z + Pt1.z)/2.0;
 
 //			CoGCheck += LocalVolume * PtC4;
-			for(l=0; l<NXSTATIONS; l++)
+			for(int l=0; l<NXSTATIONS; l++)
 			{
 				//browse mid-section
 				xrel  = 1.0 - 1.0/2.0 * (1.0-cos((double) l   *PI /(double)NXSTATIONS));
@@ -538,10 +541,10 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 
 	// CoG is the new origin for inertia calculation
 	p=0;
-	for (j=0; j<m_Surface.size(); j++)
+	for (int j=0; j<m_Surface.size(); j++)
 	{
 		LocalSpan = m_Surface.at(j)->m_Length/(double)NYSTATIONS;
-		for (k=0; k<NYSTATIONS; k++)
+		for (int k=0; k<NYSTATIONS; k++)
 		{
 			tau  = (double)k     / (double)NYSTATIONS;
 			tau1 = (double)(k+1) / (double)NYSTATIONS;
@@ -562,7 +565,7 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 			recalcMass   += LocalVolume*rho;
 			recalcVolume += LocalVolume;
 
-			for(l=0; l<NXSTATIONS; l++)
+			for(int l=0; l<NXSTATIONS; l++)
 			{
 				//browse mid-section
 				CoGIxx += ElemVolume[p]*rho * ( (PtVolume[p].y-CoG.y)*(PtVolume[p].y-CoG.y) + (PtVolume[p].z-CoG.z)*(PtVolume[p].z-CoG.z));
@@ -2513,7 +2516,28 @@ bool Wing::serializeWingXFL(QDataStream &ar, bool bIsStoring)
 
 		if(m_bTextures) ar<<1 ; else ar<<0;
 		// space allocation for the future storage of more data, without need to change the format
-		for (int i=1; i<20; i++) ar << 0;
+		for (int i=1; i<19; i++) ar << 0;
+		switch (wingType()) {
+			case XFLR5::MAINWING:
+				ar<<0;
+				break;
+			case XFLR5::SECONDWING:
+				ar<<1;
+				break;
+			case XFLR5::ELEVATOR:
+				ar<<2;
+				break;
+			case XFLR5::FIN:
+				ar<<3;
+				break;
+			case XFLR5::OTHERWING:
+				ar<<4;
+				break;
+			default:
+				ar<<0;
+				break;
+		}
+
 		for (int i=0; i<50; i++) ar << 0.0;
 
 		return true;
@@ -2571,7 +2595,28 @@ bool Wing::serializeWingXFL(QDataStream &ar, bool bIsStoring)
 
 		ar>>k; if(k) m_bTextures=true; else m_bTextures=false;
 		// space allocation
-		for (int i=1; i<20; i++) ar >> k;
+		for (int i=1; i<19; i++) ar >> k;
+		ar >>k;
+		switch (k) {
+			case 0:
+				m_WingType=XFLR5::MAINWING;
+				break;
+			case 1:
+				m_WingType=XFLR5::SECONDWING;
+				break;
+			case 2:
+				m_WingType=XFLR5::ELEVATOR;
+				break;
+			case 3:
+				m_WingType=XFLR5::FIN;
+				break;
+			case 4:
+				m_WingType=XFLR5::OTHERWING;
+				break;
+			default:
+				break;
+		}
+
 		for (int i=0; i<50; i++) ar >> dble;
 
 		computeGeometry();

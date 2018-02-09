@@ -35,10 +35,10 @@
 
 #include "PanelAnalysisDlg.h"
 #include <miarex/Miarex.h>
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include <globals.h>
 #include <objects2d/Vector3d.h>
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 #include <miarex/Objects3D.h>
 
 QPoint PanelAnalysisDlg::s_Position = QPoint(200,100);

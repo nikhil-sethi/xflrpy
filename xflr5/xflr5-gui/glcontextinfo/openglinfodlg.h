@@ -7,7 +7,7 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QSurface>
-#include "MinTextEdit.h"
+#include <misc/text/MinTextEdit.h>
 
 class OpenGLInfoDlg : public QDialog
 {

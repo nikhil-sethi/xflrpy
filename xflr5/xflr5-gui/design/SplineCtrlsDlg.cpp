@@ -19,7 +19,7 @@
 
 *****************************************************************************/
 
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include "AFoil.h"
 #include "SplineCtrlsDlg.h"
 #include <QGridLayout>

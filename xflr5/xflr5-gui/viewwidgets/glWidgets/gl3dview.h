@@ -39,7 +39,8 @@
 
 #define MAXCPCOLORS    21
 
-
+class QMiarex;
+class MainFrame;
 class Plane;
 class Body;
 class Wing;
@@ -114,9 +115,10 @@ protected:
 	void glMakeBody3DFlatPanels(Body *pBody);
 	void glMakeBodySplines(Body *pBody);
 	void glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody);
-	void glMakeWingMesh(Wing *pWing);
+	void glMakeWingEditMesh(QOpenGLBuffer &vbo, Wing *pWing);
 	void glMakeWingSectionHighlight(Wing *pWing, int iSectionHighLight, bool bRightSide);
 	void glMakeBodyFrameHighlight(Body *pBody, Vector3d bodyPos, int iFrame);
+	void glMakeEditBodyMesh(Body *pBody, Vector3d BodyPosition);
 	void glRenderText(int x, int y, const QString & str, QColor textColor = QColor(Qt::white));
 	void glRenderText(double x, double y, double z, const QString & str, QColor textColor = QColor(Qt::white));
 
@@ -129,8 +131,10 @@ protected:
 	void paintArcBall();
 	void paintAxes();
 	void paintWingMesh(Wing *pWing);
+	void paintEditWingMesh(QOpenGLBuffer &vbo);
 	void paintSectionHighlight();
 	void paintBody(Body *pBody);
+	void paintEditBodyMesh(Body *pBody);
 	void paintWing(int iWing, Wing *pWing);
 	void paintSphere(Vector3d place, double radius, QColor sphereColor, bool bLight=true);
 	void printFormat(const QSurfaceFormat &format);
@@ -153,7 +157,8 @@ protected:
 
 	QOpenGLBuffer m_vboArcBall, m_vboArcPoint, m_vboBody;
 	QOpenGLBuffer m_vboWingSurface[MAXWINGS], m_vboWingOutline[MAXWINGS];
-	QOpenGLBuffer m_vboEditMesh;
+	QOpenGLBuffer m_vboEditWingMesh[MAXWINGS];
+	QOpenGLBuffer m_vboEditBodyMesh;
 	QOpenGLBuffer m_vboHighlight;
 	QOpenGLBuffer m_vboSphere;
 	QOpenGLTexture 	*m_pLeftBodyTexture, *m_pRightBodyTexture;
@@ -194,8 +199,8 @@ protected:
 
 	double m_glScaled, m_glScaledRef;
 
-	static void *s_pMiarex;     /**< A void pointer to the instance of the QMiarex widget.*/
-	static void *s_pMainFrame;  /**< A void pointer to the instance of the MainFrame widget.*/
+	static QMiarex *s_pMiarex;     /**< A void pointer to the instance of the QMiarex widget.*/
+	static MainFrame *s_pMainFrame;  /**< A void pointer to the instance of the MainFrame widget.*/
 	void *m_pParent;            /**< A void pointer to the parent widget. */
 
 	bool m_bOutline;                   /**< true if the surface outlines are to be displayed in the 3D view*/

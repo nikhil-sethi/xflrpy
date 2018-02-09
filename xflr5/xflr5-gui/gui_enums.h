@@ -17,7 +17,7 @@ namespace XFLR5
 	 *May be the operaring point view, the polar view, the 3D view, the Cp view, or the stability view*/
 	typedef enum {WOPPVIEW, WPOLARVIEW,  WCPVIEW, W3DVIEW, STABTIMEVIEW, STABPOLARVIEW, OTHERVIEW} enumMiarexViews;
 
-	typedef enum {BOOL, INTEGER, DOUBLE, STRING, PANELDISTRIBUTION, FOILNAME, BODYTYPE, POLARTYPE, ANALYSISMETHOD, REFDIMENSIONS, WINGTYPE, BOUNDARYCONDITION} enumDataType;
+	typedef enum {BOOLVALUE, INTEGER, DOUBLEVALUE, STRING, PANELDISTRIBUTION, FOILNAME, BODYTYPE, POLARTYPE, ANALYSISMETHOD, REFDIMENSIONS, WINGTYPE, BOUNDARYCONDITION} enumDataType;
 
 	/** @enum The different formats usable to export data to text format files*/
 	typedef enum {TXT, CSV}	enumTextFileType;

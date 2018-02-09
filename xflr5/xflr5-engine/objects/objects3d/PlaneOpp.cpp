@@ -557,8 +557,10 @@ bool PlaneOpp::serializePOppXFL(QDataStream &ar, bool bIsStoring)
 
 		if(m_AnalysisMethod==XFLR5::LLTMETHOD)         ar<<1;
 		else if(m_AnalysisMethod==XFLR5::VLMMETHOD)    ar<<2;
-		else if(m_AnalysisMethod==XFLR5::PANELMETHOD)  ar<<3;
-		else ar << 2;
+		else if(m_AnalysisMethod==XFLR5::PANEL4METHOD) ar<<3;
+		else if(m_AnalysisMethod==XFLR5::TRILINMETHOD) ar<<4;
+		else if(m_AnalysisMethod==XFLR5::TRICSTMETHOD) ar<<5;
+		else                                           ar<<0;
 
 		ar << m_NPanels;
 		ar << m_NStation;
@@ -629,6 +631,7 @@ bool PlaneOpp::serializePOppXFL(QDataStream &ar, bool bIsStoring)
 	else
 	{
 		ar >> ArchiveFormat;
+		if (ArchiveFormat<200000 || ArchiveFormat>200003 ) return false;
 
 		ar >> m_PlaneName;
 		ar >> m_WPlrName;
@@ -652,7 +655,9 @@ bool PlaneOpp::serializePOppXFL(QDataStream &ar, bool bIsStoring)
 		ar >> n;
 		if(n==1)      m_AnalysisMethod=XFLR5::LLTMETHOD;
 		else if(n==2) m_AnalysisMethod=XFLR5::VLMMETHOD;
-		else if(n==3) m_AnalysisMethod=XFLR5::PANELMETHOD;
+		else if(n==3) m_AnalysisMethod=XFLR5::PANEL4METHOD;
+		else if(n==4) m_AnalysisMethod=XFLR5::TRILINMETHOD;
+		else if(n==5) m_AnalysisMethod=XFLR5::TRICSTMETHOD;
 
 		ar >> m_NPanels;
 		ar >> m_NStation;
@@ -760,91 +765,91 @@ bool PlaneOpp::serializePOppXFL(QDataStream &ar, bool bIsStoring)
 
 
 
-void PlaneOpp::getPlaneOppProperties(QString &PlaneOppProperties, QString lengthUnitLabel, QString massUnitLabel, QString speedUnitLabel,
+void PlaneOpp::getPlaneOppProperties(QString &planeOppProperties, QString lengthUnitLabel, QString massUnitLabel, QString speedUnitLabel,
 									 double mtoUnit, double kgtoUnit, double mstoUnit)
 {
 	QString strong, strange;
 
-	PlaneOppProperties.clear();
+	planeOppProperties.clear();
 
 	if(m_WPolarType==XFLR5::FIXEDSPEEDPOLAR)     strong += "Type 1 ("+QObject::tr("Fixed speed") +")\n";
 	else if(m_WPolarType==XFLR5::FIXEDLIFTPOLAR) strong += "Type 2 ("+QObject::tr("Fixed lift") +")\n";
 	else if(m_WPolarType==XFLR5::FIXEDAOAPOLAR)  strong += "Type 4 ("+QObject::tr("Fixed angle of attack") +")\n";
 	else if(m_WPolarType==XFLR5::BETAPOLAR)      strong += "Type 5 ("+QObject::tr("Beta range") +")\n";
 	else if(m_WPolarType==XFLR5::STABILITYPOLAR) strong += "Type 7 ("+QObject::tr("Stability analysis") +")\n";
-	PlaneOppProperties += strong;
+	planeOppProperties += strong;
 
 //	WOppProperties += QObject::tr("Method")+" = ";
-	if(m_AnalysisMethod==XFLR5::LLTMETHOD)                             PlaneOppProperties +=QObject::tr("LLT");
-	else if(m_AnalysisMethod==XFLR5::PANELMETHOD && !m_bThinSurface)   PlaneOppProperties +=QObject::tr("3D-Panels");
-	else if(m_AnalysisMethod==XFLR5::PANELMETHOD && m_bVLM1)           PlaneOppProperties +=QObject::tr("3D-Panels/VLM1");
-	else if(m_AnalysisMethod==XFLR5::PANELMETHOD && !m_bVLM1)          PlaneOppProperties +=QObject::tr("3D-Panels/VLM2");
-	PlaneOppProperties +="\n";
+	if(m_AnalysisMethod==XFLR5::LLTMETHOD)                             planeOppProperties +=QObject::tr("LLT");
+	else if(m_AnalysisMethod==XFLR5::PANEL4METHOD && !m_bThinSurface)   planeOppProperties +=QObject::tr("3D-Panels");
+	else if(m_AnalysisMethod==XFLR5::PANEL4METHOD && m_bVLM1)           planeOppProperties +=QObject::tr("3D-Panels/VLM1");
+	else if(m_AnalysisMethod==XFLR5::PANEL4METHOD && !m_bVLM1)          planeOppProperties +=QObject::tr("3D-Panels/VLM2");
+	planeOppProperties +="\n";
 
 
-	if(m_bTiltedGeom) PlaneOppProperties += QObject::tr("Tilted geometry")+"\n";
+	if(m_bTiltedGeom) planeOppProperties += QObject::tr("Tilted geometry")+"\n";
 
-	if(m_bOut) PlaneOppProperties += "Point is out of the flight envelope\n";
+	if(m_bOut) planeOppProperties += "Point is out of the flight envelope\n";
 
 	strong  = QString(QObject::tr("VInf")+"  =%1 ").arg(m_QInf*mstoUnit,7,'f',3);
-	PlaneOppProperties += "\n"+strong + speedUnitLabel+"\n";
+	planeOppProperties += "\n"+strong + speedUnitLabel+"\n";
 
 	strong  = QString(QObject::tr("Alpha")+" =%1").arg(m_Alpha,7,'f',2);
-	PlaneOppProperties += strong +QString::fromUtf8("°")+"\n";
+	planeOppProperties += strong +QString::fromUtf8("°")+"\n";
 
 	strong  = QString(QObject::tr("Mass")+"  = %1 ").arg(m_Weight*kgtoUnit,7,'f',3);
-	PlaneOppProperties += strong + massUnitLabel + "\n";
+	planeOppProperties += strong + massUnitLabel + "\n";
 
 	if(qAbs(m_Beta)>PRECISION)
 	{
 		strong  = QString(QObject::tr("Beta")+"  = %1").arg(m_Beta,7,'f',2);
-		PlaneOppProperties += strong +QString::fromUtf8("°")+"\n\n";
+		planeOppProperties += strong +QString::fromUtf8("°")+"\n\n";
 	}
 
 	if(m_WPolarType==XFLR5::STABILITYPOLAR)
 	{
 		strong  = QString(QObject::tr("Control value")+" = %1").arg(m_Ctrl,5,'f',2);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("XNP")+" = %1 ").arg(m_XNP*mtoUnit,7,'f',3);
-		PlaneOppProperties += "\n"+strong +lengthUnitLabel+"\n";
+		planeOppProperties += "\n"+strong +lengthUnitLabel+"\n";
 	}
 	strong  = QString(QObject::tr("XCP")+" = %1 ").arg(m_CP.x*mtoUnit,7,'f',3);
-	PlaneOppProperties += strong +lengthUnitLabel+"\n";
+	planeOppProperties += strong +lengthUnitLabel+"\n";
 	strong  = QString(QObject::tr("YCP")+" = %1 ").arg(m_CP.y*mtoUnit,7,'f',3);
-	PlaneOppProperties += strong +lengthUnitLabel+"\n";
+	planeOppProperties += strong +lengthUnitLabel+"\n";
 	strong  = QString(QObject::tr("ZCP")+" = %1 ").arg(m_CP.z*mtoUnit,7,'f',3);
-	PlaneOppProperties += strong +lengthUnitLabel+"\n\n";
+	planeOppProperties += strong +lengthUnitLabel+"\n\n";
 
 
 	strong  = QString(QObject::tr("CL")+"  = %1").arg(m_CL,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 	strong  = QString(QObject::tr("CD")+"  = %1").arg(m_ICD+m_VCD,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 	strong  = QString(QObject::tr("VCD")+" = %1").arg(m_VCD,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 	strong  = QString(QObject::tr("ICD")+" = %1").arg(m_ICD,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 	strong  = QString(QObject::tr("CX")+"  = %1").arg(m_CX,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 	strong  = QString(QObject::tr("CY")+"  = %1").arg(m_CY,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 
 	strong  = QString(QObject::tr("Cl")+"  = %1").arg(m_GRm,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 
 	strong  = QString(QObject::tr("Cm")+"  = %1").arg(m_GCm,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 	strong  = QString(QObject::tr("ICm")+" = %1").arg(m_ICm,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 	strong  = QString(QObject::tr("VCm")+" = %1").arg(m_VCm,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 
 	strong  = QString(QObject::tr("Cn")+"  = %1").arg(m_GYm,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 	strong  = QString(QObject::tr("ICn")+" = %1").arg(m_IYm,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 	strong  = QString(QObject::tr("VCn")+" = %1").arg(m_VYm,9,'f',5);
-	PlaneOppProperties += strong +"\n";
+	planeOppProperties += strong +"\n";
 
 /*	if(m_nFlaps>0)
 	{
@@ -860,62 +865,62 @@ void PlaneOpp::getPlaneOppProperties(QString &PlaneOppProperties, QString length
 
 	if(m_WPolarType==XFLR5::STABILITYPOLAR)
 	{
-		PlaneOppProperties += "\n\n";
-		PlaneOppProperties += QObject::tr("Non-dimensional Stability Derivatives:")+"\n";
+		planeOppProperties += "\n\n";
+		planeOppProperties += QObject::tr("Non-dimensional Stability Derivatives:")+"\n";
 		strong  = QString(QObject::tr("CXu")+"  = %1").arg(CXu,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("CLu")+"  = %1").arg(-CZu,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("Cmu")+"  = %1").arg(Cmu,9,'f',5);
-		PlaneOppProperties += strong +"\n\n";
+		planeOppProperties += strong +"\n\n";
 		strong  = QString(QObject::tr("CXa")+"  = %1").arg(CXa,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("CLa")+"  = %1").arg(CLa,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("Cma")+"  = %1").arg(Cma,9,'f',5);
-		PlaneOppProperties += strong +"\n\n";
+		planeOppProperties += strong +"\n\n";
 		strong  = QString(QObject::tr("CXq")+"  = %1").arg(CXq,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("CLq")+"  = %1").arg(CLq,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("Cmq")+"  = %1").arg(Cmq,9,'f',5);
-		PlaneOppProperties += strong +"\n\n";
+		planeOppProperties += strong +"\n\n";
 		strong  = QString(QObject::tr("CYb")+"  = %1").arg(CYb,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("Clb")+"  = %1").arg(Clb,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("Cnb")+"  = %1").arg(Cnb,9,'f',5);
-		PlaneOppProperties += strong +"\n\n";
+		planeOppProperties += strong +"\n\n";
 		strong  = QString(QObject::tr("CYp")+"  = %1").arg(CYp,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("Clp")+"  = %1").arg(Clp,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("Cnp")+"  = %1").arg(Cnp,9,'f',5);
-		PlaneOppProperties += strong +"\n\n";
+		planeOppProperties += strong +"\n\n";
 		strong  = QString(QObject::tr("CYr")+"  = %1").arg(CYr,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("Clr")+"  = %1").arg(Clr,9,'f',5);
-		PlaneOppProperties += strong +"\n";
+		planeOppProperties += strong +"\n";
 		strong  = QString(QObject::tr("Cnr")+"  = %1").arg(Cnr,9,'f',5);
-		PlaneOppProperties += strong +"\n\n";
+		planeOppProperties += strong +"\n\n";
 
-/*		if(m_nControls>0)
+		if(m_nControls>0)
 		{
 			// (only one)
-			WingOppProperties += QObject::tr("Non-dimensional Control Derivatives:")+"\n";
+			planeOppProperties += QObject::tr("Non-dimensional Control Derivatives:")+"\n";
 			strong  = QString(QObject::tr("CXd")+"  = %1").arg(CXe,9,'f',5);
-			WingOppProperties += strong +"\n";
+			planeOppProperties += strong +"\n";
 			strong  = QString(QObject::tr("CYd")+"  = %1").arg(CYe,9,'f',5);
-			WingOppProperties += strong +"\n";
+			planeOppProperties += strong +"\n";
 			strong  = QString(QObject::tr("CZd")+"  = %1").arg(CZe,9,'f',5);
-			WingOppProperties += strong +"\n";
+			planeOppProperties += strong +"\n";
 			strong  = QString(QObject::tr("Cld")+"  = %1").arg(CLe,9,'f',5);
-			WingOppProperties += strong +"\n";
+			planeOppProperties += strong +"\n";
 			strong  = QString(QObject::tr("Cmd")+"  = %1").arg(CMe,9,'f',5);
-			WingOppProperties += strong +"\n";
+			planeOppProperties += strong +"\n";
 			strong  = QString(QObject::tr("Cnd")+"  = %1").arg(CNe,9,'f',5);
-			WingOppProperties += strong +"\n";
-		}*/
+			planeOppProperties += strong +"\n\n";
+		}
 
 		complex<double> c, angle;
 		double OmegaN, Omega1, Dsi, u0, mac, span;
@@ -924,7 +929,7 @@ void PlaneOpp::getPlaneOppProperties(QString &PlaneOppProperties, QString length
 		span = m_Span;
 
 
-		PlaneOppProperties += "\nLongitudinal modes:\n";
+		planeOppProperties += "\nLongitudinal modes:\n";
 		for(int im=0; im<4; im++)
 		{
 			c = m_EigenValue[im];
@@ -932,41 +937,41 @@ void PlaneOpp::getPlaneOppProperties(QString &PlaneOppProperties, QString length
 
 			if(c.imag()>=0.0) strange = QString("  Eigenvalue    = %1+%2i").arg(c.real(),10,'f',5).arg(c.imag(),10,'f',5);
 			else              strange = QString("  Eigenvalue    = %1-%2i").arg(c.real(),10,'f',5).arg(qAbs(c.imag()),10,'f',5);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			strange = QString("  Undamped Natural Frequency = %1 Hz").arg(OmegaN/2.0/PI, 8,'f',3);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			strange = QString("  Damped Natural Frequency   = %1 Hz").arg(Omega1/2.0/PI, 8,'f',3);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			strange = QString("  Damping Ratio              = %1 ").arg(Dsi, 8,'f',3);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
-			PlaneOppProperties += "  Normalized Eigenvector:\n";
+			planeOppProperties += "  Normalized Eigenvector:\n";
 			angle = m_EigenVector[im][3];
 			c = m_EigenVector[im][0]/u0;
 			if(c.imag()>=0.0) strange = QString("    u/u0          = %1+%2i").arg(c.real(),10,'f',5).arg(c.imag(),10,'f',5);
 			else              strange = QString("    u/u0          = %1-%2i").arg(c.real(),10,'f',5).arg(qAbs(c.imag()),10,'f',5);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			c = m_EigenVector[im][1]/u0;
 			if(c.imag()>=0.0) strange = QString("    w/u0          = %1+%2i").arg(c.real(),10,'f',5).arg(c.imag(),10,'f',5);
 			else              strange = QString("    w/u0          = %1-%2i").arg(c.real(),10,'f',5).arg(qAbs(c.imag()),10,'f',5);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			c = m_EigenVector[im][2]/(2.0*u0/mac);
 			if(c.imag()>=0.0) strange = QString("    q/(2.u0.MAC)  = %1+%2i").arg(c.real(),10,'f',5).arg(c.imag(),10,'f',5);
 			else              strange = QString("    q/(2.u0.MAC)  = %1-%2i").arg(c.real(),10,'f',5).arg(qAbs(c.imag()),10,'f',5);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			c = m_EigenVector[im][3]/angle;
 			if(c.imag()>=0.0) strange = QString("    theta(rad)    = %1+%2i").arg(c.real(),10,'f',5).arg(c.imag(),10,'f',5);
 			else              strange = QString("    theta(rad)    = %1-%2i").arg(c.real(),10,'f',5).arg(qAbs(c.imag()),10,'f',5);
-			PlaneOppProperties += strange +"\n\n";
+			planeOppProperties += strange +"\n\n";
 		}
 
-		PlaneOppProperties += "\nLateral modes:\n";
+		planeOppProperties += "\nLateral modes:\n";
 		for(int im=4; im<8; im++)
 		{
 			c = m_EigenValue[im];
@@ -974,87 +979,87 @@ void PlaneOpp::getPlaneOppProperties(QString &PlaneOppProperties, QString length
 
 			if(c.imag()>=0.0) strange = QString("  Eigenvalue    = %1+%2i").arg(c.real(),10,'f',5).arg(c.imag(),10,'f',5);
 			else              strange = QString("  Eigenvalue    = %1-%2i").arg(c.real(),10,'f',5).arg(qAbs(c.imag()),10,'f',5);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			strange = QString("  Undamped Natural Frequency = %1 Hz").arg(OmegaN/2.0/PI, 8,'f',3);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			strange = QString("  Damped Natural Frequency   = %1 Hz").arg(Omega1/2.0/PI, 8,'f',3);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			strange = QString("  Damping Ratio              = %1 ").arg(Dsi, 8,'f',3);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 
 			if(fabs(c.real())>PRECISION && fabs(c.imag())<PRECISION)
 			{
 				strange.sprintf(   "  Time to double            = %8.3fs", log(2)/fabs(c.real()));
-				PlaneOppProperties += strange +"\n";
+				planeOppProperties += strange +"\n";
 				if(c.real()<0.0)
 				{
 					strange.sprintf("  Time constant              =%8.3f", -1.0/c.real());
-					PlaneOppProperties += strange +"\n";
+					planeOppProperties += strange +"\n";
 				}
 			}
 
 
-			PlaneOppProperties += "  Normalized Eigenvector:\n";
+			planeOppProperties += "  Normalized Eigenvector:\n";
 
 			angle = m_EigenVector[im][3];
 
 			c = m_EigenVector[im][0]/u0;
 			if(c.imag()>=0.0) strange = QString("    v/u0          = %1+%2i").arg(c.real(),10,'f',5).arg(c.imag(),10,'f',5);
 			else              strange = QString("    v/u0          = %1-%2i").arg(c.real(),10,'f',5).arg(qAbs(c.imag()),10,'f',5);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			c = m_EigenVector[im][1]/(2.0*u0/span);
 			if(c.imag()>=0.0) strange = QString("    p/(2.u0.Span) = %1+%2i").arg(c.real(),10,'f',5).arg(c.imag(),10,'f',5);
 			else              strange = QString("    p/(2.u0.Span) = %1-%2i").arg(c.real(),10,'f',5).arg(qAbs(c.imag()),10,'f',5);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			c = m_EigenVector[im][2]/(2.0*u0/span);
 			if(c.imag()>=0.0) strange = QString("    r/(2.u0.Span) = %1+%2i").arg(c.real(),10,'f',5).arg(c.imag(),10,'f',5);
 			else              strange = QString("    r/(2.u0.Span) = %1-%2i").arg(c.real(),10,'f',5).arg(qAbs(c.imag()),10,'f',5);
-			PlaneOppProperties += strange +"\n";
+			planeOppProperties += strange +"\n";
 
 			c = m_EigenVector[im][3]/angle;
 			if(c.imag()>=0.0) strange = QString("    phi(rad)      = %1+%2i").arg(c.real(),10,'f',5).arg(c.imag(),10,'f',5);
 			else              strange = QString("    phi(rad)      = %1-%2i").arg(c.real(),10,'f',5).arg(qAbs(c.imag()),10,'f',5);
-			PlaneOppProperties += strange +"\n\n";
+			planeOppProperties += strange +"\n\n";
 		}
 
         modeProperties(m_phiPH, OmegaN, Omega1, Dsi);
 
-		PlaneOppProperties += "Phillips Phugoid eq.38 JOURNAL OF AIRCRAFT Vol. 37, No. 1, January–February 2000\n";
+		planeOppProperties += "Phillips Phugoid eq.38 JOURNAL OF AIRCRAFT Vol. 37, No. 1, January–February 2000\n";
 		if(c.imag()>=0.0) strange.sprintf("  Eigenvalue    = %9.5f+%9.5fi", m_phiPH.real(), m_phiPH.imag());
 		else              strange.sprintf("  Eigenvalue    = %9.5f-%9.5fi", m_phiPH.real(), m_phiPH.imag());
-		PlaneOppProperties += strange +"\n";
+		planeOppProperties += strange +"\n";
 
 		strange.sprintf("     Undamped Natural Frequency = %8.3f Hz",OmegaN/2.0/PI);
-		PlaneOppProperties += strange +"\n";
+		planeOppProperties += strange +"\n";
 
 		strange.sprintf("     Damped Natural Frequency   = %8.3f Hz",Omega1/2.0/PI);
-		PlaneOppProperties += strange +"\n";
+		planeOppProperties += strange +"\n";
 
 		strange.sprintf("     Damping Ratio              = %8.3f ", Dsi);
-		PlaneOppProperties += strange +"\n";
+		planeOppProperties += strange +"\n";
 
 
         modeProperties(m_phiDR, OmegaN, Omega1, Dsi);
 
-		PlaneOppProperties += "Phillips Dutch-Roll eq. 28 JOURNAL OF AIRCRAFT Vol. 37, No. 3, May–June 2000\n";
+		planeOppProperties += "Phillips Dutch-Roll eq. 28 JOURNAL OF AIRCRAFT Vol. 37, No. 3, May–June 2000\n";
 		if(c.imag()>=0.0) strange.sprintf("  Eigenvalue    = %9.5f+%9.5fi", m_phiDR.real(), m_phiDR.imag());
 		else              strange.sprintf("  Eigenvalue    = %9.5f-%9.5fi", m_phiDR.real(), m_phiDR.imag());
-		PlaneOppProperties += strange +"\n";
+		planeOppProperties += strange +"\n";
 
 		strange.sprintf("     Undamped Natural Frequency = %8.3f Hz",OmegaN/2.0/PI);
-		PlaneOppProperties += strange +"\n";
+		planeOppProperties += strange +"\n";
 
 		strange.sprintf("     Damped Natural Frequency   = %8.3f Hz",Omega1/2.0/PI);
-		PlaneOppProperties += strange +"\n";
+		planeOppProperties += strange +"\n";
 
 		strange.sprintf("     Damping Ratio              = %8.3f ", Dsi);
-		PlaneOppProperties += strange +"\n";
+		planeOppProperties += strange +"\n";
 	}
 }
 

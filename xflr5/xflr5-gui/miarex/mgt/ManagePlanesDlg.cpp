@@ -27,9 +27,9 @@
 
 #include "ManagePlanesDlg.h"
 #include <miarex/Objects3D.h>
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 #include <globals.h>
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 
 
 

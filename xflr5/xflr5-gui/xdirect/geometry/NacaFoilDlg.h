@@ -26,7 +26,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <objects2d/Foil.h>
-#include <misc/IntEdit.h>
+#include <misc/text/IntEdit.h>
 
 
 class NacaFoilDlg : public QDialog

@@ -20,7 +20,7 @@
 *****************************************************************************/
 #include <QtDebug>
 #include "xflscriptreader.h"
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 #include <globals.h>
 #include <QtDebug>
 

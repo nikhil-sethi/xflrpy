@@ -104,7 +104,7 @@ public:
 
 	XFLR5::enumAnalysisMethod m_AnalysisMethod;   /**< defines by which type of method (LLT, VLM, PANEL), this WingOpp was calculated */
 
-	double *m_dCp;                           /**< a pointer to the array of lift coefficient for each panel */
+	double *m_dCp;                           /**< a pointer to the array of pressure coefficient for each panel */
 	double *m_dG;                            /**< a pointer to the array of vortice or doublet strengths */
 	double *m_dSigma;                        /**< a pointer to the array of source strengths */
 

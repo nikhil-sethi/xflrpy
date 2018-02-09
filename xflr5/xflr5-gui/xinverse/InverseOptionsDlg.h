@@ -22,7 +22,7 @@
 #ifndef INVERSEOPTIONSDLG_H
 #define INVERSEOPTIONSDLG_H
 
-#include <misc/LineBtn.h>
+#include <misc/line/LineBtn.h>
 #include <QDialog>
 
 

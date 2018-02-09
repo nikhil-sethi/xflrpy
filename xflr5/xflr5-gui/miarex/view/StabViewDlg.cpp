@@ -21,9 +21,9 @@
 
 
 #include <globals.h>
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include <misc/NewNameDlg.h>
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 #include <miarex/Miarex.h>
 #include "StabViewDlg.h"
 #include <objects_global.h>

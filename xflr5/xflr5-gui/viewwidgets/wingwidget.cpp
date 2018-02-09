@@ -23,7 +23,7 @@
 #include <globals.h>
 #include <graph_globals.h>
 #include "wingwidget.h"
-#include "Settings.h"
+#include <misc/options/displayoptions.h>
 #include "miarex/Objects3D.h"
 #include "miarex/view/W3dPrefsDlg.h"
 #include "miarex/Miarex.h"
@@ -186,8 +186,8 @@ void WingWidget::paintWing(QPainter &painter, QPointF ORef, double scale)
 {
 	QMiarex *pMiarex=(QMiarex*)s_pMiarex;
 	if(!pMiarex->m_pCurPlane)	return;
-	static int i;
-	static double scalex, scaley;
+	int i;
+	double scalex, scaley;
 
 	scalex  = scale;
 	scaley  = scale;
@@ -195,7 +195,7 @@ void WingWidget::paintWing(QPainter &painter, QPointF ORef, double scale)
 	Wing *pWing = pMiarex->m_pCurPlane->m_Wing;
 
 	painter.save();
-	QPen WingPen(Settings::textColor().darker());
+	QPen WingPen(W3dPrefsDlg::s_OutlineColor);
 	WingPen.setStyle(getStyle(W3dPrefsDlg::s_OutlineStyle));
 	WingPen.setWidth(W3dPrefsDlg::s_OutlineWidth);
 

@@ -20,7 +20,6 @@
 *****************************************************************************/
 
 
-
 #include "RenameDlg.h"
 #include <QMessageBox>
 
@@ -35,67 +34,56 @@ RenameDlg::RenameDlg(QWidget *pParent) : QDialog(pParent)
 }
 
 
+void RenameDlg::onButton(QAbstractButton *pButton)
+{
+	if (m_pButtonBox->button(QDialogButtonBox::Ok) == pButton)            onOK();
+	else if (m_pButtonBox->button(QDialogButtonBox::Discard) == pButton)  reject();
+	else if(m_pOverwriteButton==pButton)                                  onOverwrite();
+}
+
+
 void RenameDlg::setupLayout()
 {
-
-	QHBoxLayout *CommandButtons = new QHBoxLayout;
+	m_pButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Discard);
 	{
-		OKButton = new QPushButton(tr("OK"));
-		OKButton->setAutoDefault(false);
-		CancelButton = new QPushButton(tr("Cancel"));
-		CancelButton->setAutoDefault(false);
-		m_pctrlOverwriteButton = new QPushButton(tr("Overwrite"));
-		m_pctrlOverwriteButton->setAutoDefault(false);
-		CommandButtons->addStretch(1);
-		CommandButtons->addWidget(OKButton);
-		CommandButtons->addStretch(1);
-		CommandButtons->addWidget(CancelButton);
-		CommandButtons->addStretch(1);
-		CommandButtons->addWidget(m_pctrlOverwriteButton);
-		CommandButtons->addStretch(1);
+		m_pOverwriteButton = new QPushButton(tr("Overwrite"));
+		m_pOverwriteButton->setAutoDefault(false);
+		m_pButtonBox->addButton(m_pOverwriteButton, QDialogButtonBox::ActionRole);
+		connect(m_pButtonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(onButton(QAbstractButton*)));
 	}
 
-	QVBoxLayout *MainLayout = new QVBoxLayout;
+	QVBoxLayout *pMainLayout = new QVBoxLayout;
 	{
-		QLabel *LabelNote = new QLabel;
-		LabelNote->setText(tr("Note : Overwrite will delete Opps and reset polars"));
+		QLabel *pLabelNote = new QLabel;
+		pLabelNote->setText(tr("Note : Overwrite will delete operating points and reset polars"));
 		m_pctrlMessage = new QLabel("A Message here");
 
 		m_pctrlName = new QLineEdit("");
 		QLabel* NameListLabel = new QLabel(tr("Existing Names:"));
 		m_pctrlNameList = new QListWidget;
 
-		MainLayout->setStretchFactor(m_pctrlMessage, 1);
-		MainLayout->setStretchFactor(m_pctrlName, 1);
-		MainLayout->setStretchFactor(NameListLabel, 1);
-		MainLayout->setStretchFactor(m_pctrlNameList, 5);
-		MainLayout->setStretchFactor(CommandButtons, 1);
-		MainLayout->setStretchFactor(LabelNote, 1);
+		pMainLayout->setStretchFactor(m_pctrlMessage, 1);
+		pMainLayout->setStretchFactor(m_pctrlName, 1);
+		pMainLayout->setStretchFactor(NameListLabel, 1);
+		pMainLayout->setStretchFactor(m_pctrlNameList, 5);
+		pMainLayout->setStretchFactor(m_pButtonBox, 1);
+		pMainLayout->setStretchFactor(pLabelNote, 1);
 
-		MainLayout->addWidget(m_pctrlMessage);
-		MainLayout->addWidget(m_pctrlName);
-		MainLayout->addStretch(1);
-		MainLayout->addWidget(NameListLabel);
-		MainLayout->addWidget(m_pctrlNameList);
-		MainLayout->addStretch(1);
-		MainLayout->addLayout(CommandButtons);
-		MainLayout->addWidget(LabelNote);
+		pMainLayout->addWidget(m_pctrlMessage);
+		pMainLayout->addWidget(m_pctrlName);
 
-		MainLayout->setStretchFactor(m_pctrlMessage, 1);
-		MainLayout->setStretchFactor(m_pctrlName, 1);
-		MainLayout->setStretchFactor(NameListLabel, 1);
-		MainLayout->setStretchFactor(m_pctrlNameList, 5);
-		MainLayout->setStretchFactor(CommandButtons, 1);
-		MainLayout->setStretchFactor(LabelNote, 1);
+		pMainLayout->addWidget(NameListLabel);
+		pMainLayout->addWidget(m_pctrlNameList);
+
+		pMainLayout->addWidget(m_pButtonBox);
+		pMainLayout->addWidget(pLabelNote);
 	}
 
-	setLayout(MainLayout);
+	setLayout(pMainLayout);
 
 	connect(m_pctrlNameList, SIGNAL(currentRowChanged(int)), this, SLOT(onSelChangeList(int)));
 	connect(m_pctrlNameList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(onDoubleClickList(QListWidgetItem *)));
-	connect(OKButton, SIGNAL(clicked()),this, SLOT(onOK()));
-	connect(CancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-	connect(m_pctrlOverwriteButton, SIGNAL(clicked()), this, SLOT(onOverwrite()));
+//	connect(m_pOverwriteButton, SIGNAL(clicked()), this, SLOT(onOverwrite()));
 }
 
 
@@ -105,7 +93,7 @@ void RenameDlg::initDialog(QStringList *pStrList, QString startName, QString que
 
 	m_strQuestion = question;
 
-	if(!m_bEnableOverwrite) m_pctrlOverwriteButton->setEnabled(false);
+	if(!m_bEnableOverwrite) m_pOverwriteButton->setEnabled(false);
 
 	if(m_strQuestion.length())
 	{
@@ -134,7 +122,7 @@ void RenameDlg::initDialog(QStringList *pStrList, QString startName, QString que
 	else
 	{
 		m_pctrlNameList->setEnabled(false);
-		m_pctrlOverwriteButton->setEnabled(false);
+		m_pOverwriteButton->setEnabled(false);
 	}
 }
 
@@ -148,15 +136,8 @@ void RenameDlg::keyPressEvent(QKeyEvent *event)
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
 		{
-			if(!OKButton->hasFocus() && !CancelButton->hasFocus())
-			{
-				OKButton->setFocus();
-			}
-			else
-			{
-				onOK();
-			}
-			return;
+			m_pButtonBox->button(QDialogButtonBox::Ok)->setFocus();
+			break;
 		}
 		case Qt::Key_Escape:
 		{
@@ -166,7 +147,6 @@ void RenameDlg::keyPressEvent(QKeyEvent *event)
 		default:
 			event->ignore();
 	}
-
 }
 
 
@@ -214,6 +194,7 @@ void RenameDlg::onOK()
 }
 
 
+
 void RenameDlg::onSelChangeList(int)
 {
 	QListWidgetItem *pItem =  m_pctrlNameList->currentItem();
@@ -225,7 +206,6 @@ void RenameDlg::onSelChangeList(int)
 		m_pctrlName->selectAll();
 	}
 }
-
 
 
 

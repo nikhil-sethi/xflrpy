@@ -25,7 +25,7 @@
 #include <QVBoxLayout>
 #include <QFileDialog>
 #include <QStringList>
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include <misc/RenameDlg.h>
 #include "ManageFoilsDlg.h"
 #include <xdirect/objects2d.h>

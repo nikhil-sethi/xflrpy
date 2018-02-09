@@ -34,7 +34,6 @@
 #include <QTimer>
 #include <QProgressBar>
 #include <QCheckBox>
-#include <QGLWidget>
 #include <QString>
 #include <QFile>
 #include <QTextEdit>

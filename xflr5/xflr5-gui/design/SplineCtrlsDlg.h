@@ -22,9 +22,9 @@
 #ifndef SPLINECTRLSDLG_H
 #define SPLINECTRLSDLG_H
 
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 #include <gui_objects/SplineFoil.h>
-#include <misc/FloatEditDelegate.h>
+#include <misc/text/FloatEditDelegate.h>
 
 
 #include <QDialog>

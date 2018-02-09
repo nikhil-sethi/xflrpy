@@ -64,10 +64,10 @@ void Panel::reset()
 	m_Pos         =  MIDSURFACE;
 
 	m_iElement    = -1;
-	m_iLA         =  0;
-	m_iLB         =  0;
-	m_iTA         =  0;
-	m_iTB         =  0;
+	m_iLA         = -1;
+	m_iLB         = -1;
+	m_iTA         = -1;
+	m_iTB         = -1;
 	m_iPL         = -1;
 	m_iPR         = -1;
 	m_iPU         = -1;

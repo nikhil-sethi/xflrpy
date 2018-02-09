@@ -67,6 +67,7 @@ void ComplexSort(complex<double>*array, int ub);
 void display_mat(double *mat, int rows, int cols);
 void display_vec(double *vec, int rows);
 
+void displayDouble(double d0, double d1=-2.0e50, double d2=-2.0e50, double d3=-2.0e50, double d4=-2.0e50, double d5=-2.0e50, double d6=-2.0e50, double d7=-2.0e50, double d8=-2.0e50, double d9=-2.0e50);
 
 
 #endif // MATRIX_H

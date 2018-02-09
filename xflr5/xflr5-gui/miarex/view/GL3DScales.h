@@ -29,7 +29,7 @@
 #include <QLabel>
 #include <QSettings>
 #include <misc/exponentialslider.h>
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 
 class GL3DScales : public QWidget
 {

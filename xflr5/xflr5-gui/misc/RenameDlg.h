@@ -20,10 +20,11 @@
 *****************************************************************************/
 
 
-#ifndef RENAMEDLG_H
-#define RENAMEDLG_H
+
+#pragma once
 
 #include <QDialog>
+#include <QDialogButtonBox>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QLineEdit>
@@ -42,6 +43,7 @@ private slots:
 	void onOK();
 	void onSelChangeList(int);
 	void onDoubleClickList(QListWidgetItem * pItem);
+	void onButton(QAbstractButton *pButton);
 
 public:
 	RenameDlg(QWidget *pParent=NULL);
@@ -62,9 +64,10 @@ private:
 	QLabel      *m_pctrlMessage;
 	QLineEdit   *m_pctrlName;
 	QListWidget *m_pctrlNameList;
-	QPushButton *m_pctrlOverwriteButton;
-	QPushButton *OKButton;
-	QPushButton *CancelButton;
+	QPushButton *m_pOverwriteButton;
+	QDialogButtonBox *m_pButtonBox;
 };
 
-#endif // RENAMEDLG_H
+
+
+

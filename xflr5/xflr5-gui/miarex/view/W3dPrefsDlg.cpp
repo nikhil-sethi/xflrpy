@@ -27,7 +27,7 @@
 #include <QPushButton>
 #include <gui_params.h>
 #include "W3dPrefsDlg.h"
-#include <misc/LinePickerDlg.h>
+#include <misc/line/LinePickerDlg.h>
 
 
 bool W3dPrefsDlg::s_bAutoAdjustScale = true;

@@ -27,7 +27,7 @@
 //#include <QListWidget>
 #include <QTableView>
 #include <QStandardItemModel>
-#include <misc/FloatEditDelegate.h>
+#include <misc/text/FloatEditDelegate.h>
 
 #include <objects2d/Polar.h>
 #include <objects3d/WPolar.h>

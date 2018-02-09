@@ -86,8 +86,15 @@ public:
 
 	XFLR5::enumPolarType &polarType()           {return m_WPolarType;}       /**< returns the type of the polar as an index in the enumeration. */
 	XFLR5::enumAnalysisMethod &analysisMethod() {return m_AnalysisMethod;}   /**< returns the analysis method of the polar as an index in the enumeration. */
-	bool isLLTMethod(){return m_AnalysisMethod==XFLR5::LLTMETHOD;}
-	bool isPanelMethod(){return m_AnalysisMethod>XFLR5::LLTMETHOD;}
+	bool isLLTMethod()         {return m_AnalysisMethod==XFLR5::LLTMETHOD;}
+	bool isVLMMethod()         {return m_AnalysisMethod==XFLR5::VLMMETHOD;}
+	bool isPanel4Method()      {return m_AnalysisMethod==XFLR5::PANEL4METHOD;}
+	bool isQuadMethod()        {return isPanel4Method() || isVLMMethod();}
+	bool isTriCstMethod()      {return m_AnalysisMethod==XFLR5::TRICSTMETHOD;}
+	bool isTriLinearMethod()   {return m_AnalysisMethod==XFLR5::TRILINMETHOD;}
+	bool isTriangleMethod()    {return isTriCstMethod() || isTriLinearMethod();}
+
+
 
 	QString &polarName()                 {return m_WPlrName;}       /**< returns the polar's name as a QString object. */
 	QString &planeName()                 {return m_PlaneName;}      /**< returns the name of the polar's parent object as a QString object. */
@@ -95,12 +102,11 @@ public:
 	double &density()                    {return m_Density;}        /**< returns the fluid's density, in IS units. */
 	double &viscosity()                  {return m_Viscosity;}      /**< returns the fluid's kinematic viscosity, in IS units. */
 
-	bool isSpeedPolar() {return m_WPolarType==XFLR5::FIXEDSPEEDPOLAR;}      /**< returns true if the polar is of the FIXEDSPEEDPOLAR type, false otherwise >*/
-	bool isFixedLiftPolar() {return m_WPolarType==XFLR5::FIXEDLIFTPOLAR;}   /**< returns true if the polar is of the FIXEDLIFTPOLAR type, false otherwise >*/
-	bool isFixedaoaPolar() {return m_WPolarType==XFLR5::FIXEDAOAPOLAR;}     /**< returns true if the polar is of the FIXEDAOAPOLAR type, false otherwise >*/
-	bool isStabilityPolar() {return m_WPolarType==XFLR5::STABILITYPOLAR;}   /**< returns true if the polar is of the STABILITYPOLAR type, false otherwise >*/
-	bool isBetaPolar() {return m_WPolarType==XFLR5::BETAPOLAR;}             /**< returns true if the polar is of the BETAPOLAR type, false otherwise >*/
-
+	bool isFixedSpeedPolar() const    {return m_WPolarType==XFLR5::FIXEDSPEEDPOLAR;}      /**< returns true if the polar is of the FIXEDSPEEDPOLAR type, false otherwise >*/
+	bool isFixedLiftPolar()  const    {return m_WPolarType==XFLR5::FIXEDLIFTPOLAR;}       /**< returns true if the polar is of the FIXEDLIFTPOLAR type, false otherwise >*/
+	bool isFixedaoaPolar()   const    {return m_WPolarType==XFLR5::FIXEDAOAPOLAR;}        /**< returns true if the polar is of the FIXEDAOAPOLAR type, false otherwise >*/
+	bool isStabilityPolar()  const    {return m_WPolarType==XFLR5::STABILITYPOLAR;}       /**< returns true if the polar is of the STABILITYPOLAR type, false otherwise >*/
+	bool isBetaPolar()       const    {return m_WPolarType==XFLR5::BETAPOLAR;}            /**< returns true if the polar is of the BETAPOLAR type, false otherwise >*/
 
 	bool &bThinSurfaces() {return m_bThinSurfaces;}  /**< returns true if the analysis if using thin surfaces, i.e. VLM, false if 3D Panels for the Wing objects. */
 	bool &bWakeRollUp()  {return m_bWakeRollUp;}
@@ -197,7 +203,7 @@ public:
 	double   m_Viscosity;          /**< The fluid's kinematic viscosity */
 
 	double   m_WakePanelFactor;    /**< the ratio between the length of two wake panels in the x direction */
-	double   m_TotalWakeLength;    /**< the wake's length; defines the position of the Trefftz plane */
+	double   m_TotalWakeLength;    /**< the wake's length x MAC; defines the position of the Trefftz plane */
 
 	QVarLengthArray<double> m_ControlGain;      /**< the scaling factor for each of the control surfaces */
 

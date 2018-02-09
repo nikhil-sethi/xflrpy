@@ -1,35 +1,24 @@
 /****************************************************************************
 
-	ViewPolarDefDlg Class
-	Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+	Techwing Application
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	Copyright (C) Andre Deperrois techwinder@gmail.com
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+	All rights reserved.
 
 *****************************************************************************/
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
-#include <QTreeWidgetItem>
 #include <QFontMetrics>
 #include <QMessageBox>
 #include <QShowEvent>
 #include <QHideEvent>
 #include <QtDebug>
 #include "EditPolarDefDlg.h"
-#include <misc/Units.h>
+#include <analysis3d_globals.h>
+#include <misc/options/Units.h>
 #include <globals.h>
 #include <gui_enums.h>
 
@@ -210,13 +199,13 @@ void EditPolarDefDlg::onOK()
 	if (m_pWPolar->analysisMethod()==XFLR5::VLMMETHOD)
 	{
 		m_pWPolar->bThinSurfaces()  = true;
-		m_pWPolar->analysisMethod() = XFLR5::PANELMETHOD;
+		m_pWPolar->analysisMethod() = XFLR5::PANEL4METHOD;
 	}
-	else if (m_pWPolar->analysisMethod()==XFLR5::PANELMETHOD && !m_pPlane->isWing())
+	else if (m_pWPolar->analysisMethod()==XFLR5::PANEL4METHOD && !m_pPlane->isWing())
 	{
 		m_pWPolar->bThinSurfaces()  = true;
 	}
-	else if (m_pWPolar->analysisMethod()==XFLR5::PANELMETHOD && m_pPlane->isWing())
+	else if (m_pWPolar->analysisMethod()==XFLR5::PANEL4METHOD && m_pPlane->isWing())
 	{
 		m_pWPolar->bThinSurfaces()  = false;
 	}
@@ -244,7 +233,7 @@ QList<QStandardItem *> EditPolarDefDlg::prepareBoolRow(const QString &object, co
 
 	rowItems.at(0)->setData(XFLR5::STRING, Qt::UserRole);
 	rowItems.at(1)->setData(XFLR5::STRING, Qt::UserRole);
-	rowItems.at(2)->setData(XFLR5::BOOL, Qt::UserRole);
+	rowItems.at(2)->setData(XFLR5::BOOLVALUE, Qt::UserRole);
 	rowItems.at(3)->setData(XFLR5::STRING, Qt::UserRole);
 	return rowItems;
 }
@@ -278,7 +267,7 @@ QList<QStandardItem *> EditPolarDefDlg::prepareDoubleRow(const QString &object, 
 
 	rowItems.at(0)->setData(XFLR5::STRING, Qt::UserRole);
 	rowItems.at(1)->setData(XFLR5::STRING, Qt::UserRole);
-	rowItems.at(2)->setData(XFLR5::DOUBLE, Qt::UserRole);
+	rowItems.at(2)->setData(XFLR5::DOUBLEVALUE, Qt::UserRole);
 	rowItems.at(3)->setData(XFLR5::STRING, Qt::UserRole);
 	return rowItems;
 }
@@ -454,7 +443,7 @@ void EditPolarDefDlg::readData()
 		m_pWPolar->bThinSurfaces() = true;
 //		m_pWPolar->analysisMethod() = XFLR5::PANELMETHOD;
 	}
-	else if (m_pWPolar->analysisMethod() == XFLR5::PANELMETHOD)
+	else if (m_pWPolar->analysisMethod() == XFLR5::PANEL4METHOD)
 	{
 		m_pWPolar->bThinSurfaces() = false;
 	}
@@ -469,11 +458,13 @@ void EditPolarDefDlg::readViewLevel(QModelIndex indexLevel)
 {
 	do
 	{
-		if(indexLevel.child(0,0).isValid())
+		QStandardItem *pItem = m_pModel->itemFromIndex(indexLevel);
+		if(!pItem) return;
+		else if(pItem->child(0,0))
 		{
 			QString object = indexLevel.sibling(indexLevel.row(),0).data().toString();
-			if(object.compare("Stability Controls")==0) readControlFields(indexLevel.child(0,0));
-			else                                        readViewLevel(indexLevel.child(0,0));
+			if(object.compare("Stability Controls")==0) readControlFields(pItem->child(0,0)->index());
+			else                                        readViewLevel(pItem->child(0,0)->index());
 		}
 		else
 		{
@@ -529,14 +520,15 @@ void EditPolarDefDlg::readControlFields(QModelIndex indexLevel)
 		QString object = indexLevel.sibling(indexLevel.row(),0).data().toString();
 		QString field  = indexLevel.sibling(indexLevel.row(),1).data().toString();
 		QString value  = indexLevel.sibling(indexLevel.row(),2).data().toString();
+		QStandardItem *pItem = m_pModel->item(indexLevel.row());
 
-		if(indexLevel.child(0,0).isValid())
+		if(pItem->child(0,0))
 		{
 
 			if(object.compare("Mass gains", Qt::CaseInsensitive)==0)
 			{
 				//no more children
-				QModelIndex childIndex= indexLevel.child(0,0);
+				QModelIndex childIndex= pItem->child(0,0)->index();
 				do
 				{
 					QString childObject = childIndex.sibling(childIndex.row(),0).data().toString();
@@ -560,7 +552,8 @@ void EditPolarDefDlg::readControlFields(QModelIndex indexLevel)
 			{
 				QString field, value;
 				int nControls = 0;
-				QModelIndex childIndex= indexLevel.child(0,0);
+				QStandardItem *pItem = m_pModel->item(indexLevel.row());
+				QModelIndex childIndex= pItem->child(0,0)->index();
 				field = childIndex.sibling(childIndex.row(),1).data().toString();
 				value = childIndex.sibling(childIndex.row(),2).data().toString();
 

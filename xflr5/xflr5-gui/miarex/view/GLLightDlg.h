@@ -30,7 +30,7 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QSettings>
-#include "DoubleEdit.h"
+#include <misc/text/DoubleEdit.h>
 #include "exponentialslider.h"
 
 

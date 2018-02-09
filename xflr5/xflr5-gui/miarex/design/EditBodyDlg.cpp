@@ -18,9 +18,10 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
+
 #include <globals.h>
-#include <misc/Units.h>
-#include <misc/Settings.h>
+#include <misc/options/Units.h>
+#include <misc/options/displayoptions.h>
 #include <QHeaderView>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -346,13 +347,14 @@ void EditBodyDlg::setupLayout()
 						m_pctrlZ          = new QToolButton;
 						m_pctrlIso        = new QToolButton;
 						m_pctrlFlip       = new QToolButton;
-						if(m_pctrlX->iconSize().height()<=48)
+						int iconSize =32;
+						if(m_pctrlX->iconSize().height()<=iconSize)
 						{
-							m_pctrlX->setIconSize(QSize(32,32));
-							m_pctrlY->setIconSize(QSize(32,32));
-							m_pctrlZ->setIconSize(QSize(32,32));
-							m_pctrlIso->setIconSize(QSize(32,32));
-							m_pctrlFlip->setIconSize(QSize(32,32));
+							m_pctrlX->setIconSize(QSize(iconSize,iconSize));
+							m_pctrlY->setIconSize(QSize(iconSize,iconSize));
+							m_pctrlZ->setIconSize(QSize(iconSize,iconSize));
+							m_pctrlIso->setIconSize(QSize(iconSize,iconSize));
+							m_pctrlFlip->setIconSize(QSize(iconSize,iconSize));
 						}
 						m_pXView    = new QAction(QIcon(":/images/OnXView.png"), tr("X View"), this);
 						m_pYView    = new QAction(QIcon(":/images/OnYView.png"), tr("Y View"), this);
@@ -554,7 +556,7 @@ void EditBodyDlg::glMake3DObjects()
 		m_bResetglBody = false;
 		if(m_pBody->isSplineType())          m_pglBodyView->glMakeBodySplines(m_pBody);
 		else if(m_pBody->isFlatPanelType())  m_pglBodyView->glMakeBody3DFlatPanels(m_pBody);
-		m_pglBodyView->glMakeBodyMesh(m_pBody);
+		m_pglBodyView->glMakeEditBodyMesh(m_pBody, Vector3d(0.0,0.0,0.0));
 	}
 }
 
@@ -631,7 +633,7 @@ QList<QStandardItem *> EditBodyDlg::prepareBoolRow(const QString &object, const 
 
 	rowItems.at(0)->setData(XFLR5::STRING, Qt::UserRole);
 	rowItems.at(1)->setData(XFLR5::STRING, Qt::UserRole);
-	rowItems.at(2)->setData(XFLR5::BOOL, Qt::UserRole);
+	rowItems.at(2)->setData(XFLR5::BOOLVALUE, Qt::UserRole);
 	rowItems.at(3)->setData(XFLR5::STRING, Qt::UserRole);
 
 	return rowItems;
@@ -667,7 +669,7 @@ QList<QStandardItem *> EditBodyDlg::prepareDoubleRow(const QString &object, cons
 
 	rowItems.at(0)->setData(XFLR5::STRING, Qt::UserRole);
 	rowItems.at(1)->setData(XFLR5::STRING, Qt::UserRole);
-	rowItems.at(2)->setData(XFLR5::DOUBLE, Qt::UserRole);
+	rowItems.at(2)->setData(XFLR5::DOUBLEVALUE, Qt::UserRole);
 	rowItems.at(3)->setData(XFLR5::STRING, Qt::UserRole);
 
 	return rowItems;
@@ -805,7 +807,7 @@ void EditBodyDlg::fillBodyTreeView()
 					QList<QStandardItem*> pointFolder = prepareRow(QString("Point %1").arg(iPt+1));
 					sectionFolder.first()->appendRow(pointFolder);
 					{
-						if(Frame::s_iSelect==iPt) m_pStruct->expand(m_pModel->indexFromItem(pointFolder.first()));
+						if(Frame::selectedIndex()==iPt) m_pStruct->expand(m_pModel->indexFromItem(pointFolder.first()));
 
 						Vector3d Pt(pFrame->point(iPt));
 						QList<QStandardItem*> dataItem = prepareDoubleRow("", "x", Pt.x*Units::mtoUnit(), Units::lengthUnitLabel());
@@ -834,10 +836,10 @@ void EditBodyDlg::updateViews()
 
 
 
-
 void EditBodyDlg::onRedraw()
 {
-	readBodyTree(m_pModel->index(0,0).child(0,0));
+	QStandardItem *pItem = m_pModel->itemFromIndex(m_pModel->index(0,0));
+	readBodyTree(pItem->child(0,0)->index());
 
 	m_bResetglBody = true;
 	m_bChanged = true;
@@ -856,6 +858,7 @@ void EditBodyDlg::onRefillBodyTree()
 
 
 
+
 void EditBodyDlg::readBodyTree(QModelIndex indexLevel)
 {
 	QString object, field, value;
@@ -867,11 +870,12 @@ void EditBodyDlg::readBodyTree(QModelIndex indexLevel)
 		field = indexLevel.sibling(indexLevel.row(),1).data().toString();
 		value = indexLevel.sibling(indexLevel.row(),2).data().toString();
 
-		if(indexLevel.child(0,0).isValid())
+		QStandardItem *pItem = m_pModel->itemFromIndex(indexLevel);
+		if(pItem->child(0,0))
 		{
 			if(object.compare("Color", Qt::CaseInsensitive)==0)
 			{
-				subIndex = indexLevel.child(0,0);
+				subIndex = pItem->child(0,0)->index();
 				do
 				{
 					object = subIndex.sibling(subIndex.row(),0).data().toString();
@@ -888,10 +892,15 @@ void EditBodyDlg::readBodyTree(QModelIndex indexLevel)
 					subIndex = subIndex.sibling(subIndex.row()+1,0);
 				}while(subIndex.isValid());
 			}
-			else if(object.compare("Inertia", Qt::CaseInsensitive)==0) 	readInertiaTree(m_pBody->volumeMass(), m_pBody->m_PointMass, indexLevel.child(0,0));
+			else if(object.compare("Inertia", Qt::CaseInsensitive)==0)
+			{
+				QStandardItem *pItem = m_pModel->itemFromIndex(indexLevel);
+				if(pItem)
+					readInertiaTree(m_pBody->volumeMass(), m_pBody->m_PointMass, pItem->child(0,0)->index());
+			}
 			else if(object.compare("NURBS", Qt::CaseInsensitive)==0)
 			{
-				subIndex = indexLevel.child(0,0);
+				subIndex = pItem->child(0,0)->index();
 				do
 				{
 					object = subIndex.sibling(subIndex.row(),0).data().toString();
@@ -911,7 +920,7 @@ void EditBodyDlg::readBodyTree(QModelIndex indexLevel)
 			}
 			else if(object.compare("Hoop_panels (FLATPANELS case)", Qt::CaseInsensitive)==0)
 			{
-				subIndex = indexLevel.child(0,0);
+				subIndex = pItem->child(0,0)->index();
 				do
 				{
 					object = subIndex.sibling(subIndex.row(),0).data().toString();
@@ -929,15 +938,19 @@ void EditBodyDlg::readBodyTree(QModelIndex indexLevel)
 			else if(object.compare("Frames", Qt::CaseInsensitive)==0)
 			{
 				m_pBody->m_SplineSurface.clearFrames();
-				QModelIndex subIndex = indexLevel.child(0,0);
+				subIndex = pItem->child(0,0)->index();
 				do
 				{
 					object = subIndex.sibling(subIndex.row(),0).data().toString();
 					if(object.indexOf("Frame_")>=0)
 					{
 						Frame *pFrame = new Frame;
-						readBodyFrameTree(pFrame, subIndex.child(0,0));
-						m_pBody->m_SplineSurface.appendFrame(pFrame);
+						QStandardItem *pSubItem = m_pModel->itemFromIndex(subIndex);
+						if(pSubItem->child(0,0))
+						{
+							readBodyFrameTree(pFrame, pSubItem->child(0,0)->index());
+							m_pBody->m_SplineSurface.appendFrame(pFrame);
+						}
 					}
 
 					subIndex = subIndex.sibling(subIndex.row()+1,0);
@@ -983,8 +996,12 @@ void EditBodyDlg::readBodyFrameTree(Frame *pFrame, QModelIndex indexLevel)
 		else if (object.indexOf("Point", Qt::CaseInsensitive)==0)
 		{
 			Vector3d Pt;
-			readVectorTree(Pt, indexLevel.child(0,0));
-			pFrame->appendPoint(Pt);
+			QStandardItem *pItem = m_pModel->itemFromIndex(indexLevel);
+			if(pItem)
+			{
+				readVectorTree(Pt, pItem->child(0,0)->index());
+				pFrame->appendPoint(Pt);
+			}
 		}
 		indexLevel = indexLevel.sibling(indexLevel.row()+1,0);
 	} while(indexLevel.isValid());
@@ -1002,13 +1019,14 @@ void EditBodyDlg::readInertiaTree(double &volumeMass, QList<PointMass*>&pointMas
 	QModelIndex dataIndex;
 	do
 	{
-		if(indexLevel.child(0,0).isValid())
+		QStandardItem *pItem = m_pModel->itemFromIndex(indexLevel);
+		if(pItem->child(0,0))
 		{
 			object = indexLevel.sibling(indexLevel.row(),0).data().toString();
 			if(object.indexOf("Point_mass_", Qt::CaseInsensitive)>=0)
 			{
 				PointMass *ppm = new PointMass;
-				readPointMassTree(ppm, indexLevel.child(0,0));
+				readPointMassTree(ppm, pItem->child(0,0)->index());
 				pointMasses.append(ppm);
 			}
 		}
@@ -1027,7 +1045,6 @@ void EditBodyDlg::readInertiaTree(double &volumeMass, QList<PointMass*>&pointMas
 
 	} while(indexLevel.isValid());
 }
-
 
 void EditBodyDlg::readPointMassTree(PointMass *ppm, QModelIndex indexLevel)
 {
@@ -1100,7 +1117,7 @@ void EditBodyDlg::identifySelection(const QModelIndex &indexSel)
 		if(object.indexOf("Frame_", 0, Qt::CaseInsensitive)>=0)
 		{
 			setActiveFrame(object.right(object.length()-6).toInt() -1);
-			Frame::s_iSelect = -1;
+			Frame::setSelected(-1);
 			m_iActivePointMass = -1;
 			return;
 		}
@@ -1112,7 +1129,7 @@ void EditBodyDlg::identifySelection(const QModelIndex &indexSel)
 		}
 		else if(object.indexOf("Point", 0, Qt::CaseInsensitive)==0)
 		{
-			Frame::s_iSelect = object.right(object.length()-6).toInt() -1;
+			Frame::setSelected(object.right(object.length()-6).toInt() -1);
 			//identify the parent Frame object
 
 			indexLevel = indexLevel.parent();

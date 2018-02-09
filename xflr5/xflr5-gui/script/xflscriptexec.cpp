@@ -25,7 +25,7 @@
 
 #include <globals.h>
 #include "xflscriptexec.h"
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include <miarex/mgt/XmlPlaneReader.h>
 #include <miarex/mgt/xmlwpolarreader.h>
 #include <xdirect/xmlpolarreader.h>

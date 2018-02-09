@@ -62,13 +62,21 @@ public:
 	void    setwPosition(double w);
 	double  zPos();
 
-	Vector3d &position(){return m_Position;}
-	Vector3d &selectedPoint(){return m_CtrlPoint[s_iSelect];}
+	Vector3d position() const {return m_Position;}
+	Vector3d &selectedPoint() {return m_CtrlPoint[s_iSelect];}
 
 	QList <Vector3d> m_CtrlPoint;	/**< the array of points which define the frame.  */
+	Vector3d m_Position;             /**< the translation vector for the Frame's origin */
+
+	static int selectedIndex()            {return s_iSelect;}
+	static int highlightedIndex()         {return s_iHighlight;}
+	static void setSelected(int index)    {s_iSelect=index;}
+	static void setHighlighted(int index) {s_iHighlight=index;}
+
+
+private:
 	static int s_iHighlight;               /**< the point over which the mouse hovers, or -1 if none */
 	static int s_iSelect;                  /**< the selected pointed, i.e. the last point on which the user has clicked, or -1 if none */
-	Vector3d m_Position;             /**< the translation vector for the Frame's origin */
 };
 
 

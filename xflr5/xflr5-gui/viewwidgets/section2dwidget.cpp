@@ -21,7 +21,7 @@
 
 #include <globals.h>
 #include "section2dwidget.h"
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include <design/GridSettingsDlg.h>
 #include <graph_globals.h>
 #include <QPainter>
@@ -208,7 +208,7 @@ void Section2dWidget::paintEvent(QPaintEvent *event)
 void Section2dWidget::contextMenuEvent (QContextMenuEvent *event)
 {
 	m_pSection2dContextMenu->exec(event->globalPos());
-	setCursor(m_hcCross);
+	setCursor(Qt::CrossCursor);
 	event->accept();
 }
 
@@ -315,7 +315,7 @@ void Section2dWidget::keyReleaseEvent(QKeyEvent *event)
 
 void Section2dWidget::mouseDoubleClickEvent (QMouseEvent *event)
 {
-	if(!hasFocus()) setFocus();
+//	if(!hasFocus()) setFocus();
 
 	QPoint center = rect().center();
 
@@ -332,7 +332,7 @@ void Section2dWidget::mouseDoubleClickEvent (QMouseEvent *event)
 
 void Section2dWidget::mouseMoveEvent(QMouseEvent *event)
 {
-	if(!hasFocus()) setFocus();
+//	if(!hasFocus()) setFocus();
 	QPoint point = event->pos();
 	m_MousePos = mousetoReal(point);
 
@@ -452,17 +452,20 @@ void Section2dWidget::mousePressEvent(QMouseEvent *event)
 		else
 		{
 			//Selects the point
-			if(selectPoint(mousetoReal(point))>=0)
+			int iSelect = selectPoint(mousetoReal(point));
+			if(iSelect>=0)
 			{
 				//dragging a point
 				setCursor(m_hcMove);
 				m_bDrag = true;
+//				m_bTrans = false;
 			}
 			else
 			{
 				//dragging the view
 				setCursor(m_hcMove);
 				m_bTrans = true;
+//				m_bDrag = false;
 			}
 		}
 	}
@@ -657,7 +660,6 @@ void Section2dWidget::paintGrids(QPainter &painter)
 }
 
 
-
 /**
  * Draws the X main grid.
  * @param painter a reference to the QPainter object with which to draw
@@ -678,18 +680,19 @@ void Section2dWidget::drawXGrid(QPainter &painter, double scalex, double scaley,
 	int YMin = rect().top();
 	int YMax = rect().bottom();
 
-	double xt = 0.0;
+	double xt = -m_XGridUnit;
 
 	int iter = 0;
-
 	while(int(xt*scalex) + Offset.x()>rect().left() && iter<100)
 	{
 		//Draw  grid
 		painter.drawLine(int(xt*scalex) + Offset.x(), YMin, int(xt*scalex) + Offset.x(), YMax);
-		xt -= m_XGridUnit ;
+		xt -= m_XGridUnit;
 		iter++;
 	}
 
+	xt = m_XGridUnit;
+	iter = 0;
 	while(int(xt*scalex) + Offset.x()<rect().right() && iter<100)
 	{
 		//Draw  grid
@@ -724,12 +727,13 @@ void Section2dWidget::drawYGrid(QPainter &painter, double scalex, double scaley,
 	int XMin = rect().left();
 	int XMax = rect().right();
 
-	double yt = 0.0;//one tick at the origin
+	double yt = -m_YGridUnit;//one tick at the origin
 	int iter = 0;
 	while((int)(yt*scaley) + Offset.y()>rect().top() && iter<100)
 	{
 		painter.drawLine(XMin, (int)(yt*scaley) + Offset.y(), XMax, (int)(yt*scaley) + Offset.y());
-		yt -= m_YGridUnit ;
+		yt -= m_YGridUnit;
+		iter++;
 	}
 
 	iter = 0;
@@ -737,7 +741,8 @@ void Section2dWidget::drawYGrid(QPainter &painter, double scalex, double scaley,
 	while((int)(yt*scaley) + Offset.y()<rect().bottom() && iter<100)
 	{
 		painter.drawLine(XMin, (int)(yt*scaley) + Offset.y(), XMax, (int)(yt*scaley) + Offset.y());
-		yt += m_YGridUnit ;
+		yt += m_YGridUnit;
+		iter++;
 	}
 
 	painter.restore();
@@ -763,33 +768,28 @@ void Section2dWidget::drawXMinGrid(QPainter &painter, double scalex, double scal
 
 	painter.setPen(GridPen);
 
+	int YMin = rect().top();
+	int YMax = rect().bottom();
 
-	double xo = 0.0;
-	double xmin = 0.0;
-	double xmax = 1.0;
-	double ymin = -0.2;
-	double ymax =  0.2;
+	double xt = -m_XMinUnit;
 
-	int YMin = qMax(ymin*scaley+ Offset.y(), (double)rect().top());
-	int YMax = qMin(ymax*scaley+ Offset.y(), (double)rect().bottom());
-
-	double xDelta = m_XMinUnit;
-	int MinFreq = (int)(m_XGridUnit/m_XMinUnit);
-	int k=0;
-	double xt = xo-int((xo-xmin)*1.0001/m_XGridUnit)*m_XGridUnit;//one tick at the origin
-
-	while(xt<=xmax*1.001)
+	int iter = 0;
+	while(int(xt*scalex) + Offset.x()>rect().left() && iter<100)
 	{
-		if(k%(MinFreq)!=0)
-		{
-			// do not overwrite main grid
-			if (xt>=xmin)
-			{
-				painter.drawLine(int(xt*scalex) + Offset.x(), YMin, int(xt*scalex) + Offset.x(), YMax);
-			}
-		}
-		xt += xDelta;
-		k++;
+		//Draw  grid
+		painter.drawLine(int(xt*scalex) + Offset.x(), YMin, int(xt*scalex) + Offset.x(), YMax);
+		xt -= m_XMinUnit;
+		iter++;
+	}
+
+	xt = m_XMinUnit;
+	iter = 0;
+	while(int(xt*scalex) + Offset.x()<rect().right() && iter<100)
+	{
+		//Draw  grid
+		painter.drawLine(int(xt*scalex) + Offset.x(), YMin, int(xt*scalex) + Offset.x(), YMax);
+		xt += m_XMinUnit ;
+		iter++;
 	}
 
 	painter.restore();
@@ -815,35 +815,30 @@ void Section2dWidget::drawYMinGrid(QPainter &painter, double scalex, double scal
 
 	painter.setPen(GridPen);
 
-	double yo = 0.0;
-	double xmin = 0.0;
-	double xmax = 1.0;
-	double ymin = -0.2;
-	double ymax =  0.2;
+	int XMin = rect().left();
+	int XMax = rect().right();
 
-	int XMin = qMax(xmin*scalex+ Offset.x(), (double)rect().left());
-	int XMax = qMin(xmax*scalex+ Offset.x(), (double)rect().right());
+	double yt =  +(rect().bottom() - m_ptOffset.y())/m_fScale/m_fScaleY;
 
-//	double yDelta = m_YGridUnit/(m_YMinFreq+1);
-	double yDelta = m_YMinUnit;
-	int MinFreq = (int)(m_YGridUnit/m_YMinUnit);
-	int k=0;
-	double yt = yo-int((yo-ymin)*1.0001/m_YGridUnit)*m_YGridUnit;//one tick at the origin
-
-	while(yt<=ymax*1.001)
+	int iter = -m_YMinUnit;
+	yt = 0;
+	while((int)(yt*scaley) + Offset.y()>rect().top() && iter<100)
 	{
-		if(k%(MinFreq)!=0)
-		{
-		// do not overwrite main grid
-			if (yt>=ymin)
-			{
-				painter.drawLine(XMin, (int)(yt*scaley) + Offset.y(), XMax, (int)(yt*scaley) + Offset.y());
-			}
-		}
-		yt += yDelta;
-		k++;
+		//Draw  grid
+		painter.drawLine(XMin, int(yt*scaley) + Offset.y(), XMax, int(yt*scaley) + Offset.y());
+		yt -= m_YMinUnit;
+		iter++;
 	}
 
+	yt = m_YMinUnit;
+	iter = 0;
+	while((int)(yt*scaley) + Offset.y()<rect().bottom() && iter<100)
+	{
+		//Draw  grid
+		painter.drawLine(XMin, int(yt*scaley) + Offset.y(), XMax, int(yt*scaley) + Offset.y());
+		yt += m_YMinUnit ;
+		iter++;
+	}
 	painter.restore();
 }
 

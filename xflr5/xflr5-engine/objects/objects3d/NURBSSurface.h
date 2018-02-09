@@ -56,6 +56,8 @@ public:
 	Frame *appendNewFrame();
 	void   clearFrames();
 	Frame *frameAt(int iFrame) {return m_pFrame.at(iFrame);}
+	Frame *firstFrame() {return m_pFrame.first();}
+	Frame *lastFrame() {return m_pFrame.last();}
 	int    frameCount() {return m_pFrame.size();}
 	int    framePointCount();
 	double getu(double pos, double v);

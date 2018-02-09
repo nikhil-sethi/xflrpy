@@ -22,7 +22,8 @@
 
 #include "objects2d.h"
 #include <xdirect/XDirect.h>
-
+#include <globals.h>
+#include <misc/options/displayoptions.h>
 #include <QtDebug>
 
 QList<Foil*>    Objects2D::s_oaFoil;
@@ -197,6 +198,9 @@ OpPoint* Objects2D::addOpPoint(void *pFoilPtr, void *pPolarPtr, void *pXFoilPtr,
 	XFoil *pXFoil = (XFoil*)pXFoilPtr;
 
 	OpPoint *pNewPoint = new OpPoint();
+	QColor clr = randomColor(!Settings::isLightTheme());
+	pNewPoint->setColor(clr.red(), clr.green(), clr.black(), clr.alpha());
+
 	if(pNewPoint ==NULL)
 	{
 		return NULL;
@@ -221,7 +225,7 @@ OpPoint* Objects2D::addOpPoint(void *pFoilPtr, void *pPolarPtr, void *pXFoilPtr,
 		Objects2D::insertOpPoint(pNewPoint);
 	}
 
-	// Now insert OpPoint in the current CPolar object
+	// Now insert OpPoint in the current Polar object
 
 	if(pXFoil->lvconv && pPolar)
 	{

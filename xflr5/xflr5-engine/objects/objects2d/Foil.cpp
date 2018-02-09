@@ -544,7 +544,7 @@ Vector3d Foil::lowerYRel(double xRel, double &normx, double &normy)
 
 	for (int i=0; i<m_iInt; i++)
 	{
-		if (m_rpIntrados[i].x < m_rpIntrados[i+1].x && m_rpIntrados[i].x <= x && x<=m_rpIntrados[i+1].x )
+		if (m_rpIntrados[i].x<m_rpIntrados[i+1].x && m_rpIntrados[i].x<= x && x<=m_rpIntrados[i+1].x )
 		{
 			double nabs = sqrt((m_rpIntrados[i+1].x-m_rpIntrados[i].x) * (m_rpIntrados[i+1].x-m_rpIntrados[i].x)
 							 + (m_rpIntrados[i+1].y-m_rpIntrados[i].y) * (m_rpIntrados[i+1].y-m_rpIntrados[i].y));
@@ -745,6 +745,7 @@ bool Foil::initFoil()
 		m_rpExtrados[k].x = x[m_iExt-k];
 		m_rpExtrados[k].y = y[m_iExt-k];
 	}
+
 
 	compMidLine(false);
 	return true;

@@ -26,9 +26,9 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QSettings>
-#include <misc/LineBtn.h>
-#include <misc/ColorButton.h>
-#include <misc/IntEdit.h>
+#include <misc/line/LineBtn.h>
+#include <misc/color/ColorButton.h>
+#include <misc/text/IntEdit.h>
 
 
 class W3dPrefsDlg : public QDialog
@@ -42,6 +42,10 @@ class W3dPrefsDlg : public QDialog
 public:
     W3dPrefsDlg(QWidget *pParent);
 	void initDialog();
+
+	static int chordwiseRes() {return s_iChordwiseRes;}
+	static int bodyAxialRes() {return s_iBodyAxialRes;}
+	static int bodyHoopRes() {return s_iBodyHoopRes;}
 
 private slots:
 	void on3DAxis();

@@ -39,8 +39,8 @@
 
 #include "BodyGridDlg.h"
 #include "BodyTableDelegate.h"
-#include <misc/DoubleEdit.h>
-#include <misc/ColorButton.h>
+#include <misc/text/DoubleEdit.h>
+#include <misc/color/ColorButton.h>
 #include <viewwidgets/glWidgets/ArcBall.h>
 #include <gl3dbodyview.h>
 #include <objects3d/Body.h>

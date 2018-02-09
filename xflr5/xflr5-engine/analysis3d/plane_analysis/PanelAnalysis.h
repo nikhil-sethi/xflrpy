@@ -116,7 +116,6 @@ public:
 	void setArraySize(int MatSize, int WakeSize, int nNodes, int nWakeNodes, int NWakeColumn);
 	void setInertia(double ctrl, double alpha, double beta);
 	void setObjectPointers(Plane *pPlane, void *pSurfaceList);
-	void setParams(int nMaxWakeIter);
 	void setRange(double vMin, double VMax, double vDelta, bool bSequence);
 	void setWPolar(WPolar*pWPolar){m_pWPolar = pWPolar;}
 	PlaneOpp* createPlaneOpp(double *Cp, double *Gamma, double *Sigma);
@@ -128,6 +127,7 @@ public:
 
 	static bool s_bCancel;      /**< true if the user has cancelled the analysis */
 	static bool s_bWarning;     /**< true if one the OpPoints could not be properly interpolated */
+	static void setMaxWakeIter(int nMaxWakeIter) {s_MaxWakeIter = nMaxWakeIter;}
 
 signals:
 	void outputMsg(QString msg);
@@ -156,7 +156,6 @@ private:
 	int m_nWakeNodes;           /**< the number of wake nodes */
 	int m_WakeSize;	            /**< the number of wake elements */
 	int m_NWakeColumn;          /**< the number of wake columns, which is also the number of panels in the spanwise direction */
-	int m_nMaxWakeIter;         /**< the max number of wake roll-up iterations. Disabled. */
 
 
 	double m_vMin;              /**< The minimum value of the analysis parameter*/
@@ -196,7 +195,7 @@ private:
 	double *m_SigmaRef;
 	double *m_Sigma;         /**< The array of resulting source strengths of the analysis */
 	double *m_Mu;            /**< The array of resulting doublet strengths, or vortex circulations if the panel is located on a thin surface */
-	double *m_Cp;            /**< The array of lift coef per panel */
+	double *m_Cp;            /**< The array of pressure coef per panel */
 	double *m_3DQInf;        /**< a pointer to the calculated balance speeds for each aoa in Type 2 and Type 7 analysis */
 
 
@@ -208,7 +207,6 @@ private:
 	double *m_uWake, *m_wWake;
 	Vector3d *m_uVl, *m_wVl;
 	int *m_Index;               /**< a pointer to the array of indexes used in matrix LU decomposition */
-	Vector3d *m_Speed;           /**< a pointer to the calculated surface speeds in a panel analysis */
 
 
 	// pointers to the geometry input data

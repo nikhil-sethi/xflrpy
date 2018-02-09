@@ -28,8 +28,8 @@
 #include <QLabel>
 #include <QSettings>
 
-#include <misc/DoubleEdit.h>
-#include <misc/LineBtn.h>
+#include <misc/text/DoubleEdit.h>
+#include <misc/line/LineBtn.h>
 
 
 class BodyGridDlg : public QDialog

@@ -56,14 +56,13 @@ void AboutQ5::setupLayout()
 
 	QLabel *lab2  = new QLabel(tr("Copyright (C) M. Drela and H. Youngren 2000 - XFoil v6.94"));
 	QLabel *lab3  = new QLabel(tr("Copyright (C) Matthieu Scherrer 2004 - Miarex v1.00"));
-	QLabel *lab4  = new QLabel(tr("Copyright (C) Andre Deperrois 2003-2016"));
+	QLabel *lab4  = new QLabel(tr("Copyright (C) Andre Deperrois 2003-2018"));
 	QLabel *lab5  = new QLabel(tr("This program is distributed in the hope that it will be useful,"));
 	QLabel *lab6  = new QLabel(tr("but WITHOUT ANY WARRANTY; without even the implied warranty of"));
 	QLabel *lab7  = new QLabel(tr("MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."));
 //	QLabel *lab8  = new QLabel(tr("This program has been developed exclusively for the analysis of model aircraft"));
 //	QLabel *lab9  = new QLabel(tr("Any other usage is expressly prohibited"));
 	QLabel *lab10 = new QLabel(tr("Program distributed  under the terms of the GNU General Public License"));
-	QLabel *lab11 = new QLabel(tr("German translation by Martin Willner"));
 	QLabel *lab12 = new QLabel(tr("Japanese translation by IKUSU, Koichi Akabe, Misatus, dynamicsoar, hide253"));
 	QLabel *lab13 = new QLabel(tr("icchy_07, ina111, ohayo_cycling, ohisa_64, ozawa64."));
 	QLabel *lab14 = new QLabel(tr("French translation by Jean-Luc Coulon"));
@@ -85,7 +84,6 @@ void AboutQ5::setupLayout()
 		pMainLayout->addWidget(lab3);
 		pMainLayout->addWidget(lab4);
 		pMainLayout->addStretch(1);
-		pMainLayout->addWidget(lab11);
 		pMainLayout->addWidget(lab12);
 		pMainLayout->addWidget(lab13);
 		pMainLayout->addWidget(lab14);

@@ -28,7 +28,7 @@
 #include <QSplitter>
 #include <graphwidget.h>
 #include "legendwidget.h"
-#include <engine_enums.h>
+#include <analysis3d_enums.h>
 
 
 
@@ -40,7 +40,7 @@ class GraphTileWidget : public QWidget
 	Q_OBJECT
 public:
 	GraphTileWidget(QWidget *parent = 0);
-	~GraphTileWidget();
+	virtual ~GraphTileWidget();
 
 	QGraph *graph(int iGraph);
 	GraphWidget *graphWidget(int iGraph);

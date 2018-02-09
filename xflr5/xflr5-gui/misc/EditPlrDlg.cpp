@@ -26,7 +26,8 @@
 
 
 #include "EditPlrDlg.h"
-#include "./Settings.h"
+#include <misc/options/displayoptions.h>
+
 #include <xdirect/XDirect.h>
 #include <miarex/Miarex.h>
 

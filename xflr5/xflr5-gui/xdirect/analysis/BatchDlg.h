@@ -35,8 +35,8 @@
 #include "graphwidget.h"
 #include <objects2d/Foil.h>
 #include <objects2d/Polar.h>
-#include <misc/IntEdit.h>
-#include <misc/DoubleEdit.h>
+#include <misc/text/IntEdit.h>
+#include <misc/text/DoubleEdit.h>
 #include <xdirect/analysis/XFoilTask.h>
 #include <xdirect/analysis/xfoiltaskevent.h>
 

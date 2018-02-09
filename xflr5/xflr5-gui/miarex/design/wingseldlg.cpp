@@ -21,7 +21,7 @@
 
 #include "wingseldlg.h"
 #include <globals.h>
-#include <engine_enums.h>
+#include <analysis3d_enums.h>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QtDebug>

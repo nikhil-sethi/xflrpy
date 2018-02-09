@@ -32,7 +32,7 @@
 #include "XFoilAnalysisDlg.h"
 #include <xdirect/XDirect.h>
 #include <xdirect/objects2d.h>
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include <QGraph.h>
 #include "graphwidget.h"
 #include <XFoil.h>

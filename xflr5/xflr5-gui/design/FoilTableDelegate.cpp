@@ -26,7 +26,7 @@
 #include <xdirect/objects2d.h>
 #include <globals.h>
 #include <graph_globals.h>
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 
 
 

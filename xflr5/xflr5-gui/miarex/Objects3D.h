@@ -31,6 +31,11 @@
 #include <objects3d/Plane.h>
 #include <objects3d/PlaneOpp.h>
 
+class Plane;
+class Body;
+class WPolar;
+class PlaneOpp;
+
 class Objects3D
 {
 public:
@@ -59,10 +64,10 @@ public:
 public:
 	// object variable lists
 
-	static QList <void *> s_oaPlane;   /**< The array of void pointers to the Plane objects. */
-	static QList <void *> s_oaBody;    /**< The array of void pointers to the Body objects. */
-	static QList <void *> s_oaWPolar;  /**< The array of void pointers to the WPolar objects. */
-	static QList <void *> s_oaPOpp;    /**< The array of void pointers to the PlaneOpp objects. */
+	static QList <Plane*>    s_oaPlane;   /**< The array of void pointers to the Plane objects. */
+	static QList <Body*>     s_oaBody;    /**< The array of void pointers to the Body objects. */
+	static QList <WPolar*>   s_oaWPolar;  /**< The array of void pointers to the WPolar objects. */
+	static QList <PlaneOpp*> s_oaPOpp;    /**< The array of void pointers to the PlaneOpp objects. */
 };
 
 #endif // OBJECTS3D_H

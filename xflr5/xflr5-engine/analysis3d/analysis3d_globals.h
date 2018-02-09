@@ -42,7 +42,6 @@ bool isBetween(int f, double f1, double f2);
 double GetPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bool &bOutRe, bool &bError);
 double GetPlrPointFromAlpha(Foil *pFoil, double Re, double Alpha, int PlrVar, bool &bOutRe, bool &bError);
 
-bool CubicSplineInterpolation(int n, double *x, double *y,  double *a, double *b, double *c, double *d);
 double splineBlend(int const &index, int const &p, double const &t, double *knots);
 
 

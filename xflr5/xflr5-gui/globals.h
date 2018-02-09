@@ -35,7 +35,7 @@
 #include <complex>
 
 #include <gui_params.h>
-#include <engine_enums.h>
+#include <analysis3d_enums.h>
 #include <objects2d/Foil.h>
 #include <objects2d/Polar.h>
 

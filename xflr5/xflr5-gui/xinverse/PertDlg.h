@@ -27,9 +27,9 @@
 #include <QPushButton>
 #include <QTableView>
 #include <QStandardItem>
-#include <misc/FloatEditDelegate.h>
+#include <misc/text/FloatEditDelegate.h>
 #include <objects2d/Foil.h>
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 #include <gui_params.h>
 
 class PertDlg : public QDialog

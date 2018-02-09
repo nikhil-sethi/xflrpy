@@ -21,7 +21,7 @@
 
 #include "XDirectStyleDlg.h"
 #include "XDirect.h"
-#include <misc/LinePickerDlg.h>
+#include <misc/line/LinePickerDlg.h>
 #include "viewwidgets/oppointwidget.h"
 #include <QGridLayout>
 #include <QLabel>

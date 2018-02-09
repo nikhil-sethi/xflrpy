@@ -24,7 +24,7 @@
 #include <graph_globals.h>
 #include <mainframe.h>
 #include <xdirect/XDirect.h>
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include <globals.h>
 #include <QPainter>
 #include <QMessageBox>

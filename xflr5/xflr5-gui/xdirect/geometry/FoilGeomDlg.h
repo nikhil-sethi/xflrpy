@@ -28,7 +28,7 @@
 #include <QSlider>
 #include <QLabel>
 
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 #include <objects2d/Foil.h>
 
 class FoilGeomDlg : public QDialog
@@ -69,7 +69,7 @@ private:
 	DoubleEdit	*m_pctrlCamber;
 
 	QPushButton *OKButton, *CancelButton, *RestoreButton;
-	QLabel *m_pctrlXFoilMessage;
+
 
 private:
 	static void* s_pXFoil;

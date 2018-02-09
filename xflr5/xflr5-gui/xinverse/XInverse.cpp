@@ -37,7 +37,7 @@
 #include <xdirect/objects2d.h>
 #include <objects2d/Foil.h>
 #include <misc/RenameDlg.h>
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include <graph/GraphDlg.h>
 #include <XFoil.h>
 

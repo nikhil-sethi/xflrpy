@@ -19,7 +19,7 @@
 
 *****************************************************************************/
 
-#include "SaveOptionsDlg.h"
+
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>

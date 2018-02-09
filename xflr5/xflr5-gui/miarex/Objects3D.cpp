@@ -30,10 +30,10 @@
 #include <QtDebug>
 
 
-QList <void *> Objects3D::s_oaPlane;
-QList <void *> Objects3D::s_oaWPolar;
-QList <void *> Objects3D::s_oaPOpp;
-QList <void *> Objects3D::s_oaBody;
+QList <Plane*>    Objects3D::s_oaPlane;
+QList <WPolar*>   Objects3D::s_oaWPolar;
+QList <PlaneOpp*> Objects3D::s_oaPOpp;
+QList <Body*>     Objects3D::s_oaBody;
 
 
 Objects3D::Objects3D()
@@ -765,7 +765,7 @@ WPolar* Objects3D::insertNewWPolar(WPolar *pNewWPolar, Plane *pCurPlane)
 		for(int ipb=0; ipb<s_oaWPolar.size(); ipb++)
 		{
 			pOldWPolar = (WPolar*)s_oaWPolar.at(ipb);
-			if(pCurPlane && pOldWPolar->polarName()==pNewWPolar->polarName() && pOldWPolar->planeName()==pCurPlane->planeName())
+			if(pCurPlane && pOldWPolar->polarName()==dlg.newName() && pOldWPolar->planeName()==pCurPlane->planeName())
 			{
 				pWPolar = pOldWPolar;
 				break;
@@ -798,6 +798,7 @@ WPolar* Objects3D::insertNewWPolar(WPolar *pNewWPolar, Plane *pCurPlane)
 		}
 
 		//room has been made, insert the new WPolar in alphabetical order
+		pNewWPolar->polarName() = dlg.newName();
 		for (l=0; l<s_oaWPolar.size();l++)
 		{
 			pOldWPolar = (WPolar*)s_oaWPolar.at(l);

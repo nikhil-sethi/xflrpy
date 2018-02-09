@@ -37,8 +37,8 @@
 #include <globals.h>
 #include <mainframe.h>
 #include <xdirect/XDirect.h>
-#include <misc/Settings.h>
-#include <misc/LinePickerDlg.h>
+#include <misc/options/displayoptions.h>
+#include <misc/line/LinePickerDlg.h>
 #include <misc/RenameDlg.h>
 #include <xdirect/objects2d.h>
 #include <xdirect/geometry/NacaFoilDlg.h>

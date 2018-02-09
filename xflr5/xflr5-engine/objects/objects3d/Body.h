@@ -122,6 +122,8 @@ public:
 	QColor &bodyColor(){return m_BodyColor;}
 	bool &textures(){return m_bTextures;}
 
+	NURBSSurface& nurbs() {return m_SplineSurface;}
+
 	XFLR5::enumBodyLineType &bodyType(){return m_LineType;}
 	bool isFlatPanelType() {return m_LineType==XFLR5::BODYPANELTYPE;}
 	bool isSplineType()    {return m_LineType==XFLR5::BODYSPLINETYPE;}

@@ -20,7 +20,7 @@
 *****************************************************************************/
 
 #include "GraphDlg.h"
-#include <misc/LinePickerDlg.h>
+#include <misc/line/LinePickerDlg.h>
 #include <objects2d/Polar.h>
 #include <objects3d/WPolar.h>
 #include <miarex/Miarex.h>

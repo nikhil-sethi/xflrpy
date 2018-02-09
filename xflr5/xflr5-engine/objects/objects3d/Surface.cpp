@@ -1026,7 +1026,7 @@ void Surface::setNormal()
 
 /**
  * Creates the master points on the left and right ends.
- * One of the most difficult part of the code to implement. The algorithm still isn't very robust.
+ * One of the most difficult part of the code to implement.
  * @param pBody a pointer to the Body object, or NULL if none.
  * @param dx the x-component of the translation to apply to the body.
  * @param dz the z-component of the translation to apply to the body.

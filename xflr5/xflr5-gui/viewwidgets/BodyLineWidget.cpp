@@ -22,8 +22,8 @@
 #include "globals.h"
 #include "BodyLineWidget.h"
 #include <miarex/design/BodyScaleDlg.h>
-#include <misc/Settings.h>
-#include <misc/Units.h>
+#include <misc/options/displayoptions.h>
+#include <misc/options/Units.h>
 #include <QPainter>
 #include <QPaintEvent>
 #include <QtDebug>
@@ -35,7 +35,7 @@ BodyLineWidget::BodyLineWidget(QWidget *pParent, Body *pBody)
 	m_pBody = pBody;
 	createActions();
 	createContextMenu();
-
+	setCursor(Qt::CrossCursor);
 }
 
 

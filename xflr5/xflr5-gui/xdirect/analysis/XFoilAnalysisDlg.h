@@ -28,7 +28,7 @@
 
 #include <QDialog>
 #include <QEventLoop>
-#include <QGLWidget>
+
 #include <QString>
 #include <QFile>
 #include <QTextEdit>

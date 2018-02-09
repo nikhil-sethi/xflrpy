@@ -65,7 +65,7 @@ void ImportObjectDlg::initDialog(bool bWing)
 		Body *pBody;
 		for(int ib=0; ib<Objects3D::s_oaBody.size(); ib++)
 		{
-			pBody = (Body*)Objects3D::s_oaBody.at(ib);
+			pBody = Objects3D::s_oaBody.at(ib);
 			m_pctrlNameList->addItem(pBody->m_BodyName);
 		}
 

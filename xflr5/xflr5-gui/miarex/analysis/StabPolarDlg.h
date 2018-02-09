@@ -32,7 +32,7 @@
 #include <QTableView>
 #include <QStandardItemModel>
 #include "./CtrlTableDelegate.h"
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 #include <objects3d/Plane.h>
 
 

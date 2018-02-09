@@ -27,10 +27,10 @@
 #include <QMessageBox>
 #include <QMenu>
 #include <math.h>
-#include <Settings.h>
+#include <misc/options/displayoptions.h>
 
 #include <globals.h>
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 #include <miarex/Objects3D.h>
 #include <miarex/mgt/ImportObjectDlg.h>
 #include <miarex/mgt/XmlPlaneReader.h>
@@ -40,6 +40,9 @@
 #include "EditBodyDlg.h"
 #include "InertiaDlg.h"
 
+QSize PlaneDlg::s_WindowSize(1031,783);
+QPoint PlaneDlg::s_WindowPosition(131, 77);
+bool PlaneDlg::s_bWindowMaximized =false;
 
 
 PlaneDlg::PlaneDlg(QWidget *parent) :QDialog(parent)

@@ -30,7 +30,7 @@
 #include <QLabel>
 #include <QSlider>
 #include <objects2d/Foil.h>
-#include <misc/DoubleEdit.h>
+#include <misc/text/DoubleEdit.h>
 
 class InterpolateFoilsDlg : public QDialog
 {

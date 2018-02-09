@@ -31,7 +31,7 @@
 #include <objects2d/Foil.h>
 #include <objects2d/Polar.h>
 #include <objects2d/OpPoint.h>
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include <miarex/Miarex.h>
 #include <miarex/Objects3D.h>
 #include <xinverse/XInverse.h>
@@ -97,7 +97,7 @@ void LegendWidget::paintEvent(QPaintEvent *event)
 					if(m_pGraph) drawStabTimeLegend(painter, m_pGraph, m_LegendPosition, bottom);
 					break;
 				case XFLR5::WCPVIEW:
-					if(m_pGraph) drawCpLegend(painter, m_pGraph, QPointF(0, 30.0), bottom);
+					if(m_pGraph) drawCpLegend(painter, m_pGraph, m_LegendPosition, bottom);
 					break;
 				default: break;
 			}
@@ -450,7 +450,7 @@ void LegendWidget::drawCpLegend(QPainter &painter, QGraph *pGraph, QPointF place
 	QPen CurvePen;
 	QPen TextPen(Settings::s_TextColor);
 
-	ny=-1;
+	ny=0;
 
 	for (i=0; i<pGraph->curveCount(); i++)
 	{
@@ -471,8 +471,8 @@ void LegendWidget::drawCpLegend(QPainter &painter, QGraph *pGraph, QPointF place
 			CurvePen.setWidth(pCurve->width());
 			painter.setPen(CurvePen);
 
-			painter.drawLine(place.x() + 1.5*LegendSize, place.y() + 1.*dny*ny,
-							 place.x() + 2.5*LegendSize, place.y() + 1.*dny*ny);
+			painter.drawLine(place.x() + 0.5*LegendSize, place.y() + 1.*dny*ny,
+							 place.x() + 1.5*LegendSize, place.y() + 1.*dny*ny);
 
 			if(pCurve->pointsVisible())
 			{
@@ -484,7 +484,7 @@ void LegendWidget::drawCpLegend(QPainter &painter, QGraph *pGraph, QPointF place
 
 			pCurve->curveName(strong);
 			painter.setPen(TextPen);
-			painter.drawText(place.x() + 3*LegendSize,place.y() + 1.*dny*ny, strong);
+			painter.drawText(place.x() + 2.0*LegendSize,place.y() + 1.*dny*ny, strong);
 		}
 	}
 	painter.restore();

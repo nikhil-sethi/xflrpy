@@ -16,11 +16,23 @@ else
     }
 }
 
+# The following define makes your compiler emit warnings if you use
+# any feature of Qt which as been marked as deprecated (the exact warnings
+# depend on your compiler). Please consult the documentation of the
+# deprecated API in order to know how to port your code away from it.
+DEFINES += QT_DEPRECATED_WARNINGS
+
+# You can also make your code fail to compile if you use deprecated APIs.
+# In order to do so, uncomment the following line.
+# You can also select to disable deprecated APIs only up to a certain version of Qt.
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+
 
 CONFIG += qt
 QT += opengl
 
 TEMPLATE = app
+
 
 
 INCLUDEPATH += $$PWD/viewwidgets
@@ -30,6 +42,7 @@ INCLUDEPATH += $$PWD/misc
 INCLUDEPATH += $$PWD/xdirect/xfoil_task
 INCLUDEPATH += $$PWD/glcontextinfo
 
+INCLUDEPATH += $$PWD/../xflr5-engine
 INCLUDEPATH += $$PWD/../xflr5-engine/objects
 INCLUDEPATH += $$PWD/../xflr5-engine/objects/objects2d
 INCLUDEPATH += $$PWD/../xflr5-engine/objects/objects3d
@@ -37,6 +50,7 @@ INCLUDEPATH += $$PWD/../xflr5-engine/XFoil
 INCLUDEPATH += $$PWD/../xflr5-engine/analysis3d
 INCLUDEPATH += $$PWD/../xflr5-engine/analysis3d/plane_analysis
 
+DEPENDPATH += $$PWD/../xflr5-engine
 DEPENDPATH += $$PWD/../xflr5-engine/objects
 DEPENDPATH += $$PWD/../xflr5-engine/objects/objects2d
 DEPENDPATH += $$PWD/../xflr5-engine/objects/objects3d
@@ -69,28 +83,14 @@ SOURCES += \
 	viewwidgets/wingwidget.cpp \
 	viewwidgets/oppointwidget.cpp \
 	viewwidgets/inverseviewwidget.cpp \
-	misc/Settings.cpp \
-	misc/SaveOptionsDlg.cpp \
 	misc/ProgressDlg.cpp \
 	misc/ModDlg.cpp \
 	misc/PolarFilterDlg.cpp \
-	misc/TranslatorDlg.cpp \
 	misc/RenameDlg.cpp \
-	misc/LinePickerDlg.cpp \
-	misc/LineDelegate.cpp \
-	misc/LineCbBox.cpp \
-	misc/FloatEditDelegate.cpp \
-	misc/ColorButton.cpp \
-	misc/DoubleEdit.cpp \
-	misc/IntEdit.cpp \
 	misc/AboutQ5.cpp \
 	misc/NewNameDlg.cpp \
 	misc/ObjectPropsDlg.cpp \
-	misc/LineBtn.cpp \
-	misc/TextClrBtn.cpp \
-	misc/MinTextEdit.cpp \
 	misc/EditPlrDlg.cpp \
-	misc/Units.cpp \
 	misc/LengthUnitDlg.cpp \
 	misc/exponentialslider.cpp \
 	misc/stlexportdialog.cpp \
@@ -175,7 +175,22 @@ SOURCES += \
 	viewwidgets/glWidgets/gl3dwingview.cpp \
 	viewwidgets/glWidgets/gl3dplaneview.cpp \
 	misc/voidwidget.cpp \
-    viewwidgets/glWidgets/ArcBall.cpp
+    viewwidgets/glWidgets/ArcBall.cpp \
+    misc/options/displayoptions.cpp \
+    misc/options/language.cpp \
+    misc/options/preferencesdlg.cpp \
+    misc/options/saveoptions.cpp \
+    misc/options/Units.cpp \
+    misc/color/ColorButton.cpp \
+    misc/text/DoubleEdit.cpp \
+    misc/text/IntEdit.cpp \
+    misc/text/TextClrBtn.cpp \
+    misc/line/LineBtn.cpp \
+    misc/line/LineCbBox.cpp \
+    misc/line/LineDelegate.cpp \
+    misc/line/LinePickerDlg.cpp \
+    misc/text/MinTextEdit.cpp \
+    misc/text/FloatEditDelegate.cpp
 
 
 HEADERS += \
@@ -194,28 +209,16 @@ HEADERS += \
 	viewwidgets/wingwidget.h \
 	viewwidgets/oppointwidget.h \
 	viewwidgets/inverseviewwidget.h \
-	misc/Settings.h \
-	misc/SaveOptionsDlg.h \
 	misc/ModDlg.h \
 	misc/PolarFilterDlg.h \
-	misc/TranslatorDlg.h \
 	misc/RenameDlg.h \
-	misc/LinePickerDlg.h \
-	misc/LineDelegate.h \
-	misc/FloatEditDelegate.h \
-	misc/ColorButton.h \
-	misc/LineCbBox.h \
+	misc/color/ColorButton.h \
 	misc/AboutQ5.h \
-	misc/DoubleEdit.h \
-	misc/IntEdit.h \
+	misc/text/DoubleEdit.h \
 	misc/ProgressDlg.h \
 	misc/NewNameDlg.h \
 	misc/ObjectPropsDlg.h \
-	misc/LineBtn.h \
-	misc/TextClrBtn.h \
-	misc/MinTextEdit.h \
 	misc/EditPlrDlg.h \
-	misc/Units.h \
 	misc/LengthUnitDlg.h \
 	misc/exponentialslider.h \
 	misc/stlexportdialog.h \
@@ -303,7 +306,22 @@ HEADERS += \
 	viewwidgets/glWidgets/gl3dwingview.h \
 	viewwidgets/glWidgets/gl3dplaneview.h \
 	misc/voidwidget.h \
-    viewwidgets/glWidgets/ArcBall.h
+    viewwidgets/glWidgets/ArcBall.h \
+    misc/options/displayoptions.h \
+    misc/options/language.h \
+    misc/options/preferencesdlg.h \
+    misc/options/saveoptions.h \
+    misc/options/Units.h \
+    misc/color/ColorButton.h \
+    misc/text/DoubleEdit.h \
+    misc/text/IntEdit.h \
+    misc/text/TextClrBtn.h \
+    misc/line/LineBtn.h \
+    misc/line/LineCbBox.h \
+    misc/line/LineDelegate.h \
+    misc/line/LinePickerDlg.h \
+    misc/text/MinTextEdit.h \
+    misc/text/FloatEditDelegate.h
 	
 
 RESOURCES += \

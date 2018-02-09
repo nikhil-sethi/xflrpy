@@ -21,7 +21,7 @@
 #include "globals.h"
 #include "XInverse.h"
 #include "InverseOptionsDlg.h"
-#include <misc/LinePickerDlg.h>
+#include <misc/line/LinePickerDlg.h>
 
 InverseOptionsDlg::InverseOptionsDlg(QWidget *pParent) : QDialog(pParent)
 {

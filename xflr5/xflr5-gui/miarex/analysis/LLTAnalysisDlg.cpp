@@ -34,7 +34,7 @@
 
 #include "LLTAnalysisDlg.h"
 #include <miarex/Objects3D.h>
-#include <misc/Settings.h>
+#include <misc/options/displayoptions.h>
 #include "miarex/Miarex.h"
 
 

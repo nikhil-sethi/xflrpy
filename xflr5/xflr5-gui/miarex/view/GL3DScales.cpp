@@ -21,9 +21,9 @@
 
 #include "GL3DScales.h"
 #include <miarex/Miarex.h>
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 #include <globals.h>
-#include <Settings.h>
+#include <misc/options/displayoptions.h>
 
 #include <QGridLayout>
 #include <QGroupBox>

@@ -34,9 +34,10 @@
 #include <QGroupBox>
 #include <QTableView>
 #include <QStandardItemModel>
-#include <misc/DoubleEdit.h>
+
+#include <misc/text/DoubleEdit.h>
+#include <misc/text/FloatEditDelegate.h>
 #include <Curve.h>
-#include <misc/FloatEditDelegate.h>
 
 
 class StabViewDlg : public QWidget

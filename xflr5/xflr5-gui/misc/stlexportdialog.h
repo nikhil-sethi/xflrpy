@@ -18,11 +18,12 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
+
 #ifndef STLEXPORTDIALOG_H
 #define STLEXPORTDIALOG_H
 #include <QDialog>
 #include <QCheckBox>
-#include <IntEdit.h>
+#include <misc/text/IntEdit.h>
 #include <QRadioButton>
 #include <QLabel>
 

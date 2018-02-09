@@ -1281,8 +1281,8 @@ int Graph::yToClient(double y)
 
 Curve*  Graph::getClosestPoint(const double &x, const double &y, double &xSel, double &ySel, int &nSel)
 {
-	static int i, n1;
-	static double dist, dmax, x1, y1;
+	int i, n1;
+	double dist, dmax, x1, y1;
 	dmax = 1.e40;
 	Curve *pOldCurve, *pCurveSel;
 	pCurveSel = NULL;
@@ -1306,8 +1306,8 @@ Curve*  Graph::getClosestPoint(const double &x, const double &y, double &xSel, d
 
 Curve* Graph::getCurvePoint(const int &xClt, const int &yClt,int &nSel)
 {
-	static int i, n, xc, yc;
-	static double dist, x1, y1, x,y;
+	int i, n, xc, yc;
+	double dist, x1, y1, x,y;
 	Curve *pOldCurve;
 
 	x= clientTox(xClt);

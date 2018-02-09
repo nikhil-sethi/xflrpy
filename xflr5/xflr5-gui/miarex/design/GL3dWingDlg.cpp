@@ -22,8 +22,8 @@
 #include <globals.h>
 #include <miarex/Objects3D.h>
 #include <miarex/view/W3dPrefsDlg.h>
-#include <misc/Settings.h>
-#include <misc/Units.h>
+#include <misc/options/displayoptions.h>
+#include <misc/options/Units.h>
 #include <objects3d/Surface.h>
 #include "GL3dWingDlg.h"
 #include "WingScaleDlg.h"
@@ -415,10 +415,9 @@ void GL3dWingDlg::glMake3DObjects()
 		m_bResetglWing = false;
 
 		m_pglWingView->glMakeWingGeometry(0, m_pWing, NULL);
-		m_pglWingView->glMakeWingMesh(m_pWing);
+		m_pglWingView->glMakeWingEditMesh(m_pglWingView->m_vboEditWingMesh[0], m_pWing);
 	}
 }
-
 
 
 
@@ -1465,13 +1464,14 @@ void GL3dWingDlg::setupLayout()
 					m_pctrlZ          = new QToolButton;
 					m_pctrlIso        = new QToolButton;
 					m_pctrlFlip       = new QToolButton;
-					if(m_pctrlX->iconSize().height()<=48)
+					int iconSize =32;
+					if(m_pctrlX->iconSize().height()<=iconSize)
 					{
-						m_pctrlX->setIconSize(QSize(32,32));
-						m_pctrlY->setIconSize(QSize(32,32));
-						m_pctrlZ->setIconSize(QSize(32,32));
-						m_pctrlIso->setIconSize(QSize(32,32));
-						m_pctrlFlip->setIconSize(QSize(32,32));
+						m_pctrlX->setIconSize(QSize(iconSize,iconSize));
+						m_pctrlY->setIconSize(QSize(iconSize,iconSize));
+						m_pctrlZ->setIconSize(QSize(iconSize,iconSize));
+						m_pctrlIso->setIconSize(QSize(iconSize,iconSize));
+						m_pctrlFlip->setIconSize(QSize(iconSize,iconSize));
 					}
 					m_pXView    = new QAction(QIcon(":/images/OnXView.png"), tr("X View"), this);
 					m_pYView    = new QAction(QIcon(":/images/OnYView.png"), tr("Y View"), this);

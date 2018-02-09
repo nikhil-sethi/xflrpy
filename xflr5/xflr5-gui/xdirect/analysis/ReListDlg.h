@@ -28,7 +28,7 @@
 #include <QPushButton>
 #include <QTableView>
 #include <QStandardItemModel>
-#include <misc/FloatEditDelegate.h>
+#include <misc/text/FloatEditDelegate.h>
 
 
 class ReListDlg : public QDialog

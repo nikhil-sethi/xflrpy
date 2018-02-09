@@ -19,10 +19,10 @@
 
 *****************************************************************************/
 
-#include "Settings.h"
+#include <misc/options/displayoptions.h>
 #include <miarex/design/BodyScaleDlg.h>
 #include "BodyFrameWidget.h"
-#include <misc/Units.h>
+#include <misc/options/Units.h>
 #include <QPainter>
 #include <QtDebug>
 
@@ -36,6 +36,8 @@ BodyFrameWidget::BodyFrameWidget(QWidget *pParent, Body *pBody)
 	m_pShowCurFrameOnly = NULL;
 	createActions();
 	createContextMenu();
+	setCursor(Qt::CrossCursor);
+
 }
 
 
@@ -206,12 +208,12 @@ void BodyFrameWidget::drawFramePoints()
 
 	for (int k=0; k<m_pFrame->pointCount();k++)
 	{
-		if(Frame::s_iSelect==k)
+		if(Frame::selectedIndex()==k)
 		{
 			pointPen.setWidth(4);
 			pointPen.setColor(Qt::red);
 		}
-		else if(Frame::s_iHighlight==k)
+		else if(Frame::highlightedIndex()==k)
 		{
 			pointPen.setWidth(4);
 			pointPen.setColor(m_pBody->bodyColor().lighter());
@@ -298,40 +300,43 @@ void BodyFrameWidget::onScaleFrame()
 
 int BodyFrameWidget::highlightPoint(Vector3d real)
 {
-	if(!m_pBody->activeFrame()) Frame::s_iHighlight = -1;
+	if(!m_pBody->activeFrame()) Frame::setHighlighted(-1);
 	else
 	{
 		real.z = real.y;
 		real.y = real.x;
 		real.x = m_pBody->activeFrame()->position().x;
-		Frame::s_iHighlight = m_pBody->activeFrame()->isPoint(real, m_fScale/m_fRefScale);
+		Frame::setHighlighted(m_pBody->activeFrame()->isPoint(real, m_fScale/m_fRefScale));
 	}
-	return Frame::s_iHighlight;
+	return Frame::highlightedIndex();
 }
 
 
 
 int BodyFrameWidget::selectPoint(Vector3d real)
 {
-	if(!m_pBody->activeFrame()) Frame::s_iSelect = -1;
+	if(!m_pBody->activeFrame()) Frame::setSelected(-1);
 	else
 	{
 		real.z = real.y;
 		real.y = real.x;
 		real.x = m_pBody->activeFrame()->position().x;
-		Frame::s_iSelect = m_pBody->activeFrame()->isPoint(real, m_fScale/m_fRefScale);
+		Frame::setSelected(m_pBody->activeFrame()->isPoint(real, m_fScale/m_fRefScale));
 	}
 	emit pointSelChanged();
-	return Frame::s_iSelect;
+	return Frame::selectedIndex();
 }
 
 
 
 void BodyFrameWidget::dragSelectedPoint(double x, double y)
 {
-	if (!m_pBody->activeFrame() || (Frame::s_iSelect<0) ||  (Frame::s_iSelect > m_pBody->activeFrame()->pointCount())) return;
+	if (!m_pBody->activeFrame() || (Frame::selectedIndex()<0) || (Frame::selectedIndex() > m_pBody->activeFrame()->pointCount()))
+		return;
 
-	m_pBody->activeFrame()->selectedPoint().set(m_pBody->activeFrame()->position().x, qMax(x,0.0), y);
+	if(Frame::selectedIndex()==0 || Frame::selectedIndex()==m_pBody->activeFrame()->pointCount()-1) x=0.0;
+	x = std::max(x,0.0);
+	m_pBody->activeFrame()->selectedPoint().set(m_pBody->activeFrame()->position().x, x, y);
 }
 
 

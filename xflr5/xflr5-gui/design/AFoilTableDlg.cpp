@@ -24,7 +24,7 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <misc/LinePickerDlg.h>
+#include <misc/line/LinePickerDlg.h>
 
 AFoilTableDlg::AFoilTableDlg(QWidget *pParent): QDialog(pParent)
 {

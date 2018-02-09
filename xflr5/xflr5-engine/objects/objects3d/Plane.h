@@ -1,6 +1,6 @@
 /****************************************************************************
 
-    CPlane Class
+    Plane Class
 	Copyright (C) 2006-2016 Andre Deperrois adeperrois@xflr5.com
 
     This program is free software; you can redistribute it and/or modify

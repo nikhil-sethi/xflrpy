@@ -184,8 +184,13 @@
     </message>
     <message>
         <source>Copyright (C) Andre Deperrois 2003-2016</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
              {2003-2016?}</translation>
+    </message>
+    <message>
+        <source>Copyright (C) Andre Deperrois 2003-2017</source>
+        <translation type="unfinished">
+             {2003-2017?}</translation>
     </message>
 </context>
 <context>
@@ -2682,11 +2687,11 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Q - Speed</source>
-        <translation>Q−スピード</translation>
+        <translation type="vanished">Q−スピード</translation>
     </message>
     <message>
         <source>X - chord</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -3690,6 +3695,33 @@ Reduce the mesh size</source>
     </message>
 </context>
 <context>
+    <name>LanguageOptions</name>
+    <message>
+        <source>Language settings</source>
+        <translation type="obsolete">言語設定</translation>
+    </message>
+    <message>
+        <source>English</source>
+        <translation type="obsolete">日本語</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation type="obsolete">警告</translation>
+    </message>
+    <message>
+        <source>The change will take effect at the next session</source>
+        <translation type="obsolete">変更は次のセッションから有効になります</translation>
+    </message>
+    <message>
+        <source>Select the application&apos;s default language:</source>
+        <translation type="obsolete">アプリケーションの既定の言語を選択してください:</translation>
+    </message>
+    <message>
+        <source>The directory </source>
+        <translation type="obsolete">ディレクトリ </translation>
+    </message>
+</context>
+<context>
     <name>LengthUnitDlg</name>
     <message>
         <source>Select units for this project :</source>
@@ -3839,11 +3871,11 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Define the units for this project</source>
-        <translation>このプロジェクトの単位を設定します</translation>
+        <translation type="vanished">このプロジェクトの単位を設定します</translation>
     </message>
     <message>
         <source>Define the default language for the application</source>
-        <translation>アプリケーションの既定の言語を設定します</translation>
+        <translation type="vanished">アプリケーションの既定の言語を設定します</translation>
     </message>
     <message>
         <source>Restore toolbars</source>
@@ -3863,7 +3895,7 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>General Display Settings</source>
-        <translation>表示設定</translation>
+        <translation type="vanished">表示設定</translation>
     </message>
     <message>
         <source>Export Graph</source>
@@ -5001,45 +5033,45 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Max. Shear Coefficient</source>
-        <translation>最大せん断力係数</translation>
+        <translation type="vanished">最大せん断力係数</translation>
     </message>
     <message>
         <source>Bottom Side D* and Theta</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
         <source>Top Side D* and Theta</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
         <source>Log(Re_Theta)</source>
-        <translation>Log(Re_Theta)</translation>
+        <translation type="vanished">Log(Re_Theta)</translation>
     </message>
     <message>
         <source>Re_Theta</source>
-        <translation>Re_Theta</translation>
+        <translation type="vanished">Re_Theta</translation>
     </message>
     <message>
         <source>Amplification Ratio</source>
-        <translation>応答倍率</translation>
+        <translation type="vanished">応答倍率</translation>
     </message>
     <message>
         <source>Dissipation Coefficient</source>
-        <translation>散逸係数</translation>
+        <translation type="vanished">散逸係数</translation>
     </message>
     <message>
         <source>Skin Friction Coefficient</source>
-        <translation>表面摩擦係数</translation>
+        <translation type="vanished">表面摩擦係数</translation>
     </message>
     <message>
         <source>Edge Velocity</source>
-        <translation>エッジ速度</translation>
+        <translation type="vanished">エッジ速度</translation>
     </message>
     <message>
         <source>Kinematic Shape Parameter</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -5069,7 +5101,7 @@ Reduce the mesh size</source>
     </message>
     <message>
         <source>Current XFoil Results</source>
-        <translation>現在のXfoilの結果</translation>
+        <translation type="vanished">現在のXfoilの結果</translation>
     </message>
     <message>
         <source>Store Foil</source>
@@ -5244,11 +5276,11 @@ XFLR5は正常に動作しません.</translation>
     </message>
     <message>
         <source>Units...</source>
-        <translation>単位の設定...</translation>
+        <translation type="vanished">単位の設定...</translation>
     </message>
     <message>
         <source>Language...</source>
-        <translation>言語...</translation>
+        <translation type="vanished">言語...</translation>
     </message>
     <message>
         <source>Reset Default Settings</source>
@@ -5256,7 +5288,7 @@ XFLR5は正常に動作しません.</translation>
     </message>
     <message>
         <source>Define the color and font options for all views and graphs</source>
-        <translation>すべての表示とグラフの色とフォントを設定します</translation>
+        <translation type="vanished">すべての表示とグラフの色とフォントを設定します</translation>
     </message>
     <message>
         <source>Reset Graph Scales</source>
@@ -5547,10 +5579,6 @@ Please enter a new name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Load and Save Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Execute Script</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5656,6 +5684,18 @@ Please enter a new name</source>
     </message>
     <message>
         <source>Import Analysis from xml file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error saving the project file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6742,6 +6782,33 @@ Check the guidelines for explanations.</source>
     <message>
         <source>stability polars</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesDlg</name>
+    <message>
+        <source>Save options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Units</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">キャンセル</translation>
     </message>
 </context>
 <context>
@@ -9242,34 +9309,34 @@ stagnation point in mixed-inverse</source>
     </message>
     <message>
         <source>Top</source>
-        <translation>上面</translation>
+        <translation type="vanished">上面</translation>
     </message>
     <message>
         <source>Bot</source>
-        <translation>下面</translation>
+        <translation type="vanished">下面</translation>
     </message>
     <message>
         <source>Max Shear</source>
-        <translation>最大せん断力</translation>
+        <translation type="vanished">最大せん断力</translation>
     </message>
     <message>
         <source>Top Shear</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
         <source>Top Shear eq</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
         <source>Bot Shear</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
         <source>Bot Shear eq</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             </translation>
     </message>
     <message>
@@ -9302,11 +9369,11 @@ stagnation point in mixed-inverse</source>
     </message>
     <message>
         <source>Cf</source>
-        <translation>Cf</translation>
+        <translation type="vanished">Cf</translation>
     </message>
     <message>
         <source>Cd&apos;</source>
-        <translation>Cd&apos;</translation>
+        <translation type="vanished">Cd&apos;</translation>
     </message>
     <message>
         <source>Are you sure you want to delete the Operating Point
@@ -9759,6 +9826,10 @@ Bottom Side
     <message>
         <source>Export analysis definition to xml file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Re_Theta</source>
+        <translation type="unfinished">Re_Theta</translation>
     </message>
 </context>
 <context>
@@ -10217,31 +10288,7 @@ on the QSpec curve.</source>
     </message>
 </context>
 <context>
-    <name>SaveOptionsDlg</name>
-    <message>
-        <source>Save Options</source>
-        <translation>保存オプション</translation>
-    </message>
-    <message>
-        <source>Save:</source>
-        <translation>保存:</translation>
-    </message>
-    <message>
-        <source>Foil Operating Points</source>
-        <translation>翼型の動作点</translation>
-    </message>
-    <message>
-        <source>Wing and Plane Operating Points</source>
-        <translation>翼・機体の動作点</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
-    </message>
+    <name>SaveOptions</name>
     <message>
         <source>Load options</source>
         <translation type="unfinished"></translation>
@@ -10255,12 +10302,51 @@ on the QSpec curve.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Save:</source>
+        <translation type="unfinished">保存:</translation>
+    </message>
+    <message>
+        <source>Foil Operating Points</source>
+        <translation type="unfinished">翼型の動作点</translation>
+    </message>
+    <message>
+        <source>Wing and Plane Operating Points</source>
+        <translation type="unfinished">翼・機体の動作点</translation>
+    </message>
+    <message>
         <source>Autosave setting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Every</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SaveOptionsDlg</name>
+    <message>
+        <source>Save Options</source>
+        <translation type="vanished">保存オプション</translation>
+    </message>
+    <message>
+        <source>Save:</source>
+        <translation type="vanished">保存:</translation>
+    </message>
+    <message>
+        <source>Foil Operating Points</source>
+        <translation type="vanished">翼型の動作点</translation>
+    </message>
+    <message>
+        <source>Wing and Plane Operating Points</source>
+        <translation type="vanished">翼・機体の動作点</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="vanished">OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="vanished">キャンセル</translation>
     </message>
 </context>
 <context>
@@ -10326,7 +10412,7 @@ on the QSpec curve.</source>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">閉じる</translation>
+        <translation type="obsolete">閉じる</translation>
     </message>
     <message>
         <source>Reverse zoom direction using mouse wheel</source>
@@ -11026,11 +11112,11 @@ only if all the flap controls are inactive</source>
     </message>
     <message>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>キャンセル</translation>
+        <translation type="vanished">キャンセル</translation>
     </message>
     <message>
         <source>The directory </source>
@@ -11144,12 +11230,8 @@ only if all the flap controls are inactive</source>
         <translation type="unfinished">プロジェクトの単位の定義</translation>
     </message>
     <message>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cancel</source>
-        <translation type="unfinished">キャンセル</translation>
+        <translation type="obsolete">キャンセル</translation>
     </message>
     <message>
         <source>Pressure</source>
