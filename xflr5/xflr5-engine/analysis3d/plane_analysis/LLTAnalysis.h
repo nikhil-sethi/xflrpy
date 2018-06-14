@@ -2,7 +2,7 @@
 
 	LLTAnalysis Class
 
-	Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -34,11 +34,11 @@
 #define LLTANALYSIS_H
 
 
-#include <plane_analysis/planetaskevent.h>
-#include <analysis3d_params.h>
-#include <analysis3d_globals.h>
-#include <objects3d/Plane.h>
-#include <objects3d/PlaneOpp.h>
+#include <analysis3d/plane_analysis/planetaskevent.h>
+#include <analysis3d/analysis3d_params.h>
+#include <analysis3d/analysis3d_globals.h>
+#include <objects/objects3d/Plane.h>
+#include <objects/objects3d/PlaneOpp.h>
 #include <QList>
 
 /**
@@ -51,11 +51,11 @@
 
 
 
-class LLTAnalysis : QObject
+class XFLR5ENGINELIBSHARED_EXPORT LLTAnalysis : QObject
 {
 	Q_OBJECT
 
-	friend class QMiarex;
+	friend class Miarex;
 	friend class PlaneAnalysisTask;
 	friend class MainFrame;
 	friend class LLTAnalysisDlg;

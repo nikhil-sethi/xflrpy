@@ -1,7 +1,7 @@
 /****************************************************************************
 
     Plane Class
-	Copyright (C) 2006-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2006-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -47,10 +47,10 @@
 #include "Body.h"
 
 
-class Plane
+class XFLR5ENGINELIBSHARED_EXPORT Plane
 {
 	friend class PlaneDlg;
-	friend class QMiarex;
+	friend class Miarex;
 
 public:
 	Plane();
@@ -160,6 +160,7 @@ public:
 	double aspectRatio()  {return m_Wing[0].m_AR;}
 	double taperRatio()   {return m_Wing[0].m_TR;}
 
+	int spanStationCount();
 
 	bool &hasBody()       {return m_bBody;}
 	bool &hasElevator()   {return m_bStab;}

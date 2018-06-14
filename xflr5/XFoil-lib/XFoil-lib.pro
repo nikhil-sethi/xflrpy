@@ -17,9 +17,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 QT       -= gui
 
-TARGET = XFoil-lib
+TARGET = XFoil
 TEMPLATE = lib
-CONFIG += staticlib
 
 DEFINES += XFOILLIB_LIBRARY
 
@@ -31,25 +30,22 @@ HEADERS +=\
     XFoil.h \
     xfoil_params.h
 
-macx {
-    CONFIG(release, debug|release) {
-        OBJECTS_DIR = ./build/release
-        MOC_DIR = ./build/release
-        RCC_DIR = ./build/release
-        UI_HEADERS_DIR = ./build/release
-    }
-    CONFIG(debug, debug|release) {
-        OBJECTS_DIR = ./build/debug
-        MOC_DIR = ./build/debug
-                RCC_DIR = ./build/debug
-        UI_HEADERS_DIR = ./build/debug
-    }
-    CONFIG += staticlib
-    CONFIG += i386
-    QMAKE_MAC_SDK = macosx
+OBJECTS_DIR = ./build/objects
+MOC_DIR = ./build/moc
+RCC_DIR = ./build/rcc
+
+
+
+macx{
+#	CONFIG += lib_bundle
+#	CONFIG += i386
+	QMAKE_SONAME_PREFIX = @executable_path/../Frameworks
+	QMAKE_MAC_SDK = macosx
 }
 
-unix {
-    target.path = /usr/lib
+
+unix{
+	target.path = /usr/local/lib
     INSTALLS += target
 }
+

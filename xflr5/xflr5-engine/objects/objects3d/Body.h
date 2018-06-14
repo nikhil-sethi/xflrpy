@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Body Class
-	Copyright (C) 2007-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2007-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,14 +30,16 @@
 
 
 
-
-#include "Panel.h"
-#include "NURBSSurface.h"
-#include "PointMass.h"
 #include <QTextStream>
 #include <QVarLengthArray>
-#include <QColor>
-#include <analysis3d_enums.h>
+
+#include <objects/objectcolor.h>
+#include <objects/objects3d/Panel.h>
+#include <objects/objects3d/NURBSSurface.h>
+#include <objects/objects3d/PointMass.h>
+
+
+#include <analysis3d/analysis3d_enums.h>
 
 #define NHOOPPOINTS 67  //used for display and to export the geometry
 #define NXPOINTS 97     //used for display and to export the geometry
@@ -51,7 +53,7 @@
  * The data is stored in International Standard Units, i.e. meters, kg, and seconds.
  * Angular data is stored in degrees.
  */
-class Body
+class XFLR5ENGINELIBSHARED_EXPORT Body
 {
 public:
 	Body();
@@ -119,8 +121,10 @@ public:
 
 	QString &bodyName(){return m_BodyName;}
 	QString &bodyDescription() {return m_BodyDescription;}
-	QColor &bodyColor(){return m_BodyColor;}
 	bool &textures(){return m_bTextures;}
+
+	ObjectColor bodyColor() const {return m_BodyColor;}
+	void setBodyColor(ObjectColor color) {m_BodyColor=color;}
 
 	NURBSSurface& nurbs() {return m_SplineSurface;}
 
@@ -164,7 +168,7 @@ public:
 
 	int m_BodyStyle;                          /**< the index of the spline's style */
 	int m_BodyWidth;                          /**< the width of the spline */
-	QColor m_BodyColor;                       /**< the Body's display color */
+	ObjectColor m_BodyColor;                       /**< the Body's display color */
 
 	double m_Bunch;                            /**< a bunch parameter to set the density of the points of the NURBS surface; unused */
 

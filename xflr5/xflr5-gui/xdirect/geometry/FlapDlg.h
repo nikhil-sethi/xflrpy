@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	FlapDlg class
-	Copyright (C) 2004-2009 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2004-2009 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QPushButton>
-#include <objects2d/Foil.h>
+#include <objects/objects2d/Foil.h>
 #include <misc/text/DoubleEdit.h>
 
 
@@ -36,8 +36,8 @@ class FlapDlg : public QDialog
 public:
 	FlapDlg(QWidget *pParent);
 
-	friend class QAFoil;
-	friend class QXDirect;
+	friend class AFoil;
+	friend class XDirect;
 
 
 private:

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	PlaneDlg Class
-	Copyright (C) 2009 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 
-#include <objects3d/Plane.h>
+#include <objects/objects3d/Plane.h>
 #include <misc/text/DoubleEdit.h>
 
 
@@ -40,7 +40,7 @@
 class PlaneDlg : public QDialog
 {
 	Q_OBJECT
-	friend class QMiarex;
+	friend class Miarex;
 	friend class MainFrame;
 	friend class EditPlaneDlg;
 

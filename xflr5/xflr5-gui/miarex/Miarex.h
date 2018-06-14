@@ -1,6 +1,6 @@
 /****************************************************************************
 
-	Miarex    Copyright (C) 2008-2016 Andre Deperrois adeperrois@xflr5.com
+	Miarex    Copyright (C) 2008-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -45,23 +45,23 @@ class MainFrame;
 #include <QDialog>
 #include <QSettings>
 #include <QXmlStreamWriter>
-#include <gui_params.h>
+#include <globals/gui_params.h>
 #include "./analysis/PanelAnalysisDlg.h"
 #include "./analysis/LLTAnalysisDlg.h"
-#include <plane_analysis/planeanalysistask.h>
+#include <analysis3d/plane_analysis/planeanalysistask.h>
 #include <misc/line/LineBtn.h>
 #include <misc/text/DoubleEdit.h>
 #include <misc/text/MinTextEdit.h>
 #include <misc/line/LineCbBox.h>
 #include <misc/line/LineDelegate.h>
-#include <objects3d/Body.h>
-#include <objects3d/Wing.h>
-#include <objects3d/Plane.h>
-#include <objects3d/WPolar.h>
-#include <objects3d/WingOpp.h>
-#include <objects3d/PlaneOpp.h>
+#include <objects/objects3d/Body.h>
+#include <objects/objects3d/Wing.h>
+#include <objects/objects3d/Plane.h>
+#include <objects/objects3d/WPolar.h>
+#include <objects/objects3d/WingOpp.h>
+#include <objects/objects3d/PlaneOpp.h>
 #include "view/GLLightDlg.h"
-#include <QGraph.h>
+#include <graph/graph.h>
 #include "graphtilewidget.h"
 
 /**
@@ -77,7 +77,7 @@ class MainFrame;
 	- Management of the LLT and Panel Analysis,
 	- Mapping of the analyis results to the operating point and polar objects
 */
-class QMiarex : public QWidget
+class Miarex : public QWidget
 {
 	friend class MainFrame;
 	friend class TwoDWidget;
@@ -104,8 +104,8 @@ class QMiarex : public QWidget
 
 public:
 
-	QMiarex(QWidget *parent = NULL);
-	~QMiarex();
+	Miarex(QWidget *parent = NULL);
+	~Miarex();
 
 signals:
 	void projectModified();
@@ -483,11 +483,11 @@ public:
 	double m_BellCurveExp;
 	bool m_bMaxCL;
 
-	QGraph m_CpGraph;                       /**< the Cp Graph in 3D panel analysis */
-	QList<QGraph*> m_WingGraph;             /**< the array of pointer to the OpPoint graphs */
-	QList<QGraph*> m_WPlrGraph;             /**< the array of pointers to the WPolar graphs */
-	QList<QGraph*> m_StabPlrGraph;          /**< the array of pointers to the two root locus graphs */
-	QList<QGraph*> m_TimeGraph;             /**< the array of pointers to the time response graphs in stability view */
+	Graph m_CpGraph;                       /**< the Cp Graph in 3D panel analysis */
+	QList<Graph*> m_WingGraph;             /**< the array of pointer to the OpPoint graphs */
+	QList<Graph*> m_WPlrGraph;             /**< the array of pointers to the WPolar graphs */
+	QList<Graph*> m_StabPlrGraph;          /**< the array of pointers to the two root locus graphs */
+	QList<Graph*> m_TimeGraph;             /**< the array of pointers to the time response graphs in stability view */
 
 	bool m_bResetTextLegend;
 	QPixmap m_PixText;

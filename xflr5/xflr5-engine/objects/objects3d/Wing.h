@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Wing Class
-	Copyright (C) 2005-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2005-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,13 +28,13 @@
 
 
 
-#include <QColor>
 #include <QVarLengthArray>
-#include "WingSection.h"
-#include "Panel.h"
-#include <objects2d/Vector3d.h>
-#include <objects2d/Foil.h>
-#include <objects2d/Polar.h>
+#include <objects/objectcolor.h>
+#include <objects/objects3d/vector3d.h>
+#include <objects/objects3d/Panel.h>
+#include <objects/objects3d/WingSection.h>
+#include <objects/objects2d/Foil.h>
+#include <objects/objects2d/Polar.h>
 
 /**
  * @class Wing
@@ -62,10 +62,10 @@ class WPolar;
 class Surface;
 class Panel;
 
-class Wing
+class XFLR5ENGINELIBSHARED_EXPORT Wing
 {
 	friend class Objects3D;
-	friend class QMiarex;
+	friend class Miarex;
 	friend class MainFrame;
 	friend class WPolar;
 	friend class PlaneOpp;
@@ -207,8 +207,8 @@ public:
 
 	bool &textures(){return m_bTextures;}
 
-	QColor &wingColor() {return m_WingColor;}
-	void setWingColor(QColor colour){m_WingColor= colour;}
+	ObjectColor wingColor() {return m_WingColor;}
+	void setWingColor(ObjectColor colour){m_WingColor= colour;}
 
 	XFLR5::enumWingType &wingType() {return m_WingType;}
 
@@ -233,7 +233,7 @@ public:
 private:
 	QString m_WingName;	                       /**< the Wing's name; this name is used to identify the wing and as a reference for child Polar and WingOpp objects. */
 	QString m_WingDescription;                 /**< a text field for the description of the Wing */
-	QColor m_WingColor;                        /**< the Wing's display color */
+	ObjectColor m_WingColor;                        /**< the Wing's display color */
 
 	XFLR5::enumWingType m_WingType;  /** Defines the type of wing on the plane : main, second, elevator, fin, other */
 

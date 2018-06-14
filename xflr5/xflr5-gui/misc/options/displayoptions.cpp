@@ -9,11 +9,11 @@
 *****************************************************************************/
 
 #include "displayoptions.h"
-#include <mainframe.h>
+#include <globals/mainframe.h>
 #include <miarex/Miarex.h>
 #include <xdirect/XDirect.h>
 #include <xinverse/XInverse.h>
-#include <graph/GraphDlg.h>
+#include <graph/graphdlg.h>
 #include <misc/text/TextClrBtn.h>
 #include "color/ColorButton.h"
 
@@ -36,7 +36,7 @@ QFont Settings::s_TableFont;
 QColor Settings::s_BackgroundColor = QColor(3, 9, 9);
 QColor Settings::s_TextColor=QColor(221,221,221);
 bool Settings::s_bReverseZoom = false;
-QGraph Settings::s_RefGraph;
+Graph Settings::s_RefGraph;
 XFLR5::enumTextFileType Settings::s_ExportFileType;  /**< Defines if the list separator for the output text files should be a space or a comma. */
 QString Settings::s_LastDirName = QDir::homePath();
 QString Settings::s_xmlDirName = QDir::homePath();
@@ -317,12 +317,12 @@ void Settings::onGraphSettings()
 }
 
 
-void Settings::setAllGraphSettings(QGraph *pGraph)
+void Settings::setAllGraphSettings(Graph *pGraph)
 {
 	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
-	QXDirect *pXDirect   = (QXDirect*)pMainFrame->m_pXDirect;
-	QMiarex *pMiarex     = (QMiarex*)pMainFrame->m_pMiarex;
-	QXInverse *pXInverse = (QXInverse*)pMainFrame->m_pXInverse;
+	XDirect *pXDirect   = (XDirect*)pMainFrame->m_pXDirect;
+	Miarex *pMiarex     = (Miarex*)pMainFrame->m_pMiarex;
+	XInverse *pXInverse = (XInverse*)pMainFrame->m_pXInverse;
 
 	pXDirect->CpGraph()->copySettings(pGraph);
 	pXDirect->CpGraph()->setInverted(true);

@@ -1,7 +1,7 @@
 /****************************************************************************
 
     Spline Foil Class
-	Copyright (C) 2003-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2003-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ The foil is contructed based on one spline for the upper surface and one spline 
 */
 class SplineFoil
 {
-	friend class QAFoil;
+	friend class AFoil;
 	friend class SplineCtrlsDlg;
 	friend class FoilTableDelegate;
 

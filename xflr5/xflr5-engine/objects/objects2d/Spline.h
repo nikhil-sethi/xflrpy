@@ -2,7 +2,7 @@
 
     Spline  Class
 	Copyright (C) 1996 Paul Bourke	http://astronomy.swin.edu.au/~pbourke/curves/spline/
-	Copyright (C) 2003 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2003 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 #include <QFile>
 #include <QList>
 #include <QTextStream>
-#include <objects2d/Vector3d.h>
+#include <objects/objects3d/vector3d.h>
 #include "xfoil_params.h"
 
 
@@ -46,10 +46,10 @@ The spline is used in direct foil design to represent upper and lower surfaces, 
 
 Based on the code provided by Paul Bourke.
 */
-class Spline
+class XFLR5ENGINELIBSHARED_EXPORT Spline
 {
 //	friend class SplineFoil;
-//	friend class QXInverse;
+//	friend class XInverse;
 //	friend class InverseOptionsDlg;
 
 public:
@@ -63,6 +63,8 @@ public:
 	int isControlPoint(Vector3d const &Real, double const &ZoomFactor);
 	double splineBlend(int const &i, int const &p, double const &t);
 	double getY(double const &x);
+
+    void clearPoints() {m_CtrlPoint.clear();}
 
 	void copy(Spline *pSpline);
 	void copySymetric(Spline *pSpline);

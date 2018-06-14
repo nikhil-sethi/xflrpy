@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	GL3dWingDlg Class
-	Copyright (C) 2009 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009 Andre Deperrois 
  
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
 #include <viewwidgets/glWidgets/ArcBall.h>
 #include <misc/text/DoubleEdit.h>
 #include <misc/color/ColorButton.h>
-#include <objects3d/Wing.h>
+#include <objects/objects3d/Wing.h>
 
 
 
@@ -51,7 +51,7 @@ class GL3dWingDlg: public QDialog
 	Q_OBJECT
 
 	friend class MainFrame;
-	friend class QMiarex;
+	friend class Miarex;
 	friend class gl3dView;
 	friend class gl3dWingView;
 	friend class Wing;
@@ -94,7 +94,8 @@ private slots:
 	void onInertia();
 	void onImportWing();
 	void onExportWing();
-
+	void onImportWingFromXML();
+	void onExportWingToXML();
 
 private:
 	void accept();
@@ -168,6 +169,7 @@ private:
 
 	QAction *m_pScaleWing, *m_pInertia;
 	QAction *m_pExportWingAct, *m_pImportWingAct;
+	QAction *m_pExportWingXml, *m_pImportWingXml;
 
 	QAction *m_pResetScales;
 	

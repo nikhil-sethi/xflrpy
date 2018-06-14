@@ -25,7 +25,7 @@
 #include <QGridLayout>
 #include <QColorDialog>
 #include <QPushButton>
-#include <gui_params.h>
+#include <globals/gui_params.h>
 #include "W3dPrefsDlg.h"
 #include <misc/line/LinePickerDlg.h>
 
@@ -82,6 +82,8 @@ int W3dPrefsDlg::s_iChordwiseRes=29;
 int W3dPrefsDlg::s_iBodyAxialRes=23;
 int W3dPrefsDlg::s_iBodyHoopRes = 17;
 bool W3dPrefsDlg::s_bAnimateTransitions = true;
+bool W3dPrefsDlg::s_bEnableClipPlane = false;
+
 
 W3dPrefsDlg::W3dPrefsDlg(QWidget *pParent) : QDialog(pParent)
 {
@@ -128,6 +130,7 @@ void W3dPrefsDlg::initDialog()
 
 	m_pctrlAnimateTransitions->setChecked(s_bAnimateTransitions);
 	m_pctrlAutoAdjustScale->setChecked(s_bAutoAdjustScale);
+	m_pctrlEnableClipPlane->setChecked(s_bEnableClipPlane);
 }
 
 
@@ -263,8 +266,9 @@ void W3dPrefsDlg::setupLayout()
 	}
 
 	m_pctrlAnimateTransitions = new QCheckBox(tr("Animate view transitions"));
-	m_pctrlAutoAdjustScale = new QCheckBox(tr("Auto Ajust 3D scale"));
+	m_pctrlAutoAdjustScale = new QCheckBox(tr("Auto Adjust 3D scale"));
 	m_pctrlAutoAdjustScale->setToolTip(tr("Automatically adjust the 3D scale to fit the plane in the display when switching between planes"));
+	m_pctrlEnableClipPlane = new QCheckBox(tr("Enable clip plane"));
 
 	QHBoxLayout *pCommandButtons = new QHBoxLayout;
     {
@@ -290,6 +294,8 @@ void W3dPrefsDlg::setupLayout()
 		pMainLayout->addWidget(m_pctrlAnimateTransitions);
 		pMainLayout->addStretch(1);
 		pMainLayout->addWidget(m_pctrlAutoAdjustScale);
+		pMainLayout->addStretch(1);
+		pMainLayout->addWidget(m_pctrlEnableClipPlane);
 		pMainLayout->addSpacing(20);
 		pMainLayout->addLayout(pCommandButtons);
 		pMainLayout->addStretch(1);
@@ -588,6 +594,8 @@ void W3dPrefsDlg::saveSettings(QSettings *pSettings)
 
 		pSettings->setValue("AutoAdjustScale", s_bAutoAdjustScale);
 		pSettings->setValue("AnimateTransitions", s_bAnimateTransitions);
+		pSettings->setValue("EnableClipPlane", s_bEnableClipPlane);
+
 		pSettings->setValue("ChordwiseRes", s_iChordwiseRes);
 		pSettings->setValue("BodyAxialRes", s_iBodyAxialRes);
 		pSettings->setValue("BodyHoopRes", s_iBodyHoopRes);
@@ -656,6 +664,7 @@ void W3dPrefsDlg::loadSettings(QSettings *pSettings)
 
 		s_MassColor = pSettings->value("MassColor", QColor(67, 151, 169)).value<QColor>();
 		s_bWakePanels = pSettings->value("showWakePanels", true).toBool();
+		s_bEnableClipPlane = pSettings->value("EnableClipPlane", false).toBool();
 
 		s_bAutoAdjustScale = pSettings->value("AutoAdjustScale", true).toBool();
 		s_bAnimateTransitions = pSettings->value("AnimateTransitions", true).toBool();
@@ -741,9 +750,12 @@ void W3dPrefsDlg::readSettings()
 {
 	s_bAnimateTransitions = m_pctrlAnimateTransitions->isChecked();
 	s_bAutoAdjustScale = m_pctrlAutoAdjustScale->isChecked();
+	s_bEnableClipPlane = m_pctrlEnableClipPlane->isChecked();
+
 	s_iChordwiseRes = m_pctrlChordwiseRes->value();
 	s_iBodyAxialRes = m_pctrlBodyAxialRes->value();
 	s_iBodyHoopRes  = m_pctrlBodyHoopRes->value();
+
 }
 
 

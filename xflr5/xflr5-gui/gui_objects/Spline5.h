@@ -2,7 +2,7 @@
 
     Spline  Class
 	Copyright (C) 1996 Paul Bourke	http://astronomy.swin.edu.au/~pbourke/curves/spline/
-	Copyright (C) 2003 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2003 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,9 +35,9 @@
 #include <QFile>
 #include <QList>
 #include <QTextStream>
-#include <objects2d/Spline.h>
-#include <objects2d/Vector3d.h>
-#include <gui_params.h>
+#include <objects/objects2d/Spline.h>
+#include <objects/objects3d/vector3d.h>
+#include <globals/gui_params.h>
 
 
 class Spline5 : public Spline

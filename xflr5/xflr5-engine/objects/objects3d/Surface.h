@@ -1,7 +1,7 @@
 /****************************************************************************
 
     CSurface Class
-	Copyright (C) 2005-2009 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2005-2009 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,8 +34,8 @@
 
 
 #include <QVarLengthArray>
-#include <objects3d/Panel.h>
-#include "analysis3d_enums.h"
+#include <objects/objects3d/Panel.h>
+#include <analysis3d/analysis3d_enums.h>
 
 #define VLMHALF 2500
 
@@ -95,10 +95,10 @@ class Foil;
 class Body;
 class Vector3d;
 
-class Surface
+class XFLR5ENGINELIBSHARED_EXPORT Surface
 {
 	friend class Wing;
-	friend class QMiarex;
+	friend class Miarex;
 	friend class Objects3D;
 	friend class MainFrame;
 	friend class GL3dWingDlg;

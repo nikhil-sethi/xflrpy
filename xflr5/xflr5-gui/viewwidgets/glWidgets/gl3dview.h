@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	gl3dView Class
-	Copyright (C) 2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,16 +30,16 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
-#include "gui_params.h"
-#include "gui_enums.h"
+#include <globals/gui_params.h>
+#include <globals/gui_enums.h>
 #include <miarex/view/GLLightDlg.h>
 #include <viewwidgets/glWidgets/ArcBall.h>
-#include <objects3d/PointMass.h>
+#include <objects/objects3d/PointMass.h>
 #include <QTimer>
 
 #define MAXCPCOLORS    21
 
-class QMiarex;
+class Miarex;
 class MainFrame;
 class Plane;
 class Body;
@@ -52,7 +52,7 @@ class Panel;
 class gl3dView : public QOpenGLWidget
 {
 	friend class MainFrame;
-	friend class QMiarex;
+	friend class Miarex;
 	friend class GL3dWingDlg;
 	friend class GL3dBodyDlg;
 	friend class EditBodyDlg;
@@ -199,7 +199,7 @@ protected:
 
 	double m_glScaled, m_glScaledRef;
 
-	static QMiarex *s_pMiarex;     /**< A void pointer to the instance of the QMiarex widget.*/
+	static Miarex *s_pMiarex;     /**< A void pointer to the instance of the QMiarex widget.*/
 	static MainFrame *s_pMainFrame;  /**< A void pointer to the instance of the MainFrame widget.*/
 	void *m_pParent;            /**< A void pointer to the parent widget. */
 

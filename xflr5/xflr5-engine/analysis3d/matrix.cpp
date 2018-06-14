@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Matrix Functions 
-	Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 
 #include <QtCore>
 #include "matrix.h"
-#include "analysis3d_params.h"
+#include <analysis3d/analysis3d_params.h>
 
 /** Transposes in place a 3x3 matrix */
 void transpose33(double *l)

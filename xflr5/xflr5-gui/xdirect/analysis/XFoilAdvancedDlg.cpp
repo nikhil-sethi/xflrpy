@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	XFoilAdvancedDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ void XFoilAdvancedDlg::SetupLayout()
 	{
 		QLabel *pTimerLabel = new QLabel(tr("Time interval between graph updates"));
 		QLabel *pTimerUnitLabel = new QLabel("ms");
-		m_pctrlTimerInterval = new IntEdit(QXDirect::s_TimeUpdateInterval, this);
+		m_pctrlTimerInterval = new IntEdit(XDirect::s_TimeUpdateInterval, this);
 		m_pctrlTimerInterval->setMin(0);
 		pTimerLayout->addStretch();
 		pTimerLayout->addWidget(pTimerLabel);
@@ -119,8 +119,8 @@ void XFoilAdvancedDlg::OnDefaults()
 	m_VAccel = 0.001;
 	m_bAutoInitBL = true;
 	m_bFullReport = false;
-	QXDirect::s_bKeepOpenErrors = true;
-	QXDirect::s_TimeUpdateInterval = 100;
+	XDirect::s_bKeepOpenErrors = true;
+	XDirect::s_TimeUpdateInterval = 100;
 	initDialog();
 }
 
@@ -131,8 +131,8 @@ void XFoilAdvancedDlg::initDialog()
 	m_pctrlInitBL->setChecked(m_bAutoInitBL);
 	m_pctrlIterLimit->setValue(m_IterLimit);
 	m_pctrlFullReport->setChecked(m_bFullReport);
-	m_pctrlKeepErrorsOpen->setChecked(QXDirect::s_bKeepOpenErrors);
-	m_pctrlTimerInterval->setValue(QXDirect::s_TimeUpdateInterval);
+	m_pctrlKeepErrorsOpen->setChecked(XDirect::s_bKeepOpenErrors);
+	m_pctrlTimerInterval->setValue(XDirect::s_TimeUpdateInterval);
 }
 
 
@@ -173,7 +173,7 @@ void XFoilAdvancedDlg::OnOK()
 	m_VAccel = m_pctrlVAccel->value();
 	m_bAutoInitBL = m_pctrlInitBL->isChecked();
 	m_bFullReport = m_pctrlFullReport->isChecked();
-	QXDirect::s_TimeUpdateInterval = m_pctrlTimerInterval->value();
-	QXDirect::s_bKeepOpenErrors = m_pctrlKeepErrorsOpen->isChecked();
+	XDirect::s_TimeUpdateInterval = m_pctrlTimerInterval->value();
+	XDirect::s_bKeepOpenErrors = m_pctrlKeepErrorsOpen->isChecked();
 	done(1);
 }

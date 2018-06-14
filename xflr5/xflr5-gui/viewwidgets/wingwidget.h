@@ -4,9 +4,9 @@
 #include <QWidget>
 #include <QSettings>
 #include <QPixmap>
-#include <objects3d/Plane.h>
-#include <objects3d/PlaneOpp.h>
-#include <QGraph.h>
+#include <objects/objects3d/Plane.h>
+#include <objects/objects3d/PlaneOpp.h>
+#include <graph/graph.h>
 
 
 class WingWidget : public QWidget
@@ -28,7 +28,7 @@ public:
 	void wheelEvent (QWheelEvent *event);
 
 	void setWingScale();
-	void setWingGraph(QGraph *pGraph);
+	void setWingGraph(Graph *pGraph);
 
 private:
 	void paintXCmRef(QPainter &painter, QPointF ORef, double scale);
@@ -53,7 +53,7 @@ private:
 	double m_WingScale;
 	QPointF m_ptOffset;              /**< client offset position for wing display */
 	QPoint m_LastPoint;           /**< The client position of the previous mousepress event */
-	QGraph * m_pGraph;
+	Graph * m_pGraph;
 	QPixmap m_PixText;
 };
 

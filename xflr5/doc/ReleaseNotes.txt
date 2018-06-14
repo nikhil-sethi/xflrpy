@@ -7,7 +7,7 @@
                      A tool for the design of Airfoils, Wings and Planes
                           operating at low Reynolds numbers
 
-								 Copyright (C) 2003-2017
+                                 Copyright (C) 2003-2018
 
                                      Andre Deperrois
 
@@ -15,9 +15,30 @@
 *******************************************************************************
 
 
+xflr5 v6.42 May 19th 2018
+    - restored the option in Windows and linux to launch the app by opening a project.xfl, polar.plr, or foil.dat file
+	- corrected a bug which prevented the reference dimensions of an analysis to be updated when the geometry
+	  is modified by the user
+	- moved the XFoil and plane analysis modules in separate shared libraries for future re-use
+	- fix for bug report #114; as a fallback also added an option to enable/disable the clip plane in the 3d display options.
+	- fixed a bag crash bug when typing a number 6+ to request the display of an inexistent graph
+	- fixed the display of shortcuts in the menu for MacOS
+
+
+xflr5 v6.41 April 22, 2018
+	- corrected a numerical bug in the calculation of twist for pure vertical surfaces i.e. dihedral=90°;
+	  would formerly cause a division by zero and lead to inconsistent results
+	- corrected a precision issue in the estimation of wing inertia which could lead to underestimation of the total volume.
+	- corrected the color scale of panel forces in the 3d view; was proportional to q.S.Cp instead of q.Cp
+	- added an option to import/export wings to xml format
+	- corrected the export of flat panel bodies to STL to avoid null triangles
+	- raised the max cumulated number of span stations from 250 to 1000 for a plane
+	- code cleaning
+
+
 xflr5 v6.40 January 7th, 2018
-	- fixed a bug which caused a stability analysis to calculate the operating point with the aoa of the previous calculation.
-	  - negligeable impact on results
+	- fixed a bug which caused a stability analysis to calculate the operating point with the aoa
+	of the previous calculation. negligeable impact on results
 	- corrected a potential crash bug when trying to display 3D results of an LLT calculation
 	- removed the default suffix "-proj_area" from the name of plane polars
 	- restored the output of non-dimensional control derivatives in the operating point properties

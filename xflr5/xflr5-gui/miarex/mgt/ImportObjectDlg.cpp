@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	ImportWingDlg Class
-	Copyright (C) 2009 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include <miarex/Objects3D.h>
-#include <objects3d/Plane.h>
+#include <miarex/objects3d.h>
+#include <objects/objects3d/Plane.h>
 #include "ImportObjectDlg.h"
 
 
@@ -47,9 +47,9 @@ void ImportObjectDlg::initDialog(bool bWing)
 		m_pctrlQuestion->setText(tr("Select the wing to import"));
 
 		Plane *pPlane;
-		for(int ip=0; ip<Objects3D::s_oaPlane.size(); ip++)
+        for(int ip=0; ip<Objects3d::s_oaPlane.size(); ip++)
 		{
-			pPlane = (Plane*)Objects3D::s_oaPlane.at(ip);
+            pPlane = Objects3d::s_oaPlane.at(ip);
 
 			if(pPlane->planeName() != m_ObjectName)
 				m_pctrlNameList->addItem(pPlane->planeName()+"/Main wing");
@@ -63,16 +63,16 @@ void ImportObjectDlg::initDialog(bool bWing)
 
 		//list all bodies not attached to a plane... remnants from versions < 6.09.06
 		Body *pBody;
-		for(int ib=0; ib<Objects3D::s_oaBody.size(); ib++)
+        for(int ib=0; ib<Objects3d::s_oaBody.size(); ib++)
 		{
-			pBody = Objects3D::s_oaBody.at(ib);
+			pBody = Objects3d::s_oaBody.at(ib);
 			m_pctrlNameList->addItem(pBody->m_BodyName);
 		}
 
 		Plane *pPlane;
-		for(int ip=0; ip<Objects3D::s_oaPlane.size(); ip++)
+        for(int ip=0; ip<Objects3d::s_oaPlane.size(); ip++)
 		{
-			pPlane = (Plane*)Objects3D::s_oaPlane.at(ip);
+			pPlane = (Plane*)Objects3d::s_oaPlane.at(ip);
 			if(pPlane->body())
 			{
 				if(pPlane->m_BodyName != m_ObjectName)

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	MiarexTileWidget Class
-		Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+		Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ void MiarexTileWidget::connectSignals()
 {
 	for(int igw=0; igw<m_GraphWidget.count(); igw++)
 	{
-		connect(m_GraphWidget.at(igw), SIGNAL(graphChanged(QGraph*)), this, SLOT(onResetCurves(QGraph*)));
+        connect(m_GraphWidget.at(igw), SIGNAL(graphChanged(Graph*)), this, SLOT(onResetCurves(Graph*)));
 	}
 }
 
@@ -195,7 +195,7 @@ void MiarexTileWidget::adjustLayout()
 
 
 
-void MiarexTileWidget::setMiarexGraphList(XFLR5::enumMiarexViews miarexView, QList<QGraph*>pGraphList,
+void MiarexTileWidget::setMiarexGraphList(XFLR5::enumMiarexViews miarexView, QList<Graph*>pGraphList,
 										  int nGraphs, int iGraphWidget, Qt::Orientation orientation)
 {
 	m_nGraphWidgets = qMin(nGraphs,MAXGRAPHS);

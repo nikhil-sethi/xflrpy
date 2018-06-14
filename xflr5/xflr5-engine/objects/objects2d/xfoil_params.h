@@ -2,9 +2,6 @@
 #define XFOIL_PARAMS_H
 
 
-#define PI        3.14159265358979
-#define ACCURACY  0.00000001  /**< Values are assumed 0 if less than this value. This is to avoid comparing the equality of two floating point numbers */
-
 //XFoil Direct Parameters - refer to XFoil documentation
 #define IQX  302	/**< 300 = number of surface panel nodes + 6 */
 #define IQX2 151	/**< IQX/2 */

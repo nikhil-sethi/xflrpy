@@ -1,20 +1,19 @@
 #include <QOpenGLPaintDevice>
 #include "gl3dmiarexview.h"
 #include <miarex/Miarex.h>
-#include <mainframe.h>
+#include <globals/mainframe.h>
 #include <QMenu>
 #include <QApplication>
 #include <QProgressDialog>
 #include <misc/options/displayoptions.h>
-#include <globals.h>
+#include <globals/globals.h>
 #include <miarex/view/GL3DScales.h>
-#include <objects3d/Surface.h>
+#include <objects/objects3d/Surface.h>
 #include <miarex/view/W3dPrefsDlg.h>
 
 
 gl3dMiarexView::gl3dMiarexView(QWidget *parent) : gl3dView(parent)
 {
-
 }
 
 
@@ -63,7 +62,7 @@ void gl3dMiarexView::glRenderView()
 	m_pvmMatrix = m_orthoMatrix * m_viewMatrix * m_modelMatrix;
 
 
-	glEnable(GL_CLIP_PLANE0);
+//	if(W3dPrefsDlg::s_bEnableClipPlane) glEnable(GL_CLIP_PLANE0);
 
 	if(s_pMiarex->m_pCurPlane)
 	{
@@ -154,13 +153,6 @@ void gl3dMiarexView::glRenderView()
 
 		if(s_pMiarex->m_pCurPOpp)
 		{
-/*			if(pMiarex->m_bXCP)
-			{
-				for(int iw=0; iw<MAXWINGS; iw++)
-				{
-					if(pMiarex->m_pCurPlane->wing(iw)) paintLift(iw);
-				}
-			}*/
 			if(s_pMiarex->m_bMoments)
 			{
 				paintMoments();
@@ -197,8 +189,7 @@ void gl3dMiarexView::glRenderView()
 			}
 		}
 	}
-	glDisable(GL_CLIP_PLANE0);
-
+//	if(W3dPrefsDlg::s_bEnableClipPlane) glDisable(GL_CLIP_PLANE0);
 }
 
 
@@ -703,7 +694,7 @@ void gl3dMiarexView::glMakeSurfVelocities(Panel *pPanel, WPolar *pWPolar, PlaneO
 	Vector3d C, V, VT;
 	Vector3d RefPoint(0.0,0.0,0.0);
 
-	factor = QMiarex::s_VelocityScale/100.0;
+	factor = Miarex::s_VelocityScale/100.0;
 
 	QProgressDialog dlg(tr("Velocities calculation"), tr("Abort"), 0, nPanels);
 	dlg.setWindowModality(Qt::WindowModal);
@@ -848,7 +839,7 @@ void gl3dMiarexView::glMakeLiftForce(WPolar *pWPolar, PlaneOpp *pPOpp)
 	*pPOpp->m_QInf*pPOpp->m_QInf
 	*pPOpp->m_CL;
 
-	force *= QMiarex::s_LiftScale/500.0;
+	force *= Miarex::s_LiftScale/500.0;
 
 	forcez =  force * cos(pPOpp->alpha() * PI/180.0);
 	forcex = -force * sin(pPOpp->alpha() * PI/180.0);
@@ -913,11 +904,11 @@ void gl3dMiarexView::glMakeMoments(Wing *pWing, WPolar *pWPolar, PlaneOpp *pPOpp
 	m_iMomentPoints = 0;
 
 	ampL = 0.5*pWPolar->density() * pWPolar->referenceArea() * pWPolar->referenceChordLength()
-			*pPOpp->m_QInf*pPOpp->m_QInf * pPOpp->m_GRm * QMiarex::s_LiftScale*factor;
+			*pPOpp->m_QInf*pPOpp->m_QInf * pPOpp->m_GRm * Miarex::s_LiftScale*factor;
 	ampM = 0.5*pWPolar->density() * pWPolar->referenceArea() * pWPolar->referenceSpanLength()
-			*pPOpp->m_QInf*pPOpp->m_QInf * pPOpp->m_GCm * QMiarex::s_LiftScale*factor;
+			*pPOpp->m_QInf*pPOpp->m_QInf * pPOpp->m_GCm * Miarex::s_LiftScale*factor;
 	ampN = 0.5*pWPolar->density() * pWPolar->referenceArea() * pWPolar->referenceSpanLength()
-			*pPOpp->m_QInf*pPOpp->m_QInf*(pPOpp->m_GYm) * QMiarex::s_LiftScale*factor;
+			*pPOpp->m_QInf*pPOpp->m_QInf*(pPOpp->m_GYm) * Miarex::s_LiftScale*factor;
 
 	if(fabs(ampL)>PRECISION)
 	{
@@ -1099,7 +1090,7 @@ void gl3dMiarexView::glMakeLiftStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 
 			dih = -pWing->getDihedral(yob)*PI/180.0;
 			amp = q0*pWOpp->m_Cl[i]*pWing->getChord(yob)/pWOpp->m_MAChord;
-			amp *= QMiarex::s_LiftScale/1000.0;
+			amp *= Miarex::s_LiftScale/1000.0;
 
 			pLiftVertexArray[iv++] = Pt.x;
 			pLiftVertexArray[iv++] = Pt.y;
@@ -1116,7 +1107,7 @@ void gl3dMiarexView::glMakeLiftStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 
 			dih = -pWing->getDihedral(yob)*PI/180.0;
 			amp = q0*pWOpp->m_Cl[i]*pWing->getChord(yob)/pWOpp->m_MAChord;
-			amp *= QMiarex::s_LiftScale/1000.0;
+			amp *= Miarex::s_LiftScale/1000.0;
 
 			pLiftVertexArray[iv++] = Pt.x + amp * cos(dih)*sina;
 			pLiftVertexArray[iv++] = Pt.y + amp * sin(dih);
@@ -1133,7 +1124,7 @@ void gl3dMiarexView::glMakeLiftStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 			for (k=0; k< pWing->m_Surface[j]->NYPanels(); k++)
 			{
 				pWing->m_Surface[j]->getLeadingPt(k, C);
-				amp = pWing->m_Surface[j]->chord(k) / pWOpp->m_StripArea[i] / pWing->m_MAChord * QMiarex::s_LiftScale/1000.0;
+				amp = pWing->m_Surface[j]->chord(k) / pWOpp->m_StripArea[i] / pWing->m_MAChord * Miarex::s_LiftScale/1000.0;
 				C.x += pWOpp->m_XCPSpanRel[i] * pWing->m_Surface[j]->chord(k);
 
 				pLiftVertexArray[iv++] = C.x;
@@ -1170,7 +1161,7 @@ void gl3dMiarexView::glMakeLiftStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 			for (k=0; k< pWing->m_Surface[j]->NYPanels(); k++)
 			{
 				pWing->m_Surface[j]->getLeadingPt(k, C);
-				amp = pWing->m_Surface[j]->chord(k) / pWOpp->m_StripArea[i] / pWing->m_MAChord * QMiarex::s_LiftScale/1000.0;
+				amp = pWing->m_Surface[j]->chord(k) / pWOpp->m_StripArea[i] / pWing->m_MAChord * Miarex::s_LiftScale/1000.0;
 				C.x += pWOpp->m_XCPSpanRel[i] * pWing->m_Surface[j]->chord(k);
 				CL.x = C.x + pWOpp->m_F[i].x*amp;
 				CL.y = C.y + pWOpp->m_F[i].y*amp;
@@ -1279,7 +1270,7 @@ void gl3dMiarexView::glMakeDownwash(int iWing, Wing *pWing, WPolar *pWPolar, Win
 
 	double sina = -sin(pWOpp->m_Alpha*PI/180.0);
 	double cosa =  cos(pWOpp->m_Alpha*PI/180.0);
-	factor = QMiarex::s_VelocityScale/5.0;
+	factor = Miarex::s_VelocityScale/5.0;
 
 	int bufferSize = m_Ny[iWing]*18;
 	float *pDownWashVertexArray = new float[bufferSize];
@@ -1414,8 +1405,8 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 
 			pWing->surfacePoint(1.0, pWOpp->m_SpanPos[i], MIDSURFACE, Pt, PtNormal);
 			dih = pWing->getDihedral(yob)*PI/180.0;
-			amp1 = q0*pWOpp->m_ICd[i]*pWing->getChord(yob)/pWOpp->m_MAChord*QMiarex::s_DragScale/coef;
-			amp2 = q0*pWOpp->m_PCd[i]*pWing->getChord(yob)/pWOpp->m_MAChord*QMiarex::s_DragScale/coef;
+			amp1 = q0*pWOpp->m_ICd[i]*pWing->getChord(yob)/pWOpp->m_MAChord*Miarex::s_DragScale/coef;
+			amp2 = q0*pWOpp->m_PCd[i]*pWing->getChord(yob)/pWOpp->m_MAChord*Miarex::s_DragScale/coef;
 			if(s_pMiarex->m_bICd)
 			{
 				pICdVertexArray[ii++] = Pt.x;
@@ -1457,7 +1448,7 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 
 				dih = pWing->getDihedral(yob)*PI/180.0;
 				amp  = q0*pWOpp->m_ICd[i]*pWing->getChord(yob)/pWOpp->m_MAChord;
-				amp *= QMiarex::s_DragScale/coef;
+				amp *= Miarex::s_DragScale/coef;
 
 				pICdVertexArray[ii++] = Pt.x + amp * cos(dih)*cosa;
 				pICdVertexArray[ii++] = Pt.y;
@@ -1476,7 +1467,7 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 				if(s_pMiarex->m_bICd) amp+=pWOpp->m_ICd[i];
 				amp +=pWOpp->m_PCd[i];
 				amp *= q0*pWing->getChord(yob)/pWOpp->m_MAChord;
-				amp *= QMiarex::s_DragScale/coef;
+				amp *= Miarex::s_DragScale/coef;
 
 				pVCdVertexArray[iv++] = Pt.x + amp * cos(dih)*cosa;
 				pVCdVertexArray[iv++] = Pt.y;
@@ -1496,8 +1487,8 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 			for (k=0; k< pWing->m_Surface[j]->NYPanels(); k++)
 			{
 				pWing->m_Surface[j]->getTrailingPt(k, C);
-				amp1 = q0*pWOpp->m_ICd[i]*pWOpp->m_Chord[i]/pWing->m_MAChord*QMiarex::s_DragScale/coef;
-				amp2 = q0*pWOpp->m_PCd[i]*pWOpp->m_Chord[i]/pWing->m_MAChord*QMiarex::s_DragScale/coef;
+				amp1 = q0*pWOpp->m_ICd[i]*pWOpp->m_Chord[i]/pWing->m_MAChord*Miarex::s_DragScale/coef;
+				amp2 = q0*pWOpp->m_PCd[i]*pWOpp->m_Chord[i]/pWing->m_MAChord*Miarex::s_DragScale/coef;
 				if(s_pMiarex->m_bICd)
 				{
 					pICdVertexArray[ii++] = C.x;
@@ -1543,7 +1534,7 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 					{
 						pWing->m_Surface[j]->getTrailingPt(k, C);
 						amp = q0*(pWOpp->m_ICd[i]*pWOpp->m_Chord[i])/pWing->m_MAChord;
-						amp *= QMiarex::s_DragScale/coef;
+						amp *= Miarex::s_DragScale/coef;
 						pICdVertexArray[ii++] = C.x + amp*cosa * cosb;
 						pICdVertexArray[ii++] = C.y + amp*cosa * sinb;
 						pICdVertexArray[ii++] = C.z - amp*sina;
@@ -1563,7 +1554,7 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 						if(s_pMiarex->m_bICd) amp+=pWOpp->m_ICd[i];
 						amp +=pWOpp->m_PCd[i];
 						amp *= q0*pWOpp->m_Chord[i]/pWing->m_MAChord;
-						amp *= QMiarex::s_DragScale/coef;
+						amp *= Miarex::s_DragScale/coef;
 
 						pVCdVertexArray[iv++] = C.x + amp*cosa*cosb;
 						pVCdVertexArray[iv++] = C.y + amp*cosa*sinb;
@@ -1585,7 +1576,7 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 					{
 						pWing->m_Surface[j]->getTrailingPt(k, C);
 						amp = q0*(pWOpp->m_ICd[i]*pWOpp->m_Chord[i])/pWing->m_MAChord;
-						amp *= QMiarex::s_DragScale/coef;
+						amp *= Miarex::s_DragScale/coef;
 						pICdVertexArray[ii++] = C.x + amp*cosa * cosb;
 						pICdVertexArray[ii++] = C.y + amp*cosa * sinb;
 						pICdVertexArray[ii++] = C.z - amp*sina;
@@ -1605,7 +1596,7 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
 						if(s_pMiarex->m_bICd) amp+=pWOpp->m_ICd[i];
 						amp +=pWOpp->m_PCd[i];
 						amp *= q0*pWOpp->m_Chord[i]/pWing->m_MAChord;
-						amp *= QMiarex::s_DragScale/coef;
+						amp *= Miarex::s_DragScale/coef;
 
 						pVCdVertexArray[iv++] = C.x + amp*cosa*cosb;
 						pVCdVertexArray[iv++] = C.y + amp*cosa*sinb;
@@ -1935,8 +1926,9 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
 		rmin = qMin(rmin, Cp[p] );
 	}
 
-	rmin *= 0.5*pWPolar->density() *pPOpp->m_QInf*pPOpp->m_QInf;
-	rmax *= 0.5*pWPolar->density() *pPOpp->m_QInf*pPOpp->m_QInf;
+	double qdyn = 0.5*pWPolar->density() *pPOpp->m_QInf*pPOpp->m_QInf;
+	rmin *= qdyn;
+	rmax *= qdyn;
 	range = rmax - rmin;
 
 	// vertices array size:
@@ -1951,11 +1943,11 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
 	int iv=0;
 	for (p=0; p<nPanels; p++)
 	{
-		force = 0.5*pWPolar->density() *pPOpp->m_QInf*pPOpp->m_QInf * Cp[p];
+		force = qdyn * Cp[p];
 		color = (force-rmin)/range;
 
 		//scale force for display
-		force *= QMiarex::s_LiftScale *coef;
+		force *= Miarex::s_LiftScale *coef;
 
 		double r= GLGetRed(color);
 		double g= GLGetGreen(color);
@@ -2233,15 +2225,15 @@ void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, V
 				if(lmax<Cp100[n]) lmax = Cp100[n];
 			}
 
-			if(QMiarex::s_bAutoCpScale)
+			if(Miarex::s_bAutoCpScale)
 			{
-				QMiarex::s_LegendMin = lmin;
-				QMiarex::s_LegendMax = lmax;
+				Miarex::s_LegendMin = lmin;
+				Miarex::s_LegendMax = lmax;
 			}
 			else
 			{
-				lmin = QMiarex::s_LegendMin;
-				lmax = QMiarex::s_LegendMax;
+				lmin = Miarex::s_LegendMin;
+				lmax = Miarex::s_LegendMax;
 			}
 		}
 	}

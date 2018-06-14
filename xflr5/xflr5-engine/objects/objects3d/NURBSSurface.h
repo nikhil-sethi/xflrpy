@@ -1,7 +1,7 @@
 /****************************************************************************
 
 		 SplineSurface Class
-		 Copyright (C) 2012 Andre Deperrois adeperrois@xflr5.com
+		 Copyright (C) 2012 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@
  * When used to describe a half body, u describes the NURBS in the x direction, and v in the z direction.
  *
 */
-class NURBSSurface
+class XFLR5ENGINELIBSHARED_EXPORT NURBSSurface
 {
 
 public:

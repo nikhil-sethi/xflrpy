@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	BatchDlg Class
-	Copyright (C) 2003-2017 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2003-2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,10 +31,10 @@
 #include <QLabel>
 #include <QRadioButton>
 #include <QTextEdit>
-#include <QGraph.h>
+#include <graph/graph.h>
 #include "graphwidget.h"
-#include <objects2d/Foil.h>
-#include <objects2d/Polar.h>
+#include <objects/objects2d/Foil.h>
+#include <objects/objects2d/Polar.h>
 #include <misc/text/IntEdit.h>
 #include <misc/text/DoubleEdit.h>
 #include <xdirect/analysis/XFoilTask.h>
@@ -49,9 +49,9 @@
 class BatchDlg : public QDialog
 {
 	Q_OBJECT
-	friend class QXDirect;
+	friend class XDirect;
 	friend class MainFrame;
-	friend class QReListDlg;
+
 public:
 	BatchDlg(QWidget *pParent=NULL);
 	~BatchDlg();
@@ -118,7 +118,7 @@ private:
 
 	static void* s_pXDirect;     /**< a void pointer to the instance of the QXDirect object >*/
 	static bool s_bCurrentFoil;  /**< true if the analysis should be performed on the active Foil, false if on a list of Foils>*/
-	XFOIL::enumPolarType m_PolarType;   /**< the type of Polar to be created for the analysis>*/
+	XFLR5::enumPolarType m_PolarType;   /**< the type of Polar to be created for the analysis>*/
 
 	double m_Mach;               /**< the Mach number for the Polars and the analysis>*/
 
@@ -146,7 +146,7 @@ private:
 
 	QStringList m_FoilList;        /**< the list of Foil objects to analyze>*/
 
-	QGraph *m_pRmsGraph;           /**< a pointer to the output graph >*/
+	Graph *m_pRmsGraph;           /**< a pointer to the output graph >*/
 
 	XFoilTask *m_pXFoilTask;       /**< A pointer to the instance of the XFoilTask associated to this batch analysis. 
 	                                    The task is unique to the instance of this class, and re-used each time a new analysis is launched.>*/

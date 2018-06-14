@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	FoilTableDelegate Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "FoilTableDelegate.h"
 #include "AFoil.h"
 #include <xdirect/objects2d.h>
-#include <globals.h>
+#include <globals/globals.h>
 #include <graph_globals.h>
 #include <misc/options/displayoptions.h>
 
@@ -66,7 +66,7 @@ bool FoilTableDelegate::editorEvent(QEvent *event, QAbstractItemModel *pModel, c
 //	if(index.column()<12) return false;
 	if(m_pAFoil)
 	{
-		QAFoil *pAFoil = (QAFoil*)m_pAFoil;
+		AFoil *pAFoil = (AFoil*)m_pAFoil;
 		QMouseEvent *pEvent = (QMouseEvent*)event;
 		if(pEvent->buttons() & Qt::LeftButton) pAFoil->onFoilClicked(index);
 		event->accept();
@@ -80,8 +80,8 @@ void FoilTableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 {
 	QString strong;
 	QStyleOptionViewItem myOption = option;
-	QAFoil *pAFoil = (QAFoil*)m_pAFoil;
-	int NFoils = Objects2D::s_oaFoil.size();
+	AFoil *pAFoil = (AFoil*)m_pAFoil;
+	int NFoils = Objects2d::s_oaFoil.size();
 
 	if(index.row()> NFoils)
 	{
@@ -117,7 +117,7 @@ void FoilTableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 			if(index.row()==0)	drawCheckBox(painter, myOption.rect, pAFoil->m_pSF->m_bVisible);
 			else
 			{
-				Foil *pFoil = Objects2D::s_oaFoil.at(index.row()-1);
+				Foil *pFoil = Objects2d::s_oaFoil.at(index.row()-1);
 				drawCheckBox(painter, myOption.rect, pFoil->isVisible());
 			}
 		}
@@ -129,7 +129,7 @@ void FoilTableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 			if(index.row()==0)	drawCheckBox(painter, myOption.rect, pAFoil->m_pSF->m_bCenterLine);
 			else
 			{
-				Foil *pFoil = Objects2D::s_oaFoil.at(index.row()-1);
+				Foil *pFoil = Objects2d::s_oaFoil.at(index.row()-1);
 				drawCheckBox(painter, myOption.rect, pFoil->showCenterLine());
 			}
 		}
@@ -151,7 +151,7 @@ void FoilTableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 			}
 			else
 			{
-				Foil *pFoil = Objects2D::s_oaFoil.at(index.row()-1);
+				Foil *pFoil = Objects2d::s_oaFoil.at(index.row()-1);
 				color = colour(pFoil);
 				pointStyle = pFoil->foilPointStyle();
 				lineStyle = pFoil->foilLineStyle();

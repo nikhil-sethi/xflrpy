@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	GL3dWingDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,12 +19,12 @@
 
 *****************************************************************************/
 
-#include <globals.h>
-#include <miarex/Objects3D.h>
+#include <globals/globals.h>
+#include <miarex/objects3d.h>
 #include <miarex/view/W3dPrefsDlg.h>
 #include <misc/options/displayoptions.h>
 #include <misc/options/Units.h>
-#include <objects3d/Surface.h>
+#include <objects/objects3d/Surface.h>
 #include "GL3dWingDlg.h"
 #include "WingScaleDlg.h"
 #include "InertiaDlg.h"
@@ -32,7 +32,9 @@
 #include "WingScaleDlg.h"
 #include "InertiaDlg.h"
 #include <xdirect/objects2d.h>
-#include <objects_global.h>
+#include <objects/objects_global.h>
+#include <miarex/mgt/XmlPlaneReader.h>
+#include <miarex/mgt/XmlPlaneWriter.h>
 
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -139,8 +141,8 @@ bool GL3dWingDlg::checkWing()
 			return false;
 		}
 		WingSection *pSection = m_pWing->m_WingSection.at(k);
-		Foil *pLeftFoil = Objects2D::foil(pSection->m_LeftFoilName);
-		Foil *pRightFoil = Objects2D::foil(pSection->m_RightFoilName);
+		Foil *pLeftFoil = Objects2d::foil(pSection->m_LeftFoilName);
+		Foil *pRightFoil = Objects2d::foil(pSection->m_RightFoilName);
 		if(pLeftFoil )
 		{
 			if((pLeftFoil->m_TEXHinge>=99&& pLeftFoil->m_bTEFlap) ||(pLeftFoil->m_LEXHinge<0.01&&pLeftFoil->m_bLEFlap))
@@ -236,9 +238,11 @@ void GL3dWingDlg::connectSignals()
 
 	connect(m_pInertia,       SIGNAL(triggered()), this, SLOT(onInertia()));
 	connect(m_pScaleWing,     SIGNAL(triggered()), this, SLOT(onScaleWing()));
+	connect(m_pglWingView,    SIGNAL(viewModified()), this, SLOT(onCheckViewIcons()));
 	connect(m_pImportWingAct, SIGNAL(triggered()),this, SLOT(onImportWing()));
 	connect(m_pExportWingAct, SIGNAL(triggered()),this, SLOT(onExportWing()));
-	connect(m_pglWingView, SIGNAL(viewModified()), this, SLOT(onCheckViewIcons()));
+	connect(m_pImportWingXml, SIGNAL(triggered()),this, SLOT(onImportWingFromXML()));
+	connect(m_pExportWingXml, SIGNAL(triggered()),this, SLOT(onExportWingToXML()));
 }
 
 
@@ -469,7 +473,7 @@ bool GL3dWingDlg::initDialog(Wing *pWing)
 
 	m_pctrlColor->setChecked(!m_pWing->textures());
 	m_pctrlTextures->setChecked(m_pWing->textures());
-	m_pctrlWingColor->setColor(m_pWing->m_WingColor);
+	m_pctrlWingColor->setColor(color(m_pWing->m_WingColor));
 	m_pctrlWingColor->setEnabled(m_pctrlColor->isChecked());
 
 	m_pctrlWingTable->setFont(Settings::s_TableFont);
@@ -974,15 +978,15 @@ void GL3dWingDlg::onWingColor()
     dialogOptions |= QColorDialog::DontUseNativeDialog;
 #endif
 #endif
-	QColor WingColor = QColorDialog::getColor(m_pWing->wingColor(),
+	QColor clr = QColorDialog::getColor(color(m_pWing->wingColor()),
 									  this, "Color selection", dialogOptions);
-	if(WingColor.isValid())
+	if(clr.isValid())
 	{
-		m_pWing->setWingColor(WingColor);
+		m_pWing->setWingColor(ObjectColor(clr.red(), clr.green(), clr.blue(), clr.alpha()));
 		m_bDescriptionChanged = true;
 	}
 
-	m_pctrlWingColor->setColor(m_pWing->wingColor());
+	m_pctrlWingColor->setColor(color(m_pWing->wingColor()));
 	m_bResetglWing = true;
 	m_pglWingView->update();
 }
@@ -1510,11 +1514,16 @@ void GL3dWingDlg::setupLayout()
 
 				m_pScaleWing     = new QAction(tr("Scale Wing"), this);
 				m_pInertia       = new QAction(tr("Inertia..."), this);
-				m_pImportWingAct = new QAction(tr("Import Wing from File..."), this);
-				m_pExportWingAct = new QAction(tr("Export Wing to File..."), this);
+				m_pImportWingAct = new QAction(tr("Import Wing (deprecated, use XML)"), this);
+				m_pExportWingAct = new QAction(tr("Export Wing (deprecated, use XML)"), this);
+				m_pImportWingXml = new QAction(tr("Import Wing from xml file..."), this);
+				m_pExportWingXml = new QAction(tr("Export Wing to xml file..."), this);
 
 				QPushButton *pMenuButton = new QPushButton(tr("Other"));
 				QMenu *pWingMenu = new QMenu(tr("Actions"), this);
+				pWingMenu->addAction(m_pExportWingXml);
+				pWingMenu->addAction(m_pImportWingXml);
+				pWingMenu->addSeparator();
 				pWingMenu->addAction(m_pExportWingAct);
 				pWingMenu->addAction(m_pImportWingAct);
 				pWingMenu->addSeparator();
@@ -1685,6 +1694,77 @@ bool GL3dWingDlg::VLMSetAutoMesh(int total)
 }
 
 
+
+void GL3dWingDlg::onImportWingFromXML()
+{
+	QString path_to_file;
+	path_to_file = QFileDialog::getOpenFileName(0,
+												QString("Open XML File"),
+												Settings::s_LastDirName,
+												tr("Plane XML file")+"(*.xml)");
+	QFileInfo fileinfo(path_to_file);
+	Settings::s_LastDirName = fileinfo.path();
+
+	QFile xmlfile(path_to_file);
+
+	if (!xmlfile.open(QIODevice::ReadOnly))
+	{
+		QString strange = tr("Could not read the file\n")+xmlfile.fileName();
+		QMessageBox::warning(this, tr("Warning"), strange);
+		return;
+	}
+
+	Plane plane;
+	XMLPlaneReader planereader(xmlfile, &plane);
+	planereader.readXMLPlaneFile();
+	if(planereader.hasError())
+	{
+		QString strong;
+		QString errorMsg;
+		errorMsg = "Failed to read the file "+path_to_file+"\n";
+		strong.sprintf("error on line %d column %d",(int)planereader.lineNumber(),(int)planereader.columnNumber());
+		errorMsg += planereader.errorString() + " at " + strong;
+		QMessageBox::warning(this, "XML read", errorMsg, QMessageBox::Ok);
+		return;
+	}
+
+	m_pWing->duplicate(plane.wing());
+	initDialog(m_pWing);
+	readParams();
+	setWingData();
+	m_bChanged = true;
+
+	m_bResetglWing = true;
+	m_pglWingView->update();
+}
+
+
+void GL3dWingDlg::onExportWingToXML()
+{
+	QString filter = "XML file (*.xml)";
+	QString FileName, strong;
+
+	strong = m_pWing->wingName().trimmed();
+	strong.replace(' ', '_');
+	FileName = QFileDialog::getSaveFileName(this, tr("Export to xml file"),
+											Settings::s_LastDirName +'/'+strong,
+											filter,
+											&filter);
+
+	if(!FileName.length()) return;
+	QFileInfo fileInfo(FileName);
+	Settings::s_LastDirName = fileInfo.path();
+
+	if(FileName.indexOf(".xml", Qt::CaseInsensitive)<0) FileName += ".xml";
+
+	QFile XFile(FileName);
+	if (!XFile.open(QIODevice::WriteOnly | QIODevice::Text)) return ;
+
+	XMLPlaneWriter planeWriter(XFile);
+	planeWriter.writeXMLWing(*m_pWing);
+
+	XFile.close();
+}
 
 
 void GL3dWingDlg::onImportWing()

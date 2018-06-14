@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	XFoilTask Class
-	   Copyright (C) 2011-2017 Andre Deperrois adeperrois@xflr5.com
+	   Copyright (C) 2011-2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@
 #include <QThread>
 #include <QCoreApplication>
 #include <QtDebug>
+
+#define PI 3.141592654
 
 int XFoilTask::s_IterLim=100;
 bool XFoilTask::s_bAutoInitBL = true;
@@ -76,13 +78,14 @@ void XFoilTask::run()
 		return;
 	}
 
-	if(m_pPolar->polarType()!=XFOIL::FIXEDAOAPOLAR) alphaSequence();
+	if(m_pPolar->polarType()!=XFLR5::FIXEDAOAPOLAR) alphaSequence();
     else                                            ReSequence();
 
 	m_bIsFinished = true;
 
 	// For multithreaded analysis, post an event to notify parent window that the task is done
-	qApp->postEvent((QObject*)m_pParent, new XFoilTaskEvent(m_pFoil, m_pPolar));
+	if(m_pParent)
+		qApp->postEvent((QObject*)m_pParent, new XFoilTaskEvent(m_pFoil, m_pPolar));
 }
 
 /**
@@ -108,7 +111,7 @@ bool XFoilTask::initializeTask(Foil *pFoil, Polar *pPolar, bool bStoreOpp, bool 
 	s_bSkipOpp = s_bSkipPolar = false;
 	m_bStoreOpp = bStoreOpp;
 
-	XFoil::s_bCancel = false;
+    XFoil::setCancel(false);
 	m_bErrors = false;
 	m_pFoil = pFoil;
 	m_pPolar = pPolar;
@@ -210,7 +213,7 @@ bool XFoilTask::alphaSequence()
 
 		if(m_bInitBL)
 		{
-			XFoilInstance.lblini = false;
+			XFoilInstance.setBLInitialized(false);
 			XFoilInstance.lipan = false;
 		}
 
@@ -220,7 +223,7 @@ bool XFoilTask::alphaSequence()
 			if(s_bSkipPolar)
 			{
 
-				XFoilInstance.lblini = false;
+				XFoilInstance.setBLInitialized(false);
 				XFoilInstance.lipan = false;
 				s_bSkipPolar = false;
 				traceLog("    .......skipping polar \n");
@@ -231,9 +234,9 @@ bool XFoilTask::alphaSequence()
 			{
 				alphadeg = SpMin+ia*SpInc;
 
-				XFoilInstance.alfa = alphadeg * PI/180.0;
+				XFoilInstance.setAlpha(alphadeg * PI/180.0);
 				XFoilInstance.lalfa = true;
-				XFoilInstance.qinf = 1.0;
+				XFoilInstance.setQInf(1.0);
 				str = QString("Alpha = %1").arg(alphadeg,9,'f',3);
 				traceLog(str);
 
@@ -250,10 +253,10 @@ bool XFoilTask::alphaSequence()
 			else
 			{
 				XFoilInstance.lalfa = false;
-				XFoilInstance.alfa = 0.0;
-				XFoilInstance.qinf = 1.0;
-				XFoilInstance.clspec = SpMin+ia*SpInc;
-				str = QString(QObject::tr("Cl = %1")).arg(XFoilInstance.clspec,9,'f',3);
+				XFoilInstance.setAlpha(0.0);
+				XFoilInstance.setQInf(1.0);
+				XFoilInstance.setClSpec(SpMin+ia*SpInc);
+				str = QString(QObject::tr("Cl = %1")).arg(XFoilInstance.ClSpec(),9,'f',3);
 				traceLog(str);
 				if(!XFoilInstance.speccl())
 				{
@@ -283,10 +286,13 @@ bool XFoilTask::alphaSequence()
 				m_bErrors = true;
 			}
 
-			XFoil *pXFoil = new XFoil(XFoilInstance);
-			qApp->postEvent((QObject*)m_pParent, new XFoilOppEvent(m_pFoil, m_pPolar, pXFoil));
+			if(m_pParent)
+			{
+				XFoil *pXFoil = new XFoil(XFoilInstance);
+				qApp->postEvent((QObject*)m_pParent, new XFoilOppEvent(m_pFoil, m_pPolar, pXFoil));
+			}
 
-            if(XFoil::s_bFullReport)
+			if(XFoil::fullReport())
 			{
 				m_XFoilStream.flush();
 				traceLog(m_XFoilLog);
@@ -335,7 +341,7 @@ bool XFoilTask::ReSequence()
 		if(s_bCancel) break;
 		if(s_bSkipPolar)
 		{
-			XFoilInstance.lblini = false;
+			XFoilInstance.setBLInitialized(false);
 			XFoilInstance.lipan = false;
 			s_bSkipPolar = false;
 			traceLog("    .......skipping polar \n");
@@ -349,7 +355,7 @@ bool XFoilTask::ReSequence()
 		traceLog(strange);
 		XFoilInstance.reinf1 = Re;
 		XFoilInstance.lalfa = true;
-		XFoilInstance.qinf = 1.0;
+		XFoilInstance.setQInf(1.0);
 
 		// here we go !
 		if (!XFoilInstance.specal())
@@ -381,10 +387,13 @@ bool XFoilTask::ReSequence()
 
 		m_Iterations = 0;
 
-		XFoil *pXFoil = new XFoil(XFoilInstance);
-		qApp->postEvent((QObject*)m_pParent, new XFoilOppEvent(m_pFoil, m_pPolar, pXFoil));
+		if(m_pParent)
+		{
+			XFoil *pXFoil = new XFoil(XFoilInstance);
+			qApp->postEvent((QObject*)m_pParent, new XFoilOppEvent(m_pFoil, m_pPolar, pXFoil));
+		}
 
-        if(XFoil::s_bFullReport)
+		if(XFoil::fullReport())
 		{
 			m_XFoilStream.flush();
 			traceLog(m_XFoilLog);
@@ -434,7 +443,7 @@ bool XFoilTask::iterate()
 
 		if(s_bSkipOpp || s_bSkipPolar)
 		{
-			XFoilInstance.lblini = false;
+			XFoilInstance.setBLInitialized(false);
 			XFoilInstance.lipan = false;
 			s_bSkipOpp = false;
 			return true;
@@ -448,8 +457,8 @@ bool XFoilTask::iterate()
 	{
 		XFoilInstance.lvconv = false;//point is unconverged
 
-		XFoilInstance.lblini = false;
-		XFoilInstance.lipan  = false;
+		XFoilInstance.setBLInitialized(false);
+		XFoilInstance.lipan = false;
 		m_bErrors = true;
 		return true;// to exit loop
 	}
@@ -458,7 +467,7 @@ bool XFoilTask::iterate()
 	{
 		if(s_bAutoInitBL)
 		{
-			XFoilInstance.lblini = false;
+			XFoilInstance.setBLInitialized(false);
 			XFoilInstance.lipan = false;
 		}
 		XFoilInstance.fcpmin();// Is it of any use ?
@@ -487,7 +496,7 @@ bool XFoilTask::iterate()
  */
 void XFoilTask::traceLog(QString str)
 {
-	if(m_OutStream.device())
+	if(m_OutStream.device() || m_OutStream.string())
 	{
 		m_OutStream << str;
 		m_OutMessage += str;

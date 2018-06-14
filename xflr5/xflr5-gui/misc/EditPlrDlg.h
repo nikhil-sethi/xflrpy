@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	EditPlrDlg Class
-	Copyright (C) 2009 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,16 +29,16 @@
 #include <QStandardItemModel>
 #include <misc/text/FloatEditDelegate.h>
 
-#include <objects2d/Polar.h>
-#include <objects3d/WPolar.h>
+#include <objects/objects2d/Polar.h>
+#include <objects/objects3d/WPolar.h>
 
 
 class EditPlrDlg : public QDialog
 {
 	Q_OBJECT
 
-	friend class QXDirect;
-	friend class QMiarex;
+	friend class XDirect;
+	friend class Miarex;
 
 public:
 	EditPlrDlg(QWidget *pParent=NULL);

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	FoilCoordDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,15 +28,15 @@
 #include <QTableView>
 #include <QStandardItemModel>
 #include <misc/text/FloatEditDelegate.h>
-#include <objects2d/Foil.h>
+#include <objects/objects2d/Foil.h>
 
 
 class FoilCoordDlg : public QDialog
 {
 	Q_OBJECT
 
-	friend class QXDirect;
-	friend class QAFoil;
+	friend class XDirect;
+	friend class AFoil;
 
 public:
 	FoilCoordDlg(QWidget *pParent);

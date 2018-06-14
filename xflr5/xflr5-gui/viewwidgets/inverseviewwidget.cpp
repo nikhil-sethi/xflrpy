@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	InverseViewWidget Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,12 +21,12 @@
 
 #include <math.h>
 #include <QMenu>
-#include <QtDebug>
-#include "mainframe.h"
-#include "misc/options/displayoptions.h"
-#include "QGraph.h"
-#include "xinverse/XInverse.h"
-#include "inverseviewwidget.h"
+
+#include <globals/mainframe.h>
+#include <misc/options/displayoptions.h>
+#include <graph/graph.h>
+#include <xinverse/XInverse.h>
+#include <viewwidgets/inverseviewwidget.h>
 
 
 /**
@@ -57,7 +57,7 @@ void InverseViewWidget::keyPressEvent(QKeyEvent *event)
 	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
 	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		QXInverse *pXInverse= (QXInverse*)m_pXInverse;
+		XInverse *pXInverse= (XInverse*)m_pXInverse;
 		pXInverse->keyPressEvent(event);
 	}
 }
@@ -73,7 +73,7 @@ void InverseViewWidget::keyReleaseEvent(QKeyEvent *event)
 	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
 	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		QXInverse *pXInverse= (QXInverse*)m_pXInverse;
+		XInverse *pXInverse= (XInverse*)m_pXInverse;
 		pXInverse->keyReleaseEvent(event);
 	}
 }
@@ -89,7 +89,7 @@ void InverseViewWidget::mousePressEvent(QMouseEvent *event)
 	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
 	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		QXInverse *pXInverse= (QXInverse*)m_pXInverse;
+		XInverse *pXInverse= (XInverse*)m_pXInverse;
 		pXInverse->mousePressEvent(event);
 	}
 }
@@ -104,7 +104,7 @@ void InverseViewWidget::mouseReleaseEvent(QMouseEvent *event)
 	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
 	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		QXInverse *pXInverse= (QXInverse*)m_pXInverse;
+		XInverse *pXInverse= (XInverse*)m_pXInverse;
 		pXInverse->mouseReleaseEvent(event);
 	}
 }
@@ -119,7 +119,7 @@ void InverseViewWidget::mouseMoveEvent(QMouseEvent *event)
 	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
 	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		QXInverse *pXInverse= (QXInverse*)m_pXInverse;
+		XInverse *pXInverse= (XInverse*)m_pXInverse;
 		pXInverse->mouseMoveEvent(event);
 	}
 }
@@ -136,7 +136,7 @@ void InverseViewWidget::mouseDoubleClickEvent ( QMouseEvent * event )
 
 	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		QXInverse *pXInverse= (QXInverse*)m_pXInverse;
+		XInverse *pXInverse= (XInverse*)m_pXInverse;
 		pXInverse->doubleClickEvent(event->pos());
 	}
 }
@@ -149,7 +149,7 @@ void InverseViewWidget::mouseDoubleClickEvent ( QMouseEvent * event )
 void InverseViewWidget::resizeEvent(QResizeEvent *event)
 {
 //	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
-	QXInverse *pXInverse = (QXInverse*)m_pXInverse;
+	XInverse *pXInverse = (XInverse*)m_pXInverse;
 
 	if(m_pXInverse)
 	{
@@ -185,7 +185,7 @@ void InverseViewWidget::wheelEvent(QWheelEvent *event)
 
 	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		QXInverse *pXInverse= (QXInverse*)m_pXInverse;
+		XInverse *pXInverse= (XInverse*)m_pXInverse;
 		pXInverse->zoomEvent(pt, ZoomFactor);
 	}
 }
@@ -200,7 +200,7 @@ void InverseViewWidget::paintEvent(QPaintEvent *event)
 	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
 	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		QXInverse *pXInverse= (QXInverse*)m_pXInverse;
+		XInverse *pXInverse= (XInverse*)m_pXInverse;
 		QPainter painter(this);
 		pXInverse->paintView(painter);
 	}

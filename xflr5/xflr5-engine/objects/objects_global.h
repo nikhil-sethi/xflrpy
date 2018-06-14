@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Objects_global Class
-	Copyright (C) 2017 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,33 +19,30 @@
 
 *****************************************************************************/
 
-#ifndef OBJECTS_GLOBAL_H
-#define OBJECTS_GLOBAL_H
+#pragma once
 
-#endif // OBJECTS_GLOBAL_H
-
-#include "engine_params.h"
-#include <objects2d/Vector3d.h>
+#include <analysis3d/analysis3d_params.h>
+#include <objects/objects3d/vector3d.h>
 #include <complex>
 
 #include <QDataStream>
 #include <QTextStream>
-#include <QColor>
 
-void readCString(QDataStream &ar, QString &strong);
+
+void XFLR5ENGINELIBSHARED_EXPORT readCString(QDataStream &ar, QString &strong);
 void writeCString(QDataStream &ar, QString const &strong);
-bool ReadAVLString(QTextStream &in, int &Line, QString &strong);
+bool XFLR5ENGINELIBSHARED_EXPORT ReadAVLString(QTextStream &in, int &Line, QString &strong);
 
 
-void readCOLORREF(QDataStream &ar, int &r, int &g, int &b);
+void XFLR5ENGINELIBSHARED_EXPORT readCOLORREF(QDataStream &ar, int &r, int &g, int &b);
 
-void readqColor(QDataStream &ar, int &r, int &g, int &b, int &a);
-void writeqColor(QDataStream &ar, int r, int g, int b, int a);
+void readQColor(QDataStream &ar, int &r, int &g, int &b, int &a);
+void writeQColor(QDataStream &ar, int r, int g, int b, int a);
 
-void readFloat(QDataStream &inStream, float &f);
+void XFLR5ENGINELIBSHARED_EXPORT readFloat(QDataStream &inStream, float &f);
 void writeFloat(QDataStream &outStream, float f);
 
-void modeProperties(std::complex<double> lambda, double &omegaN, double &omega1, double &dsi);
+void XFLR5ENGINELIBSHARED_EXPORT modeProperties(std::complex<double> lambda, double &omegaN, double &omega1, double &dsi);
 
-bool Intersect(Vector3d const &LA, Vector3d const &LB, Vector3d const &TA, Vector3d const &TB, Vector3d const &Normal,
+bool XFLR5ENGINELIBSHARED_EXPORT Intersect(Vector3d const &LA, Vector3d const &LB, Vector3d const &TA, Vector3d const &TB, Vector3d const &Normal,
                       Vector3d const &A,  Vector3d const &U,  Vector3d &I, double &dist);

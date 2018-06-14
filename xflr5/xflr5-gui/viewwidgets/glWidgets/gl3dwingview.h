@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	gl3dWingView Class
-	Copyright (C) 2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 
 #ifndef GL3DWINGVIEW_H
 #define GL3DWINGVIEW_H
-#include <objects3d/Wing.h>
+#include <objects/objects3d/Wing.h>
 #include <gl3dview.h>
 
 class gl3dWingView : public gl3dView

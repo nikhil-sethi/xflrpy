@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	LegendWidget Class
-		Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+		Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,14 +19,15 @@
 
 *****************************************************************************/
 
-#ifndef LEGENDWIDGET_H
-#define LEGENDWIDGET_H
+#pragma once
 
 #include <QWidget>
-#include <gui_enums.h>
-#include <objects3d/PlaneOpp.h>
-#include <QGraph.h>
+#include <globals/gui_enums.h>
+#include <objects/objects3d/PlaneOpp.h>
+#include <graph/graph.h>
 
+class Miarex;
+class XDirect;
 
 class LegendWidget : public QWidget
 {
@@ -42,26 +43,26 @@ public:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 
-	void setGraph(QGraph*pGraph){m_pGraph = pGraph;}
+	void setGraph(Graph*pGraph){m_pGraph = pGraph;}
 
 public:
 	void *m_pParent;             /**< a void pointer to the instance of the GraphTileWidget object. */
 
-	static void *s_pMainFrame;   /**< a void pointer to the instance of the MainFrame object. */
-	static void *s_pMiarex;      /**< a void pointer to the instance of the QMiarex object. */
-	static void *s_pXDirect;     /**< a void pointer to the instance of the QXDirect object. */
+	static MainFrame *s_pMainFrame;   /**< a void pointer to the instance of the MainFrame object. */
+	static Miarex *s_pMiarex;      /**< a void pointer to the instance of the QMiarex object. */
+	static XDirect *s_pXDirect;     /**< a void pointer to the instance of the QXDirect object. */
 
 	void setMiarexView(XFLR5::enumMiarexViews eMiarexView);
 
 private:
 	void drawWPolarLegend(QPainter &painter, QPointF place, int bottom);
 	void drawPOppGraphLegend(QPainter &painter, QPointF place, double bottom);
-	void drawStabTimeLegend(QPainter &painter, QGraph *pGraph, QPointF place, int bottom);
-	void drawCpLegend(QPainter &painter, QGraph *pGraph, QPointF place, int bottom);
+	void drawStabTimeLegend(QPainter &painter, Graph *pGraph, QPointF place, int bottom);
+	void drawCpLegend(QPainter &painter, Graph *pGraph, QPointF place, int bottom);
 	void drawPolarLegend(QPainter &painter, QPointF place, int bottom);
 
 private:
-	QGraph *m_pGraph;
+	Graph *m_pGraph;
 
 	XFLR5::enumMiarexViews m_MiarexView;
 	QPointF m_LegendPosition;
@@ -69,4 +70,3 @@ private:
 	bool m_bTrans;
 };
 
-#endif // LEGENDWIDGET_H

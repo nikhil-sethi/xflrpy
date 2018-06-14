@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	FoilSelectionDlg Classes
-		Copyright (C) 2009 Andre Deperrois adeperrois@xflr5.com
+		Copyright (C) 2009 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ class Foil;
 class FoilSelectionDlg : public QDialog
 {
 	Q_OBJECT
-	friend class QXInverse;
+	friend class XInverse;
 	friend class BatchDlg;
 	friend class BatchThreadDlg;
 

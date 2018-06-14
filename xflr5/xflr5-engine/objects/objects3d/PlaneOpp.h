@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	PlaneOpp Class
-	Copyright (C) 2006-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2006-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,11 +32,10 @@
 #define PLANEOPP_H
 
 
-
-
-
-#include "WingOpp.h"
 #include <QDataStream>
+
+#include <objects/objects3d/WingOpp.h>
+#include <objects/objectcolor.h>
 
 
 
@@ -52,10 +51,10 @@
 	The data is stored in International Standard Units, i.e. meters, seconds, kg, and Newtons.
 	Angular data is stored in degrees.
 */
-class PlaneOpp
+class XFLR5ENGINELIBSHARED_EXPORT PlaneOpp
 {
 	friend class Objects3D;
-	friend class QMiarex;
+	friend class Miarex;
 	friend class MainFrame;
 	friend class WPolar;
 	friend class PanelAnalysis;
@@ -92,7 +91,8 @@ public:
 	int &points()          {return m_PointStyle;}
 	int &style()           {return m_Style;}
 	int &width()           {return m_Width;}
-	QColor &color()        {return m_Color;}
+	ObjectColor color()  const  {return m_Color;}
+	void setPlaneOppColor(ObjectColor colour)  {m_Color = colour;}
 
 	bool serializePOppWPA(QDataStream &ar, bool bIsStoring);
 	bool serializePOppXFL(QDataStream &ar, bool bIsStoring);
@@ -114,7 +114,7 @@ private:
 
 	int m_Style, m_Width, m_PointStyle;
 	bool m_bIsVisible;
-	QColor m_Color;
+	ObjectColor m_Color;
 
 	double m_Alpha;            /**< the angle of attack*/
 	double m_Beta;             /**< the sideslip angle */

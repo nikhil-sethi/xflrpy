@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Matrix Functions 
-	Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <objects2d/Vector3d.h>
+#include <objects/objects3d/vector3d.h>
 #include <complex>
 
 using namespace std;
@@ -44,7 +44,7 @@ double det44(double *aij);
 complex<double> det44(complex<double> *aij);
 complex<double> cofactor44(complex<double> *aij, int &i, int &j);
 
-bool Invert44(complex<double> *ain, complex<double> *aout);
+bool XFLR5ENGINELIBSHARED_EXPORT Invert44(complex<double> *ain, complex<double> *aout);
 
 
 bool Gauss(double *A, int n, double *B, int m, bool *pbCancel);

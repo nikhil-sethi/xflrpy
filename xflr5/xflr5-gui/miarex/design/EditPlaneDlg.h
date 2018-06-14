@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	EditPlaneDlg Class
-	Copyright (C) 2015-2017 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2015-2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #include <QStandardItemModel>
 #include <QToolButton>
 #include <gl3dplaneview.h>
-#include <objects3d/Plane.h>
+#include <objects/objects3d/Plane.h>
 #include "EditObjectDelegate.h"
 
 
@@ -44,7 +44,7 @@ class EditPlaneDlg : public QDialog
 
 	friend class Wing;
 	friend class Plane;
-	friend class QMiarex;
+	friend class Miarex;
 	friend class gl3dPlaneView;
 	friend class gl3dView;
 

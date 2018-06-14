@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Wing Class
-	Copyright (C) 2005-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2005-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 #include "Panel.h"
 #include "PointMass.h"
 #include "objects_global.h"
-#include <objects2d/Polar.h>
+#include <objects/objects2d/Polar.h>
 
 double Wing::s_MinPanelSize = 0.0001;
 QList<Foil *> *Wing::s_poaFoil  = NULL;
@@ -42,22 +42,21 @@ QList<Polar*> *Wing::s_poaPolar = NULL;
  */
 Wing::Wing()
 {
-	memset(m_Ai, 0, sizeof(m_Ai));
+	memset(m_Ai,    0, sizeof(m_Ai));
 	memset(m_Twist, 0, sizeof(m_Twist));
-	memset(m_Cl, 0, sizeof(m_Cl));
-	memset(m_PCd, 0, sizeof(m_PCd));
-	memset(m_ICd, 0, sizeof(m_ICd));
-	memset(m_Cm, 0, sizeof(m_Cm));
-	memset(m_CmAirfoil, 0, sizeof(m_CmAirfoil));
+	memset(m_Cl,    0, sizeof(m_Cl));
+	memset(m_PCd,   0, sizeof(m_PCd));
+	memset(m_ICd,   0, sizeof(m_ICd));
+	memset(m_Cm,    0, sizeof(m_Cm));
+	memset(m_CmAirfoil,  0, sizeof(m_CmAirfoil));
 	memset(m_XCPSpanAbs, 0, sizeof(m_XCPSpanAbs));
 	memset(m_XCPSpanRel, 0, sizeof(m_XCPSpanRel));
-	memset(m_Re, 0, sizeof(m_Re));
-	memset(m_Chord, 0, sizeof(m_Chord));
+	memset(m_Re,     0, sizeof(m_Re));
+	memset(m_Chord,  0, sizeof(m_Chord));
 	memset(m_Offset, 0, sizeof(m_Offset));
 	memset(m_XTrTop, 0, sizeof(m_XTrTop));
 	memset(m_XTrBot, 0, sizeof(m_XTrBot));
 	memset(m_BendingMoment, 0, sizeof(m_BendingMoment));
-	memset(m_Twist, 0, sizeof(m_Twist));
 
 	memset(m_SpanPos, 0, sizeof(m_SpanPos));
 	memset(m_StripArea, 0, sizeof(m_StripArea));
@@ -84,9 +83,10 @@ Wing::Wing()
 	m_WingType        = XFLR5::MAINWING;
 	m_WingDescription = "";
 
-	m_WingColor.setHsv((int)(((double)qrand()/(double)RAND_MAX)*360),
-					   (int)(((double)qrand()/(double)RAND_MAX)*55)+30,
-					   (int)(((double)qrand()/(double)RAND_MAX)*55)+150);
+	m_WingColor.setRed((int)(((double)qrand()/(double)RAND_MAX)*155)+100);
+	m_WingColor.setGreen((int)(((double)qrand()/(double)RAND_MAX)*155)+100);
+	m_WingColor.setBlue((int)(((double)qrand()/(double)RAND_MAX)*155)+100);
+
 	m_QInf0    = 0.0;
 
 	m_pWingPanel     = NULL;
@@ -473,7 +473,7 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 
 	//the mass density is assumed to be homogeneous
 
-	//the local weight is proportional to the chord x foil area
+	//the local mass is proportional to the chord x foil area
 	//the foil's area is interpolated
 
 	//we consider the whole wing, i.e. all left and right surfaces
@@ -513,11 +513,12 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 				Diag1 = ATop - CBot;
 				Diag2 = ABot - CTop;
 				PointNormal = Diag1 * Diag2;
-
 				ElemArea = PointNormal.VAbs()/2.0;
-				if(ElemArea>PRECISION)	ElemVolume[p] = ElemArea * LocalSpan;
+//	qDebug("elemarea  %17.7g", ElemArea);
+				if(ElemArea>0.0) ElemVolume[p] = ElemArea * LocalSpan;
 				else
 				{
+qDebug("elemarea  %17.7g   %17.7g", ElemArea, PRECISION);
 					//no area, means that the foils have not yet been defined for this surface
 					// so just count a unit volume, temporary
 					ElemVolume[p] = 1.0;
@@ -1029,6 +1030,7 @@ void Wing::computeChords(int NStation)
 				m_Offset[m] = C.x-x0;
 
 				m_Twist[m]  = m_Surface.at(j)->twist(k);
+				Q_ASSERT(!std::isnan(m_Twist[m]));
 				m++;
 			}
 		}
@@ -1899,6 +1901,7 @@ void Wing::panelComputeViscous(double QInf, WPolar *pWPolar, double &WingVDrag, 
 
 			// Sum the total viscous drag of this wing
 			WingVDrag  += m_PCd[m] * m_StripArea[m];
+
 			m++;
 		}
 	}
@@ -2454,7 +2457,7 @@ bool Wing::serializeWingXFL(QDataStream &ar, bool bIsStoring)
 		ar << m_WingName;
 		ar << m_WingDescription;
 
-		ar << m_WingColor;
+		writeQColor(ar, m_WingColor.red(), m_WingColor.green(), m_WingColor.blue(), m_WingColor.alpha());
 
 		ar << m_bSymetric;
 
@@ -2550,7 +2553,9 @@ bool Wing::serializeWingXFL(QDataStream &ar, bool bIsStoring)
 		ar >> m_WingName;
 		ar >> m_WingDescription;
 
-		ar >> m_WingColor;
+		int a,r,g,b;
+		readQColor(ar, r, g, b, a);
+		m_WingColor.setColor(r,g,b,a);
 
 		ar >> m_bSymetric;
 
@@ -3404,7 +3409,7 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 	for (i = 0; i<s_poaPolar->size(); i++)
 	{
 		pPolar = s_poaPolar->at(i);
-		if((pPolar->polarType()== XFOIL::FIXEDSPEEDPOLAR) && (pPolar->foilName() == pFoil->foilName()))
+		if((pPolar->polarType()== XFLR5::FIXEDSPEEDPOLAR) && (pPolar->foilName() == pFoil->foilName()))
 		{
 			n++;
 			if(n>=2) break;
@@ -3423,7 +3428,7 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 	for (i=0; i< nPolars; i++)
 	{
 		pPolar = s_poaPolar->at(i);
-		if((pPolar->polarType()== XFOIL::FIXEDSPEEDPOLAR) &&
+		if((pPolar->polarType()== XFLR5::FIXEDSPEEDPOLAR) &&
 		   (pPolar->foilName() == pFoil->foilName()) &&
 			pPolar->m_Cl.size()>0)
 		{
@@ -3466,7 +3471,7 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 	for (i=0; i< nPolars; i++)
 	{
 		pPolar = s_poaPolar->at(i);
-		if((pPolar->polarType()== XFOIL::FIXEDSPEEDPOLAR) && (pPolar->foilName() == pFoil->foilName())  && pPolar->m_Cl.size()>0)
+		if((pPolar->polarType()== XFLR5::FIXEDSPEEDPOLAR) && (pPolar->foilName() == pFoil->foilName())  && pPolar->m_Cl.size()>0)
 		{
 			// we have found the first type 1 polar for this foil
 			pPolar->getClLimits(Clmin, Clmax);

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	WingOpp Class
-	Copyright (C) 2005-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2005-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -45,19 +45,19 @@
 */
 
 
-#include <engine_params.h>
-#include <analysis3d_enums.h>
+#include <analysis3d/analysis3d_params.h>
+#include <analysis3d/analysis3d_enums.h>
 #include <QString>
-#include <QColor>
+
 #include <QTextStream>
 #include <complex>
-#include <objects2d/Vector3d.h>
+#include <objects/objects3d/vector3d.h>
 
 using namespace std;
 
-class WingOpp
+class XFLR5ENGINELIBSHARED_EXPORT WingOpp
 {
-	friend class QMiarex;
+	friend class Miarex;
 	friend class MainFrame;
 	friend class WPolar;
 	friend class PlaneOpp;

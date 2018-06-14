@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	XMLPlaneReader Class
-	Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 *****************************************************************************/
 
 #include "XmlPlaneReader.h"
-#include <globals.h>
+#include <globals/globals.h>
 #include <QMessageBox>
 #include <QtDebug>
 
@@ -63,12 +63,18 @@ bool XMLPlaneReader::readXMLPlaneFile()
 				{
 					readPlane(m_pPlane, lengthunit, massunit);
 				}
-                else if (name().toString().compare(QString("body"), Qt::CaseInsensitive)==0)
+				else if (name().toString().compare(QString("body"), Qt::CaseInsensitive)==0)
 				{
-//					if(m_pPlane->body()) delete m_pPlane->body();
-//					m_pPlane->setBody(new Body);
 					m_pPlane->hasBody() = true;
 					readBody(m_pPlane->body(), m_pPlane->bodyPos(), lengthunit, massunit);
+				}
+				else if (name().toString().compare(QString("wing"), Qt::CaseInsensitive)==0)
+				{
+					Vector3d V;
+					double ry=0.0;
+					m_pPlane->wing(0)->clearWingSections();
+					m_pPlane->wing(0)->clearPointMasses();
+					readWing(*m_pPlane->wing(0), V, ry, lengthunit, massunit);
 				}
 			}
 		}
@@ -82,7 +88,7 @@ bool XMLPlaneReader::readXMLPlaneFile()
 
 
 /** */
-bool XMLPlaneReader::readPlane(Plane *pPlane, double lengthUnit, double massUnit)
+bool XMLPlaneReader::readPlane(Plane *pPlane, double lengthunit, double massunit)
 {
 	int iw=0;
 	pPlane->hasElevator() = false;
@@ -111,7 +117,7 @@ bool XMLPlaneReader::readPlane(Plane *pPlane, double lengthUnit, double massUnit
 				{
 					PointMass* ppm = new PointMass;
 					pPlane->m_PointMass.append(ppm);
-					readPointMass(ppm, massUnit, lengthUnit);
+					readPointMass(ppm, massunit, lengthunit);
 				}
 				else
 					skipCurrentElement();
@@ -120,207 +126,72 @@ bool XMLPlaneReader::readPlane(Plane *pPlane, double lengthUnit, double massUnit
         else if (name().toString().compare(QString("body"), Qt::CaseInsensitive)==0)
 		{
 			pPlane->setBody(new Body);
-			readBody(pPlane->body(), pPlane->bodyPos(), lengthUnit, massUnit);
+			readBody(pPlane->body(), pPlane->bodyPos(), lengthunit, massunit);
 		}
         else if (name().toString().compare(QString("wing"), Qt::CaseInsensitive)==0)
 		{
-			double xw=0.0, yw=0.0, zw=0.0, ta=0.0;
-			Wing newWing;
-			newWing.clearPointMasses();
-			newWing.clearSurfaces();
-			newWing.clearWingSections();
+			Wing newwing;
+			newwing.clearPointMasses();
+			newwing.clearSurfaces();
+			newwing.clearWingSections();
+			newwing.wingType() = XFLR5::OTHERWING;
+			newwing.m_WingSection.clear();
+
+			Vector3d pos;
+			double tiltangle=0.0;
+			readWing(newwing, pos, tiltangle, lengthunit, massunit);
+
+
+			int iWing = 0;
+			if(newwing.wingType()==XFLR5::OTHERWING)
 			{
-				newWing.wingType() = XFLR5::OTHERWING;
-				newWing.m_WingSection.clear();
-
-				while(!atEnd() && !hasError() && readNextStartElement() )
+				if(newwing.isFin())
 				{
-                    if (name().compare(QString("name"),                 Qt::CaseInsensitive)==0)
-					{
-						newWing.rWingName() = readElementText();
-					}
-                    else if (name().compare(QString("type"),        Qt::CaseInsensitive)==0)
-					{
-						newWing.wingType() = wingType(readElementText());
-						if(newWing.wingType()==XFLR5::ELEVATOR)   pPlane->hasElevator() = true;
-						else if(newWing.wingType()==XFLR5::SECONDWING) pPlane->hasSecondWing() = true;
-						else if(newWing.wingType()==XFLR5::FIN)        pPlane->hasFin() = true;
-					}
-                    else if (name().compare(QString("color"),           Qt::CaseInsensitive)==0)
-					{
-						readColor(newWing.wingColor());
-					}
-                    else if (name().compare(QString("description"),     Qt::CaseInsensitive)==0)
-					{
-						newWing.rWingDescription() = readElementText();
-					}
-                    else if (name().compare(QString("position"),        Qt::CaseInsensitive)==0)
-					{
-						QStringList coordList = readElementText().split(",");
-						if(coordList.length()>=3)
-						{
-							xw = coordList.at(0).toDouble()*lengthUnit;
-							yw = coordList.at(1).toDouble()*lengthUnit;
-							zw = coordList.at(2).toDouble()*lengthUnit;
-						}
-					}
-                    else if (name().compare(QString("tilt_angle"),      Qt::CaseInsensitive)==0)
-					{
-						ta = readElementText().toDouble();
-					}
-                    else if (name().compare(QString("Symetric"),        Qt::CaseInsensitive)==0)
-					{
-                        newWing.isSymetric() = readElementText().compare(QString("true"), Qt::CaseInsensitive)==0;
-					}
-                    else if (name().compare(QString("isFin"),           Qt::CaseInsensitive)==0)
-					{
-                        newWing.isFin() = readElementText().compare(QString("true"), Qt::CaseInsensitive)==0;
-					}
-                    else if (name().compare(QString("isDoubleFin"),     Qt::CaseInsensitive)==0)
-					{
-                        newWing.isDoubleFin() = readElementText().compare(QString("true"), Qt::CaseInsensitive)==0;
-					}
-                    else if (name().compare(QString("isSymFin"),        Qt::CaseInsensitive)==0)
-					{
-                        newWing.isSymFin() = readElementText().compare(QString("true"), Qt::CaseInsensitive)==0;
-					}
-                    else if (name().compare(QString("Inertia"),         Qt::CaseInsensitive)==0)
-					{
-						while(!atEnd() && !hasError() && readNextStartElement() )
-						{
-                            if (name().compare(QString("volume_mass"), Qt::CaseInsensitive)==0)
-							{
-								newWing.volumeMass() = readElementText().toDouble();
-							}
-                            else if (name().compare(QString("point_mass"), Qt::CaseInsensitive)==0)
-							{
-								PointMass* ppm = new PointMass;
-								newWing.m_PointMass.append(ppm);
-								readPointMass(ppm, massUnit, lengthUnit);
-							}
-							else
-								skipCurrentElement();
-						}
-					}
-                    else if (name().compare(QString("Sections"),        Qt::CaseInsensitive)==0)
-					{
-						while(!atEnd() && !hasError() && readNextStartElement() )
-						{
-                            if (name().compare(QString("Section"),  Qt::CaseInsensitive)==0)
-							{
-								WingSection *pWingSec = new WingSection;
-								newWing.m_WingSection.append(pWingSec);
-								while(!atEnd() && !hasError() && readNextStartElement() )
-								{
-                                    if (name().compare(QString("x_number_of_panels"), Qt::CaseInsensitive)==0)
-									{
-										pWingSec->m_NXPanels = readElementText().toInt();
-									}
-                                    else if (name().compare(QString("y_number_of_panels"), Qt::CaseInsensitive)==0)
-									{
-										pWingSec->m_NYPanels = readElementText().toInt();
-									}
-                                    else if (name().compare(QString("x_panel_distribution"), Qt::CaseInsensitive)==0)
-									{
-										QString strPanelDist = readElementText();
-										pWingSec->m_XPanelDist = distributionType(strPanelDist);
-									}
-                                    else if (name().compare(QString("y_panel_distribution"), Qt::CaseInsensitive)==0)
-									{
-										QString strPanelDist = readElementText();
-										pWingSec->m_YPanelDist = distributionType(strPanelDist);
-									}
-                                    else if (name().compare(QString("Chord"), Qt::CaseInsensitive)==0)
-									{
-										pWingSec->m_Chord = readElementText().toDouble()*lengthUnit;
-									}
-                                    else if (name().compare(QString("y_position"), Qt::CaseInsensitive)==0)
-									{
-										pWingSec->m_YPosition = readElementText().toDouble()*lengthUnit;
-									}
-                                    else if (name().compare(QString("xOffset"), Qt::CaseInsensitive)==0)
-									{
-										pWingSec->m_Offset = readElementText().toDouble()*lengthUnit;
-									}
-                                    else if (name().compare(QString("Dihedral"), Qt::CaseInsensitive)==0)
-									{
-										pWingSec->m_Dihedral = readElementText().toDouble();
-									}
-                                    else if (name().compare(QString("Twist"), Qt::CaseInsensitive)==0)
-									{
-										pWingSec->m_Twist = readElementText().toDouble();
-									}
-                                    else if (name().compare(QString("Left_Side_FoilName"), Qt::CaseInsensitive)==0)
-									{
-										pWingSec->m_LeftFoilName = readElementText();
-									}
-                                    else if (name().compare(QString("Right_Side_FoilName"), Qt::CaseInsensitive)==0)
-									{
-										pWingSec->m_RightFoilName = readElementText();
-									}
-									else
-										skipCurrentElement();
-								}
-							}
-							else
-								skipCurrentElement();
-						}
-					}
-					else
-						skipCurrentElement();
+					newwing.wingType() = XFLR5::FIN;
+					pPlane->hasFin() = true;
+					iWing = 3;
 				}
-
-				int iWing = 0;
-				if(newWing.wingType()==XFLR5::OTHERWING)
+				else if(iw==0)
 				{
-					if(newWing.isFin())
-					{
-						newWing.wingType() = XFLR5::FIN;
-						pPlane->hasFin() = true;
-						iWing = 3;
-					}
-					else if(iw==0)
-					{
-						newWing.wingType() = XFLR5::MAINWING;
-						iWing = 0;
-					}
-					else if(iw==1)
-					{
-						newWing.wingType() = XFLR5::ELEVATOR;
-						pPlane->hasElevator() = true;
-						iWing = 2;
-					}
+					newwing.wingType() = XFLR5::MAINWING;
+					iWing = 0;
 				}
-				else
+				else if(iw==1)
 				{
-					if(newWing.wingType()==XFLR5::MAINWING) iWing = 0;
-					else if(newWing.wingType()==XFLR5::SECONDWING)
-					{
-						iWing = 1;
-						pPlane->hasSecondWing() = true;
-					}
-					else if(newWing.wingType()==XFLR5::ELEVATOR)
-					{
-						iWing = 2;
-						pPlane->hasElevator() = true;
-					}
-					else if(newWing.wingType()==XFLR5::FIN)
-					{
-						iWing = 3;
-						pPlane->hasFin() = true;
-					}
+					newwing.wingType() = XFLR5::ELEVATOR;
+					pPlane->hasElevator() = true;
+					iWing = 2;
 				}
-
-				if(!hasError())
-				{
-					pPlane->m_Wing[iWing].duplicate(&newWing);
-					pPlane->WingLE(iWing).x      = xw;
-					pPlane->WingLE(iWing).y      = yw;
-					pPlane->WingLE(iWing).z      = zw;
-					pPlane->WingTiltAngle(iWing) = ta;
-				}
-				iw++;
 			}
+			else
+			{
+				if(newwing.wingType()==XFLR5::MAINWING) iWing = 0;
+				else if(newwing.wingType()==XFLR5::SECONDWING)
+				{
+					iWing = 1;
+					pPlane->hasSecondWing() = true;
+				}
+				else if(newwing.wingType()==XFLR5::ELEVATOR)
+				{
+					iWing = 2;
+					pPlane->hasElevator() = true;
+				}
+				else if(newwing.wingType()==XFLR5::FIN)
+				{
+					iWing = 3;
+					pPlane->hasFin() = true;
+				}
+			}
+
+			if(!hasError())
+			{
+				pPlane->m_Wing[iWing].duplicate(&newwing);
+				pPlane->WingLE(iWing).x      = pos.x;
+				pPlane->WingLE(iWing).y      = pos.y;
+				pPlane->WingLE(iWing).z      = pos.z;
+				pPlane->WingTiltAngle(iWing) = tiltangle;
+			}
+			iw++;
 		}
 		else
 			skipCurrentElement();
@@ -331,6 +202,154 @@ bool XMLPlaneReader::readPlane(Plane *pPlane, double lengthUnit, double massUnit
 	return(hasError());
 }
 
+
+bool XMLPlaneReader::readWing(Wing &newwing, Vector3d &position, double tiltangle, double lengthUnit, double massUnit)
+{
+	while(!atEnd() && !hasError() && readNextStartElement() )
+	{
+		if (name().compare(QString("name"),                 Qt::CaseInsensitive)==0)
+		{
+			newwing.rWingName() = readElementText();
+		}
+		else if (name().compare(QString("type"),            Qt::CaseInsensitive)==0)
+		{
+			newwing.wingType() = wingType(readElementText());
+			if(m_pPlane)
+			{
+				if(newwing.wingType()==XFLR5::ELEVATOR)        m_pPlane->hasElevator() = true;
+				else if(newwing.wingType()==XFLR5::SECONDWING) m_pPlane->hasSecondWing() = true;
+				else if(newwing.wingType()==XFLR5::FIN)        m_pPlane->hasFin() = true;
+			}
+		}
+		else if (name().compare(QString("color"),           Qt::CaseInsensitive)==0)
+		{
+			QColor clr;
+			readColor(clr);
+			newwing.setWingColor(ObjectColor(clr.red(), clr.green(), clr.blue(), clr.alpha()));
+		}
+		else if (name().compare(QString("description"),     Qt::CaseInsensitive)==0)
+		{
+			newwing.rWingDescription() = readElementText();
+		}
+		else if (name().compare(QString("position"),        Qt::CaseInsensitive)==0)
+		{
+			QStringList coordList = readElementText().split(",");
+			if(coordList.length()>=3)
+			{
+				position.x = coordList.at(0).toDouble()*lengthUnit;
+				position.y = coordList.at(1).toDouble()*lengthUnit;
+				position.z = coordList.at(2).toDouble()*lengthUnit;
+			}
+		}
+		else if (name().compare(QString("tilt_angle"),      Qt::CaseInsensitive)==0)
+		{
+			tiltangle = readElementText().toDouble();
+		}
+		else if (name().compare(QString("Symetric"),        Qt::CaseInsensitive)==0)
+		{
+			newwing.isSymetric() = readElementText().compare(QString("true"), Qt::CaseInsensitive)==0;
+		}
+		else if (name().compare(QString("isFin"),           Qt::CaseInsensitive)==0)
+		{
+			newwing.isFin() = readElementText().compare(QString("true"), Qt::CaseInsensitive)==0;
+		}
+		else if (name().compare(QString("isDoubleFin"),     Qt::CaseInsensitive)==0)
+		{
+			newwing.isDoubleFin() = readElementText().compare(QString("true"), Qt::CaseInsensitive)==0;
+		}
+		else if (name().compare(QString("isSymFin"),        Qt::CaseInsensitive)==0)
+		{
+			newwing.isSymFin() = readElementText().compare(QString("true"), Qt::CaseInsensitive)==0;
+		}
+		else if (name().compare(QString("Inertia"),         Qt::CaseInsensitive)==0)
+		{
+			while(!atEnd() && !hasError() && readNextStartElement() )
+			{
+				if (name().compare(QString("volume_mass"), Qt::CaseInsensitive)==0)
+				{
+					newwing.volumeMass() = readElementText().toDouble();
+				}
+				else if (name().compare(QString("point_mass"), Qt::CaseInsensitive)==0)
+				{
+					PointMass* ppm = new PointMass;
+					newwing.m_PointMass.append(ppm);
+					readPointMass(ppm, massUnit, lengthUnit);
+				}
+				else
+					skipCurrentElement();
+			}
+		}
+		else if (name().compare(QString("Sections"),        Qt::CaseInsensitive)==0)
+		{
+			while(!atEnd() && !hasError() && readNextStartElement() )
+			{
+				if (name().compare(QString("Section"),  Qt::CaseInsensitive)==0)
+				{
+					WingSection *pWingSec = new WingSection;
+					newwing.m_WingSection.append(pWingSec);
+					while(!atEnd() && !hasError() && readNextStartElement() )
+					{
+						if (name().compare(QString("x_number_of_panels"), Qt::CaseInsensitive)==0)
+						{
+							pWingSec->m_NXPanels = readElementText().toInt();
+						}
+						else if (name().compare(QString("y_number_of_panels"), Qt::CaseInsensitive)==0)
+						{
+							pWingSec->m_NYPanels = readElementText().toInt();
+						}
+						else if (name().compare(QString("x_panel_distribution"), Qt::CaseInsensitive)==0)
+						{
+							QString strPanelDist = readElementText();
+							pWingSec->m_XPanelDist = distributionType(strPanelDist);
+						}
+						else if (name().compare(QString("y_panel_distribution"), Qt::CaseInsensitive)==0)
+						{
+							QString strPanelDist = readElementText();
+							pWingSec->m_YPanelDist = distributionType(strPanelDist);
+						}
+						else if (name().compare(QString("Chord"), Qt::CaseInsensitive)==0)
+						{
+							pWingSec->m_Chord = readElementText().toDouble()*lengthUnit;
+						}
+						else if (name().compare(QString("y_position"), Qt::CaseInsensitive)==0)
+						{
+							pWingSec->m_YPosition = readElementText().toDouble()*lengthUnit;
+						}
+						else if (name().compare(QString("xOffset"), Qt::CaseInsensitive)==0)
+						{
+							pWingSec->m_Offset = readElementText().toDouble()*lengthUnit;
+						}
+						else if (name().compare(QString("Dihedral"), Qt::CaseInsensitive)==0)
+						{
+							pWingSec->m_Dihedral = readElementText().toDouble();
+						}
+						else if (name().compare(QString("Twist"), Qt::CaseInsensitive)==0)
+						{
+							pWingSec->m_Twist = readElementText().toDouble();
+						}
+						else if (name().compare(QString("Left_Side_FoilName"), Qt::CaseInsensitive)==0)
+						{
+							pWingSec->m_LeftFoilName = readElementText();
+						}
+						else if (name().compare(QString("Right_Side_FoilName"), Qt::CaseInsensitive)==0)
+						{
+							pWingSec->m_RightFoilName = readElementText();
+						}
+						else
+							skipCurrentElement();
+					}
+				}
+				else
+					skipCurrentElement();
+			}
+		}
+		else
+			skipCurrentElement();
+	}
+
+
+	return(hasError());
+}
 
 
 bool XMLPlaneReader::readPointMass(PointMass *ppm, double massUnit, double lengthUnit)
@@ -372,7 +391,9 @@ bool XMLPlaneReader::readBody(Body *pBody, Vector3d &position, double lengthUnit
 		}
         else if (name().toString().compare(QString("color"), Qt::CaseInsensitive)==0)
 		{
-			readColor(pBody->bodyColor());
+			QColor clr;
+			readColor(clr);
+			pBody->setBodyColor(ObjectColor(clr.red(), clr.green(), clr.blue(), clr.alpha()));
 		}
         else if (name().toString().compare(QString("description"), Qt::CaseInsensitive)==0)
 		{
@@ -418,7 +439,7 @@ bool XMLPlaneReader::readBody(Body *pBody, Vector3d &position, double lengthUnit
 		{
 			while(!atEnd() && !hasError() && readNextStartElement() )
 			{
-                if (name().contains("stripe"), Qt::CaseInsensitive)
+                if (name().contains("stripe", Qt::CaseInsensitive))
 				{
 					pBody->m_hPanels.append(readElementText().toInt());
 				}

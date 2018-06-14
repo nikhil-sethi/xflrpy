@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	OpPointWidget Class
-	Copyright (C) 2016-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2016-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@
 
 #include <QObject>
 #include <QWidget>
-#include <QGraph.h>
-#include <objects2d/Vector3d.h>
-#include <objects2d/OpPoint.h>
+#include <graph/graph.h>
+#include <objects/objects3d/vector3d.h>
+#include <objects/objects2d/OpPoint.h>
 
 class OpPointWidget : public QWidget
 {
 	Q_OBJECT
-	friend class QXDirect;
+	friend class XDirect;
 	friend class XDirectTileWidget;
 	friend class XDirectStyleDlg;
 	friend class MainFrame;
@@ -51,12 +51,12 @@ public slots:
 
 	void setNeutralLineColor(QColor clr){m_crNeutralColor = clr;}
 	QColor neutralLineColor(){return m_crNeutralColor;}
-	void setGraph(QGraph* pGraph){m_pCpGraph = pGraph;}
+	void setGraph(Graph* pGraph){m_pCpGraph = pGraph;}
 	void loadSettings(QSettings *pSettings);
 	void saveSettings(QSettings *pSettings);
 
 signals:
-	void graphChanged(QGraph *);
+	void graphChanged(Graph *);
 
 protected:
 	void contextMenuEvent (QContextMenuEvent *event);
@@ -110,7 +110,7 @@ private:
 	bool m_bXPressed;                  /**< true if the X key is pressed */
 	bool m_bYPressed;                  /**< true if the Y key is pressed */
 
-	QGraph *m_pCpGraph;
+	Graph *m_pCpGraph;
 
 	QPoint m_LastPoint;
 //	QRect m_rGraphRect;

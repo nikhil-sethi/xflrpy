@@ -1,7 +1,7 @@
 /****************************************************************************
 
     Polar Class
-	Copyright (C) 2003-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2003-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,17 +31,13 @@
 
 #include <QList>
 
-
-#include <objects2d/OpPoint.h>
+#include <analysis3d/analysis3d_enums.h>
+#include <objects/objects2d/OpPoint.h>
 
 class Foil;
 
 // first name space
-namespace XFOIL
-{
-	/** @enum The different types of polar available for 2D and 3D calculations. */
-	typedef enum {FIXEDSPEEDPOLAR, FIXEDLIFTPOLAR, RUBBERCHORDPOLAR, FIXEDAOAPOLAR} enumPolarType;
-}
+
 
 /**
 *@brief
@@ -50,7 +46,7 @@ namespace XFOIL
 	The class stores both the analysis parameters and the analysis results.
 	Each instance of this class is uniquely associated to an instance of a Foil object.
 */
-class Polar
+class XFLR5ENGINELIBSHARED_EXPORT Polar
 {
 
 public:
@@ -81,7 +77,7 @@ public:
 	QString &foilName() {return m_FoilName;}
 	QString &polarName() {return m_PlrName;}
 
-	void setPolarType(XFOIL::enumPolarType type);
+        void setPolarType(XFLR5::enumPolarType type);
 
 	void setFoilName(QString newFoilName) {m_FoilName = newFoilName;}
 	void setPolarName(QString newPolarName) {m_PlrName = newPolarName;}
@@ -111,9 +107,9 @@ public:
 	double &XtrBot()   {return m_XBot;}
 	int &ReType()      {return m_ReType;}
 	int &MaType()      {return m_MaType;}
-	XFOIL::enumPolarType &polarType() {return m_PolarType;}
+        XFLR5::enumPolarType &polarType() {return m_PolarType;}
 
-	static QString autoPolarName(XFOIL::enumPolarType polarType, double Re, double Mach, double NCrit, double ASpec=0.0, double XTop=1.0, double XBot=1.0);
+        static QString autoPolarName(XFLR5::enumPolarType polarType, double Re, double Mach, double NCrit, double ASpec=0.0, double XTop=1.0, double XBot=1.0);
 	static QString variableName(int iVar);
 
 
@@ -146,7 +142,7 @@ public:
 	int m_red, m_blue, m_green, m_alphaChannel;
 
 	//Analysis specification
-	XFOIL::enumPolarType m_PolarType;          /**< the Polar type */
+        XFLR5::enumPolarType m_PolarType;          /**< the Polar type */
 	int m_ReType;                       /**< the type of Reynolds number input, cf. XFoil documentation */
 	int m_MaType;                       /**< the type of Mach number input, cf. XFoil documentation */
 	double m_ASpec;                     /**< the specified aoa in the case of Type 4 polars */

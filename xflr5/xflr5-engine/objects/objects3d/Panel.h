@@ -1,7 +1,7 @@
 /****************************************************************************
 
     Panel Class
-	Copyright (C) 2006-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2006-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 
 
 #include "Quaternion.h"
-#include <objects2d/Vector3d.h>
+#include <objects/objects3d/vector3d.h>
 
 /**
  * enumeration used to identify the type of surface on which the panel lies.
@@ -58,11 +58,11 @@ typedef enum {BOTSURFACE, MIDSURFACE, TOPSURFACE, SIDESURFACE, BODYSURFACE} enum
 *	For VLM calculations, the position and length vector of the bound vortex at the panel's quarter-chord are
 	stored as member variables.
 */
-class Panel
+class XFLR5ENGINELIBSHARED_EXPORT Panel
 {
 	friend class Surface;
 	friend class Wing;
-	friend class QMiarex;
+	friend class Miarex;
 	friend class Objects3D;
 	friend class Body;
 	friend class PlaneAnalysisTask;
@@ -91,7 +91,10 @@ public:
 	Vector3d localToGlobal(Vector3d const &VTest);
 
 	double width();
-	double area(){return Area;}
+	double area() const {return Area;}
+	Vector3d ctrlPt() const {return CtrlPt;}
+	Vector3d collPt() const {return CollPt;}
+	Vector3d normal() const {return Normal;}
 
 	static void setCoreSize(double CoreSize) { s_CoreSize=CoreSize;	}
 	static double coreSize() { return s_CoreSize; }

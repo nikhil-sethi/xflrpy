@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	GraphWidget Class
-		Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
+		Copyright (C) 2008-2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@
 *****************************************************************************/
 
 
-#include <mainframe.h>
+#include <globals/mainframe.h>
 #include <misc/options/displayoptions.h>
 #include "graphwidget.h"
 #include "graphtilewidget.h"
-#include "GraphDlg.h"
-#include <objects2d/Polar.h>
-#include <objects3d/WPolar.h>
+#include <graph/graphdlg.h>
+#include <objects/objects2d/Polar.h>
+#include <objects/objects3d/WPolar.h>
 #include <miarex/Miarex.h>
 #include <misc/options/Units.h>
 #include <QPen>
@@ -59,7 +59,7 @@ GraphWidget::GraphWidget(QWidget *pParent) : QWidget(pParent)
 	setLegendPosition(QPoint(20,20));
 }
 
-void GraphWidget::setGraph(QGraph *pGraph)
+void GraphWidget::setGraph(Graph *pGraph)
 {
 	m_pGraph = pGraph;
 	if(m_pGraph) m_pGraph->setDrawRect(rect());
@@ -357,11 +357,11 @@ void GraphWidget::onGraphSettings()
 	{
 		switch(m_pGraph->graphType())
 		{
-			case  QGRAPH::INVERSEGRAPH:
+			case  GRAPH::INVERSEGRAPH:
 			{
 				break;
 			}
-			case QGRAPH::OPPGRAPH:
+			case GRAPH::OPPGRAPH:
 			{
 				if(m_pGraph->yVariable() == 0 || m_pGraph->yVariable()>=2)
 				{
@@ -376,7 +376,7 @@ void GraphWidget::onGraphSettings()
 				m_pGraph->resetYLimits();
 				break;
 			}
-			case QGRAPH::POLARGRAPH:
+			case GRAPH::POLARGRAPH:
 			{
 				QString Title;
 				Title = Polar::variableName(m_pGraph->xVariable());
@@ -392,7 +392,7 @@ void GraphWidget::onGraphSettings()
 				}
 				break;
 			}
-			case QGRAPH::POPPGRAPH:
+			case GRAPH::POPPGRAPH:
 			{
 				if(grDlg.bVariableChanged())
 				{
@@ -402,14 +402,14 @@ void GraphWidget::onGraphSettings()
 				break;
 
 			}
-			case QGRAPH::WPOLARGRAPH:
+			case GRAPH::WPOLARGRAPH:
 			{
 				QString Title;
 
-				Title  = QMiarex::WPolarVariableName(m_pGraph->xVariable());
+				Title  = Miarex::WPolarVariableName(m_pGraph->xVariable());
 				m_pGraph->setXTitle(Title);
 
-				Title  = QMiarex::WPolarVariableName(m_pGraph->yVariable());
+				Title  = Miarex::WPolarVariableName(m_pGraph->yVariable());
 				m_pGraph->setYTitle(Title);
 
 				if(grDlg.bVariableChanged())
@@ -419,15 +419,15 @@ void GraphWidget::onGraphSettings()
 				}
 				break;
 			}
-			case QGRAPH::CPGRAPH:
+			case GRAPH::CPGRAPH:
 			{
 				break;
 			}
-			case QGRAPH::STABTIMEGRAPH:
+			case GRAPH::STABTIMEGRAPH:
 			{
 				break;
 			}
-			case QGRAPH::OTHERGRAPH:
+			case GRAPH::OTHERGRAPH:
 				return;
 		}
 		emit graphChanged(m_pGraph);

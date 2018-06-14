@@ -1,7 +1,7 @@
 /****************************************************************************
 
     XFoilAnalysisDlg Class
-	Copyright (C) 2008-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,13 +27,13 @@
 #include <QFontDatabase>
 #include <QtDebug>
 
-#include <gui_params.h>
+#include <globals/gui_params.h>
 
 #include "XFoilAnalysisDlg.h"
 #include <xdirect/XDirect.h>
 #include <xdirect/objects2d.h>
 #include <misc/options/displayoptions.h>
-#include <QGraph.h>
+#include <graph/graph.h>
 #include "graphwidget.h"
 #include <XFoil.h>
 #include <xdirect/analysis/XFoilTask.h>
@@ -54,7 +54,7 @@ XFoilAnalysisDlg::XFoilAnalysisDlg(QWidget *pParent) : QDialog(pParent)
 
 	m_pXFile       = NULL;
 
-	m_pRmsGraph = new QGraph;
+	m_pRmsGraph = new Graph;
 	m_pGraphWidget->setGraph(m_pRmsGraph);
 
 	m_pRmsGraph->setXTitle(tr("Iter"));
@@ -151,7 +151,7 @@ void XFoilAnalysisDlg::showEvent(QShowEvent *event)
 
 void XFoilAnalysisDlg::initDialog()
 {
-	m_pctrlLogFile->setChecked(QXDirect::s_bKeepOpenErrors);
+	m_pctrlLogFile->setChecked(XDirect::s_bKeepOpenErrors);
 
 	QString FileName = QDir::tempPath() + "/XFLR5.log";
 	m_pXFile = new QFile(FileName);
@@ -167,8 +167,8 @@ void XFoilAnalysisDlg::initDialog()
 	else         m_pXFoilTask->setSequence(false, m_ClMin, m_ClMax, m_ClDelta);
 
 	m_pXFoilTask->setReRange(m_ReMin, m_ReMax, m_ReDelta);
-	m_pXFoilTask->initializeTask(QXDirect::curFoil(), QXDirect::curPolar(),
-								 QXDirect::s_bStoreOpp, QXDirect::s_bViscous, QXDirect::s_bInitBL, false);
+	m_pXFoilTask->initializeTask(XDirect::curFoil(), XDirect::curPolar(),
+								 XDirect::s_bStoreOpp, XDirect::s_bViscous, XDirect::s_bInitBL, false);
 
 
     setFileHeader();
@@ -202,7 +202,7 @@ void XFoilAnalysisDlg::initDialog()
 
 void XFoilAnalysisDlg::onCancelAnalysis()
 {
-	XFoil::s_bCancel= true;
+    XFoil::setCancel(true);
 	XFoilTask::s_bCancel = true;
 
     if(m_pXFoilTask->isFinished()) reject();
@@ -214,13 +214,13 @@ void XFoilAnalysisDlg::reject()
 {
     if(!m_pXFoilTask->isFinished())
 	{
-		XFoil::s_bCancel= true;
+        XFoil::setCancel(true);
 		XFoilTask::s_bCancel = true;
 		return;
 	}
 
-	XFoilTask::s_bCancel = true;
-	XFoil::s_bCancel = true;
+    XFoilTask::s_bCancel = true;
+    XFoil::setCancel(true);
 	if(m_pXFile)
 	{
 		m_pXFoilTask->m_OutStream.flush();
@@ -234,7 +234,7 @@ void XFoilAnalysisDlg::reject()
 void XFoilAnalysisDlg::accept()
 {
 	XFoilTask::s_bCancel = true;
-	XFoil::s_bCancel = true;
+    XFoil::setCancel(true);
 	if(m_pXFile)
 	{
 		m_pXFoilTask->m_OutStream.flush();
@@ -248,7 +248,7 @@ void XFoilAnalysisDlg::accept()
 
 void XFoilAnalysisDlg::onLogFile(bool bChecked)
 {
-	QXDirect::s_bKeepOpenErrors = bChecked;
+	XDirect::s_bKeepOpenErrors = bChecked;
 }
 
 void XFoilAnalysisDlg::onSkipPoint()
@@ -299,11 +299,11 @@ void XFoilAnalysisDlg::setFileHeader()
 	out << "\n";
 	out << VERSIONNAME;
 	out << "\n";
-	out << QXDirect::curFoil()->foilName();
+	out << XDirect::curFoil()->foilName();
 	out << "\n";
-	if(QXDirect::curPolar())
+	if(XDirect::curPolar())
 	{
-		out << QXDirect::curPolar()->polarName();
+		out << XDirect::curPolar()->polarName();
 		out << "\n";
 	}
 
@@ -326,7 +326,7 @@ void XFoilAnalysisDlg::analyze()
 	//create a timer to update the output at regular intervals
 	QTimer *pTimer = new QTimer;
     connect(pTimer, SIGNAL(timeout()), this, SLOT(onProgress()));
-	pTimer->setInterval(QXDirect::s_TimeUpdateInterval);
+	pTimer->setInterval(XDirect::s_TimeUpdateInterval);
     pTimer->start();
 
 	//Launch the task
@@ -369,12 +369,10 @@ void XFoilAnalysisDlg::onProgress()
 
 	repaint();
 
-	QXDirect *pXDirect = (QXDirect*)s_pXDirect;
+	XDirect *pXDirect = (XDirect*)s_pXDirect;
 	pXDirect->createPolarCurves();
 	pXDirect->updateView();
 }
-
-
 
 
 
@@ -390,7 +388,7 @@ void XFoilAnalysisDlg::customEvent(QEvent * event)
 	else if(event->type() == XFOIL_END_OPP_EVENT)
 	{
 		XFoilOppEvent *pOppEvent = (XFoilOppEvent*)event;
-		Objects2D::addOpPoint(pOppEvent->foilPtr(), pOppEvent->polarPtr(), pOppEvent->XFoilPtr(), QXDirect::s_bStoreOpp);
+		Objects2d::addOpPoint(pOppEvent->foilPtr(), pOppEvent->polarPtr(), pOppEvent->XFoilPtr(), XDirect::s_bStoreOpp);
 		m_pRmsGraph->resetYLimits();
 	}
 }

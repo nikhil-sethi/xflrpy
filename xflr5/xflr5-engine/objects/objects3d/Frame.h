@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Frame Class
-	Copyright (C) 2007-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2007-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #ifndef FRAME_H
 #define FRAME_H
 
-#include <objects2d/Vector3d.h>
+#include <objects/objects3d/vector3d.h>
 #include <QDataStream>
 #include <QList>
 
@@ -38,7 +38,7 @@
  * The Frmae's points are defined from bottom to top, i.e. for crescending z values, and for the body's left (port) side. 
   * The x-value of the control points is unused, the frame's position is defined by the variable m_Position.
 */
-class Frame
+class XFLR5ENGINELIBSHARED_EXPORT Frame
 {
 public:
 	Frame(int nCtrlPts=0);
@@ -64,6 +64,8 @@ public:
 
 	Vector3d position() const {return m_Position;}
 	Vector3d &selectedPoint() {return m_CtrlPoint[s_iSelect];}
+
+	const Vector3d &ctrlPointAt(int idx) const {return m_CtrlPoint.at(idx);}
 
 	QList <Vector3d> m_CtrlPoint;	/**< the array of points which define the frame.  */
 	Vector3d m_Position;             /**< the translation vector for the Frame's origin */

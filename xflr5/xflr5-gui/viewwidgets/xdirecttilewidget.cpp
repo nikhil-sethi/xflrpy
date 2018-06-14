@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	XDirectTileWidget Class
-		Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+		Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 *****************************************************************************/
 
-#include <mainframe.h>
+#include <globals/mainframe.h>
 #include "xdirecttilewidget.h"
 #include "xdirect/XDirect.h"
 #include <viewwidgets/oppointwidget.h>
@@ -66,14 +66,14 @@ void XDirectTileWidget::connectSignals()
 	connect(pMainFrame->m_pXDirectStyleAct, SIGNAL(triggered()), m_pOpPointWidget, SLOT(onXDirectStyle()));
 	connect(pMainFrame->m_pShowNeutralLine, SIGNAL(triggered()), m_pOpPointWidget, SLOT(onShowNeutralLine()));
 //	connect(pMainFrame->m_pShowPanels,      SIGNAL(triggered()), m_pOpPointWidget, SLOT(onShowPanels()));
-	connect(m_pOpPointWidget, SIGNAL(graphChanged(QGraph*)), this, SLOT(onResetCurves(QGraph*)));
+	connect(m_pOpPointWidget, SIGNAL(graphChanged(Graph*)), this, SLOT(onResetCurves(Graph*)));
 
 	for(int igw=0; igw<m_GraphWidget.count(); igw++)
 	{
-		connect(m_GraphWidget.at(igw), SIGNAL(graphChanged(QGraph*)), this, SLOT(onResetCurves(QGraph*)));
+		connect(m_GraphWidget.at(igw), SIGNAL(graphChanged(Graph*)), this, SLOT(onResetCurves(Graph*)));
 	}
 
-	connect(m_GraphWidget.at(0), SIGNAL(graphResized(QGraph*)), m_pOpPointWidget, SLOT(onResetFoilScale()));
+	connect(m_GraphWidget.at(0), SIGNAL(graphResized(Graph*)), m_pOpPointWidget, SLOT(onResetFoilScale()));
 
 }
 
@@ -97,7 +97,7 @@ void XDirectTileWidget::setupMainLayout()
 
 void XDirectTileWidget::adjustLayout()
 {
-	QXDirect *pXDirect = (QXDirect*)s_pXDirect;
+	XDirect *pXDirect = (XDirect*)s_pXDirect;
 
 	blockSignals(true);
 
@@ -205,10 +205,10 @@ void XDirectTileWidget::adjustLayout()
 
 
 
-void XDirectTileWidget::setGraphList(QList<QGraph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation)
+void XDirectTileWidget::setGraphList(QList<Graph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation)
 {
 	MainFrame*pMainFrame = (MainFrame*)s_pMainFrame;
-	QXDirect *pXDirect = (QXDirect*)s_pXDirect;
+	XDirect *pXDirect = (XDirect*)s_pXDirect;
 	m_xflr5App = pMainFrame->xflr5App();
 	m_nGraphWidgets = qMin(nGraphs,MAXPOLARGRAPHS);
 	m_iActiveGraphWidget = iGraphWidget;
@@ -242,7 +242,7 @@ void XDirectTileWidget::setGraphList(QList<QGraph*>pGraphList, int nGraphs, int 
 void XDirectTileWidget::onResetCurGraphScales()
 {
 	if(!isVisible()) return;
-	QXDirect *pXDirect = (QXDirect*)s_pXDirect;
+	XDirect *pXDirect = (XDirect*)s_pXDirect;
 	if(!pXDirect->bPolarView())
 	{
 		m_pOpPointWidget->resetGraphScale();

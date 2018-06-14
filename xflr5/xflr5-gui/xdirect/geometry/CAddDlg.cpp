@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Corner Add class
-	Copyright (C) 2004-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2004-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ CAddDlg::CAddDlg(QWidget *pParent) : QDialog(pParent)
 
 	m_iSplineType = 0;
 
-	setupLayout();
+    setupLayout();
 
 	connect(m_pctrlTo,     SIGNAL(editingFinished()), this, SLOT(onApply()));
 	connect(m_pctrlFrom,   SIGNAL(editingFinished()), this, SLOT(onApply()));
@@ -49,6 +49,7 @@ CAddDlg::CAddDlg(QWidget *pParent) : QDialog(pParent)
 	connect(OKButton,      SIGNAL(clicked()),         this, SLOT(accept()));
 	connect(CancelButton,  SIGNAL(clicked()),         this, SLOT(reject()));
 }
+
 
 void CAddDlg::setupLayout()
 {

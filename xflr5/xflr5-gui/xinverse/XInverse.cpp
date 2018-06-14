@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	XInverse Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,23 +30,25 @@
 #include "FoilSelectionDlg.h"
 #include "PertDlg.h"
 #include "InverseOptionsDlg.h"
-#include <globals.h>
+#include <globals/globals.h>
 #include <graph_globals.h>
-#include <mainframe.h>
+#include <globals/mainframe.h>
 #include <xdirect/XDirect.h>
 #include <xdirect/objects2d.h>
-#include <objects2d/Foil.h>
+#include <objects/objects2d/Foil.h>
 #include <misc/RenameDlg.h>
 #include <misc/options/displayoptions.h>
-#include <graph/GraphDlg.h>
+#include <graph/graphdlg.h>
 #include <XFoil.h>
 
+#define PI 3.4141592654
 
-MainFrame *QXInverse::s_pMainFrame;
-void *QXInverse::s_p2DWidget;
+
+MainFrame *XInverse::s_pMainFrame;
+void *XInverse::s_p2DWidget;
 
 /** The public contructor */
-QXInverse::QXInverse(QWidget *parent)
+XInverse::XInverse(QWidget *parent)
 	: QWidget(parent)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -108,7 +110,7 @@ QXInverse::QXInverse(QWidget *parent)
 	m_SplineLeftPos   = -1;
 	m_SplineRightPos  = -1;
 
-	m_QGraph.graphType() = QGRAPH::INVERSEGRAPH;
+	m_QGraph.graphType() = GRAPH::INVERSEGRAPH;
 	m_QGraph.setType(2);
 	m_QGraph.setGraphDefaults();
 	m_QGraph.setXTitle(tr("x/c"));
@@ -138,7 +140,7 @@ QXInverse::QXInverse(QWidget *parent)
 /**
  * The public destructor
  */
-QXInverse::~QXInverse()
+XInverse::~XInverse()
 {
 	delete m_pModFoil;
 	delete m_pRefFoil;
@@ -150,7 +152,7 @@ QXInverse::~QXInverse()
 /**
  * Cancels the existing modification limits on the velocity curve
  */
-void QXInverse::cancelMark()
+void XInverse::cancelMark()
 {
 	m_pctrlMark->setChecked(false);
 	m_bGetPos = false;
@@ -161,7 +163,7 @@ void QXInverse::cancelMark()
 /**
  * Cancels the existing smoothing limits on the velocity curve
  */
-void QXInverse::cancelSmooth()
+void XInverse::cancelSmooth()
 {
 	m_bSmooth = false;
 	m_bGetPos = false;
@@ -172,7 +174,7 @@ void QXInverse::cancelSmooth()
 /**
  * Cancels the spline definition process
  */
-void QXInverse::cancelSpline()
+void XInverse::cancelSpline()
 {
 //	m_bSpline  = false;
 	m_bSplined = false;
@@ -189,7 +191,7 @@ void QXInverse::cancelSpline()
 /**
  * Initializes the widgets and actions with the current data
  */
-void QXInverse::checkActions()
+void XInverse::checkActions()
 {
 	s_pMainFrame->m_pInvQInitial->setChecked(m_pQCurve->isVisible());
 	s_pMainFrame->m_pInvQSpec->setChecked(m_pMCurve->isVisible());
@@ -214,11 +216,12 @@ void QXInverse::checkActions()
 /**
  * Clears the data associated to the loaded Foil
  */
-void QXInverse::clear()
+void XInverse::clear()
 {
 	m_pRefFoil->n = 0;
-	m_pRefFoil->foilName() = "";
-	m_pModFoil->foilName() = "";
+	m_pRefFoil->setFoilName(QString());
+	m_pModFoil->setFoilName(QString());
+
 	m_bLoaded = false;
 	m_pReflectedCurve->clear();
 	m_pMCurve->clear();
@@ -230,7 +233,7 @@ void QXInverse::clear()
 /**
  * Performs the connections between SIGNALS and SLOTS
  */
-void QXInverse::connectSignals()
+void XInverse::connectSignals()
 {
 	connect(this, SIGNAL(projectModified()), s_pMainFrame, SLOT(onProjectModified()));
 
@@ -263,7 +266,7 @@ void QXInverse::connectSignals()
 /**
  * Creates the velocity curve
  */
-void QXInverse::createQCurve()
+void XInverse::createQCurve()
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	double x,y;
@@ -284,7 +287,7 @@ void QXInverse::createQCurve()
 /**
  * Creates the modified velocity specification curve
  */
-void QXInverse::createMCurve()
+void XInverse::createMCurve()
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	int i, points;
@@ -309,7 +312,7 @@ void QXInverse::createMCurve()
  * @param painter the instance of the QPainter object on which to draw
  * @param scale the scaling factor for drawing
  */
-void QXInverse::drawGrid(QPainter &painter, double scale)
+void XInverse::drawGrid(QPainter &painter, double scale)
 {
 	painter.save();
 	double scalex;
@@ -377,7 +380,7 @@ void QXInverse::drawGrid(QPainter &painter, double scale)
  * Executes a full inverse design analysis
  * Updates the geometry of the modified Foil
  */
-void QXInverse::execMDES()
+void XInverse::execMDES()
 {
 //----- put modified info back into global arrays
 	m_pctrlOutput->append("executing...");
@@ -417,7 +420,7 @@ void QXInverse::execMDES()
  * Updates the geometry of the modified Foil
  *@return true unless the modifications points were not marked
  */
-bool QXInverse::execQDES()
+bool XInverse::execQDES()
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	int i;
@@ -491,14 +494,14 @@ bool QXInverse::execQDES()
  * @param pFoil a pointer to the Foil object with which to initialize the XFoil object
  * @true if the initialization has been sucessful
  */
-bool QXInverse::initXFoil(Foil * pFoil)
+bool XInverse::initXFoil(Foil * pFoil)
 {
 	//loads pFoil in XFoil, calculates normal vectors, and sets results in current foil
 	if(!pFoil) return  false;
 
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 
-	m_pModFoil->foilName() = pFoil->foilName() + tr(" Modified");
+	m_pModFoil->setFoilName(pFoil->foilName() + tr(" Modified"));
 
 	pXFoil->initialize();
 	for(int i =0; i<pFoil->n; i++)
@@ -541,7 +544,7 @@ bool QXInverse::initXFoil(Foil * pFoil)
  * Dispatches the key press event
  * @param event the QKeyEvent
  */
-void QXInverse::keyPressEvent(QKeyEvent *event)
+void XInverse::keyPressEvent(QKeyEvent *event)
 {
 	bool bCtrl = false;
 	if(event->modifiers() & Qt::ControlModifier)   bCtrl =true;
@@ -688,7 +691,7 @@ void QXInverse::keyPressEvent(QKeyEvent *event)
  * Dispatches the key release event
  * @param event the QKeyEvent
  */
-void QXInverse::keyReleaseEvent(QKeyEvent *event)
+void XInverse::keyReleaseEvent(QKeyEvent *event)
 {
 	m_bXPressed = m_bYPressed = false;
 	switch (event->key())
@@ -709,7 +712,7 @@ void QXInverse::keyReleaseEvent(QKeyEvent *event)
  * Loads the user's default settings from the application QSettings object
  * @param pSettings a pointer to the QSettings object
  */
-void QXInverse::loadSettings(QSettings *pSettings)
+void XInverse::loadSettings(QSettings *pSettings)
 {
 	pSettings->beginGroup("XInverse");
 	{
@@ -738,7 +741,7 @@ void QXInverse::loadSettings(QSettings *pSettings)
  * Dispatches the event
  * @param event the QMouseEvent
  */
-void QXInverse::doubleClickEvent(QPoint pos)
+void XInverse::doubleClickEvent(QPoint pos)
 {
 	if (!m_QGraph.isInDrawRect(pos)) return;
 
@@ -751,7 +754,7 @@ void QXInverse::doubleClickEvent(QPoint pos)
  * Dispatches the event
  * @param event the QMouseEvent
  */
-void QXInverse::mouseMoveEvent(QMouseEvent *event)
+void XInverse::mouseMoveEvent(QMouseEvent *event)
 {
 	double x1,y1, xmin, xmax, ymin,  ymax, xpt, ypt, scale, ux, uy, unorm, vx, vy, vnorm, scal;
 	double xx0,xx1,xx2,yy0,yy1,yy2, dist;
@@ -1019,7 +1022,7 @@ void QXInverse::mouseMoveEvent(QMouseEvent *event)
  * Dispatches the event
  * @param event the QMouseEvent
  */
-void QXInverse::mousePressEvent(QMouseEvent *event)
+void XInverse::mousePressEvent(QMouseEvent *event)
 {
 	InverseViewWidget *p2DWidget = (InverseViewWidget*)s_p2DWidget;
 	bool bCtrl, bShift;
@@ -1114,7 +1117,7 @@ void QXInverse::mousePressEvent(QMouseEvent *event)
  * Dispatches the event
  * @param event the QMouseEvent
  */
-void QXInverse::mouseReleaseEvent(QMouseEvent *event)
+void XInverse::mouseReleaseEvent(QMouseEvent *event)
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	InverseViewWidget *p2DWidget = (InverseViewWidget*)s_p2DWidget;
@@ -1304,7 +1307,7 @@ void QXInverse::mouseReleaseEvent(QMouseEvent *event)
  * @param point the screen coordinates
  * @return the viewport coordinates
  */
-Vector3d QXInverse::mousetoReal(QPoint point)
+Vector3d XInverse::mousetoReal(QPoint point)
 {
 	Vector3d Real;
 
@@ -1319,7 +1322,7 @@ Vector3d QXInverse::mousetoReal(QPoint point)
 /**
  * The user has requested to apply the spline to the velocity curve
  */
-void QXInverse::onApplySpline()
+void XInverse::onApplySpline()
 {
 	if(!m_bSplined)
 	{
@@ -1370,7 +1373,7 @@ void QXInverse::onApplySpline()
 /**
  * Not sure - refer to XFoil documentation
  */
-void QXInverse::onCpxx()
+void XInverse::onCpxx()
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	cancelSpline();
@@ -1384,7 +1387,7 @@ void QXInverse::onCpxx()
 /**
  * The user has requested the execution of the modification
  */
-void QXInverse::onExecute()
+void XInverse::onExecute()
 {
 	if (m_bZoomPlus) releaseZoom();
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
@@ -1413,7 +1416,7 @@ void QXInverse::onExecute()
 /**
  * 	Extracts a Foil from the database for display and modification
 */
-void QXInverse::onExtractFoil()
+void XInverse::onExtractFoil()
 {
 	FoilSelectionDlg dlg(s_pMainFrame);
 	dlg.m_poaFoil = m_poaFoil;
@@ -1431,12 +1434,12 @@ void QXInverse::onExtractFoil()
 		m_bSpline = false;
 		m_bSplined  = true;
 		Foil *pFoil;
-		pFoil = Objects2D::foil(dlg.m_FoilName);
-		QXDirect::setCurFoil(pFoil);
+		pFoil = Objects2d::foil(dlg.m_FoilName);
+		XDirect::setCurFoil(pFoil);
 
 		m_pRefFoil->copyFoil(pFoil);
 
-		m_pModFoil->foilName() = m_pRefFoil->foilName() + tr(" Modified");
+		m_pModFoil->setFoilName(m_pRefFoil->foilName() + tr(" Modified"));
 		initXFoil(m_pRefFoil);
 		setFoil();
 		updateView();
@@ -1447,7 +1450,7 @@ void QXInverse::onExtractFoil()
 /**
  * Applies a Hanning type filter to the velocity curve
  */
-void QXInverse::onFilter()
+void XInverse::onFilter()
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	cancelSpline();
@@ -1469,7 +1472,7 @@ void QXInverse::onFilter()
 /**
  *The user has requested an edition of the graph settings
 */
-void QXInverse::onQGraphSettings()
+void XInverse::onQGraphSettings()
 {
 	GraphDlg *m_pGraphDlg = new GraphDlg(s_pMainFrame);
 
@@ -1487,7 +1490,7 @@ void QXInverse::onQGraphSettings()
 /**
  * The user has requested the insertion of a new control point in the Spline object at the mouse position
  */
-void QXInverse::onInsertCtrlPt()
+void XInverse::onInsertCtrlPt()
 {
 	double xd = m_QGraph.clientTox(m_ptPopUp.x());
 	double yd = m_QGraph.clientToy(m_ptPopUp.y());
@@ -1505,7 +1508,7 @@ void QXInverse::onInsertCtrlPt()
 /**
  * The user has toggled between full-inverse and mixed-inverse applications
  */
-void QXInverse::onInverseApp()
+void XInverse::onInverseApp()
 {
 	m_bFullInverse = s_pMainFrame->m_pctrlFullInverse->isChecked();
 
@@ -1525,7 +1528,7 @@ void QXInverse::onInverseApp()
 /**
  * The user has requested a modification of the styles of the curves
  */
-void QXInverse::onInverseStyles()
+void XInverse::onInverseStyles()
 {
 	InverseOptionsDlg *m_pXInverseStyleDlg = new InverseOptionsDlg(s_pMainFrame);
 	m_pXInverseStyleDlg->m_pXInverse = this;
@@ -1547,7 +1550,7 @@ void QXInverse::onInverseStyles()
 /**
  * The user has requested to mark a segment for modification on the curve
  */
-void QXInverse::onMarkSegment()
+void XInverse::onMarkSegment()
 {
 	cancelSpline();
 	cancelSmooth();
@@ -1576,7 +1579,7 @@ void QXInverse::onMarkSegment()
 /**
  * The user has requested the creation of a new spline to define the modification of the velocity curve
  */
-void QXInverse::onNewSpline()
+void XInverse::onNewSpline()
 {
 	releaseZoom();
 	if((m_bFullInverse && m_pctrlNewSpline->isChecked()) || (!m_bFullInverse && m_pctrlMNewSpline->isChecked()))
@@ -1608,7 +1611,7 @@ void QXInverse::onNewSpline()
 /**
  * @todo check The user has requested the launch of the interface to define the perturbation to the curve
  */
-void QXInverse::onPertubate()
+void XInverse::onPertubate()
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	int m;
@@ -1640,7 +1643,7 @@ void QXInverse::onPertubate()
 
 
 /** Toggles the visibility of the reference curve */
-void QXInverse::onQInitial()
+void XInverse::onQInitial()
 {
 	m_pQCurve->setVisible(!m_pQCurve->isVisible());
 	checkActions();
@@ -1648,7 +1651,7 @@ void QXInverse::onQInitial()
 }
 
 /** Toggles the visibility of the specification curve */
-void QXInverse::onQSpec()
+void XInverse::onQSpec()
 {
 	m_pMCurve->setVisible(!m_pMCurve->isVisible());
 	checkActions();
@@ -1656,7 +1659,7 @@ void QXInverse::onQSpec()
 }
 
 /** Toggles the visibility of the viscous curve */
-void QXInverse::onQViscous()
+void XInverse::onQViscous()
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	if(pXFoil->lvisc)
@@ -1668,7 +1671,7 @@ void QXInverse::onQViscous()
 }
 
 /** Toggles the visibility of the curve's points */
-void QXInverse::onQPoints()
+void XInverse::onQPoints()
 {
 	m_bShowPoints = !m_bShowPoints;
 	m_pQCurve->setPoints(m_bShowPoints);
@@ -1678,7 +1681,7 @@ void QXInverse::onQPoints()
 }
 
 /** Toggles the visibility of the reflected curve */
-void QXInverse::onQReflected()
+void XInverse::onQReflected()
 {
 	m_bReflected = !m_bReflected;
 	m_pReflectedCurve->setVisible(m_bReflected);
@@ -1688,7 +1691,7 @@ void QXInverse::onQReflected()
 
 
 /** Resets the specification curve */
-void QXInverse::onQReset()
+void XInverse::onQReset()
 {
 	cancelSpline();
 	cancelSmooth();
@@ -1702,7 +1705,7 @@ void QXInverse::onQReset()
 /**
  * The user has requested to remove the selected control point from the spline
  */
-void QXInverse::onRemoveCtrlPt()
+void XInverse::onRemoveCtrlPt()
 {
 	if (m_Spline.m_iHighlight>=0)
 	{
@@ -1719,7 +1722,7 @@ void QXInverse::onRemoveCtrlPt()
 }
 
 /** The user has requested a reset of the Foil scale */
-void QXInverse::onResetFoilScale()
+void XInverse::onResetFoilScale()
 {
 	releaseZoom();
 	resetScale();
@@ -1730,7 +1733,7 @@ void QXInverse::onResetFoilScale()
 /**
  * The user has toggled between aoa and lift coefficient as the input parameter
  */
-void QXInverse::onSpecal()
+void XInverse::onSpecal()
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 
@@ -1753,7 +1756,7 @@ void QXInverse::onSpecal()
 /**
  * The user has modified the value of the aoa or lift coefficient
  */
-void QXInverse::onSpecInv()
+void XInverse::onSpecInv()
 {
 	if (m_bZoomPlus) releaseZoom();
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
@@ -1777,7 +1780,7 @@ void QXInverse::onSpecInv()
 
 
 /** The user has toggled the spline display */
-void QXInverse::onShowSpline()
+void XInverse::onShowSpline()
 {
 	if(m_bFullInverse) m_bSpline = m_pctrlShowSpline->isChecked();
 	else               m_bSpline = m_pctrlMShowSpline->isChecked();
@@ -1787,7 +1790,7 @@ void QXInverse::onShowSpline()
 
 
 /** The user has requested a smoothing operation on the curve */
-void QXInverse::onSmooth()
+void XInverse::onSmooth()
 {
 	cancelSpline();
 	if(m_pctrlSmooth->isChecked() || m_pctrlMSmooth->isChecked())
@@ -1808,7 +1811,7 @@ void QXInverse::onSmooth()
 /**
  * The user has requested the storage of the modified Foil in the database
  */
-void QXInverse::onStoreFoil()
+void XInverse::onStoreFoil()
 {
 	if(!m_bLoaded) return;
 
@@ -1822,9 +1825,9 @@ void QXInverse::onStoreFoil()
 	pNewFoil->setFoilName(m_pRefFoil->foilName());
 
 	QStringList NameList;
-	for(int k=0; k<Objects2D::s_oaFoil.size(); k++)
+    for(int k=0; k<Objects2d::s_oaFoil.size(); k++)
 	{
-		Foil *pOldFoil = Objects2D::s_oaFoil.at(k);
+		Foil *pOldFoil = Objects2d::s_oaFoil.at(k);
 		NameList.append(pOldFoil->foilName());
 	}
 
@@ -1833,7 +1836,7 @@ void QXInverse::onStoreFoil()
 	if(renDlg.exec() !=QDialog::Rejected)
 	{
 		pNewFoil->setFoilName(renDlg.newName());
-		Objects2D::insertThisFoil(pNewFoil);
+		Objects2d::insertThisFoil(pNewFoil);
 	}
 	else
 	{
@@ -1843,7 +1846,7 @@ void QXInverse::onStoreFoil()
 
 
 /** The user has toggled the symetric requirement for the foil*/
-void QXInverse::onSymm()
+void XInverse::onSymm()
 {
 	cancelSpline();
 
@@ -1856,7 +1859,7 @@ void QXInverse::onSymm()
 
 
 /** The user has requested to zoom in on a part of the display */
-void QXInverse::onZoomIn()
+void XInverse::onZoomIn()
 {
 	if(!m_bZoomPlus)
 	{
@@ -1878,7 +1881,7 @@ void QXInverse::onZoomIn()
 
 
 /** The user has toggled the requirement for a spline tangent to the specification curve */
-void QXInverse::onTangentSpline()
+void XInverse::onTangentSpline()
 {
 	if(m_bFullInverse) m_bTangentSpline = m_pctrlTangentSpline->isChecked();
 	else               m_bTangentSpline = m_pctrlMTangentSpline->isChecked();
@@ -1891,7 +1894,7 @@ void QXInverse::onTangentSpline()
  * Draws the graph
  * @param painter a reference to the QPainter object with which to draw
  */
-void QXInverse::paintGraph(QPainter &painter)
+void XInverse::paintGraph(QPainter &painter)
 {
 	painter.save();
 
@@ -1986,7 +1989,7 @@ void QXInverse::paintGraph(QPainter &painter)
  * Draws the Foil
  * @param painter a reference to the QPainter object with which to draw
  */
-void QXInverse::paintFoil(QPainter &painter)
+void XInverse::paintFoil(QPainter &painter)
 {
 	painter.save();
 	QString str,str1,str2;
@@ -2097,7 +2100,7 @@ void QXInverse::paintFoil(QPainter &painter)
 /** Paints the view
  * @param painter a reference to the QPainter object with which to draw
  */
-void QXInverse::paintView(QPainter &painter)
+void XInverse::paintView(QPainter &painter)
 {
 	painter.save();
 
@@ -2113,7 +2116,7 @@ void QXInverse::paintView(QPainter &painter)
  * XFoil source code: sets incompressible speed from karman-tsien compressible speed
  *-------------------------------------
  */
-double QXInverse::qincom(double qc, double qinf, double tklam)
+double XInverse::qincom(double qc, double qinf, double tklam)
 {
 //-------------------------------------
 //     sets incompressible speed from
@@ -2137,7 +2140,7 @@ double QXInverse::qincom(double qc, double qinf, double tklam)
 /**
  * Ends the zoom-in process
  */
-void QXInverse::releaseZoom()
+void XInverse::releaseZoom()
 {
 	m_bZoomPlus  = false;
 	m_ZoomRect.setRight(m_ZoomRect.left()-1);
@@ -2149,7 +2152,7 @@ void QXInverse::releaseZoom()
 /**
  * Resets the mixed inverse specification curve
  */
-void QXInverse::resetMixedQ()
+void XInverse::resetMixedQ()
 {
 	m_pMCurve->clear();
 	for (int i=0; i<m_pQCurve->size(); i++)
@@ -2165,7 +2168,7 @@ void QXInverse::resetMixedQ()
 /**
  * Resets the reference velocity curve
  */
-void QXInverse::resetQ()
+void XInverse::resetQ()
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	pXFoil->cncalc(pXFoil->qgamm,false);
@@ -2178,7 +2181,7 @@ void QXInverse::resetQ()
 /**
  * Resets the Foil scale
  */
-void QXInverse::resetScale()
+void XInverse::resetScale()
 {
 	int h4 = m_rCltRect.height()/4;
 	m_ptOffset.rx() = m_rGraphRect.left() +(int)(1.0*m_QGraph.margin());
@@ -2194,7 +2197,7 @@ void QXInverse::resetScale()
  * Saves the user settings
  * @param pSettings a pointer to the QSetting object.
  */
-void QXInverse::saveSettings(QSettings *pSettings)
+void XInverse::saveSettings(QSettings *pSettings)
 {
 	pSettings->beginGroup("XInverse");
 	{
@@ -2218,7 +2221,7 @@ void QXInverse::saveSettings(QSettings *pSettings)
 /**
  * Initializes the interface with the selected foil
  */
-void QXInverse::setFoil()
+void XInverse::setFoil()
 {
 	int i;
 	QFile *pXFile=NULL;
@@ -2306,7 +2309,7 @@ void QXInverse::setFoil()
  * Initializes the widgets with the active data
  * @return
  */
-bool QXInverse::setParams()
+bool XInverse::setParams()
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	Foil *pFoil;
@@ -2359,11 +2362,11 @@ bool QXInverse::setParams()
 
 	onSpecal();
 
-	if (QXDirect::curFoil() && pXFoil->lqspec)
+	if (XDirect::curFoil() && pXFoil->lqspec)
 	{
-		m_pRefFoil->copyFoil(QXDirect::curFoil());
+		m_pRefFoil->copyFoil(XDirect::curFoil());
 		m_pRefFoil->setColor(m_pQCurve->color().red(), m_pQCurve->color().green(), m_pQCurve->color().blue(), m_pQCurve->color().alpha());
-		strFoilName = QXDirect::curFoil()->foilName();
+		strFoilName = XDirect::curFoil()->foilName();
 	}
 	else
 	{
@@ -2410,9 +2413,9 @@ bool QXInverse::setParams()
 
 	m_pRefFoil->n          = pXFoil->n;
 	m_pRefFoil->nb         = pXFoil->n;
-	m_pRefFoil->foilName() = strFoilName;
+	m_pRefFoil->setFoilName(strFoilName);
 	m_pRefFoil->initFoil();
-	m_pModFoil->foilName() = strFoilName + tr(" Modified");
+	m_pModFoil->setFoilName(strFoilName + tr(" Modified"));
 
 	setFoil();
 	checkActions();
@@ -2424,7 +2427,7 @@ bool QXInverse::setParams()
  * Sets the scale for the Foil and QGraph display
  * @param CltRect the client area
  */
-void QXInverse::setXInverseScale(QRect CltRect)
+void XInverse::setXInverseScale(QRect CltRect)
 {
 	m_rCltRect = CltRect;
 
@@ -2443,7 +2446,7 @@ void QXInverse::setXInverseScale(QRect CltRect)
  * Sets the angle at the trailing edge
  * @param a the angle in degrees
  */
-void QXInverse::setTAngle(double a)
+void XInverse::setTAngle(double a)
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	pXFoil->agte = a/180.0;
@@ -2453,7 +2456,7 @@ void QXInverse::setTAngle(double a)
 /**
  * Sets the trailing edge gap.
  */
-void QXInverse::setTGap(double tr, double ti)
+void XInverse::setTGap(double tr, double ti)
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 	pXFoil->dzte = complex<double>(tr,ti);
@@ -2463,7 +2466,7 @@ void QXInverse::setTGap(double tr, double ti)
 /**
  * Sets up the interface
  */
-void QXInverse::setupLayout()
+void XInverse::setupLayout()
 {
 	QGroupBox *pSpecBox = new QGroupBox(tr("Specification"));
 	{
@@ -2790,7 +2793,7 @@ void QXInverse::setupLayout()
  * @param Pos1 the first end point
  * @param Pos2 the seconf end point
  */
-void QXInverse::smooth(int Pos1, int Pos2)
+void XInverse::smooth(int Pos1, int Pos2)
 {
 	XFoil *pXFoil = (XFoil*)m_pXFoil;
 
@@ -2837,7 +2840,7 @@ void QXInverse::smooth(int Pos1, int Pos2)
 /**
  * Refreshes the display
  */
-void QXInverse::updateView()
+void XInverse::updateView()
 {
 	InverseViewWidget *p2DWidget = (InverseViewWidget*)s_p2DWidget;
 	if(s_p2DWidget)
@@ -2852,7 +2855,7 @@ void QXInverse::updateView()
  * Dispatches the event
  * @param event the QMouseEvent
  */
-void QXInverse::zoomEvent(QPoint pos, double zoomFactor)
+void XInverse::zoomEvent(QPoint pos, double zoomFactor)
 {
 	releaseZoom();
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	QXDirectStyleDlg Class
-	Copyright (C) 2009 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,12 +18,13 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
+
 #ifndef XDIRECTSTYLEDLG_H
 #define XDIRECTSTYLEDLG_H
 
 #include <QDialog>
 #include <misc/line/LineBtn.h>
-
+#include <QKeyEvent>
 
 class XDirectStyleDlg : public QDialog
 {

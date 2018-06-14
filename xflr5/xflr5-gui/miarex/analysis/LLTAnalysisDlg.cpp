@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	LLTAnalysisDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 #include <QtDebug>
 
 #include "LLTAnalysisDlg.h"
-#include <miarex/Objects3D.h>
+#include <miarex/objects3d.h>
 #include <misc/options/displayoptions.h>
 #include "miarex/Miarex.h"
 
@@ -54,7 +54,7 @@ LLTAnalysisDlg::LLTAnalysisDlg(QWidget *pParent) : QDialog(pParent)
 
 	m_pTheTask = NULL;
 
-	m_pIterGraph = new QGraph();
+	m_pIterGraph = new Graph();
 
 	m_pGraphWidget->setGraph(m_pIterGraph);
 	m_pIterGraph->copySettings(&Settings::s_RefGraph, false);
@@ -113,13 +113,13 @@ void LLTAnalysisDlg::initDialog()
 	m_pIterGraph->setYMin(0.0);
 	m_pIterGraph->setYMax(1.0);
 
-	m_pctrlLogFile->setChecked(QMiarex::m_bLogFile);
+	m_pctrlLogFile->setChecked(Miarex::m_bLogFile);
 }
 
 
 void LLTAnalysisDlg::onLogFile()
 {
-	QMiarex::m_bLogFile = m_pctrlLogFile->isChecked();
+	Miarex::m_bLogFile = m_pctrlLogFile->isChecked();
 }
 
 
@@ -271,7 +271,7 @@ void LLTAnalysisDlg::cleanUp()
 	{
 		for(int iPOpp=0; iPOpp<m_pTheTask->m_ptheLLTAnalysis->m_PlaneOppList.size(); iPOpp++)
 		{
-			Objects3D::insertPOpp(m_pTheTask->m_ptheLLTAnalysis->m_PlaneOppList.at(iPOpp));
+			Objects3d::insertPOpp(m_pTheTask->m_ptheLLTAnalysis->m_PlaneOppList.at(iPOpp));
 		}
 	}
 	else

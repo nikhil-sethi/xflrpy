@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	gl3dBodyView Class
-	Copyright (C) 2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #define GL3DBODYVIEW_H
 
 #include <gl3dview.h>
-#include <objects3d/Body.h>
+#include <objects/objects3d/Body.h>
 
 
 class gl3dBodyView : public gl3dView

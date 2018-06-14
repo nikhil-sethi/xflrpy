@@ -1,7 +1,7 @@
 /****************************************************************************
 
     WPolar Class
-	Copyright (C) 2005-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2005-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@
 
 
 #include "WPolar.h"
-#include <objects3d/Surface.h>
-#include <objects3d/Plane.h>
+#include <objects/objects3d/Surface.h>
+#include <objects/objects3d/Plane.h>
 #include <math.h>
 #include "objects_global.h"
 #include <QtDebug>
@@ -36,10 +36,11 @@ WPolar::WPolar()
 	m_PointStyle = 0;
 	m_Style  = 0;
 	m_Width  = 1;
-	m_Color.setHsv((int)(((double)qrand()/(double)RAND_MAX)*360),
-				  (int)(((double)qrand()/(double)RAND_MAX)*155)+100,
-				  (int)(((double)qrand()/(double)RAND_MAX)*155)+100,
-				   255);;
+
+	m_Color.setRed((int)(((double)qrand()/(double)RAND_MAX)*155)+100);
+	m_Color.setGreen((int)(((double)qrand()/(double)RAND_MAX)*155)+100);
+	m_Color.setBlue((int)(((double)qrand()/(double)RAND_MAX)*155)+100);
+
 
 	m_bVLM1         = true;
 	m_bThinSurfaces = true;
@@ -412,8 +413,8 @@ void WPolar::calculatePoint(int iPt)
 	}
 
 
-	if(qAbs(m_CL[iPt])>0.) m_Gamma[iPt]  =  atan(m_TCd[iPt]/m_CL[iPt]) * 180.0/PI;
-	else m_Gamma[iPt] = 90.0;
+	if(fabs(m_CL[iPt])>0.) m_Gamma[iPt] = atan(m_TCd[iPt]/m_CL[iPt]) * 180.0/PI;
+	else                   m_Gamma[iPt] = 90.0;
 
 	m_Vz[iPt] = (double)sqrt(2*mass*9.81/m_Density/m_referenceArea)/m_Cl32Cd[iPt];
 	m_Vx[iPt] = m_QInfinite[iPt] * (double)cos(m_Gamma[iPt]*PI/180.0);
@@ -1424,7 +1425,8 @@ bool WPolar::serializeWPlrXFL(QDataStream &ar, bool bIsStoring)
 
 		ar << m_referenceArea << m_referenceChordLength << m_referenceSpanLength ;
 		ar << m_Style << m_Width;
-		ar << m_Color;
+
+		writeQColor(ar, m_Color.red(), m_Color.green(), m_Color.blue(), m_Color.alpha());
 		ar << m_bIsVisible << false;
 
 		if(m_AnalysisMethod==XFLR5::LLTMETHOD)         ar<<1;
@@ -1514,7 +1516,11 @@ bool WPolar::serializeWPlrXFL(QDataStream &ar, bool bIsStoring)
 
 		ar >> m_referenceArea >> m_referenceChordLength >> m_referenceSpanLength;
 		ar >> m_Style >> m_Width;
-		ar >> m_Color;
+
+		int a,r,g,b;
+		readQColor(ar, r, g, b, a);
+		m_Color.setColor(r,g,b,a);
+
 		ar >> m_bIsVisible >> boolean;
 
 		ar >> n;

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	TwoDPanelDlg Class
-	Copyright (C) 2008-2008 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2008 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@
 #include <QtDebug>
 
 #include "TwoDPanelDlg.h"
-#include <gui_params.h>
-#include <objects2d/Foil.h>
+#include <globals/gui_params.h>
+#include <objects/objects2d/Foil.h>
 #include <XFoil.h>
 
 void *TwoDPanelDlg::s_pXFoil;

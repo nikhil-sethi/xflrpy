@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	BodyDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 *****************************************************************************/
 
 
-#include <globals.h>
+#include <globals/globals.h>
 #include <misc/line/LinePickerDlg.h>
 #include <misc/options/displayoptions.h>
 #include <misc/LengthUnitDlg.h>
@@ -391,16 +391,6 @@ void GL3dBodyDlg::keyPressEvent(QKeyEvent *event)
 }
 
 
-void GL3dBodyDlg::keyReleaseEvent(QKeyEvent *event)
-{
-	switch (event->key())
-	{
-		default:
-			event->ignore();
-	}
-}
-
-
 
 void GL3dBodyDlg::setViewControls()
 {
@@ -437,16 +427,16 @@ void GL3dBodyDlg::onBodyColor()
 	dialogOptions |= QColorDialog::DontUseNativeDialog;
 #endif
 #endif
-	QColor Color = QColorDialog::getColor(m_pBody->bodyColor(),
+	QColor clr = QColorDialog::getColor(color(m_pBody->bodyColor()),
 									  this, "Color selection", dialogOptions);
 
 
-	if(Color.isValid())
+	if(clr.isValid())
 	{
-		m_pBody->bodyColor() = Color;
+		m_pBody->setBodyColor(ObjectColor(clr.red(), clr.green(), clr.blue(), clr.alpha()));
 		m_gl3dBodyview.resetGLBody(true);
 
-		m_pctrlBodyColor->setColor(Color);
+		m_pctrlBodyColor->setColor(clr);
 		update();
 	}
 }
@@ -1003,7 +993,8 @@ void GL3dBodyDlg::accept()
 	if(m_pBody)
 	{
 		m_pBody->bodyDescription() = m_pctrlBodyDescription->toPlainText();
-		m_pBody->bodyColor() = m_pctrlBodyColor->color();
+		QColor clr = m_pctrlBodyColor->color();
+		m_pBody->setBodyColor(ObjectColor(clr.red(), clr.green(), clr.blue(), clr.alpha()));
 	}
 
 	s_bWindowMaximized= isMaximized();
@@ -1141,7 +1132,7 @@ void GL3dBodyDlg::setControls()
 	if(m_pBody)
 	{
 		m_pctrlPanelBunch->setSliderPosition((int)(m_pBody->m_Bunch*100.0));
-		m_pctrlBodyColor->setColor(m_pBody->m_BodyColor);
+		m_pctrlBodyColor->setColor(color(m_pBody->m_BodyColor));
 
 		m_pctrlNXPanels->setValue(m_pBody->m_nxPanels);
 		m_pctrlNHoopPanels->setValue(m_pBody->m_nhPanels);

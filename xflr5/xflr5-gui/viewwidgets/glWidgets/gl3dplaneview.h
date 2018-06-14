@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	gl3dPlaneView Class
-	Copyright (C) 2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #ifndef GL3DPLANEVIEW_H
 #define GL3DPLANEVIEW_H
 #include <gl3dview.h>
-#include <objects3d/Plane.h>
+#include <objects/objects3d/Plane.h>
 
 class gl3dPlaneView : public gl3dView
 {

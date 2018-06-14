@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	PlaneDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,9 +29,9 @@
 #include <math.h>
 #include <misc/options/displayoptions.h>
 
-#include <globals.h>
+#include <globals/globals.h>
 #include <misc/options/Units.h>
-#include <miarex/Objects3D.h>
+#include <miarex/objects3d.h>
 #include <miarex/mgt/ImportObjectDlg.h>
 #include <miarex/mgt/XmlPlaneReader.h>
 #include "PlaneDlg.h"
@@ -434,7 +434,7 @@ void PlaneDlg::onImportPlaneBody()
 
 	if(dlg.exec() == QDialog::Accepted)
 	{
-		Body *pOldBody = Objects3D::getBody(dlg.m_ObjectName);
+		Body *pOldBody = Objects3d::getBody(dlg.m_ObjectName);
 		if(pOldBody)
 		{
 			m_pPlane->setBody(pOldBody);
@@ -511,7 +511,7 @@ void PlaneDlg::onImportWing()
 	{
 		m_bChanged = true;
 		dlg.m_ObjectName.replace("/Main wing","");
-		Wing *pWing = Objects3D::getWing(dlg.m_ObjectName);
+		Wing *pWing = Objects3d::getWing(dlg.m_ObjectName);
 		if(pWing)
 		{
 			m_pPlane->wing()->duplicate(pWing);
@@ -530,7 +530,7 @@ void PlaneDlg::onImportWing2()
 	if(dlg.exec() == QDialog::Accepted)
 	{
 		m_bChanged = true;
-		Wing *pWing = Objects3D::getWing(dlg.m_ObjectName);
+		Wing *pWing = Objects3d::getWing(dlg.m_ObjectName);
 		if(pWing)
 		{
 			m_pPlane->wing2()->duplicate(pWing);
@@ -586,7 +586,6 @@ void PlaneDlg::onPlaneName()
 
 void PlaneDlg::onOK()
 {
-	int j;
 
 	readParams();
 
@@ -594,16 +593,25 @@ void PlaneDlg::onOK()
 
 	m_pPlane->computePlane();
 
+	int nstations = m_pPlane->spanStationCount();
+	if(nstations>MAXSPANSTATIONS)
+	{
+		QString strange;
+		strange.sprintf("The total number of span stations is %3d. Cannot exceed %3d. \n Please reduce the number of panels in the Y direction.",  nstations, MAXSPANSTATIONS);
+		QMessageBox::warning(this, tr("Warning"), strange);
+		return;
+	}
 
-	//check the number of surfaces
+
+/*	//check the number of surfaces
 	int nSurfaces = 0;
-	for (j=0; j<m_pPlane->wing()->NWingSection()-1; j++)
+	for (int j=0; j<m_pPlane->wing()->NWingSection()-1; j++)
 	{
 		if(qAbs(m_pPlane->wing()->YPosition(j)-m_pPlane->wing()->YPosition(j+1)) > Wing::s_MinPanelSize) nSurfaces+=2;
 	}
 	if(m_pPlane->stab())
 	{
-		for (j=0; j<m_pPlane->stab()->NWingSection()-1; j++)
+		for (int j=0; j<m_pPlane->stab()->NWingSection()-1; j++)
 		{
 			if(qAbs(m_pPlane->stab()->YPosition(j)-m_pPlane->stab()->YPosition(j+1)) > Wing::s_MinPanelSize) nSurfaces+=2;
 		}
@@ -611,7 +619,7 @@ void PlaneDlg::onOK()
 
 	if(m_pPlane->fin())
 	{
-		for (j=0; j<m_pPlane->fin()->NWingSection()-1; j++)
+		for (int j=0; j<m_pPlane->fin()->NWingSection()-1; j++)
 		{
 			if(qAbs(m_pPlane->fin()->YPosition(j)-m_pPlane->fin()->YPosition(j+1)) > Wing::s_MinPanelSize)
 			{
@@ -621,7 +629,7 @@ void PlaneDlg::onOK()
 					nSurfaces += 1;
 			}
 		}
-	}
+	}*/
 
 	m_pPlane->computeBodyAxisInertia();
 

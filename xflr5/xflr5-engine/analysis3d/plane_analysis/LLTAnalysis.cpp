@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	LLTAnalysis Class
-	Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,11 +22,11 @@
 #include <QCoreApplication>
 #include <math.h>
 #include "LLTAnalysis.h"
-#include <objects3d/PlaneOpp.h>
+#include <objects/objects3d/PlaneOpp.h>
 #include <QtDebug>
 #include <QMutex>
 #include <QString>
-#include <objects3d/WPolar.h>
+#include <objects/objects3d/WPolar.h>
 #include <matrix.h>
 
 QList<Polar*> *LLTAnalysis::s_poaPolar = NULL;
@@ -1415,7 +1415,7 @@ double LLTAnalysis::GetPlrPointFromAlpha(Foil *pFoil, double Re, double Alpha, i
 	for (i=0; i<m_poaPolar->size(); i++)
 	{
 		pPolar = m_poaPolar->at(i);
-		if((pPolar->polarType()==XFOIL::FIXEDSPEEDPOLAR) && (pPolar->foilName() == pFoil->foilName()))
+		if((pPolar->polarType()==XFLR5::FIXEDSPEEDPOLAR) && (pPolar->foilName() == pFoil->foilName()))
 		{
 			n++;
 			if(n>=2) break;
@@ -1434,7 +1434,7 @@ double LLTAnalysis::GetPlrPointFromAlpha(Foil *pFoil, double Re, double Alpha, i
 	for (i=0; i< nPolars; i++)
 	{
 		pPolar = m_poaPolar->at(i);
-		if((pPolar->polarType()==XFOIL::FIXEDSPEEDPOLAR) &&
+		if((pPolar->polarType()==XFLR5::FIXEDSPEEDPOLAR) &&
 			(pPolar->foilName() == pFoil->foilName()) &&
 			pPolar->m_Alpha.size()>0)
 		{
@@ -1478,7 +1478,7 @@ double LLTAnalysis::GetPlrPointFromAlpha(Foil *pFoil, double Re, double Alpha, i
 	for (i=0; i< nPolars; i++)
 	{
 		pPolar = m_poaPolar->at(i);
-		if((pPolar->polarType()== XFOIL::FIXEDSPEEDPOLAR) &&
+		if((pPolar->polarType()== XFLR5::FIXEDSPEEDPOLAR) &&
 		   (pPolar->foilName() == pFoil->foilName())  &&
 			pPolar->m_Alpha.size()>0)
 		{

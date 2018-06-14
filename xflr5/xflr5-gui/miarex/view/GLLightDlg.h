@@ -51,7 +51,7 @@ struct Attenuation
 class GLLightDlg : public QDialog
 {
 	Q_OBJECT
-	friend class QMiarex;
+	friend class Miarex;
 	friend class gl3dView;
 
 public:

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	StabViewDlg Class
-	Copyright (C) 2010-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2010-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@
 *****************************************************************************/
 
 
-#include <globals.h>
+#include <globals/globals.h>
 #include <misc/options/displayoptions.h>
 #include <misc/NewNameDlg.h>
 #include <misc/options/Units.h>
 #include <miarex/Miarex.h>
 #include "StabViewDlg.h"
-#include <objects_global.h>
+#include <objects/objects_global.h>
 
 #include <QGridLayout>
 #include <QGroupBox>
@@ -37,7 +37,7 @@
 #include <complex>
 
 
-void *StabViewDlg::s_pMiarex;
+Miarex *StabViewDlg::s_pMiarex;
 
 
 StabViewDlg::StabViewDlg(QWidget *parent) : QWidget(parent)
@@ -67,7 +67,7 @@ StabViewDlg::~StabViewDlg()
 
 void StabViewDlg::connectSignals()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 
 	connect(m_pctrlLongDynamics, SIGNAL(clicked()), pMiarex, SLOT(onStabilityDirection()));
 	connect(m_pctrlLatDynamics,  SIGNAL(clicked()), pMiarex, SLOT(onStabilityDirection()));
@@ -143,7 +143,7 @@ void StabViewDlg::readControlModelData()
 
 void StabViewDlg::fillEigenThings()
 {
-    QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+    Miarex * pMiarex = s_pMiarex;
 	complex<double> eigenvalue;
 	double OmegaN, Omega1, Zeta;
     QString strange;
@@ -315,7 +315,7 @@ void StabViewDlg::keyPressEvent(QKeyEvent *event)
 		}
 		default:
 		{
-			QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+			Miarex * pMiarex = s_pMiarex;
 			pMiarex->keyPressEvent(event);
 		}
 //		event->ignore();
@@ -325,7 +325,7 @@ void StabViewDlg::keyPressEvent(QKeyEvent *event)
 
 void StabViewDlg::onAnimate()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	if(m_pctrlAnimate->isChecked())
 	{
 //		pMiarex->m_iView = WSTABVIEW;
@@ -349,7 +349,7 @@ void StabViewDlg::onAnimate()
 void StabViewDlg::onAnimationAmplitude(int val)
 {
 	m_ModeAmplitude = (double)val/500.0;
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	pMiarex->onAnimateModeSingle(false);
 }
 
@@ -357,7 +357,7 @@ void StabViewDlg::onAnimationAmplitude(int val)
 void StabViewDlg::onAnimationSpeed(int val)
 {
 	m_ModeInterval = val;
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	pMiarex->m_pTimerMode->setInterval(400-val);
 }
 
@@ -369,7 +369,7 @@ void StabViewDlg::onAnimateRestart()
 
 	for(int im=0; im<6; im++) ModeState[im] = 0;
 
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	PlaneOpp *pPOpp = pMiarex->m_pCurPOpp;
 	Plane *pPlane = pMiarex->m_pCurPlane;
 
@@ -465,7 +465,7 @@ void StabViewDlg::onCellChanged(QWidget *)
 
 void StabViewDlg::onPlotStabilityGraph()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	if(!pMiarex->m_TimeGraph[0]->curveCount())
 	{
 		//we don't have a curve yet
@@ -481,7 +481,7 @@ void StabViewDlg::onPlotStabilityGraph()
 
 void StabViewDlg::onModeSelection()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	if(pMiarex->m_iView==XFLR5::STABTIMEVIEW)
 	{
 		if(m_pctrlTimeMode1->isChecked())      m_iCurrentMode = 0;
@@ -499,7 +499,7 @@ void StabViewDlg::onModeSelection()
 	if(!pMiarex->m_bLongitudinal) m_iCurrentMode +=4;
 	setMode(m_iCurrentMode);
 
-	if(pMiarex->m_iView==XFLR5::STABPOLARVIEW && QGraph::isHighLighting())
+	if(pMiarex->m_iView==XFLR5::STABPOLARVIEW && Graph::isHighLighting())
 	{
 		pMiarex->createStabRLCurves();
 		pMiarex->updateView();
@@ -509,7 +509,7 @@ void StabViewDlg::onModeSelection()
 
 void StabViewDlg::onReadData()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	pMiarex->m_Modedt = m_pctrlModeStep->value();
 	pMiarex->m_Deltat = m_pctrlDeltat->value();
 }
@@ -519,7 +519,7 @@ void StabViewDlg::onReadData()
 void StabViewDlg::onResponseType()
 {
 	int type=0;
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	
 	if(m_pctrlInitCondResponse->isChecked())    type=0;
 	else if(m_pctrlForcedResponse->isChecked()) type=1;
@@ -537,7 +537,7 @@ void StabViewDlg::onResponseType()
 
 void StabViewDlg::setMode(int iMode)
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	if(iMode>=0)
 	{
 		m_iCurrentMode = iMode%4;
@@ -984,7 +984,7 @@ void StabViewDlg::setupLayout()
 
 void StabViewDlg::setControls()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	QString str, strong;
 	Units::getSpeedUnitLabel(str);
 
@@ -1102,7 +1102,7 @@ void StabViewDlg::setControls()
 void StabViewDlg::setTimeCurveStyle(QColor const &Color, int const&Style, int const &Width, bool const& bCurve, int const& PointStyle)
 {
 	if(!m_pCurve) return;
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	Curve *pCurve;
 	for (int i=0; i<pMiarex->m_TimeGraph[0]->curveCount(); i++)
 	{
@@ -1127,7 +1127,7 @@ void StabViewDlg::setTimeCurveStyle(QColor const &Color, int const&Style, int co
 
 void StabViewDlg::onRenameCurve()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	
 	Curve *pCurve;
 	if(!m_pCurve) return;
@@ -1161,7 +1161,7 @@ void StabViewDlg::onRenameCurve()
 
 void StabViewDlg::onSelChangeCurve(int sel)
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	QString strong = m_pctrlCurveList->itemText(sel);
 	m_pCurve = pMiarex->m_TimeGraph[0]->curve(strong);
 	m_pCurve->curveName(strong);
@@ -1184,7 +1184,7 @@ void StabViewDlg::onAddCurve()
 
 void StabViewDlg::onDeleteCurve()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	if(!m_pCurve) return;
 	QString CurveTitle = m_pCurve->curveName();
 	for(int ig=0; ig<MAXTIMEGRAPHS; ig++)	pMiarex->m_TimeGraph[ig]->deleteCurve(CurveTitle);
@@ -1209,12 +1209,12 @@ void StabViewDlg::onDeleteCurve()
 
 void StabViewDlg::addCurve()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
-	int nCurves = pMiarex->m_TimeGraph[0]->curveCount();
+	Miarex * pMiarex = s_pMiarex;
+	int nCurves = pMiarex->m_TimeGraph.at(0)->curveCount();
 	QString strong = tr("New curve") + QString(" %1").arg(nCurves);
 
 	Curve *pCurve;
-	for(int ig=0; ig<4; ig++)
+	for(int ig=0; ig<pMiarex->m_TimeGraph.size(); ig++)
 	{
 		pCurve = pMiarex->m_TimeGraph[ig]->addCurve();
 		pCurve->setCurveName(strong);
@@ -1234,7 +1234,7 @@ void StabViewDlg::addCurve()
 
 void StabViewDlg::fillCurveList()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = s_pMiarex;
 	m_pctrlCurveList->clear();
 	QString strong;
 	for(int i=0; i<pMiarex->m_TimeGraph[0]->curveCount(); i++)

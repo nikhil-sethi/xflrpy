@@ -10,7 +10,7 @@
 
 
 #include "preferencesdlg.h"
-#include <mainframe.h>
+#include <globals/mainframe.h>
 #include <misc/options/saveoptions.h>
 #include <misc/options/language.h>
 #include <misc/options/Units.h>

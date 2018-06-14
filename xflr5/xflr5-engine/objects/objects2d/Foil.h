@@ -1,7 +1,7 @@
 /****************************************************************************
 
     Reference Foil Class
-	Copyright (C) 2003-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2003-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,11 +31,12 @@
 #ifndef FOIL_H
 #define FOIL_H
 
-#include <QPoint>
-#include "xfoil_params.h"
-#include <objects2d/Foil.h>
 #include <QTextStream>
-#include <objects2d/Vector3d.h>
+#include <QPoint>
+
+#include "xfoil_params.h"
+#include <objects/objects2d/Foil.h>
+#include <objects/objects3d/vector3d.h>
 
 /**
 *@class Foil
@@ -49,13 +50,12 @@ The class stores two geometries:
 @todo One of the very early classes in this project. Would need a general revision.
 Also it mixes the construction methods and the GUI; would be better to move the GUI to a derived child class for polymorphism.
 */
-class Foil
+class XFLR5ENGINELIBSHARED_EXPORT Foil
 {
 
 public:
     Foil();
 
-	void setFoilName(QString FoilName){m_FoilName = FoilName;}
 
 	int isPoint(Vector3d const &Real);
 
@@ -63,15 +63,15 @@ public:
 	void getUpperY(double x, double &y, double &normx, double &normy);
 
 	double deRotate();
-	double baseUpperY(double x);
-	double baseLowerY(double x);
-	Vector3d midYRel(double sRel);
-	Vector3d lowerYRel(double xRel, double &normx, double &normy);
-	Vector3d upperYRel(double xRel, double &normx, double &normy);
-	double camber(double x);
-	double camberSlope(double x);
-	double length();
-	double area();
+	double baseUpperY(double x) const;
+	double baseLowerY(double x) const;
+	Vector3d midYRel(double sRel) const;
+	Vector3d lowerYRel(double xRel, double &normx, double &normy) const;
+	Vector3d upperYRel(double xRel, double &normx, double &normy) const;
+	double camber(double x) const;
+	double camberSlope(double x) const;
+	double length() const;
+	double area() const;
 	double topSlope(double const &x);
 	double bottomSlope(double const &x);
 	double normalizeGeometry();
@@ -91,30 +91,36 @@ public:
 
 	bool intersect(Vector3d const &A, Vector3d const &B, Vector3d const &C, Vector3d const &D, Vector3d *M);
 
-	bool &isVisible(){return m_bIsFoilVisible;}
-//	bool &showPoints(){return m_bShowFoilPoints;}
-	bool &showCenterLine(){return m_bCenterLine;}
-	int &foilLineWidth(){return m_FoilWidth;}
-	int &foilLineStyle(){return m_FoilStyle;}
-	int &foilPointStyle(){return m_PointStyle;}
-	QString &foilName(){return m_FoilName;}
+	bool &isVisible() {return m_bIsFoilVisible;}
+	bool &showCenterLine() {return m_bCenterLine;}
+	int &foilLineWidth() {return m_FoilWidth;}
+	int &foilLineStyle() {return m_FoilStyle;}
+	int &foilPointStyle() {return m_PointStyle;}
+	QString const &foilName() {return m_FoilName;}
+	void setFoilName(QString const &FoilName) {m_FoilName = FoilName;}
+
 
 	void getColor(int &r, int &g, int &b, int &a);
 	void setColor(int r, int g, int b, int a=255);
-	int red() {return m_red;}
-	int green() {return m_green;}
-	int blue() {return m_blue;}
-	int alphaChannel(){return m_alphaChannel;}
+	int red() const {return m_red;}
+	int green() const {return m_green;}
+	int blue() const {return m_blue;}
+	int alphaChannel() const {return m_alphaChannel;}
 
-	QString foilDescription() {return m_FoilDescription;}
+	QString foilDescription() const {return m_FoilDescription;}
+	void setFoilDescription(QString const &description) {m_FoilDescription=description;}
 
-	double camber() {return m_fCamber;}
-	double xCamber() {return m_fXCamber;}
-	double thickness() {return m_fThickness;}
-	double xThickness() {return m_fXThickness;}
-	double TEGap() {return m_TEGap;}
-	int iHighLight() {return m_iHighLight;}
+	double camber() const {return m_fCamber;}
+	double xCamber() const {return m_fXCamber;}
+	double thickness() const {return m_fThickness;}
+	double xThickness() const {return m_fXThickness;}
+	double TEGap() const {return m_TEGap;}
+
+	int iHighLight() const {return m_iHighLight;}
 	void setHighLight(int iH) {m_iHighLight = iH;}
+
+	void displayCoords(bool bBaseCoords=false);
+
 
 public:
 	// Base geometry;

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	PertDlg class
-	Copyright (C) 2009 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,16 +28,16 @@
 #include <QTableView>
 #include <QStandardItem>
 #include <misc/text/FloatEditDelegate.h>
-#include <objects2d/Foil.h>
+#include <objects/objects2d/Foil.h>
 #include <misc/text/DoubleEdit.h>
-#include <gui_params.h>
+#include <globals/gui_params.h>
 
 class PertDlg : public QDialog
 {
 	Q_OBJECT
 
 	friend class MainFrame;
-	friend class QXInverse;
+	friend class XInverse;
 
 public:
 	PertDlg(QWidget *pParent);

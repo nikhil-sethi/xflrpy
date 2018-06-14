@@ -1,7 +1,7 @@
 /****************************************************************************
 
     AboutQ5 Class
-	Copyright (C) 2008-2008 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2008 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
-#include <gui_params.h>
+#include <globals/gui_params.h>
 #include "AboutQ5.h"
 #include <QBitmap>
 #include <QGridLayout>

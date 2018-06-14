@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Surface Class
-	Copyright (C) 2005-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2005-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,10 +22,10 @@
 #include <QtDebug>
 #include <math.h>
 #include "Surface.h"
-#include <objects3d/Quaternion.h>
-#include <objects2d/Foil.h>
+#include <objects/objects3d/Quaternion.h>
+#include <objects/objects2d/Foil.h>
 #include "Body.h"
-#include <objects2d/Vector3d.h>
+#include <objects/objects3d/vector3d.h>
 #include "WingSection.h"
 
 Vector3d *Surface::s_pNode;
@@ -82,7 +82,6 @@ Surface::Surface()
 	TA.set(0.0,0.0,0.0);
 	LB.set(0.0,0.0,0.0);
 	TB.set(0.0,0.0,0.0);
-
 }
 
 
@@ -699,9 +698,14 @@ double Surface::stripSpanPos(int k)
  */
 double Surface::twist(int k)
 {
-	getPanel(k, 0, MIDSURFACE);
+/*	getPanel(k, 0, MIDSURFACE);
 	double y = (LA.y+LB.y+TA.y+TB.y)/4.0;
-	return  m_TwistA + (m_TwistB-m_TwistA) *(y-m_LA.y)/(m_LB.y-m_LA.y);
+	return  m_TwistA + (m_TwistB-m_TwistA) *(y-m_LA.y)/(m_LB.y-m_LA.y);*/
+
+	double y1=0.0, y2=0.0;
+	getYDist(k, y1, y2);
+	double tau = (y1+y2)/2.0;
+	return m_TwistA *(1.0-tau) + m_TwistB*tau;
 }
 
 

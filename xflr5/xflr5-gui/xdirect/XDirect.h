@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	QXDirect Class
-	Copyright (C) 2008-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,13 +36,13 @@
 #include <QCheckBox>
 #include <QStackedWidget>
 #include <QSlider>
-#include <objects2d/Polar.h>
-#include <objects2d/Foil.h>
+#include <objects/objects2d/Polar.h>
+#include <objects/objects2d/Foil.h>
 #include <xdirect/analysis/XFoilAnalysisDlg.h>
 #include <viewwidgets/oppointwidget.h>
-#include <gui_enums.h>
-#include <objects2d/OpPoint.h>
-#include <QGraph.h>
+#include <globals/gui_enums.h>
+#include <objects/objects2d/OpPoint.h>
+#include <graph/graph.h>
 #include <XFoil.h>
 
 class LineBtn;
@@ -58,7 +58,7 @@ class DoubleEdit;
 * It provides the methods to modify the foil geometry, define the Polar analysis, perform the analysis, and post-process the results.
 * One of the very first class of this project.
 */
-class QXDirect : public QWidget
+class XDirect : public QWidget
 {
 	friend class MainFrame;
 	friend class TwoDWidget;
@@ -76,8 +76,8 @@ class QXDirect : public QWidget
     Q_OBJECT
 
 public:
-	QXDirect(QWidget *parent = NULL);
-	~QXDirect();
+	XDirect(QWidget *parent = NULL);
+	~XDirect();
 
 
 signals:
@@ -207,8 +207,8 @@ public:
 	OpPoint *setOpp(double Alpha=-123456789.0);
 
 	bool bPolarView() {return m_bPolarView;}
-	QGraph *CpGraph(){return &m_CpGraph;}
-	QGraph *PlrGraph(int iPlrGraph){return m_PlrGraph.at(iPlrGraph);}
+	Graph *CpGraph(){return &m_CpGraph;}
+	Graph *PlrGraph(int iPlrGraph){return m_PlrGraph.at(iPlrGraph);}
 	int PlrGraphSize(){return m_PlrGraph.count();}
 
 	static void setCurFoil(Foil*pFoil)    {m_pCurFoil = pFoil;}
@@ -327,8 +327,8 @@ private:
 	QList<Polar*> *m_poaPolar;  /**< pointer to the polar object array */
 	QList<OpPoint*> *m_poaOpp;  /**< pointer to the OpPoint object array */
 
-	QGraph m_CpGraph;           /**< the Cp graph for the OpPoint view */
-	QList<QGraph*> m_PlrGraph;  /**< the array of pointer to the 5 Polar graphs */
+	Graph m_CpGraph;           /**< the Cp graph for the OpPoint view */
+	QList<Graph*> m_PlrGraph;  /**< the array of pointer to the 5 Polar graphs */
 
 	LineStyle m_LineStyle;      /**< the style of the lines displayed in the comboboxes*/
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	EditBodyDlg Class
-	Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #include <QStandardItemModel>
 #include <QToolButton>
 #include <gl3dbodyview.h>
-#include <objects3d/Body.h>
+#include <objects/objects3d/Body.h>
 #include "BodyLineWidget.h"
 #include "BodyFrameWidget.h"
 #include "EditObjectDelegate.h"
@@ -44,7 +44,7 @@ class EditBodyDlg : public QDialog
 
 	friend class Wing;
 	friend class Plane;
-	friend class QMiarex;
+	friend class Miarex;
 	friend class gl3dBodyView;
 	friend class gl3dView;
 

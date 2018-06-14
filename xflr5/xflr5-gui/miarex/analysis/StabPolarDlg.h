@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	StabPolarDlg Class
-	Copyright (C) 2010 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2010 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 #include <QStandardItemModel>
 #include "./CtrlTableDelegate.h"
 #include <misc/text/DoubleEdit.h>
-#include <objects3d/Plane.h>
+#include <objects/objects3d/Plane.h>
 
 
 
@@ -56,7 +56,7 @@ public:
 class StabPolarDlg : public QDialog
 {
 	Q_OBJECT
-	friend class QMiarex;
+	friend class Miarex;
 	friend class MainFrame;
 
 public:

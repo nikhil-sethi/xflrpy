@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	GraphWidget Class
-		Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
+		Copyright (C) 2008-2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #define GRAPHWIDGET_H
 
 #include <QWidget>
-#include "QGraph.h"
+#include <graph/graph.h>
 
 class GraphWidget : public QWidget
 {
@@ -38,9 +38,9 @@ class GraphWidget : public QWidget
 
 public:
 	GraphWidget(QWidget *pParent=NULL);
-	QGraph *graph(){return m_pGraph;}
+	Graph *graph(){return m_pGraph;}
 
-	void setGraph(QGraph *pGraph);
+	void setGraph(Graph *pGraph);
 	void setTitles(QString &Title, QPoint &Place);
 
 	bool &bResetCurves(){return m_bResetCurves;}
@@ -58,8 +58,8 @@ protected:
 
 
 signals:
-	void graphChanged(QGraph *);
-	void graphResized(QGraph *);
+	void graphChanged(Graph *);
+	void graphResized(Graph *);
 
 public slots:
 	void onGraphSettings();
@@ -69,7 +69,7 @@ public slots:
 private:
 	QPoint m_TitlePosition;
 	QString m_GraphTitle;
-	QGraph *m_pGraph;
+	Graph *m_pGraph;
 
 	QPoint m_LegendOrigin;
 	bool m_bDrawLegend;

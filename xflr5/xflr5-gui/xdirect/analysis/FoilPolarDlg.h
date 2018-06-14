@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	FoilPolarDlg Class
-	Copyright (C) 2008 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include <QLabel>
 #include <QString>
 #include <misc/text/DoubleEdit.h>
-#include <objects2d/Polar.h>
+#include <objects/objects2d/Polar.h>
 
 
 class FoilPolarDlg : public QDialog
@@ -86,7 +86,7 @@ public:
     DoubleEdit *m_pctrlBotTrans;
 
 	bool  m_bAutoName;
-	XFOIL::enumPolarType m_PolarType;
+	XFLR5::enumPolarType m_PolarType;
 	int m_MaTypDef, m_ReTypDef;
 
 	static int s_UnitType;

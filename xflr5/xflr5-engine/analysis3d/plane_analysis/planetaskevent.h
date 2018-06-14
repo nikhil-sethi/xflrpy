@@ -2,18 +2,17 @@
 #define PLANETASKEVENT_H
 
 
-
 #include <QEvent>
 #include <QString>
 
-
+#include <xflr5-engine_global.h>
 
 // Custom event identifier
 const QEvent::Type PLANE_END_TASK_EVENT = static_cast<QEvent::Type>(QEvent::User + 3);
 const QEvent::Type PLANE_END_POPP_EVENT = static_cast<QEvent::Type>(QEvent::User + 4);
 
 
-class PlaneTaskEvent : public QEvent
+class XFLR5ENGINELIBSHARED_EXPORT PlaneTaskEvent : public QEvent
 {
 
 public:

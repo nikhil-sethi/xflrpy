@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	TwoDWidget Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #define INVERSEVIEWDWIDGET_H
 
 #include <QWidget>
-#include "gui_params.h"
+#include <globals/gui_params.h>
 
 /**
 *@class InverseViewWidget

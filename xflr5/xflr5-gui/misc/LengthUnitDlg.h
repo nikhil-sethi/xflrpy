@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	LengthUnitDlgDlg Class
-	Copyright (C) 2009 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ class LengthUnitDlg : public QDialog
 {
 	Q_OBJECT
 	friend class MainFrame;
-	friend class QMiarex;
+	friend class Miarex;
 
 public:
     LengthUnitDlg(QWidget *parent);

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	QXInverse Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -40,8 +40,8 @@
 #include <misc/text/DoubleEdit.h>
 #include <misc/text/IntEdit.h>
 #include <misc/text/MinTextEdit.h>
-#include <QGraph.h>
-#include <objects2d/Foil.h>
+#include <graph/graph.h>
+#include <objects/objects2d/Foil.h>
 #include <gui_objects/Spline5.h>
 
 class MainFrame;
@@ -52,7 +52,7 @@ class MainFrame;
  *
  *Note: this interface was written without a good understanding of the XFoil methodology, which is a potential source of errors.
  */
-class QXInverse : public QWidget
+class XInverse : public QWidget
 {
 	Q_OBJECT
 
@@ -63,8 +63,8 @@ class QXInverse : public QWidget
 	friend class Settings;
 
 public:
-	QXInverse(QWidget *parent = NULL);
-	~QXInverse();
+	XInverse(QWidget *parent = NULL);
+	~XInverse();
 
 	void setupLayout();
  
@@ -214,8 +214,8 @@ private:
 	int m_ReflectedWidth;      /**< the reflected curve's width */
 	QColor m_ReflectedClr;     /**< the reflected curve's color */
 
-	QGraph m_QGraph;           /**< the velocity QGraph object */
-	QGraph *m_pCurGraph;       /**< = &m_QGraph if the mouse hivers over the graph, false otherwise */
+	Graph m_QGraph;           /**< the velocity QGraph object */
+	Graph *m_pCurGraph;       /**< = &m_QGraph if the mouse hivers over the graph, false otherwise */
 	Curve* m_pQCurve;          /**< a pointer to the inviscid velocity reference Curve */
 	Curve* m_pQVCurve;         /**< a pointer to the viscous velocity reference Curve */
 	Curve* m_pMCurve;          /**< a pointer to the modified specification curve */

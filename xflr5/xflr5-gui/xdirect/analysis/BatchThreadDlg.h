@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	BatchThreadDlg Class
-	Copyright (C) 2003-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2003-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,8 +33,8 @@
 #include <QRadioButton>
 #include <QTextEdit>
 
-#include <objects2d/Foil.h>
-#include <objects2d/Polar.h>
+#include <objects/objects2d/Foil.h>
+#include <objects/objects2d/Polar.h>
 #include <misc/text/IntEdit.h>
 #include <misc/text/DoubleEdit.h>
 #include <xdirect/analysis/XFoilTask.h>
@@ -47,9 +47,8 @@
 class BatchThreadDlg : public QDialog
 {
 	Q_OBJECT
-	friend class QXDirect;
+	friend class XDirect;
 	friend class MainFrame;
-	friend class QReListDlg;
 	friend class XFoilTask;
 
 public:
@@ -142,7 +141,7 @@ private:
 	bool m_bCancel;             /**< true if the user has clicked the cancel button */
 	bool m_bIsRunning;          /**< true until all the pairs of (foil, polar) have been calculated */
 
-	XFOIL::enumPolarType m_PolarType;  /**< the type of analysis to perform */
+	XFLR5::enumPolarType m_PolarType;  /**< the type of analysis to perform */
 
 	int m_nAnalysis;            /**< the number of analysis pairs to run */
 	int m_nTaskStarted;         /**< the number of started tasks */

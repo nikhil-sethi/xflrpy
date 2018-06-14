@@ -1,7 +1,7 @@
 /****************************************************************************
 
     OpPoint Class
-	Copyright (C) 2003 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2003 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,6 +37,16 @@ OpPoint::OpPoint()
 	m_bBL          = false;// no boundary layer surface either
 	m_bTEFlap      = false;
 	m_bLEFlap      = false;
+
+	m_Alpha    = 0.0;
+	m_Reynolds = 0.0;
+	m_Mach     = 0.0;
+	ACrit      = 0.0;
+	Cd         = 0.0;
+	Cdp        = 0.0;
+	Cl         = 0.0;
+	Cm         = 0.0;
+
 
 	Xtr1   = 0.0;
 	Xtr2   = 0.0;
@@ -432,7 +442,7 @@ bool OpPoint::serializeOppXFL(QDataStream &ar, bool bIsStoring, int ArchiveForma
 		ar << m_PlrName;
 
 		ar << m_Style << m_Width;
-		writeqColor(ar, m_red, m_green, m_blue, m_alphaChannel);
+		writeQColor(ar, m_red, m_green, m_blue, m_alphaChannel);
 		ar << m_bIsVisible << false;
 
 		ar << m_Reynolds << m_Mach << m_Alpha;
@@ -464,7 +474,7 @@ bool OpPoint::serializeOppXFL(QDataStream &ar, bool bIsStoring, int ArchiveForma
 		ar >> m_PlrName;
 
 		ar >> m_Style >> m_Width;
-		readqColor(ar, m_red, m_green, m_blue, m_alphaChannel);
+		readQColor(ar, m_red, m_green, m_blue, m_alphaChannel);
 		ar >> m_bIsVisible >> boolean;
 
 		ar >> m_Reynolds >> m_Mach >> m_Alpha;

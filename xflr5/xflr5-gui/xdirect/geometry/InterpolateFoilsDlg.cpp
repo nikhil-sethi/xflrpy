@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	InterpolateFoilsDlg Class
-	Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 *****************************************************************************/
 
+#include <QDebug>
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include "InterpolateFoilsDlg.h"
@@ -194,7 +195,7 @@ void InterpolateFoilsDlg::onSelChangeFoil1(int)
 {
 	QString strong  = m_pctrlFoil1->currentText();
 
-	Foil* pFoil = Objects2D::foil(strong);
+	Foil* pFoil = Objects2d::foil(strong);
 
 	if(pFoil)
 	{
@@ -223,7 +224,7 @@ void InterpolateFoilsDlg::onSelChangeFoil2(int)
 {
 	QString strong  = m_pctrlFoil2->currentText();
 
-	Foil* pFoil = Objects2D::foil(strong);
+	Foil* pFoil = Objects2d::foil(strong);
 
 	if(pFoil)
 	{
@@ -252,16 +253,24 @@ void InterpolateFoilsDlg::update()
 	QString strong;
 
 	strong = m_pctrlFoil1->currentText();
-	Foil* pFoil1 = Objects2D::foil(strong);
+	Foil* pFoil1 = Objects2d::foil(strong);
 
 	strong = m_pctrlFoil2->currentText();
-	Foil* pFoil2 = Objects2D::foil(strong);
+	Foil* pFoil2 = Objects2d::foil(strong);
 
 	if(!pFoil1 || !pFoil2) return;
 
 	pXFoil->interpolate(pFoil1->x, pFoil1->y, pFoil1->n,
 						pFoil2->x, pFoil2->y, pFoil2->n,
 						m_Frac/100.0);
+/*
+qDebug()<<pFoil1->foilName();
+pFoil1->displayCoords();
+qDebug()<<"________";
+qDebug()<<pFoil2->foilName();
+pFoil2->displayCoords(false);
+qDebug()<<"________";*/
+
 
 	for (int j=0; j< pFoil1->n; j++)
 	{
@@ -270,6 +279,7 @@ void InterpolateFoilsDlg::update()
 		m_pBufferFoil->xb[j] = pXFoil->xb[j+1];
 		m_pBufferFoil->yb[j] = pXFoil->yb[j+1];
 	}
+
 	m_pBufferFoil->n  = pFoil1->n;
 	m_pBufferFoil->nb = pFoil1->n;
 
@@ -305,7 +315,7 @@ void InterpolateFoilsDlg::onFrac()
 
 void InterpolateFoilsDlg::onOK()
 {
-	m_pBufferFoil->foilName() = m_NewFoilName;
+	m_pBufferFoil->setFoilName(m_NewFoilName);
 
 	QDialog::accept();
 }

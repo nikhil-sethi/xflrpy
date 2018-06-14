@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Body Class
-	Copyright (C) 2007-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2007-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ Body::Body()
 {
 	m_BodyName = QObject::tr("Body Name");
 
-	m_BodyColor = QColor(98,102,156);
+	m_BodyColor = ObjectColor(98,102,156);
 	m_BodyStyle = 0;
 	m_BodyWidth = 1;
 
@@ -1525,7 +1525,7 @@ bool Body::serializeBodyWPA(QDataStream &ar, bool bIsStoring)
 		if(ArchiveFormat>=1003) readCString(ar, m_BodyDescription);
 
         readCOLORREF(ar, r,g,b);
-        m_BodyColor = QColor(r,g,b);
+		m_BodyColor = ObjectColor(r,g,b);
 		ar >> k;
 		if(k==1) m_LineType = XFLR5::BODYPANELTYPE;
 		else     m_LineType = XFLR5::BODYSPLINETYPE;
@@ -1647,7 +1647,7 @@ bool Body::serializeBodyXFL(QDataStream &ar, bool bIsStoring)
 		ar << m_BodyName;
 		ar << m_BodyDescription;
 
-		ar << m_BodyColor;
+		writeQColor(ar, m_BodyColor.red(), m_BodyColor.green(), m_BodyColor.blue(), m_BodyColor.alpha());
 
 		if(m_LineType==XFLR5::BODYPANELTYPE) ar << 1;
 		else                                 ar << 2;
@@ -1690,7 +1690,10 @@ bool Body::serializeBodyXFL(QDataStream &ar, bool bIsStoring)
 		ar >> m_BodyName;
 		ar >> m_BodyDescription;
 
-		ar >> m_BodyColor;
+		int a,r,g,b;
+		readQColor(ar, r, g, b, a);
+		m_BodyColor.setColor(r,g,b,a);
+
 
 		ar >> k;
 		if(k==1) m_LineType = XFLR5::BODYPANELTYPE;
@@ -2163,13 +2166,29 @@ void Body::exportSTLBinarySplines(QDataStream &outStream, int nXPanels, int nHoo
 
 void Body::exportSTLBinaryFlatPanels(QDataStream &outStream)
 {
-	int j,k;
-
 	Vector3d P1, P2, P3, P4, N, P1P3, P2P4;
 
 	int nTriangles = (sideLineCount()-1) * (frameCount()-1); //quads
 	nTriangles *= 2;  // two triangles per quad
+
+	// count the non-null triangles
+	nTriangles=0;
+	for (int k=0; k<sideLineCount()-1;k++)
+	{
+		for (int j=0; j<frameCount()-1;j++)
+		{
+			P1 = frame(j)->ctrlPointAt(k);       P1.x = frame(j)->position().x;
+			P2 = frame(j+1)->ctrlPointAt(k);     P2.x = frame(j+1)->position().x;
+			P3 = frame(j+1)->ctrlPointAt(k+1);   P3.x = frame(j+1)->position().x;
+			P4 = frame(j)->ctrlPointAt(k+1);     P4.x = frame(j)->position().x;
+			// check if triangle P1-P2-P4 is not NULL
+			if(!P1.isSame(P2) && !P2.isSame(P4) && !P4.isSame(P1)) nTriangles++;
+			// check if triangle P4-P2-P3 is not NULL
+			if(!P4.isSame(P2) && !P2.isSame(P3) && !P3.isSame(P4)) nTriangles++;
+		}
+	}
 	nTriangles *= 2;  // two sides
+
 	outStream << nTriangles;
 	short zero = 0;
 
@@ -2180,123 +2199,135 @@ void Body::exportSTLBinaryFlatPanels(QDataStream &outStream)
 
 
 	//right side
-	for (k=0; k<sideLineCount()-1;k++)
+	for (int k=0; k<sideLineCount()-1;k++)
 	{
-		for (j=0; j<frameCount()-1;j++)
+		for (int j=0; j<frameCount()-1;j++)
 		{
-			P1 = frame(j)->m_CtrlPoint[k];       P1.x = frame(j)->m_Position.x;
-			P2 = frame(j+1)->m_CtrlPoint[k];     P2.x = frame(j+1)->m_Position.x;
-			P3 = frame(j+1)->m_CtrlPoint[k+1];   P3.x = frame(j+1)->m_Position.x;
-			P4 = frame(j)->m_CtrlPoint[k+1];     P4.x = frame(j)->m_Position.x;
+			P1 = frame(j)->ctrlPointAt(k);       P1.x = frame(j)->position().x;
+			P2 = frame(j+1)->ctrlPointAt(k);     P2.x = frame(j+1)->position().x;
+			P3 = frame(j+1)->ctrlPointAt(k+1);   P3.x = frame(j+1)->position().x;
+			P4 = frame(j)->ctrlPointAt(k+1);     P4.x = frame(j)->position().x;
 
-			P1P3 = P3-P1;
-			P2P4 = P4-P2;
-			N = P1P3 * P2P4;
-			N.normalize();
+			if(!P1.isSame(P2) && !P2.isSame(P4) && !P4.isSame(P1))
+			{
+				P1P3 = P3-P1;
+				P2P4 = P4-P2;
+				N = P1P3 * P2P4;
+				N.normalize();
 
-			// 1st triangle
-			writeFloat(outStream, (float)N.x);
-			writeFloat(outStream, (float)N.y);
-			writeFloat(outStream, (float)N.z);
+				// 1st triangle
+				writeFloat(outStream, (float)N.x);
+				writeFloat(outStream, (float)N.y);
+				writeFloat(outStream, (float)N.z);
 
-			writeFloat(outStream, (float)P1.x);
-			writeFloat(outStream, (float)P1.y);
-			writeFloat(outStream, (float)P1.z);
+				writeFloat(outStream, (float)P1.x);
+				writeFloat(outStream, (float)P1.y);
+				writeFloat(outStream, (float)P1.z);
 
-			writeFloat(outStream, (float)P2.x);
-			writeFloat(outStream, (float)P2.y);
-			writeFloat(outStream, (float)P2.z);
+				writeFloat(outStream, (float)P2.x);
+				writeFloat(outStream, (float)P2.y);
+				writeFloat(outStream, (float)P2.z);
 
-			writeFloat(outStream, (float)P4.x);
-			writeFloat(outStream, (float)P4.y);
-			writeFloat(outStream, (float)P4.z);
+				writeFloat(outStream, (float)P4.x);
+				writeFloat(outStream, (float)P4.y);
+				writeFloat(outStream, (float)P4.z);
 
-			memcpy(buffer, &zero, sizeof(short));
-			outStream.writeRawData(buffer, 2);
+				memcpy(buffer, &zero, sizeof(short));
+				outStream.writeRawData(buffer, 2);
+			}
 
 			// 2nd triangle
-			writeFloat(outStream, (float)N.x);
-			writeFloat(outStream, (float)N.y);
-			writeFloat(outStream, (float)N.z);
+			if(!P4.isSame(P2) && !P2.isSame(P3) && !P3.isSame(P4))
+			{
+				writeFloat(outStream, (float)N.x);
+				writeFloat(outStream, (float)N.y);
+				writeFloat(outStream, (float)N.z);
 
-			writeFloat(outStream, (float)P4.x);
-			writeFloat(outStream, (float)P4.y);
-			writeFloat(outStream, (float)P4.z);
+				writeFloat(outStream, (float)P4.x);
+				writeFloat(outStream, (float)P4.y);
+				writeFloat(outStream, (float)P4.z);
 
-			writeFloat(outStream, (float)P2.x);
-			writeFloat(outStream, (float)P2.y);
-			writeFloat(outStream, (float)P2.z);
+				writeFloat(outStream, (float)P2.x);
+				writeFloat(outStream, (float)P2.y);
+				writeFloat(outStream, (float)P2.z);
 
-			writeFloat(outStream, (float)P3.x);
-			writeFloat(outStream, (float)P3.y);
-			writeFloat(outStream, (float)P3.z);
+				writeFloat(outStream, (float)P3.x);
+				writeFloat(outStream, (float)P3.y);
+				writeFloat(outStream, (float)P3.z);
 
-			memcpy(buffer, &zero, sizeof(short));
-			outStream.writeRawData(buffer, 2);
-			iTriangles +=2;
+				memcpy(buffer, &zero, sizeof(short));
+				outStream.writeRawData(buffer, 2);
+				iTriangles +=2;
+			}
 		}
 	}
 
 	//left side
-	for (k=0; k<sideLineCount()-1;k++)
+	for (int k=0; k<sideLineCount()-1;k++)
 	{
-		for (j=0; j<frameCount()-1;j++)
+		for (int j=0; j<frameCount()-1;j++)
 		{
-			P1 = frame(j)->m_CtrlPoint[k];       P1.x = frame(j)->m_Position.x;
-			P2 = frame(j+1)->m_CtrlPoint[k];     P2.x = frame(j+1)->m_Position.x;
-			P3 = frame(j+1)->m_CtrlPoint[k+1];   P3.x = frame(j+1)->m_Position.x;
-			P4 = frame(j)->m_CtrlPoint[k+1];     P4.x = frame(j)->m_Position.x;
+			P1 = frame(j)->ctrlPointAt(k);       P1.x = frame(j)->position().x;
+			P2 = frame(j+1)->ctrlPointAt(k);     P2.x = frame(j+1)->position().x;
+			P3 = frame(j+1)->ctrlPointAt(k+1);   P3.x = frame(j+1)->position().x;
+			P4 = frame(j)->ctrlPointAt(k+1);     P4.x = frame(j)->position().x;
 
 			P1.y = -P1.y;
 			P2.y = -P2.y;
 			P3.y = -P3.y;
 			P4.y = -P4.y;
 
-			P1P3 = P3-P1;
-			P2P4 = P4-P2;
-			N = P1P3 * P2P4;
-			N.normalize();
+			if(!P1.isSame(P2) && !P2.isSame(P4) && !P4.isSame(P1))
+			{
+				P1P3 = P3-P1;
+				P2P4 = P4-P2;
+				N = P1P3 * P2P4;
+				N.normalize();
 
-			// 1st triangle
-			writeFloat(outStream, (float)N.x);
-			writeFloat(outStream, (float)N.y);
-			writeFloat(outStream, (float)N.z);
+				// 1st triangle
+				writeFloat(outStream, (float)N.x);
+				writeFloat(outStream, (float)N.y);
+				writeFloat(outStream, (float)N.z);
 
-			writeFloat(outStream, (float)P1.x);
-			writeFloat(outStream, (float)P1.y);
-			writeFloat(outStream, (float)P1.z);
+				writeFloat(outStream, (float)P2.x);
+				writeFloat(outStream, (float)P2.y);
+				writeFloat(outStream, (float)P2.z);
 
-			writeFloat(outStream, (float)P2.x);
-			writeFloat(outStream, (float)P2.y);
-			writeFloat(outStream, (float)P2.z);
+				writeFloat(outStream, (float)P1.x);
+				writeFloat(outStream, (float)P1.y);
+				writeFloat(outStream, (float)P1.z);
 
-			writeFloat(outStream, (float)P4.x);
-			writeFloat(outStream, (float)P4.y);
-			writeFloat(outStream, (float)P4.z);
+				writeFloat(outStream, (float)P4.x);
+				writeFloat(outStream, (float)P4.y);
+				writeFloat(outStream, (float)P4.z);
 
-			memcpy(buffer, &zero, sizeof(short));
-			outStream.writeRawData(buffer, 2);
+				memcpy(buffer, &zero, sizeof(short));
+				outStream.writeRawData(buffer, 2);
+			}
 
 			// 2nd triangle
-			writeFloat(outStream, (float)N.x);
-			writeFloat(outStream, (float)N.y);
-			writeFloat(outStream, (float)N.z);
+			if(!P4.isSame(P2) && !P2.isSame(P3) && !P3.isSame(P4))
+			{
+				writeFloat(outStream, (float)N.x);
+				writeFloat(outStream, (float)N.y);
+				writeFloat(outStream, (float)N.z);
 
-			writeFloat(outStream, (float)P4.x);
-			writeFloat(outStream, (float)P4.y);
-			writeFloat(outStream, (float)P4.z);
+				writeFloat(outStream, (float)P2.x);
+				writeFloat(outStream, (float)P2.y);
+				writeFloat(outStream, (float)P2.z);
 
-			writeFloat(outStream, (float)P2.x);
-			writeFloat(outStream, (float)P2.y);
-			writeFloat(outStream, (float)P2.z);
+				writeFloat(outStream, (float)P4.x);
+				writeFloat(outStream, (float)P4.y);
+				writeFloat(outStream, (float)P4.z);
 
-			writeFloat(outStream, (float)P3.x);
-			writeFloat(outStream, (float)P3.y);
-			writeFloat(outStream, (float)P3.z);
+				writeFloat(outStream, (float)P3.x);
+				writeFloat(outStream, (float)P3.y);
+				writeFloat(outStream, (float)P3.z);
 
-			memcpy(buffer, &zero, sizeof(short));
-			outStream.writeRawData(buffer, 2);
-			iTriangles +=2;
+				memcpy(buffer, &zero, sizeof(short));
+				outStream.writeRawData(buffer, 2);
+				iTriangles +=2;
+			}
 		}
 	}
 

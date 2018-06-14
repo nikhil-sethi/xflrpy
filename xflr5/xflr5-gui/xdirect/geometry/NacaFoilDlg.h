@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Naca Foil Dlg
-	Copyright (C) 2008 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,15 +25,15 @@
 #include <QDialog>
 #include <QLabel>
 #include <QPushButton>
-#include <objects2d/Foil.h>
+#include <objects/objects2d/Foil.h>
 #include <misc/text/IntEdit.h>
 
 
 class NacaFoilDlg : public QDialog
 {
 	Q_OBJECT
-	friend class QXDirect;
-	friend class QAFoil;
+	friend class XDirect;
+	friend class AFoil;
 	friend class XFoil;
 
 

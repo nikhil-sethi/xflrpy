@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	GL3DScales Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #include "GL3DScales.h"
 #include <miarex/Miarex.h>
 #include <misc/options/Units.h>
-#include <globals.h>
+#include <globals/globals.h>
 #include <misc/options/displayoptions.h>
 
 #include <QGridLayout>
@@ -277,19 +277,19 @@ void GL3DScales::initDialog()
 	m_pctrlLengthUnit2->setText(str);
 	m_pctrlLengthUnit3->setText(str);
 
-	m_pctrlAutoCpScale->setChecked(QMiarex::s_bAutoCpScale);
-	m_pctrlLegendMin->setValue(QMiarex::s_LegendMin);
-	m_pctrlLegendMax->setValue(QMiarex::s_LegendMax);
-	m_pctrlLegendMin->setEnabled(!QMiarex::s_bAutoCpScale);
-	m_pctrlLegendMax->setEnabled(!QMiarex::s_bAutoCpScale);
+	m_pctrlAutoCpScale->setChecked(Miarex::s_bAutoCpScale);
+	m_pctrlLegendMin->setValue(Miarex::s_LegendMin);
+	m_pctrlLegendMax->setValue(Miarex::s_LegendMax);
+	m_pctrlLegendMin->setEnabled(!Miarex::s_bAutoCpScale);
+	m_pctrlLegendMax->setEnabled(!Miarex::s_bAutoCpScale);
 
-	m_pctrlLiftScaleSlider->setExpValue(QMiarex::s_LiftScale);
-	m_pctrlDragScaleSlider->setExpValue(QMiarex::s_DragScale);
-	m_pctrlVelocityScaleSlider->setExpValue(QMiarex::s_VelocityScale);
+	m_pctrlLiftScaleSlider->setExpValue(Miarex::s_LiftScale);
+	m_pctrlDragScaleSlider->setExpValue(Miarex::s_DragScale);
+	m_pctrlVelocityScaleSlider->setExpValue(Miarex::s_VelocityScale);
 
-	m_pctrlLiftScale->setValue(QMiarex::s_LiftScale);
-	m_pctrlDragScale->setValue(QMiarex::s_DragScale);
-	m_pctrlVelocityScale->setValue(QMiarex::s_VelocityScale);
+	m_pctrlLiftScale->setValue(Miarex::s_LiftScale);
+	m_pctrlDragScale->setValue(Miarex::s_DragScale);
+	m_pctrlVelocityScale->setValue(Miarex::s_VelocityScale);
 
 
 	if(s_pos==0)	    m_pctrlLE->setChecked(true);
@@ -306,15 +306,15 @@ void GL3DScales::initDialog()
 
 void GL3DScales::onCpScale()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
-    QMiarex::s_bAutoCpScale = m_pctrlAutoCpScale->isChecked();
-	if(!QMiarex::s_bAutoCpScale)
+	Miarex * pMiarex = (Miarex*)s_pMiarex;
+    Miarex::s_bAutoCpScale = m_pctrlAutoCpScale->isChecked();
+	if(!Miarex::s_bAutoCpScale)
 	{
-		QMiarex::s_LegendMax = m_pctrlLegendMax->value();
-		QMiarex::s_LegendMin = m_pctrlLegendMin->value();
+		Miarex::s_LegendMax = m_pctrlLegendMax->value();
+		Miarex::s_LegendMin = m_pctrlLegendMin->value();
 	}
-    m_pctrlLegendMin->setEnabled(!QMiarex::s_bAutoCpScale);
-    m_pctrlLegendMax->setEnabled(!QMiarex::s_bAutoCpScale);
+    m_pctrlLegendMin->setEnabled(!Miarex::s_bAutoCpScale);
+    m_pctrlLegendMax->setEnabled(!Miarex::s_bAutoCpScale);
 
 	pMiarex->m_bResetglPanelCp = true;
 	pMiarex->m_bResetglLegend = true;
@@ -325,10 +325,10 @@ void GL3DScales::onCpScale()
 
 void GL3DScales::onApply()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
-	QMiarex::s_LegendMax = m_pctrlLegendMax->value();
-	QMiarex::s_LegendMin = m_pctrlLegendMin->value();
-	QMiarex::s_bAutoCpScale = m_pctrlAutoCpScale->isChecked();
+	Miarex * pMiarex = (Miarex*)s_pMiarex;
+	Miarex::s_LegendMax = m_pctrlLegendMax->value();
+	Miarex::s_LegendMin = m_pctrlLegendMin->value();
+	Miarex::s_bAutoCpScale = m_pctrlAutoCpScale->isChecked();
 	readStreamParams();
 	pMiarex->m_bResetglStream = true;
 	pMiarex->updateView();
@@ -338,7 +338,7 @@ void GL3DScales::onApply()
 
 void GL3DScales::onLiftEdit()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = (Miarex*)s_pMiarex;
 	pMiarex->s_LiftScale = m_pctrlLiftScale->value();
 	m_pctrlLiftScaleSlider->setValue(pMiarex->s_LiftScale);
 	pMiarex->m_bResetglLift = true;
@@ -349,7 +349,7 @@ void GL3DScales::onLiftEdit()
 
 void GL3DScales::onDragEdit()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = (Miarex*)s_pMiarex;
 	pMiarex->s_DragScale = m_pctrlDragScale->value();
 	m_pctrlDragScaleSlider->setValue(pMiarex->s_DragScale);
 	pMiarex->m_bResetglDrag = true;
@@ -359,7 +359,7 @@ void GL3DScales::onDragEdit()
 
 void GL3DScales::onVelocityEdit()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = (Miarex*)s_pMiarex;
 	pMiarex->s_VelocityScale = m_pctrlVelocityScale->value();
 	m_pctrlVelocityScaleSlider->setValue(pMiarex->s_VelocityScale);
 	pMiarex->m_bResetglDownwash = true;
@@ -371,7 +371,7 @@ void GL3DScales::onVelocityEdit()
 
 void GL3DScales::onLiftScale()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = (Miarex*)s_pMiarex;
 	pMiarex->s_LiftScale    = m_pctrlLiftScaleSlider->expValue();
 	m_pctrlLiftScale->setValue(pMiarex->s_LiftScale);
 	pMiarex->m_bResetglLift = true;
@@ -382,7 +382,7 @@ void GL3DScales::onLiftScale()
 
 void GL3DScales::onDragScale()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = (Miarex*)s_pMiarex;
 	pMiarex->s_DragScale    = m_pctrlDragScaleSlider->expValue();
 	m_pctrlDragScale->setValue(pMiarex->s_DragScale);
 	pMiarex->m_bResetglDrag = true;
@@ -392,7 +392,7 @@ void GL3DScales::onDragScale()
 
 void GL3DScales::onVelocityScale()
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = (Miarex*)s_pMiarex;
 	pMiarex->s_VelocityScale    = m_pctrlVelocityScaleSlider->expValue();
 	m_pctrlVelocityScale->setValue(pMiarex->s_VelocityScale);
 	pMiarex->m_bResetglDownwash = true;
@@ -410,7 +410,7 @@ void GL3DScales::showEvent(QShowEvent *event)
 
 void GL3DScales::hideEvent(QHideEvent *event)
 {
-	QMiarex * pMiarex = (QMiarex*)s_pMiarex;
+	Miarex * pMiarex = (Miarex*)s_pMiarex;
 	pMiarex->setControls();
 	event->accept();
 }
@@ -435,9 +435,9 @@ bool GL3DScales::loadSettings(QSettings *pSettings)
 {
 	pSettings->beginGroup("GL3DScales");
 	{
-		QMiarex::s_bAutoCpScale = pSettings->value("AutoCpScale").toBool();
-		QMiarex::s_LegendMin    = pSettings->value("LegendMin").toDouble();
-		QMiarex::s_LegendMax    = pSettings->value("LegendMax").toDouble();
+		Miarex::s_bAutoCpScale = pSettings->value("AutoCpScale").toBool();
+		Miarex::s_LegendMin    = pSettings->value("LegendMin").toDouble();
+		Miarex::s_LegendMax    = pSettings->value("LegendMax").toDouble();
 		s_pos     = pSettings->value("Position").toInt();
 		s_NX      = pSettings->value("NX").toInt();
 		s_DeltaL  = pSettings->value("DeltaL").toDouble();
@@ -454,9 +454,9 @@ bool GL3DScales::saveSettings(QSettings *pSettings)
 {
 	pSettings->beginGroup("GL3DScales");
 	{
-		pSettings->setValue("AutoCpScale", QMiarex::s_bAutoCpScale);
-		pSettings->setValue("LegendMin", QMiarex::s_LegendMin);
-		pSettings->setValue("LegendMax", QMiarex::s_LegendMax);
+		pSettings->setValue("AutoCpScale", Miarex::s_bAutoCpScale);
+		pSettings->setValue("LegendMin", Miarex::s_LegendMin);
+		pSettings->setValue("LegendMax", Miarex::s_LegendMax);
 		pSettings->setValue("Position", s_pos);
 		pSettings->setValue("NX", s_NX);
 		pSettings->setValue("DeltaL", s_DeltaL);

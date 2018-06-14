@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Corner Add class
-	Copyright (C) 2004-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2004-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #include <QRadioButton>
 #include <QPushButton>
 
-#include <objects2d/Foil.h>
+#include <objects/objects2d/Foil.h>
 #include <misc/text/DoubleEdit.h>
 
 /**
@@ -46,8 +46,8 @@ class CAddDlg : public QDialog
 	Q_OBJECT
 
 	friend class MainFrame;
-	friend class QXDirect;
-	friend class QAFoil;
+	friend class XDirect;
+	friend class AFoil;
 
 public:
 	CAddDlg(QWidget *pParent);

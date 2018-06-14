@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	SplineCtrlsDlg
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -400,7 +400,7 @@ void SplineCtrlsDlg::updateSplines()
 	m_pSF->m_Intrados.splineKnots();
 	m_pSF->m_Intrados.splineCurve();
 	m_pSF->updateSplineFoil();
-	QAFoil *pAFoil = (QAFoil*)s_pAFoil;
+	AFoil *pAFoil = (AFoil*)s_pAFoil;
 	pAFoil->m_p2DWidget->update();
 }
 

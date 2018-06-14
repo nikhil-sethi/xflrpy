@@ -21,7 +21,7 @@ out vec3 vPosition;
 out vec4 vertexcolor;
 
 
-void main()
+void main(void)
 {
 	// Output position of the vertex, in clip space : MVP * position
 	gl_Position =  pvmMatrix * vertexPosition_modelSpace;

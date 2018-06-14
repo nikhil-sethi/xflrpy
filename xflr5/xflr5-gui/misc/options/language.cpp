@@ -9,7 +9,7 @@
 *****************************************************************************/
 
 #include "language.h"
-#include <mainframe.h>
+#include <globals/mainframe.h>
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -99,7 +99,7 @@ QStringList TranslatorDlg::findQmFiles()
 {
 	if(!MainFrame::s_TranslationDir.exists())
 	{
-		QMessageBox::warning(this, tr("Warning"), tr("The directory ")+MainFrame::s_TranslationDir.path()+tr(" does not exist"));
+//		QMessageBox::warning(this, tr("Warning"), tr("The directory ")+MainFrame::s_TranslationDir.path()+tr(" does not exist"));
 	}
 
 	QStringList fileNames = MainFrame::s_TranslationDir.entryList(QStringList("*.qm"), QDir::Files, QDir::Name);

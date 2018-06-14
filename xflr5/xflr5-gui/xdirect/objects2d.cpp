@@ -1,6 +1,6 @@
 /****************************************************************************
 
-	Objects2D    Copyright (C) 2016-2016 Andre Deperrois adeperrois@xflr5.com
+	Objects2D    Copyright (C) 2016-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,17 +22,19 @@
 
 #include "objects2d.h"
 #include <xdirect/XDirect.h>
-#include <globals.h>
+#include <globals/globals.h>
 #include <misc/options/displayoptions.h>
 #include <QtDebug>
 
-QList<Foil*>    Objects2D::s_oaFoil;
-QList<Polar*>   Objects2D::s_oaPolar;
-QList<OpPoint*> Objects2D::s_oaOpp;
+#define PI 3.141592654
+
+QList<Foil*>    Objects2d::s_oaFoil;
+QList<Polar*>   Objects2d::s_oaPolar;
+QList<OpPoint*> Objects2d::s_oaOpp;
 
 
 
-Objects2D::Objects2D()
+Objects2d::Objects2d()
 {
 
 }
@@ -44,7 +46,7 @@ Objects2D::Objects2D()
  * @param pFoil a pointer to the Foil to delete
  * @return a pointer to the next or previous Foil in the array, or NULL if none
  */
-Foil * Objects2D::deleteFoil(Foil *pFoil)
+Foil * Objects2d::deleteFoil(Foil *pFoil)
 {
 	if(!pFoil || !pFoil->foilName().length()) return NULL;
 	Foil *pOldFoil;
@@ -58,7 +60,7 @@ Foil * Objects2D::deleteFoil(Foil *pFoil)
 		pOpPoint = s_oaOpp[j];
 		if(pOpPoint->foilName() == pFoil->foilName())
 		{
-			if(pOpPoint==QXDirect::curOpp()) QXDirect::setCurOpp(NULL);
+			if(pOpPoint==XDirect::curOpp()) XDirect::setCurOpp(NULL);
 			s_oaOpp.removeAt(j);
 			delete pOpPoint;
 		}
@@ -70,7 +72,7 @@ Foil * Objects2D::deleteFoil(Foil *pFoil)
 		pPolar = (Polar*)s_oaPolar.at(j);
 		if(pPolar->foilName() == pFoil->foilName())
 		{
-			if(pPolar==QXDirect::curPolar()) QXDirect::setCurPolar(NULL);
+			if(pPolar==XDirect::curPolar()) XDirect::setCurPolar(NULL);
 			s_oaPolar.removeAt(j);
 			delete pPolar;
 		}
@@ -102,7 +104,7 @@ Foil * Objects2D::deleteFoil(Foil *pFoil)
  * @param strFoilName the name of the Foil to search for in the array
  * @return a pointer to the foil with the corresponding nam or NULL if not found.
  */
-Foil* Objects2D::foil(QString strFoilName)
+Foil* Objects2d::foil(QString strFoilName)
 {
 	if(!strFoilName.length()) return NULL;
 	Foil* pFoil;
@@ -124,7 +126,7 @@ Foil* Objects2D::foil(QString strFoilName)
  * Insert the Foil in sorted order in the array.
  * Questions have been answered previously : which-name, overwrite-or-not-overwrite, etc. Just do it.
 */
-void Objects2D::insertThisFoil(Foil *pFoil)
+void Objects2d::insertThisFoil(Foil *pFoil)
 {
 	Foil*pOldFoil;
 	QString oldFoilName = pFoil->foilName();
@@ -185,14 +187,14 @@ void Objects2D::insertThisFoil(Foil *pFoil)
 * @param pPolarPtr a point to the parent Polar object to which the OpPoint should be attached.
 * @return a pointer to the OpPoint which has been created, or NULL if it wasn't stored.
 */
-OpPoint* Objects2D::addOpPoint(void *pFoilPtr, void *pPolarPtr, void *pXFoilPtr, bool bStoreOpp)
+OpPoint* Objects2d::addOpPoint(void *pFoilPtr, void *pPolarPtr, void *pXFoilPtr, bool bStoreOpp)
 {
 	if(!pFoilPtr || !pXFoilPtr) return NULL;
 
 	Foil *pFoil = (Foil*)pFoilPtr;
 
 	Polar *pPolar;
-	if(!pPolarPtr) pPolar = QXDirect::curPolar();
+	if(!pPolarPtr) pPolar = XDirect::curPolar();
 	else           pPolar = (Polar*)pPolarPtr;
 
 	XFoil *pXFoil = (XFoil*)pXFoilPtr;
@@ -222,14 +224,14 @@ OpPoint* Objects2D::addOpPoint(void *pFoilPtr, void *pPolarPtr, void *pXFoilPtr,
 	if(bStoreOpp)
 	{
 		//insert the OpPoint in the Operating points array
-		Objects2D::insertOpPoint(pNewPoint);
+		Objects2d::insertOpPoint(pNewPoint);
 	}
 
 	// Now insert OpPoint in the current Polar object
 
 	if(pXFoil->lvconv && pPolar)
 	{
-		if(pPolar->polarType()==XFOIL::FIXEDLIFTPOLAR || pPolar->polarType()==XFOIL::RUBBERCHORDPOLAR)
+		if(pPolar->polarType()==XFLR5::FIXEDLIFTPOLAR || pPolar->polarType()==XFLR5::RUBBERCHORDPOLAR)
 		{
 			if(pNewPoint && pNewPoint->Reynolds()<1.00e8)
 			{
@@ -258,7 +260,7 @@ OpPoint* Objects2D::addOpPoint(void *pFoilPtr, void *pPolarPtr, void *pXFoilPtr,
  * Deletes the Foil and its children Polar and OpPoint objects
  * @return a pointer to the next or previous Foil in the array
  */
-Foil * Objects2D::deleteThisFoil(Foil *pFoil)
+Foil * Objects2d::deleteThisFoil(Foil *pFoil)
 {
 	Foil *pOldFoil=NULL;
 	Polar* pOldPolar=NULL;
@@ -270,7 +272,7 @@ Foil * Objects2D::deleteThisFoil(Foil *pFoil)
 		pOpPoint = s_oaOpp[jOpp];
 		if(pOpPoint->foilName() == pFoil->foilName())
 		{
-			if(pOpPoint==QXDirect::curOpp()) QXDirect::setCurOpp(NULL);
+			if(pOpPoint==XDirect::curOpp()) XDirect::setCurOpp(NULL);
 			s_oaOpp.removeAt(jOpp);
 			delete pOpPoint;
 		}
@@ -283,7 +285,7 @@ Foil * Objects2D::deleteThisFoil(Foil *pFoil)
 		pOldPolar = (Polar*)s_oaPolar.at(jPlr);
 		if(pOldPolar->foilName() == pFoil->foilName())
 		{
-			if(pOldPolar==QXDirect::curPolar()) QXDirect::setCurPolar(NULL);
+			if(pOldPolar==XDirect::curPolar()) XDirect::setCurPolar(NULL);
 			s_oaPolar.removeAt(jPlr);
 			delete pOldPolar;
 		}
@@ -313,12 +315,12 @@ Foil * Objects2D::deleteThisFoil(Foil *pFoil)
 
 
 
-bool Objects2D::deleteOpp(OpPoint *pOpp)
+bool Objects2d::deleteOpp(OpPoint *pOpp)
 {
 	OpPoint* pOldOpp;
 
 	if(!pOpp) return false;
-	if(pOpp == QXDirect::curOpp()) QXDirect::setCurOpp(NULL);
+	if(pOpp == XDirect::curOpp()) XDirect::setCurOpp(NULL);
 
 	for (int iOpp=0; iOpp<s_oaOpp.size(); iOpp++)
 	{
@@ -335,12 +337,12 @@ bool Objects2D::deleteOpp(OpPoint *pOpp)
 
 
 
-void Objects2D::deletePolar(Polar *pPolar)
+void Objects2d::deletePolar(Polar *pPolar)
 {
 	Polar* pOldPolar;
 
 	if(!pPolar) return;
-	if(pPolar == QXDirect::curPolar()) QXDirect::setCurPolar(NULL);
+	if(pPolar == XDirect::curPolar()) XDirect::setCurPolar(NULL);
 
 	for (int iPolar=0; iPolar<s_oaPolar.size(); iPolar++)
 	{
@@ -365,7 +367,7 @@ void Objects2D::deletePolar(Polar *pPolar)
  * Questions have been answered previously : which-name, overwrite-or-not-overwrite, etc. Just do it.
  * @param newFoilName
  */
-void Objects2D::renameThisFoil(Foil *pFoil, QString newFoilName)
+void Objects2d::renameThisFoil(Foil *pFoil, QString newFoilName)
 {
 	Foil *pOldFoil=NULL;
 	Polar* pOldPolar=NULL;
@@ -454,7 +456,7 @@ void Objects2D::renameThisFoil(Foil *pFoil, QString newFoilName)
 
 
 
-OpPoint *Objects2D::getOpp(Foil *pFoil, Polar *pPolar, double Alpha)
+OpPoint *Objects2d::getOpp(Foil *pFoil, Polar *pPolar, double Alpha)
 {
 	OpPoint* pOpPoint;
 	if(!pPolar) return NULL;
@@ -468,7 +470,7 @@ OpPoint *Objects2D::getOpp(Foil *pFoil, Polar *pPolar, double Alpha)
 		{
 			if (pOpPoint->polarName() == pPolar->polarName())
 			{
-				if(pPolar->polarType() != XFOIL::FIXEDAOAPOLAR)
+				if(pPolar->polarType() != XFLR5::FIXEDAOAPOLAR)
 				{
 					if(qAbs(pOpPoint->aoa() - Alpha) <0.001)
 					{
@@ -494,7 +496,7 @@ OpPoint *Objects2D::getOpp(Foil *pFoil, Polar *pPolar, double Alpha)
  * If an OpPoint already exists with the same combination of (FoilName, Re, aoa), it is overwritten.
  * @param pNewPoint
  */
-void Objects2D::insertOpPoint(OpPoint *pNewPoint)
+void Objects2d::insertOpPoint(OpPoint *pNewPoint)
 {
 	if(!pNewPoint) return;
 
@@ -559,7 +561,7 @@ void Objects2D::insertOpPoint(OpPoint *pNewPoint)
  * Note : sorting of Type 1 polars is necessary for the interpolation process in Plane analysis.
  * @param pPolar a pointer to the Polar object to insert in the array;
  */
-void Objects2D::addPolar(Polar *pPolar)
+void Objects2d::addPolar(Polar *pPolar)
 {
 	if(!pPolar) return;
 
@@ -606,7 +608,7 @@ void Objects2D::addPolar(Polar *pPolar)
 				}
 				else if(pPolar->polarType() == pOldPlr->polarType())
 				{
-					if (pPolar->polarType() != XFOIL::FIXEDAOAPOLAR)
+					if (pPolar->polarType() != XFLR5::FIXEDAOAPOLAR)
 					{
 						//sort by re Nbr
 						if(pPolar->Reynolds() < pOldPlr->Reynolds())
@@ -640,7 +642,7 @@ void Objects2D::addPolar(Polar *pPolar)
 
 
 
-Polar *Objects2D::getPolar(Foil *pFoil, QString PolarName)
+Polar *Objects2d::getPolar(Foil *pFoil, QString PolarName)
 {
 	if (!PolarName.length()) return NULL;
 
@@ -658,7 +660,7 @@ Polar *Objects2D::getPolar(Foil *pFoil, QString PolarName)
 }
 
 
-Polar *Objects2D::getPolar(QString m_FoilName, QString PolarName)
+Polar *Objects2d::getPolar(QString m_FoilName, QString PolarName)
 {
 	if (!PolarName.length())
 	{
@@ -689,7 +691,7 @@ Polar *Objects2D::getPolar(QString m_FoilName, QString PolarName)
  * @param NCrit the value of the transition criterion
  * @return a pointer to the Polar object which has been created
  */
-Polar * Objects2D::createPolar(Foil *pFoil, double Re, double Mach, double NCrit, double XtrTop, double XtrBot, XFOIL::enumPolarType polarType)
+Polar * Objects2d::createPolar(Foil *pFoil, double Re, double Mach, double NCrit, double XtrTop, double XtrBot, XFLR5::enumPolarType polarType)
 {
 	if(!pFoil) return NULL;
 
@@ -704,19 +706,19 @@ Polar * Objects2D::createPolar(Foil *pFoil, double Re, double Mach, double NCrit
 
 	switch (pNewPolar->polarType())
 	{
-	case XFOIL::FIXEDSPEEDPOLAR:
+	case XFLR5::FIXEDSPEEDPOLAR:
 		pNewPolar->MaType() = 1;
 		pNewPolar->ReType() = 1;
 		break;
-	case XFOIL::FIXEDLIFTPOLAR:
+	case XFLR5::FIXEDLIFTPOLAR:
 		pNewPolar->MaType() = 2;
 		pNewPolar->ReType() = 2;
 		break;
-	case XFOIL::RUBBERCHORDPOLAR:
+	case XFLR5::RUBBERCHORDPOLAR:
 		pNewPolar->MaType() = 1;
 		pNewPolar->ReType() = 3;
 		break;
-	case XFOIL::FIXEDAOAPOLAR:
+	case XFLR5::FIXEDAOAPOLAR:
 		pNewPolar->MaType() = 1;
 		pNewPolar->ReType() = 1;
 		break;
@@ -725,7 +727,7 @@ Polar * Objects2D::createPolar(Foil *pFoil, double Re, double Mach, double NCrit
 		pNewPolar->MaType() = 1;
 		break;
 	}
-	if(polarType!=XFOIL::FIXEDAOAPOLAR)  pNewPolar->Reynolds() = Re;
+	if(polarType!=XFLR5::FIXEDAOAPOLAR)  pNewPolar->Reynolds() = Re;
 	else                                 pNewPolar->aoa()    = 0.0;
 
 
@@ -740,7 +742,7 @@ Polar * Objects2D::createPolar(Foil *pFoil, double Re, double Mach, double NCrit
 * Adds the results of the XFoil Calculation to the OpPoint object
 * @param pOpPoint a pointer to the instance of the OpPoint to be filled with the data from the XFoil object.
 */
-void Objects2D::addXFoilData(OpPoint *pOpp, void *pXFoilPtr, void *pFoilPtr)
+void Objects2d::addXFoilData(OpPoint *pOpp, void *pXFoilPtr, void *pFoilPtr)
 {
 	Foil *pFoil = (Foil*)pFoilPtr;
 	int i, j, ibl, is, k;
@@ -871,9 +873,9 @@ void Objects2D::addXFoilData(OpPoint *pOpp, void *pXFoilPtr, void *pFoilPtr)
 	memcpy(pOpp->dstr, pXFoil->dstr, IVX * ISX * sizeof(double));
 	memcpy(pOpp->itran, pXFoil->itran, 3 * sizeof(int));
 
-	pXFoil->CreateXBL(pXFoil->xbl);
-	pXFoil->FillHk(pXFoil->Hk);
-	pXFoil->FillRTheta(pXFoil->RTheta);
+	pXFoil->createXBL(pXFoil->xbl);
+	pXFoil->fillHk(pXFoil->Hk);
+	pXFoil->fillRTheta(pXFoil->RTheta);
 	memcpy(pOpp->xbl, pXFoil->xbl, IVX * ISX * sizeof(double));
 	memcpy(pOpp->Hk, pXFoil->Hk, IVX * ISX * sizeof(double));
 	memcpy(pOpp->RTheta, pXFoil->RTheta, IVX * ISX * sizeof(double));
@@ -882,14 +884,14 @@ void Objects2D::addXFoilData(OpPoint *pOpp, void *pXFoilPtr, void *pFoilPtr)
 }
 
 
-void Objects2D::deleteFoilResults(Foil *pFoil, bool bDeletePolars)
+void Objects2d::deleteFoilResults(Foil *pFoil, bool bDeletePolars)
 {
 	for (int j=s_oaOpp.size()-1; j>=0; j--)
 	{
 		OpPoint *pOpPoint = s_oaOpp[j];
 		if(pOpPoint->foilName() == pFoil->foilName())
 		{
-			if(pOpPoint==QXDirect::curOpp()) QXDirect::setCurOpp(NULL);
+			if(pOpPoint==XDirect::curOpp()) XDirect::setCurOpp(NULL);
 			s_oaOpp.removeAt(j);
 			delete pOpPoint;
 		}
@@ -902,7 +904,7 @@ void Objects2D::deleteFoilResults(Foil *pFoil, bool bDeletePolars)
 		{
 			if(bDeletePolars)
 			{
-				if(pPolar==QXDirect::curPolar()) QXDirect::setCurPolar(NULL);
+				if(pPolar==XDirect::curPolar()) XDirect::setCurPolar(NULL);
 				s_oaPolar.removeAt(j);
 				delete pPolar;
 			}

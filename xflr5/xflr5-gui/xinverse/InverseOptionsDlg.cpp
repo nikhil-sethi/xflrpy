@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	InverseOptionsDlg  Classes
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
-#include "globals.h"
+#include <globals/globals.h>
 #include "XInverse.h"
 #include "InverseOptionsDlg.h"
 #include <misc/line/LinePickerDlg.h>
@@ -91,7 +91,7 @@ void InverseOptionsDlg::setupLayout()
 
 void InverseOptionsDlg::initDialog()
 {
-	QXInverse *pXInverse = (QXInverse*)m_pXInverse;
+	XInverse *pXInverse = (XInverse*)m_pXInverse;
 	m_pctrlRefFoil->setStyle(pXInverse->m_pRefFoil->foilLineStyle(), pXInverse->m_pRefFoil->foilLineWidth(), colour(pXInverse->m_pRefFoil),0);
 	m_pctrlModFoil->setStyle(pXInverse->m_pModFoil->foilLineStyle(), pXInverse->m_pModFoil->foilLineWidth(), colour(pXInverse->m_pModFoil),0);
 	m_pctrlSpline->setStyle(pXInverse->m_Spline.style(), pXInverse->m_Spline.width(), pXInverse->m_Spline.color(),0);
@@ -101,7 +101,7 @@ void InverseOptionsDlg::initDialog()
 
 void InverseOptionsDlg::onRefStyle()
 {
-	QXInverse *pXInverse = (QXInverse*)m_pXInverse;
+	XInverse *pXInverse = (XInverse*)m_pXInverse;
     LinePickerDlg dlg(this);
 	dlg.initDialog(pXInverse->m_pRefFoil->foilPointStyle(), pXInverse->m_pRefFoil->foilLineStyle(), pXInverse->m_pRefFoil->foilLineWidth(), colour(pXInverse->m_pRefFoil));
 
@@ -118,7 +118,7 @@ void InverseOptionsDlg::onRefStyle()
 
 void InverseOptionsDlg::onModStyle()
 {
-	QXInverse *pXInverse = (QXInverse*)m_pXInverse;
+	XInverse *pXInverse = (XInverse*)m_pXInverse;
     LinePickerDlg dlg(this);
 	dlg.initDialog(pXInverse->m_pModFoil->foilPointStyle(),pXInverse->m_pModFoil->foilLineStyle(), pXInverse->m_pModFoil->foilLineWidth(), colour(pXInverse->m_pModFoil));
 
@@ -135,7 +135,7 @@ void InverseOptionsDlg::onModStyle()
 
 void InverseOptionsDlg::onSplineStyle()
 {
-	QXInverse *pXInverse = (QXInverse*)m_pXInverse;
+	XInverse *pXInverse = (XInverse*)m_pXInverse;
     LinePickerDlg dlg(this);
 	dlg.initDialog(0, pXInverse->m_Spline.style(), pXInverse->m_Spline.width(), pXInverse->m_Spline.color());
 
@@ -151,7 +151,7 @@ void InverseOptionsDlg::onSplineStyle()
 
 void InverseOptionsDlg::onReflectedStyle()
 {
-	QXInverse *pXInverse = (QXInverse*)m_pXInverse;
+	XInverse *pXInverse = (XInverse*)m_pXInverse;
     LinePickerDlg dlg(this);
 	dlg.initDialog(0, pXInverse->m_ReflectedStyle, pXInverse->m_ReflectedWidth, pXInverse->m_ReflectedClr);
 

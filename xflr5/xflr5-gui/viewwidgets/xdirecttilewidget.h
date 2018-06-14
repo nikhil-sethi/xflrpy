@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	XDirectTileWidget Class
-		Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+		Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ public:
 public:
 	void connectSignals();
 	void adjustLayout();
-	void setGraphList(QList<QGraph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation =Qt::Horizontal);
+	void setGraphList(QList<Graph *> pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation =Qt::Horizontal);
 
 	OpPointWidget *opPointWidget(){return m_pOpPointWidget;}
 

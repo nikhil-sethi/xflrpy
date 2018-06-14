@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	GraphTileWidget Class
-		Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+		Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@
 #define GRAPHTILEWIDGET_H
 
 #include <QWidget>
-#include <QGraph.h>
+#include <graph/graph.h>
 #include <QSplitter>
 #include <graphwidget.h>
 #include "legendwidget.h"
-#include <analysis3d_enums.h>
+#include <analysis3d/analysis3d_enums.h>
 
 
 
@@ -42,7 +42,7 @@ public:
 	GraphTileWidget(QWidget *parent = 0);
 	virtual ~GraphTileWidget();
 
-	QGraph *graph(int iGraph);
+	Graph *graph(int iGraph);
 	GraphWidget *graphWidget(int iGraph);
 
 	XFLR5::enumApp xflr5App(){return m_xflr5App;}
@@ -55,12 +55,12 @@ public:
 	void showEvent(QShowEvent *event);
 
 
-	virtual void setGraphList(QList<QGraph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation =Qt::Horizontal);
+	virtual void setGraphList(QList<Graph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation =Qt::Horizontal);
 	virtual void connectSignals() = 0;
 
 
-	GraphWidget *graphWidget(QGraph *pGraph);
-	QGraph *activeGraph();
+	GraphWidget *graphWidget(Graph *pGraph);
+	Graph *activeGraph();
 	GraphWidget *activeGraphWidget();
 
 private:
@@ -69,7 +69,7 @@ private:
 
 
 public slots:
-	void onResetCurves(QGraph *pGraph = NULL);
+	void onResetCurves(Graph *pGraph = NULL);
 
 	void onSingleGraph();
 	void onAllGraphSettings();
@@ -85,9 +85,9 @@ public slots:
 
 
 public:
-	static void *s_pMainFrame;   /**< A void pointer to the instance of the MainFrame object. */
-	static void *s_pMiarex;      /**< A void pointer to the instance of the QMiarex object. */
-	static void *s_pXDirect;     /**< A void pointer to the instance of the QXDirect object. */
+	static MainFrame *s_pMainFrame;   /**< A void pointer to the instance of the MainFrame object. */
+	static Miarex *s_pMiarex;      /**< A void pointer to the instance of the QMiarex object. */
+	static XDirect *s_pXDirect;     /**< A void pointer to the instance of the QXDirect object. */
 
 
 private:

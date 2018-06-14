@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Objects_global Class
-	Copyright (C) 2017 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -78,13 +78,13 @@ void writeFloat(QDataStream &outStream, float f)
 
 /**
 * Reads the RGB int values of a color from binary datastream and returns a QColor. Inherited from the MFC versions of XFLR5.
-*@param ar the binary datastream
-*@param r the red component
-*@param g the green component
-*@param b the blue component
-*@param a the alpha component
+* @param ar the binary datastream
+* @param r the red component
+* @param g the green component
+* @param b the blue component
+* @param a the alpha component
 */
-void readqColor(QDataStream &ar, int &r, int &g, int &b, int &a)
+void readQColor(QDataStream &ar, int &r, int &g, int &b, int &a)
 {
 	uchar byte=0;
 
@@ -102,13 +102,13 @@ void readqColor(QDataStream &ar, int &r, int &g, int &b, int &a)
 
 /**
 * Writes the RGB int values of a color to a binary datastream. Inherited from the MFC versions of XFLR5.
-*@param ar the binary datastream
-*@param r the red component
-*@param g the green component
-*@param b the blue component
-*@param a the alpha component
+* @param ar the binary datastream
+* @param r the red component
+* @param g the green component
+* @param b the blue component
+* @param a the alpha component
 */
-void writeqColor(QDataStream &ar, int r, int g, int b, int a)
+void writeQColor(QDataStream &ar, int r, int g, int b, int a)
 {
 	uchar byte;
 

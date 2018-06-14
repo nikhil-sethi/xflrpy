@@ -8,7 +8,7 @@
 
 *****************************************************************************/
 
-#include <globals.h>
+#include <globals/globals.h>
 #include "Units.h"
 #include <QGridLayout>
 #include <QVBoxLayout>

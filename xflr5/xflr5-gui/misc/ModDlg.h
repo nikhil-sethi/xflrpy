@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	ModDlg class
-	Copyright (C) 2009 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ class ModDlg : public QDialog
 {
 	Q_OBJECT
 
-	friend class QMiarex;
+	friend class Miarex;
 	friend class ManageBodiesDlg;
 public:
     ModDlg(QWidget *pParent);

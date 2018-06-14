@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	QXDirect Class
-	Copyright (C) 2008-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,13 +31,13 @@
 #include <QtDebug>
 #include <math.h>
 
-#include <globals.h>
-#include <objects_global.h>
-#include <mainframe.h>
+#include <globals/globals.h>
+#include <objects/objects_global.h>
+#include <globals/mainframe.h>
 #include <xdirect/XDirect.h>
 #include <xdirect/objects2d.h>
 #include <viewwidgets/xdirecttilewidget.h>
-#include <graph/GraphDlg.h>
+#include <graph/graphdlg.h>
 
 #include <xdirect/xmlpolarreader.h>
 #include <xdirect/xmlpolarwriter.h>
@@ -69,31 +69,31 @@
 #include "XDirectStyleDlg.h"
 
 
-Polar QXDirect::s_refPolar;
+Polar XDirect::s_refPolar;
 
-QList<double> QXDirect::s_ReList;
-QList<double> QXDirect::s_MachList;
-QList<double> QXDirect::s_NCritList;
+QList<double> XDirect::s_ReList;
+QList<double> XDirect::s_MachList;
+QList<double> XDirect::s_NCritList;
 
-bool QXDirect::s_bViscous = true;
-bool QXDirect::s_bAlpha = true;
-bool QXDirect::s_bInitBL = true;
-bool QXDirect::s_bKeepOpenErrors = true;
-bool QXDirect::s_bFromZero = false;
-bool QXDirect::s_bStoreOpp = true;
+bool XDirect::s_bViscous = true;
+bool XDirect::s_bAlpha = true;
+bool XDirect::s_bInitBL = true;
+bool XDirect::s_bKeepOpenErrors = true;
+bool XDirect::s_bFromZero = false;
+bool XDirect::s_bStoreOpp = true;
 
-int QXDirect::s_TimeUpdateInterval = 100;
+int XDirect::s_TimeUpdateInterval = 100;
 
-MainFrame *QXDirect::s_pMainFrame;
-Foil *    QXDirect::m_pCurFoil = NULL;
-Polar*    QXDirect::m_pCurPolar = NULL;
-OpPoint * QXDirect::m_pCurOpp = NULL;
+MainFrame *XDirect::s_pMainFrame;
+Foil *    XDirect::m_pCurFoil = NULL;
+Polar*    XDirect::m_pCurPolar = NULL;
+OpPoint * XDirect::m_pCurOpp = NULL;
 
 
 /**
 *The public constructor.
 */
-QXDirect::QXDirect(QWidget *parent) : QWidget(parent)
+XDirect::XDirect(QWidget *parent) : QWidget(parent)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	m_pXFADlg = new XFoilAnalysisDlg(this);
@@ -161,9 +161,9 @@ QXDirect::QXDirect(QWidget *parent) : QWidget(parent)
 
 	for(int ig=0; ig<MAXPOLARGRAPHS; ig++)
 	{
-		m_PlrGraph.append(new QGraph);
+		m_PlrGraph.append(new Graph);
 		m_PlrGraph.at(ig)->setGraphName(QString("Polar_Graph_%1").arg(ig));
-		m_PlrGraph.at(ig)->graphType() = QGRAPH::POLARGRAPH;
+		m_PlrGraph.at(ig)->graphType() = GRAPH::POLARGRAPH;
 		m_PlrGraph[ig]->setXMin(0.0);
 		m_PlrGraph[ig]->setXMax(0.1);
 		m_PlrGraph[ig]->setYMin(-0.1);
@@ -181,10 +181,9 @@ QXDirect::QXDirect(QWidget *parent) : QWidget(parent)
 		if(ig==4) m_PlrGraph[ig]->setVariables(0,10);
 		if(ig==5) m_PlrGraph[ig]->setVariables(0,11);
 	}
-
 	for(int ig=0; ig<MAXPOLARGRAPHS; ig++) setGraphTitles(m_PlrGraph[ig]);
 
-	m_CpGraph.graphType() = QGRAPH::OPPGRAPH;
+	m_CpGraph.graphType() = GRAPH::OPPGRAPH;
 	m_CpGraph.setXTitle(tr("X"));
 	m_CpGraph.setYTitle(tr("Cp"));
 	m_CpGraph.setInverted(true);
@@ -229,7 +228,7 @@ QXDirect::QXDirect(QWidget *parent) : QWidget(parent)
 /**
  * The public destructor.
  */
-QXDirect::~QXDirect()
+XDirect::~XDirect()
 {
 	for(int ig=m_PlrGraph.count()-1; ig>=0; ig--)
 	{
@@ -241,7 +240,7 @@ QXDirect::~QXDirect()
 
 
 /** Sets the state of the window's widgets i.a.w. the state of the active ojbects and views. */
-void QXDirect::setControls()
+void XDirect::setControls()
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 
@@ -322,7 +321,7 @@ void QXDirect::setControls()
 /**
 * Connects signals and slots
 */
-void QXDirect::connectSignals()
+void XDirect::connectSignals()
 {
 
 	connect(this, SIGNAL(projectModified()), s_pMainFrame, SLOT(onProjectModified()));
@@ -358,7 +357,7 @@ void QXDirect::connectSignals()
 * Creates a curve of the Cp graph for a specified OpPoint instance, or for all the instances of OpPoint.
 * @param pOpp a pointer to the instance of the operating point, the data of which is used to build the CCurve objects
 */
-void QXDirect::createOppCurves(OpPoint *pOpp)
+void XDirect::createOppCurves(OpPoint *pOpp)
 {
 	OpPoint *pOpPoint = NULL;
 	if(pOpp) pOpPoint = pOpp; else pOpPoint = m_pCurOpp;
@@ -417,7 +416,7 @@ void QXDirect::createOppCurves(OpPoint *pOpp)
 /**
 *Creates the curves of the graphs for all the visible polars.
 */
-void QXDirect::createPolarCurves()
+void XDirect::createPolarCurves()
 {
 	// curves must be entirely reconstructed each time from the
 	// operating points database, since user may have added
@@ -434,10 +433,10 @@ void QXDirect::createPolarCurves()
 
 		if (pPolar->isVisible() && pPolar->m_Alpha.size()>0)
 		{
-			if ((pPolar->polarType()==XFOIL::FIXEDSPEEDPOLAR  && m_bType1) ||
-				(pPolar->polarType()==XFOIL::FIXEDLIFTPOLAR   && m_bType2) ||
-				(pPolar->polarType()==XFOIL::RUBBERCHORDPOLAR && m_bType3) ||
-				(pPolar->polarType()==XFOIL::FIXEDAOAPOLAR    && m_bType4))
+            if ((pPolar->polarType()==XFLR5::FIXEDSPEEDPOLAR  && m_bType1) ||
+                (pPolar->polarType()==XFLR5::FIXEDLIFTPOLAR   && m_bType2) ||
+                (pPolar->polarType()==XFLR5::RUBBERCHORDPOLAR && m_bType3) ||
+                (pPolar->polarType()==XFLR5::FIXEDAOAPOLAR    && m_bType4))
 			{
 
 				Curve* pCurve[MAXPOLARGRAPHS];
@@ -480,7 +479,7 @@ void QXDirect::createPolarCurves()
 * Initializes the comboboxes with the active OpPoint or Polar line style
 * @param bEnable true if the comboboxes should be enable as a result
 */
-void QXDirect::fillComboBoxes(bool bEnable)
+void XDirect::fillComboBoxes(bool bEnable)
 {
 	m_pctrlCurveColor->setEnabled(bEnable);
 	m_pctrlCurveStyle->setEnabled(bEnable);
@@ -562,11 +561,11 @@ void QXDirect::fillComboBoxes(bool bEnable)
 *@param pCurve a pointer to the CCurve which will be filled with the data from the OpPoint
 *@param bInviscid true if the inviscid resutls should be displayed, false if the viscous results should be displayed
 */
-void QXDirect::fillOppCurve(OpPoint *pOpp, Graph *pGraph, Curve *pCurve, bool bInviscid)
+void XDirect::fillOppCurve(OpPoint *pOpp, Graph *pGraph, Curve *pCurve, bool bInviscid)
 {
 	int j;
 
-	Foil *pOpFoil = Objects2D::foil(pOpp->foilName());
+	Foil *pOpFoil = Objects2d::foil(pOpp->foilName());
 
 	m_CpGraph.resetLimits();
 	m_CpGraph.setAuto(true);
@@ -870,7 +869,7 @@ void QXDirect::fillOppCurve(OpPoint *pOpp, Graph *pGraph, Curve *pCurve, bool bI
 * @param XVar the index of the variable for the curve's x-axis
 * @param YVar the index of the variable for the curve's y-axis
 */
-void QXDirect::fillPolarCurve(Curve *pCurve, Polar *pPolar, int XVar, int YVar)
+void XDirect::fillPolarCurve(Curve *pCurve, Polar *pPolar, int XVar, int YVar)
 {
 	int i;
 	QList <double> *pX;
@@ -919,7 +918,7 @@ void QXDirect::fillPolarCurve(Curve *pCurve, Polar *pPolar, int XVar, int YVar)
 			}
 		}
 
-		if(m_pCurOpp && QGraph::isHighLighting()
+		if(m_pCurOpp && Graph::isHighLighting()
 		   && m_pCurOpp->polarName()==m_pCurPolar->polarName() && m_pCurOpp->foilName()==m_pCurFoil->foilName())
 		{
 			if(qAbs(pPolar->m_Alpha[i]-m_pCurOpp->m_Alpha)<0.0001)
@@ -942,7 +941,7 @@ void QXDirect::fillPolarCurve(Curve *pCurve, Polar *pPolar, int XVar, int YVar)
 * @param iVar the index of the variable for which a pointer is requested
 * @return a pointer to the array of the requested variable
 */
-void * QXDirect::getVariable(Polar *pPolar, int iVar)
+void * XDirect::getVariable(Polar *pPolar, int iVar)
 {
 	void * pVar;
 	switch (iVar){
@@ -1004,7 +1003,7 @@ void * QXDirect::getVariable(Polar *pPolar, int iVar)
  * Dispatches the key press event
  * @param event the QKeyEvent
  */
-void QXDirect::keyPressEvent(QKeyEvent *event)
+void XDirect::keyPressEvent(QKeyEvent *event)
 {
 	bool bShift = false;
 	if(event->modifiers() & Qt::ShiftModifier)   bShift =true;
@@ -1167,7 +1166,7 @@ void QXDirect::keyPressEvent(QKeyEvent *event)
  * Dispatches the key release event
  * @param event the QKeyEvent
  */
-void QXDirect::keyReleaseEvent(QKeyEvent *event)
+void XDirect::keyReleaseEvent(QKeyEvent *event)
 {
 	switch (event->key())
 	{
@@ -1189,12 +1188,11 @@ void QXDirect::keyReleaseEvent(QKeyEvent *event)
  * Loads the user's default settings from the application QSettings object
  * @param pSettings a pointer to the QSettings object
  */
-void QXDirect::loadSettings(QSettings *pSettings)
+void XDirect::loadSettings(QSettings *pSettings)
 {
 	QString str1, str2, str3;
 	int b;
 	int oppVar = 0;
-
 	pSettings->beginGroup("XDirect");
 	{
 		s_bStoreOpp       = pSettings->value("StoreOpp").toBool();
@@ -1248,13 +1246,13 @@ void QXDirect::loadSettings(QSettings *pSettings)
 		m_Reynolds        = pSettings->value("ReynoldsMin").toDouble();
 		m_ReynoldsMax     = pSettings->value("ReynoldsMax").toDouble();
 		m_ReynoldsDelta   = pSettings->value("ReynolsDelta").toDouble();
-		m_XFoil.vaccel  = pSettings->value("VAccel").toDouble();
+        m_XFoil.setVAccel(pSettings->value("VAccel").toDouble());
 		s_bKeepOpenErrors = pSettings->value("KeepOpenErrors").toBool();
 
 		XFoilTask::s_bAutoInitBL    = pSettings->value("AutoInitBL").toBool();
 		XFoilTask::s_IterLim        = pSettings->value("IterLim", 100).toInt();
 
-		XFoil::s_bFullReport = pSettings->value("FullReport").toBool();
+        XFoil::setFullReport(pSettings->value("FullReport").toBool());
 
 		BatchThreadDlg::s_bUpdatePolarView = pSettings->value("BatchUpdatePolarView", false).toBool();
 		BatchThreadDlg::s_nThreads = pSettings->value("MaxThreads", 12).toInt();
@@ -1266,10 +1264,10 @@ void QXDirect::loadSettings(QSettings *pSettings)
 		s_refPolar.aoa()      = pSettings->value("ASpec").toDouble();
 
 		b = pSettings->value("Type").toInt();
-		if(b==1)      s_refPolar.setPolarType(XFOIL::FIXEDSPEEDPOLAR);
-		else if(b==2) s_refPolar.setPolarType(XFOIL::FIXEDLIFTPOLAR);
-		else if(b==3) s_refPolar.setPolarType(XFOIL::RUBBERCHORDPOLAR);
-		else if(b==4) s_refPolar.setPolarType(XFOIL::FIXEDAOAPOLAR);
+        if(b==1)      s_refPolar.setPolarType(XFLR5::FIXEDSPEEDPOLAR);
+        else if(b==2) s_refPolar.setPolarType(XFLR5::FIXEDLIFTPOLAR);
+        else if(b==3) s_refPolar.setPolarType(XFLR5::RUBBERCHORDPOLAR);
+		else if(b==4) s_refPolar.setPolarType(XFLR5::FIXEDAOAPOLAR);
 
 
 		int NRe = pSettings->value("NReynolds").toInt();
@@ -1306,8 +1304,11 @@ void QXDirect::loadSettings(QSettings *pSettings)
 		m_CpGraph.setInverted(false);
 	}
 
-	for(int ig=0; ig<MAXPOLARGRAPHS; ig++) setGraphTitles(m_PlrGraph.at(ig));
-
+	for(int ig=0; ig<MAXPOLARGRAPHS; ig++)
+	{
+//		Graph *pGraph = m_PlrGraph[ig];
+		setGraphTitles(m_PlrGraph[ig]);
+	}
 	m_pOpPointWidget->loadSettings(pSettings);
 }
 
@@ -1317,7 +1318,7 @@ void QXDirect::loadSettings(QSettings *pSettings)
 /**
  * The user has changed one of the analysis parameters. Reads all the data and maps it.
  */
-void QXDirect::onInputChanged()
+void XDirect::onInputChanged()
 {
 	readParams();
 }
@@ -1327,7 +1328,7 @@ void QXDirect::onInputChanged()
  * The user has clicked the animate checkcbox
  * @param bChecked the new state of the checkbox
  */
-void QXDirect::onAnimate(bool bChecked)
+void XDirect::onAnimate(bool bChecked)
 {
 	m_pctrlAnimateSpeed->setEnabled(bChecked);
 	if(!m_pCurFoil || !m_pCurPolar)
@@ -1375,7 +1376,7 @@ void QXDirect::onAnimate(bool bChecked)
  * Called by the animation timer.
  * Updates the display with the data of the next OpPoint.
  */
-void QXDirect::onAnimateSingle()
+void XDirect::onAnimateSingle()
 {
 	static int indexCbBox;
 	QString str;
@@ -1420,7 +1421,7 @@ void QXDirect::onAnimateSingle()
 			setCurOpp(pOpPoint);
 
 			//select current OpPoint in Combobox
-			if(m_pCurPolar->polarType()!=XFOIL::FIXEDAOAPOLAR) str = QString("%1").arg(m_pCurOpp->m_Alpha,8,'f',2);
+            if(m_pCurPolar->polarType()!=XFLR5::FIXEDAOAPOLAR) str = QString("%1").arg(m_pCurOpp->m_Alpha,8,'f',2);
 			else                                                     str = QString("%1").arg(m_pCurOpp->Reynolds(),8,'f',2);
 			indexCbBox = s_pMainFrame->m_pctrlOpPoint->findText(str);
 			if(indexCbBox>=0) s_pMainFrame->m_pctrlOpPoint->setCurrentIndex(indexCbBox);
@@ -1435,7 +1436,7 @@ void QXDirect::onAnimateSingle()
  * the user has moved the slider which defines the animation speed
  * @param val the slider's new position
  */
-void QXDirect::onAnimateSpeed(int val)
+void XDirect::onAnimateSpeed(int val)
 {
 	if(m_pAnimateTimer->isActive())
 	{
@@ -1450,7 +1451,7 @@ void QXDirect::onAnimateSpeed(int val)
  *
  * Reads the input parameters, initializes the analysis dialog box, and starts the analysis.
  */
-void QXDirect::onAnalyze()
+void XDirect::onAnalyze()
 {
 	if(!m_pCurFoil || !m_pCurPolar) return;
 
@@ -1458,8 +1459,8 @@ void QXDirect::onAnalyze()
 
 	m_pctrlAnalyze->setEnabled(false);
 
-	bool bHigh = QGraph::isHighLighting();
-	QGraph::setOppHighlighting(false);
+	bool bHigh = Graph::isHighLighting();
+	Graph::setOppHighlighting(false);
 
 	m_pXFADlg->m_pRmsGraph->copySettings(&Settings::s_RefGraph);
 
@@ -1489,7 +1490,7 @@ void QXDirect::onAnalyze()
 
 	m_pctrlAnalyze->setEnabled(true);
 
-	s_bInitBL = !m_XFoil.lblini;
+	s_bInitBL = !m_XFoil.isBLInitialized();
 	m_pctrlInitBL->setChecked(s_bInitBL);;
 
 	s_pMainFrame->updateOppListBox();
@@ -1497,7 +1498,7 @@ void QXDirect::onAnalyze()
 	if(s_bAlpha) setOpp(m_Alpha);
 	else         setOpp();
 
-	QGraph::setOppHighlighting(bHigh);
+	Graph::setOppHighlighting(bHigh);
 
 	m_bResetCurves = true;
 
@@ -1512,7 +1513,7 @@ void QXDirect::onAnalyze()
 /**
  * Launches a single-threaded batch analysis
  */
-void QXDirect::onBatchAnalysis()
+void XDirect::onBatchAnalysis()
 {
 	if(!m_pCurFoil) return;
 
@@ -1580,7 +1581,7 @@ void QXDirect::onBatchAnalysis()
  * Launches a multi-threaded batch analysis
  *
  */
-void QXDirect::onMultiThreadedBatchAnalysis()
+void XDirect::onMultiThreadedBatchAnalysis()
 {
 	if(!m_pCurFoil) 		return;
 
@@ -1655,7 +1656,7 @@ void QXDirect::onMultiThreadedBatchAnalysis()
 /**
  * The user has requested to switch to the Cp graph view
  */
-void QXDirect::onCpGraph()
+void XDirect::onCpGraph()
 {
 	onOpPointView();
 	if(m_CpGraph.yVariable()!=0)
@@ -1679,7 +1680,7 @@ void QXDirect::onCpGraph()
 /**
  * The user has toggled the request for the display of the inviscid Cp curve
  */
-void QXDirect::onCpi()
+void XDirect::onCpi()
 {
 	m_bShowInviscid = !m_bShowInviscid;
 
@@ -1692,7 +1693,7 @@ void QXDirect::onCpi()
 /**
  * The user has toggled the switch for the display of the current OpPoint only
  */
-void QXDirect::onCurOppOnly()
+void XDirect::onCurOppOnly()
 {
 	m_bCurOppOnly = !m_bCurOppOnly;
 	s_pMainFrame->m_pShowCurOppOnly->setChecked(m_bCurOppOnly);
@@ -1707,7 +1708,7 @@ void QXDirect::onCurOppOnly()
 /**
  * The user has changed the color of the current curve
  */
-void QXDirect::onCurveColor()
+void XDirect::onCurveColor()
 {
 	QColor Color = QColorDialog::getColor(m_LineStyle.m_Color);
 	if(Color.isValid()) m_LineStyle.m_Color = Color;
@@ -1720,7 +1721,7 @@ void QXDirect::onCurveColor()
 /**
  * The user has changed the style of the current curve
  */
-void QXDirect::onCurveStyle(int index)
+void XDirect::onCurveStyle(int index)
 {
 	m_LineStyle.m_Style = index;
 	fillComboBoxes();
@@ -1731,7 +1732,7 @@ void QXDirect::onCurveStyle(int index)
 /**
  * The user has changed the width of the current curve
  */
-void QXDirect::onCurveWidth(int index)
+void XDirect::onCurveWidth(int index)
 {
 	m_LineStyle.m_Width = index+1;
 	fillComboBoxes();
@@ -1739,7 +1740,7 @@ void QXDirect::onCurveWidth(int index)
 }
 
 
-void QXDirect::onCurvePoints(int index)
+void XDirect::onCurvePoints(int index)
 {
 	m_LineStyle.m_PointStyle = index;
 	fillComboBoxes();
@@ -1750,7 +1751,7 @@ void QXDirect::onCurvePoints(int index)
 /**
  * The user has requested to define a new polar
  */
-void QXDirect::onDefinePolar()
+void XDirect::onDefinePolar()
 {
 	if(!m_pCurFoil) return;
 
@@ -1772,7 +1773,7 @@ void QXDirect::onDefinePolar()
 
 		m_pCurPolar->setPolarType(fpDlg.m_PolarType);
 
-		Objects2D::addPolar(m_pCurPolar);
+		Objects2d::addPolar(m_pCurPolar);
 		setPolar(m_pCurPolar);
 
 		s_pMainFrame->updatePolarListBox();
@@ -1787,7 +1788,7 @@ void QXDirect::onDefinePolar()
  * The user has requested the deletion of the current Foil.
  * Deletes the Foil, and selects the next one in the array, if any.
  */
-void QXDirect::onDeleteCurFoil()
+void XDirect::onDeleteCurFoil()
 {
 	QString strong;
 	strong = tr("Are you sure you want to delete")  +"\n"+ m_pCurFoil->foilName() +"\n";
@@ -1797,7 +1798,7 @@ void QXDirect::onDeleteCurFoil()
 	if(resp != QMessageBox::Yes) return;
 
 
-	Foil*pNextFoil = Objects2D::deleteFoil(m_pCurFoil);
+	Foil*pNextFoil = Objects2d::deleteFoil(m_pCurFoil);
 //	setCurFoil(pNextFoil);
 //	setCurOpp(NULL);
 //	setCurPolar(NULL);
@@ -1818,7 +1819,7 @@ void QXDirect::onDeleteCurFoil()
 /**
  * The user has requested the deletion of the current OpPoint.
  */
-void QXDirect::onDelCurOpp()
+void XDirect::onDelCurOpp()
 {
 	OpPoint* pOpPoint = m_pCurOpp;
 	stopAnimate();
@@ -1826,7 +1827,7 @@ void QXDirect::onDelCurOpp()
 	if (!pOpPoint) return;
 	QString strong,str;
 	strong = tr("Are you sure you want to delete the Operating Point\n");
-	if(m_pCurPolar->polarType()!=XFOIL::FIXEDAOAPOLAR) str = QString("Alpha = %1").arg(pOpPoint->aoa(),0,'f',2);
+    if(m_pCurPolar->polarType()!=XFLR5::FIXEDAOAPOLAR) str = QString("Alpha = %1").arg(pOpPoint->aoa(),0,'f',2);
 	else                                                     str = QString("Reynolds = %1").arg(pOpPoint->Reynolds(),0,'f',0);
 	strong += str;
 	strong += "  ?";
@@ -1834,7 +1835,7 @@ void QXDirect::onDelCurOpp()
 	if (QMessageBox::Yes == QMessageBox::question(s_pMainFrame, tr("Question"), strong,
 		QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel))
 	{
-		Objects2D::deleteOpp(m_pCurOpp);
+		Objects2d::deleteOpp(m_pCurOpp);
 		s_pMainFrame->updateOppListBox();
 		setOpp();
 		updateView();
@@ -1846,7 +1847,7 @@ void QXDirect::onDelCurOpp()
 /**
  * The user has requested the deletion of the current Polar.
  */
-void QXDirect::onDeleteCurPolar()
+void XDirect::onDeleteCurPolar()
 {
 	if(!m_pCurPolar) return;
 	OpPoint *pOpPoint;
@@ -1895,7 +1896,7 @@ void QXDirect::onDeleteCurPolar()
 /**
  * The user has requested the deletion of the OpPoints associated to the current Polar.
  */
-void QXDirect::onDeletePolarOpps()
+void XDirect::onDeletePolarOpps()
 {
 	if(!m_pCurFoil || !m_pCurPolar) return;
 
@@ -1925,7 +1926,7 @@ void QXDirect::onDeletePolarOpps()
 /**
  * The user has requested the deletion of the OpPoints associated to the current Foil.
  */
-void QXDirect::onDeleteFoilOpps()
+void XDirect::onDeleteFoilOpps()
 {
 	if(!m_pCurFoil || !m_pCurPolar) return;
 
@@ -1955,7 +1956,7 @@ void QXDirect::onDeleteFoilOpps()
 /**
  * The user has requested the deletion of the Polars associated to the current Foil.
  */
-void QXDirect::onDeleteFoilPolars()
+void XDirect::onDeleteFoilPolars()
 {
 	if(!m_pCurFoil) return;
 	int l;
@@ -2011,7 +2012,7 @@ void QXDirect::onDeleteFoilPolars()
 /**
  * The user has requested a local refinement of the panels of the current foil
  */
-void QXDirect::onCadd()
+void XDirect::onCadd()
 {
 	stopAnimate();
 	if(!m_pCurFoil)	return;
@@ -2065,7 +2066,7 @@ void QXDirect::onCadd()
 /**
  * The user has requested that the foil be derotated
  */
-void QXDirect::onDerotateFoil()
+void XDirect::onDerotateFoil()
 {
 	if(!m_pCurFoil) return;
 	QString str;
@@ -2100,7 +2101,7 @@ void QXDirect::onDerotateFoil()
 /**
  * The user has requested that the length of the current foil be normalized to 1.
  */
-void QXDirect::onNormalizeFoil()
+void XDirect::onNormalizeFoil()
 {
 	if(!m_pCurFoil) return;
 	QString str;
@@ -2135,7 +2136,7 @@ void QXDirect::onNormalizeFoil()
 /**
  * The user has requested to modify the parameters of the active polar
  */
-void QXDirect::onEditCurPolar()
+void XDirect::onEditCurPolar()
 {
 	if (!m_pCurPolar) return;
 
@@ -2184,7 +2185,7 @@ void QXDirect::onEditCurPolar()
 /**
  * The user has requested the export of the current results stored in the XFoil object to a text file
  */
-void QXDirect::onExportBLData()
+void XDirect::onExportBLData()
 {
 	if(!m_pCurOpp || m_pCurOpp->nside1==0) return;
 	if(!m_pCurFoil)		  return;
@@ -2194,8 +2195,8 @@ void QXDirect::onExportBLData()
 	double xBL[IVX][ISX],Hk[IVX][ISX],UeVinf[IVX][ISX], Cf[IVX][ISX], Cd[IVX][ISX], AA0[IVX][ISX];
 	double DStar[IVX][ISX], Theta[IVX][ISX];
 	double uei;
-	double que = 0.5*m_XFoil.qinf*m_XFoil.qinf;
-	double qrf = m_XFoil.qinf;
+	double que = 0.5*m_XFoil.QInf()*m_XFoil.QInf();
+	double qrf = m_XFoil.QInf();
 	int nside1, nside2, ibl;
 	XFLR5::enumTextFileType type = XFLR5::TXT;
 
@@ -2347,7 +2348,7 @@ void QXDirect::onExportBLData()
 /**
  * The user has requested the export of all polars to text files
  */
-void QXDirect::onExportAllPolars()
+void XDirect::onExportAllPolars()
 {
 	QString FileName, DirName;
 	QFile XFile;
@@ -2382,7 +2383,7 @@ void QXDirect::onExportAllPolars()
 /**
  * The user has requested the export of the current foil to a text file
  */
-void QXDirect::onExportCurFoil()
+void XDirect::onExportCurFoil()
 {
 	if(!m_pCurFoil)	return;
 
@@ -2413,7 +2414,7 @@ void QXDirect::onExportCurFoil()
 /**
  * The user has requested the export of the current OpPoint to a text file
  */
-void QXDirect::onExportCurOpp()
+void XDirect::onExportCurOpp()
 {
 	if(!m_pCurFoil || !m_pCurPolar || !m_pCurOpp)	return;
 
@@ -2449,7 +2450,7 @@ void QXDirect::onExportCurOpp()
 /**
  * The user has requested the export of the OpPoints associated to the current Polar to a text file
  */
-void QXDirect::onExportPolarOpps()
+void XDirect::onExportPolarOpps()
 {
 	if(!m_poaPolar->size())
 	{
@@ -2565,7 +2566,7 @@ void QXDirect::onExportPolarOpps()
 /**
  * The user has requested the export of the current Polar to a text file
  */
-void QXDirect::onExportCurPolar()
+void XDirect::onExportCurPolar()
 {
 	if(!m_pCurFoil || !m_pCurPolar)	return;
 
@@ -2602,7 +2603,7 @@ void QXDirect::onExportCurPolar()
 /**
  * The user has requested an edition of the current foil coordinates
  */
-void QXDirect::onFoilCoordinates()
+void XDirect::onFoilCoordinates()
 {
 	if(!m_pCurFoil)	return;
 	stopAnimate();
@@ -2675,7 +2676,7 @@ void QXDirect::onFoilCoordinates()
 /**
  * The user has requested to perform an edition of the current foil's thickness and camber properties.
  */
-void QXDirect::onFoilGeom()
+void XDirect::onFoilGeom()
 {
 	if(!m_pCurFoil)	return;
 
@@ -2726,7 +2727,7 @@ void QXDirect::onFoilGeom()
 /**
  * The user has requested to hide all OpPoints
  */
-void QXDirect::onHideAllOpps()
+void XDirect::onHideAllOpps()
 {
 	OpPoint *pOpp;
 	for (int i=0; i<m_poaOpp->size(); i++)
@@ -2745,7 +2746,7 @@ void QXDirect::onHideAllOpps()
 /**
  * The user has requested to hide all polar curves
  */
-void QXDirect::onHideAllPolars()
+void XDirect::onHideAllPolars()
 {
 	Polar *pPolar;
 	for (int i=0; i<m_poaPolar->size(); i++)
@@ -2763,7 +2764,7 @@ void QXDirect::onHideAllPolars()
 /**
  * The user has requested to hide all polar curves associated to the current Foil
  */
-void QXDirect::onHideFoilPolars()
+void XDirect::onHideFoilPolars()
 {
 	if(!m_pCurFoil) return;
 	Polar *pPolar;
@@ -2785,7 +2786,7 @@ void QXDirect::onHideFoilPolars()
 /**
  * The user has requested to hide all OpPoint curves associated to the current Foil
  */
-void QXDirect::onHideFoilOpps()
+void XDirect::onHideFoilOpps()
 {
 	if(!m_pCurFoil || !m_pCurPolar) return;
 
@@ -2807,7 +2808,7 @@ void QXDirect::onHideFoilOpps()
 /**
  * The user has requested to hide all OpPoint curves associated to the current Polar
  */
-void QXDirect::onHidePolarOpps()
+void XDirect::onHidePolarOpps()
 {
 	if(!m_pCurFoil || !m_pCurPolar) return;
 
@@ -2831,7 +2832,7 @@ void QXDirect::onHidePolarOpps()
 /**
  * Imports the analysis definition from an XML file
  */
-void QXDirect::onImportXFoilPolars()
+void XDirect::onImportXFoilPolars()
 {
 	QStringList pathNames;
 	pathNames = QFileDialog::getOpenFileNames(this, tr("Open File"),
@@ -2861,7 +2862,7 @@ void QXDirect::onImportXFoilPolars()
  * The user has requested to import a polar from a text file.
  * The Polar will be added to the array only if a Foil with the parent name exists.
  */
-Polar * QXDirect::importXFoilPolar(QFile & txtFile)
+Polar * XDirect::importXFoilPolar(QFile & txtFile)
 {
 	Polar *pPolar = new Polar;
 	double Re, alpha, CL, CD, CDp, CM, Xt, Xb,Cpmn, HMom;
@@ -2886,7 +2887,7 @@ Polar * QXDirect::importXFoilPolar(QFile & txtFile)
 	FoilName = strong.right(strong.length()-22);
 	FoilName = FoilName.trimmed();
 
-	if(!Objects2D::foil(FoilName))
+	if(!Objects2d::foil(FoilName))
 	{
 		str = tr("No Foil with the name ")+FoilName;
 		str+= tr("\ncould be found. The polar(s) will not be stored");
@@ -2907,10 +2908,10 @@ Polar * QXDirect::importXFoilPolar(QFile & txtFile)
 		QMessageBox::warning(s_pMainFrame, tr("Warning"), str);
 		return NULL;
 	}
-	if     (pPolar->ReType() ==1 && pPolar->MaType() ==1) pPolar->polarType() = XFOIL::FIXEDSPEEDPOLAR;
-	else if(pPolar->ReType() ==2 && pPolar->MaType() ==2) pPolar->polarType() = XFOIL::FIXEDLIFTPOLAR;
-	else if(pPolar->ReType() ==3 && pPolar->MaType() ==1) pPolar->polarType() = XFOIL::RUBBERCHORDPOLAR;
-	else                                                  pPolar->polarType() = XFOIL::FIXEDSPEEDPOLAR;
+    if     (pPolar->ReType() ==1 && pPolar->MaType() ==1) pPolar->polarType() = XFLR5::FIXEDSPEEDPOLAR;
+    else if(pPolar->ReType() ==2 && pPolar->MaType() ==2) pPolar->polarType() = XFLR5::FIXEDLIFTPOLAR;
+    else if(pPolar->ReType() ==3 && pPolar->MaType() ==1) pPolar->polarType() = XFLR5::RUBBERCHORDPOLAR;
+    else                                                  pPolar->polarType() = XFLR5::FIXEDSPEEDPOLAR;
 
 
 	bRead  = ReadAVLString(in, Line, strong);
@@ -2922,7 +2923,7 @@ Polar * QXDirect::importXFoilPolar(QFile & txtFile)
 		return NULL;
 	}
 
-	pPolar->XtrTop() = strong.mid(9,6).toDouble(&bOK);
+	pPolar->XtrBot() = strong.mid(9,6).toDouble(&bOK);
 	if(!bOK)
 	{
 		str = QString("Error reading Bottom Transition value at line %1. The polar(s) will not be stored").arg(Line);
@@ -3034,7 +3035,7 @@ Polar * QXDirect::importXFoilPolar(QFile & txtFile)
 	QColor clr = MainFrame::getColor(1);
 	pPolar->setColor(clr.red(), clr.green(), clr.blue());
 
-	Objects2D::addPolar(pPolar);
+	Objects2d::addPolar(pPolar);
 	return pPolar;
 }
 
@@ -3044,7 +3045,7 @@ Polar * QXDirect::importXFoilPolar(QFile & txtFile)
  * The Polar will be added to the array only if a Foil with the parent name exists.
  *  @todo Note: this option has not been tested in years... the JavaFoil format may have changed since
  */
-void QXDirect::onImportJavaFoilPolar()
+void XDirect::onImportJavaFoilPolar()
 {
 	QString FoilName;
 	QString strong, str;
@@ -3084,7 +3085,7 @@ void QXDirect::onImportJavaFoilPolar()
 
 	FoilName = FoilName.trimmed();
 
-	if(!Objects2D::foil(FoilName))
+	if(!Objects2d::foil(FoilName))
 	{
 		str = tr("No Foil with the name ")+FoilName;
 		str+= tr("\ncould be found. The polar(s) will not be stored");
@@ -3115,7 +3116,7 @@ void QXDirect::onImportJavaFoilPolar()
 
 			QColor clr = MainFrame::getColor(1);
 			pPolar->setColor(clr.red(), clr.green(), clr.blue());
-			Objects2D::addPolar(pPolar);
+			Objects2d::addPolar(pPolar);
 			setCurPolar(pPolar);
 			NPolars++;
 
@@ -3157,7 +3158,7 @@ void QXDirect::onImportJavaFoilPolar()
 /**
  * The user has requested the launch of the interface to create a foil from the interpolation of two existing Foil objects.
  */
-void QXDirect::onInterpolateFoils()
+void XDirect::onInterpolateFoils()
 {
 	if(m_poaFoil->size()<2)
 	{
@@ -3184,7 +3185,7 @@ void QXDirect::onInterpolateFoils()
 	if(ifDlg.exec() == QDialog::Accepted)
 	{
 		setRandomFoilColor(pNewFoil, !Settings::isLightTheme());
-		pNewFoil->foilName() = ifDlg.m_NewFoilName;
+        pNewFoil->setFoilName(ifDlg.m_NewFoilName);
 
 		if(addNewFoil(pNewFoil))
 		{
@@ -3208,7 +3209,7 @@ void QXDirect::onInterpolateFoils()
 /**
  * The user has requested the launch of the interface used to create a NACA type foil.
  */
-void QXDirect::onNacaFoils()
+void XDirect::onNacaFoils()
 {
 	stopAnimate();
 	onOpPointView();
@@ -3252,31 +3253,24 @@ void QXDirect::onNacaFoils()
 		str = "NACA "+ str;
 
 		setRandomFoilColor(pNacaFoil, !Settings::isLightTheme());
-		pNacaFoil->foilName() = str;
+        pNacaFoil->setFoilName(str);
 
 		setCurOpp(pCurOpp);
 
 		if(addNewFoil(pNacaFoil))
 		{
+			setFoil(pNacaFoil);
+			s_pMainFrame->updateFoilListBox();
+			emit projectModified();
+			updateView();
+			return;
 		}
-		else
-		{
-			delete pNacaFoil;
-		}
-
-		setFoil(pNacaFoil);
-		s_pMainFrame->updateFoilListBox();
-		emit projectModified();
 	}
-	else
-	{
-		delete pNacaFoil;
-		setCurFoil(pCurFoil);
-		setCurOpp(pCurOpp);
-//		Foil *pFoil = m_pCurFoil;
-		if(m_pCurFoil)	m_XFoil.initXFoilGeometry(m_pCurFoil->n, m_pCurFoil->x,m_pCurFoil->y, m_pCurFoil->nx, m_pCurFoil->ny);
-	}
-	setControls();
+	//reset everything
+	setCurFoil(pCurFoil);
+	setCurOpp(pCurOpp);
+	m_XFoil.initXFoilGeometry(pCurFoil->n, pCurFoil->x, pCurFoil->y, pCurFoil->nx, pCurFoil->ny);
+	delete pNacaFoil;
 	updateView();
 }
 
@@ -3287,7 +3281,7 @@ void QXDirect::onNacaFoils()
 /**
  * The user has requested to switch to the OpPoint view
  */
-void QXDirect::onOpPointView()
+void XDirect::onOpPointView()
 {
 	if(!m_bPolarView) return;
 
@@ -3307,7 +3301,7 @@ void QXDirect::onOpPointView()
 /**
  * The user has requested to switch to the Polar view
  */
-void QXDirect::onPolarView()
+void XDirect::onPolarView()
 {
 	if(m_bPolarView) return;
 	m_bPolarView = true;
@@ -3325,7 +3319,7 @@ void QXDirect::onPolarView()
 /**
  * The user has requested the launch of the interface used to filter the type of polars to be displayed.
  */
-void QXDirect::onPolarFilter()
+void XDirect::onPolarFilter()
 {
 	PolarFilterDlg pfDlg(s_pMainFrame);
 	pfDlg.m_bMiarex = false;
@@ -3353,7 +3347,7 @@ void QXDirect::onPolarFilter()
 /**
  * The user has requested the launch of the interface to refine globally the Foil
 */
-void QXDirect::onRefinePanelsGlobally()
+void XDirect::onRefinePanelsGlobally()
 {
 	if(!m_pCurFoil)	return;
 	stopAnimate();
@@ -3406,7 +3400,7 @@ void QXDirect::onRefinePanelsGlobally()
 /**
  * The user has requested the display of the velocity in the Cp graph.
  */
-void QXDirect::onQGraph()
+void XDirect::onQGraph()
 {
 	onOpPointView();
 	if(m_CpGraph.yVariable()!=1)
@@ -3431,7 +3425,7 @@ void QXDirect::onQGraph()
 /**
  * The user has requested to rename the Polar
  */
-void QXDirect::onRenameCurPolar()
+void XDirect::onRenameCurPolar()
 {
 	if(!m_pCurPolar) return;
 	if(!m_pCurFoil) return;
@@ -3544,7 +3538,7 @@ void QXDirect::onRenameCurPolar()
 /**
  *The user has requested the display of the detailed properties of the active OpPoint object.
  */
-void QXDirect::onOpPointProps()
+void XDirect::onOpPointProps()
 {
 	if(!m_pCurOpp) return;
 	ObjectPropsDlg opDlg(s_pMainFrame);
@@ -3560,7 +3554,7 @@ void QXDirect::onOpPointProps()
 /**
  *The user has requested the display of the detailed properties of the active Polar object.
  */
-void QXDirect::onPolarProps()
+void XDirect::onPolarProps()
 {
 	if(!m_pCurPolar) return;
 	ObjectPropsDlg opDlg(s_pMainFrame);
@@ -3576,7 +3570,7 @@ void QXDirect::onPolarProps()
 /**
  * The user has requested to reset all polar graph scales to their automatic default value
  */
-void QXDirect::onResetAllPolarGraphsScales()
+void XDirect::onResetAllPolarGraphsScales()
 {
 	for(int ig=0; ig<m_PlrGraph.count(); ig++)
 	{
@@ -3592,7 +3586,7 @@ void QXDirect::onResetAllPolarGraphsScales()
  * The user has requested the deletion of the dataof the current Polar.
  * The associated OpPoint objects will be deleted too.
  */
-void QXDirect::onResetCurPolar()
+void XDirect::onResetCurPolar()
 {
 	if(!m_pCurPolar) return;
 	m_pCurPolar->resetPolar();
@@ -3621,7 +3615,7 @@ void QXDirect::onResetCurPolar()
 /**
  * The user has requested the creation of a .plr file with the Polars of the active Foil object.
  */
-void QXDirect::onSavePolars()
+void XDirect::onSavePolars()
 {
 	if(!m_pCurFoil || !m_poaPolar->size()) return;
 
@@ -3656,7 +3650,7 @@ void QXDirect::onSavePolars()
 /**
  * The user has toggled the switch for a sequential analysis.
  */
-void QXDirect::onSequence()
+void XDirect::onSequence()
 {
 	m_bSequence = m_pctrlSequence->isChecked();
 	setOpPointSequence();
@@ -3666,7 +3660,7 @@ void QXDirect::onSequence()
 /**
  * The user has requested the launch of the interface to define a L.E. or T.E. flap.
  */
-void QXDirect::onSetFlap()
+void XDirect::onSetFlap()
 {
 	if(!m_pCurFoil) return;
 	stopAnimate();
@@ -3717,7 +3711,7 @@ void QXDirect::onSetFlap()
 /**
  * The user has requested the launch of the interface to modify the radius of the Foil's leading edge.
  */
-void QXDirect::onSetLERadius()
+void XDirect::onSetLERadius()
 {
 	if(!m_pCurFoil)	return;
 	stopAnimate();
@@ -3764,7 +3758,7 @@ void QXDirect::onSetLERadius()
 /**
  * The user has requested the launch of the interface to modify the gap at the Foil's trailing edge.
  */
-void QXDirect::onSetTEGap()
+void XDirect::onSetTEGap()
 {
 	if(!m_pCurFoil)	return;
 	stopAnimate();
@@ -3810,7 +3804,7 @@ void QXDirect::onSetTEGap()
 /**
  * The user has requested the display of all OpPoint curves.
  */
-void QXDirect::onShowAllOpps()
+void XDirect::onShowAllOpps()
 {
 	OpPoint *pOpp;
 
@@ -3832,7 +3826,7 @@ void QXDirect::onShowAllOpps()
 /**
  * The user has requested the display of all Polar curves.
  */
-void QXDirect::onShowAllPolars()
+void XDirect::onShowAllPolars()
 {
 	Polar *pPolar;
 	for (int i=0; i<m_poaPolar->size(); i++)
@@ -3852,7 +3846,7 @@ void QXDirect::onShowAllPolars()
 /**
  * The user has toggled the display of the curve of the active object
  */
-void QXDirect::onShowCurve()
+void XDirect::onShowCurve()
 {
 	//user has toggled visible switch
 
@@ -3878,7 +3872,7 @@ void QXDirect::onShowCurve()
 /**
  * The user has requested the display of only the Polar curves associated to the active Foil
  */
-void QXDirect::onShowFoilPolarsOnly()
+void XDirect::onShowFoilPolarsOnly()
 {
 	if(!m_pCurFoil) return;
 
@@ -3898,7 +3892,7 @@ void QXDirect::onShowFoilPolarsOnly()
 /**
  * The user has requested the display of the Polar curves associated to the active Foil
  */
-void QXDirect::onShowFoilPolars()
+void XDirect::onShowFoilPolars()
 {
 	if(!m_pCurFoil) return;
 	Polar *pPolar;
@@ -3920,7 +3914,7 @@ void QXDirect::onShowFoilPolars()
 /**
  * The user has requested the display of the OpPoint curves associated to the active Foil
  */
-void QXDirect::onShowFoilOpps()
+void XDirect::onShowFoilOpps()
 {
 	if(!m_pCurFoil || !m_pCurPolar) return;
 
@@ -3947,7 +3941,7 @@ void QXDirect::onShowFoilOpps()
 /**
  * The user has requested the display of the curves of all OpPoint objects associated to the active Polar.
  */
-void QXDirect::onShowPolarOpps()
+void XDirect::onShowPolarOpps()
 {
 	if(!m_pCurFoil || !m_pCurPolar) return;
 
@@ -3972,7 +3966,7 @@ void QXDirect::onShowPolarOpps()
 /**
  * The user has toggled the switch used to define the type of input parameter bewteen aoa, Cl, and Re
  */
-void QXDirect::onSpec()
+void XDirect::onSpec()
 {
 	if      (m_pctrlSpec1->isChecked()) s_bAlpha = true;
 	else if (m_pctrlSpec2->isChecked()) s_bAlpha = false;
@@ -3983,7 +3977,7 @@ void QXDirect::onSpec()
 /**
  * The user has toggled the switch which defines if OpPoints should be stored at the end of the analysis
  */
-void QXDirect::onStoreOpp()
+void XDirect::onStoreOpp()
 {
 	s_bStoreOpp = m_pctrlStoreOpp->isChecked();
 }
@@ -3992,7 +3986,7 @@ void QXDirect::onStoreOpp()
 /**
  * The user has toggled the switch which defines if the analysis will be viscous or inviscid
  */
-void QXDirect::onViscous()
+void XDirect::onViscous()
 {
 	s_bViscous = m_pctrlViscous->isChecked();
 }
@@ -4003,19 +3997,19 @@ void QXDirect::onViscous()
 /**
  * The user has requested the launch of the interface used to define advanced settings for the XFoil analysis
  */
-void QXDirect::onXFoilAdvanced()
+void XDirect::onXFoilAdvanced()
 {
 	XFoilAdvancedDlg xfaDlg(s_pMainFrame);
 	xfaDlg.m_IterLimit   = XFoilTask::s_IterLim;
 	xfaDlg.m_bAutoInitBL     = XFoilTask::s_bAutoInitBL;
-	xfaDlg.m_VAccel      = XFoil::vaccel;
-	xfaDlg.m_bFullReport = XFoil::s_bFullReport;
+    xfaDlg.m_VAccel      = XFoil::VAccel();
+	xfaDlg.m_bFullReport = XFoil::fullReport();
 	xfaDlg.initDialog();
 
 	if (QDialog::Accepted == xfaDlg.exec())
 	{
-		XFoil::vaccel             = xfaDlg.m_VAccel;
-		XFoil::s_bFullReport      = xfaDlg.m_bFullReport;
+        XFoil::setVAccel(xfaDlg.m_VAccel);
+        XFoil::setFullReport(xfaDlg.m_bFullReport);
 		XFoilTask::s_bAutoInitBL  = xfaDlg.m_bAutoInitBL;
 		XFoilTask::s_IterLim      = xfaDlg.m_IterLimit;
 	}
@@ -4026,7 +4020,7 @@ void QXDirect::onXFoilAdvanced()
 /**
  * Reads the analysis parameters from the widgets.
  */
-void QXDirect::readParams()
+void XDirect::readParams()
 {
 	if(!m_pCurPolar) return;
 
@@ -4035,7 +4029,7 @@ void QXDirect::readParams()
 	else if (m_pctrlSpec3->isChecked()) s_bAlpha = false;
 
 
-	if(m_pCurPolar->polarType()!=XFOIL::FIXEDAOAPOLAR)
+    if(m_pCurPolar->polarType()!=XFLR5::FIXEDAOAPOLAR)
 	{
 		if(s_bAlpha)
 		{
@@ -4067,7 +4061,7 @@ void QXDirect::readParams()
  * Saves the user-defined settings
  * @param pSettings a pointer to the QSetting object.
  */
-void QXDirect::saveSettings(QSettings *pSettings)
+void XDirect::saveSettings(QSettings *pSettings)
 {
 	QString str1, str2, str3;
 	pSettings->beginGroup("XDirect");
@@ -4122,12 +4116,12 @@ void QXDirect::saveSettings(QSettings *pSettings)
 
 		pSettings->setValue("AutoInitBL", XFoilTask::s_bAutoInitBL);
 		pSettings->setValue("IterLim", XFoilTask::s_IterLim);
-		pSettings->setValue("FullReport", XFoil::s_bFullReport);
+		pSettings->setValue("FullReport", XFoil::fullReport());
 
 		pSettings->setValue("BatchUpdatePolarView", BatchThreadDlg::s_bUpdatePolarView);
 		pSettings->setValue("MaxThreads", BatchThreadDlg::s_nThreads);
 
-		pSettings->setValue("VAccel", m_XFoil.vaccel);
+        pSettings->setValue("VAccel", m_XFoil.VAccel());
 		pSettings->setValue("KeepOpenErrors", s_bKeepOpenErrors);
 		pSettings->setValue("NCrit", s_refPolar.NCrit());
 		pSettings->setValue("XTopTr", s_refPolar.XtrTop());
@@ -4135,9 +4129,9 @@ void QXDirect::saveSettings(QSettings *pSettings)
 		pSettings->setValue("Mach", s_refPolar.Mach());
 		pSettings->setValue("ASpec", s_refPolar.aoa());
 
-		if(s_refPolar.polarType()==XFOIL::FIXEDSPEEDPOLAR)       pSettings->setValue("Type", 1);
-		else if(s_refPolar.polarType()==XFOIL::RUBBERCHORDPOLAR) pSettings->setValue("Type", 2);
-		else if(s_refPolar.polarType()==XFOIL::FIXEDAOAPOLAR)    pSettings->setValue("Type", 4);
+        if(s_refPolar.polarType()==XFLR5::FIXEDSPEEDPOLAR)       pSettings->setValue("Type", 1);
+        else if(s_refPolar.polarType()==XFLR5::RUBBERCHORDPOLAR) pSettings->setValue("Type", 2);
+        else if(s_refPolar.polarType()==XFLR5::FIXEDAOAPOLAR)    pSettings->setValue("Type", 4);
 
 		pSettings->setValue("NReynolds", s_ReList.count());
 		for (int i=0; i<s_ReList.count(); i++)
@@ -4164,7 +4158,7 @@ void QXDirect::saveSettings(QSettings *pSettings)
 /**
  * Initializes the widget values, depending on the type of Polar
  */
-void QXDirect::setAnalysisParams()
+void XDirect::setAnalysisParams()
 {
 	m_pctrlViscous->setChecked(s_bViscous);
 	m_pctrlInitBL->setChecked(s_bInitBL);
@@ -4174,7 +4168,7 @@ void QXDirect::setAnalysisParams()
 
 	if(m_pCurPolar)
 	{
-		if(m_pCurPolar->polarType()!=XFOIL::FIXEDAOAPOLAR)
+        if(m_pCurPolar->polarType()!=XFLR5::FIXEDAOAPOLAR)
 		{
 			m_pctrlAlphaMin->setPrecision(3);
 			m_pctrlAlphaMax->setPrecision(3);
@@ -4207,7 +4201,7 @@ void QXDirect::setAnalysisParams()
 	setOpPointSequence();
 	if(m_pCurPolar)
 	{
-		if(m_pCurPolar->polarType()!=XFOIL::FIXEDAOAPOLAR)
+        if(m_pCurPolar->polarType()!=XFLR5::FIXEDAOAPOLAR)
 		{
 
 		}
@@ -4224,7 +4218,7 @@ void QXDirect::setAnalysisParams()
 /**
  * Updates the combobox widgets with the curve data from the active OpPoint or Polar, depending on the active view.
  */
-void QXDirect::setCurveParams()
+void XDirect::setCurveParams()
 {
 	if(m_bPolarView)
 	{
@@ -4272,7 +4266,7 @@ void QXDirect::setCurveParams()
  * @param pFoil a pointer to the active Foil object, or NULL if a stock Foil should be used.
  * @return a pointer to the Foil object which has been set.
  */
-Foil* QXDirect::setFoil(Foil* pFoil)
+Foil* XDirect::setFoil(Foil* pFoil)
 {
 	stopAnimate();
 
@@ -4328,7 +4322,7 @@ Foil* QXDirect::setFoil(Foil* pFoil)
  * @param pPolar a pointer to the Polar object to set. If NULL, a stock polar associated to the current foil will be set.
  * @return a pointer to the Polar object which has been set.
  */
-Polar * QXDirect::setPolar(Polar *pPolar)
+Polar * XDirect::setPolar(Polar *pPolar)
 {
 	stopAnimate();
 
@@ -4399,7 +4393,7 @@ Polar * QXDirect::setPolar(Polar *pPolar)
  * @param Alpha the aoa of the OpPoint to ser
  * @return a pointer to the OpPoint object which has been set.
  */
-OpPoint * QXDirect::setOpp(double Alpha)
+OpPoint * XDirect::setOpp(double Alpha)
 {
 	OpPoint * pOpp = NULL;
 
@@ -4418,21 +4412,21 @@ OpPoint * QXDirect::setOpp(double Alpha)
 		{
 			//try to use the same alpha
 			double aoa = m_pCurOpp->aoa();
-			pOpp = Objects2D::getOpp(m_pCurFoil, m_pCurPolar, aoa);
+			pOpp = Objects2d::getOpp(m_pCurFoil, m_pCurPolar, aoa);
 		}
 	}
 	else
 	{
-		pOpp = Objects2D::getOpp(m_pCurFoil, m_pCurPolar, Alpha);
+		pOpp = Objects2d::getOpp(m_pCurFoil, m_pCurPolar, Alpha);
 	}
 
 	if(!pOpp)
 	{
 		//if unsuccessful so far,
 		//try to get the first one from the array
-		for(int iOpp=0; iOpp<Objects2D::s_oaOpp.count(); iOpp++)
+        for(int iOpp=0; iOpp<Objects2d::s_oaOpp.count(); iOpp++)
 		{
-			OpPoint *pOldOpp = Objects2D::s_oaOpp.at(iOpp);
+			OpPoint *pOldOpp = Objects2d::s_oaOpp.at(iOpp);
 			if(pOldOpp->foilName()==m_pCurFoil->foilName() && pOldOpp->polarName()==m_pCurPolar->polarName())
 			{
 				pOpp = pOldOpp;
@@ -4458,7 +4452,7 @@ OpPoint * QXDirect::setOpp(double Alpha)
 /**
  * Initializes the widgets with the sequence parameters for the type of the active Polar object.
  */
-void QXDirect::setOpPointSequence()
+void XDirect::setOpPointSequence()
 {
 	m_pctrlSequence->setEnabled(m_pCurPolar);
 	m_pctrlAlphaMin->setEnabled(m_pCurPolar);
@@ -4486,7 +4480,7 @@ void QXDirect::setOpPointSequence()
 	}
 
 
-	if(m_pCurPolar && m_pCurPolar->polarType()!=XFOIL::FIXEDAOAPOLAR)
+    if(m_pCurPolar && m_pCurPolar->polarType()!=XFLR5::FIXEDAOAPOLAR)
 	{
 		if(m_pctrlSpec3->isChecked())
 		{
@@ -4510,7 +4504,7 @@ void QXDirect::setOpPointSequence()
 		m_pctrlSpec2->setEnabled(true);
 		m_pctrlSpec3->setEnabled(false);
 	}
-	else if(m_pCurPolar && m_pCurPolar->polarType()==XFOIL::FIXEDAOAPOLAR)
+    else if(m_pCurPolar && m_pCurPolar->polarType()==XFLR5::FIXEDAOAPOLAR)
 	{
 		m_pctrlSpec3->setChecked(true);
 		s_bAlpha = true;		// no choice with type 4 polars
@@ -4534,26 +4528,23 @@ void QXDirect::setOpPointSequence()
  * Sets the axis titles for the specified graph
  * @param pGraph a pointer to the Graph object for which the titles will be set
  */
-void QXDirect::setGraphTitles(Graph* pGraph)
+void XDirect::setGraphTitles(Graph* pGraph)
 {
 	if(!pGraph) return;
 
 	QString Title;
 	Title = Polar::variableName(pGraph->xVariable());
 	pGraph->setXTitle(Title);
-
 	Title = Polar::variableName(pGraph->yVariable());
 	pGraph->setYTitle(Title);
-
 }
-
 
 
 
 /**
  * Creates the GUI associated to the toolbar.
  */
-void QXDirect::setupLayout()
+void XDirect::setupLayout()
 {
 	QSizePolicy szPolicyExpanding;
 	szPolicyExpanding.setHorizontalPolicy(QSizePolicy::Expanding);
@@ -4766,7 +4757,7 @@ void QXDirect::setupLayout()
 /**
  * Interrupts the OpPoint animation
  */
-void QXDirect::stopAnimate()
+void XDirect::stopAnimate()
 {
 	if(m_bAnimate)
 	{
@@ -4781,7 +4772,7 @@ void QXDirect::stopAnimate()
 /**
  * Updates the curve's style based on the selection in the comboboxes.
  */
-void QXDirect::updateCurveStyle()
+void XDirect::updateCurveStyle()
 {
 	if(m_bPolarView && m_pCurPolar)
 	{
@@ -4808,7 +4799,7 @@ void QXDirect::updateCurveStyle()
 /**
  * Refreshes the 2d central display.
  */
-void QXDirect::updateView()
+void XDirect::updateView()
 {
 	if (!m_bPolarView)
 	{
@@ -4827,7 +4818,7 @@ void QXDirect::updateView()
 /**
  * The user has requested the duplication of the current Foil.
  */
-void QXDirect::onDuplicateFoil()
+void XDirect::onDuplicateFoil()
 {
 	if(!m_pCurFoil) return;
 
@@ -4846,7 +4837,7 @@ void QXDirect::onDuplicateFoil()
 /**
  * The user has requested to rename the current Foil.
  */
-void QXDirect::onRenameCurFoil()
+void XDirect::onRenameCurFoil()
 {
 	renameFoil(m_pCurFoil);
 	s_pMainFrame->updateFoilListBox();
@@ -4861,13 +4852,13 @@ void QXDirect::onRenameCurFoil()
  * @param pFoil a pointer to the Foil to be added to the array
  * @return a pointer to the input Foil, or NULL if the operation was user-cancelled. @todo what's the point ?
  */
-Foil* QXDirect::addNewFoil(Foil *pFoil)
+Foil* XDirect::addNewFoil(Foil *pFoil)
 {
 	if(!pFoil) return NULL;
 	QStringList NameList;
-	for(int k=0; k<Objects2D::s_oaFoil.size(); k++)
+    for(int k=0; k<Objects2d::s_oaFoil.size(); k++)
 	{
-		Foil*pOldFoil = Objects2D::s_oaFoil.at(k);
+		Foil*pOldFoil = Objects2d::s_oaFoil.at(k);
 		NameList.append(pOldFoil->foilName());
 	}
 
@@ -4877,7 +4868,7 @@ Foil* QXDirect::addNewFoil(Foil *pFoil)
 	if(renDlg.exec() != QDialog::Rejected)
 	{
 		pFoil->setFoilName(renDlg.newName());
-		Objects2D::insertThisFoil(pFoil);
+		Objects2d::insertThisFoil(pFoil);
 
 		return pFoil;
 	}
@@ -4891,13 +4882,13 @@ Foil* QXDirect::addNewFoil(Foil *pFoil)
  * Requests a name, and overwrites any former Foil with that name.
  * @param pFoil a pointer to the Foil to be renamed.
  */
-void QXDirect::renameFoil(Foil *pFoil)
+void XDirect::renameFoil(Foil *pFoil)
 {
 	if(!pFoil) return;
 	QStringList NameList;
-	for(int k=0; k<Objects2D::s_oaFoil.size(); k++)
+    for(int k=0; k<Objects2d::s_oaFoil.size(); k++)
 	{
-		Foil*pOldFoil = Objects2D::s_oaFoil.at(k);
+		Foil*pOldFoil = Objects2d::s_oaFoil.at(k);
 		NameList.append(pOldFoil->foilName());
 	}
 
@@ -4906,13 +4897,13 @@ void QXDirect::renameFoil(Foil *pFoil)
 
 	if(renDlg.exec() != QDialog::Rejected)
 	{
-		Objects2D::renameThisFoil(pFoil, renDlg.newName());
+		Objects2d::renameThisFoil(pFoil, renDlg.newName());
 	}
 }
 
 
 
-void QXDirect::setView(XFLR5::enumGraphView eView)
+void XDirect::setView(XFLR5::enumGraphView eView)
 {
 	if (m_bPolarView)
 	{
@@ -4922,7 +4913,7 @@ void QXDirect::setView(XFLR5::enumGraphView eView)
 
 
 
-void QXDirect::setGraphTiles()
+void XDirect::setGraphTiles()
 {
 	if(m_bPolarView)
 	{
@@ -4944,7 +4935,7 @@ void QXDirect::setGraphTiles()
 	}
 	else
 	{
-		QList<QGraph*> pGraphList;
+		QList<Graph*> pGraphList;
 		pGraphList.append(&m_CpGraph);
 		s_pMainFrame->m_pXDirectTileWidget->setGraphList(pGraphList, 1, 0, Qt::Vertical);
 	}
@@ -4956,7 +4947,7 @@ void QXDirect::setGraphTiles()
 /**
  * Sets the Foil scale in the OpPoint view.
  */
-void QXDirect::setFoilScale()
+void XDirect::setFoilScale()
 {
 	s_pMainFrame->m_pXDirectTileWidget->opPointWidget()->setFoilScale();
 }
@@ -4966,7 +4957,7 @@ void QXDirect::setFoilScale()
 /**
  * Imports the analysis definition from an XML file
  */
-void QXDirect::onImportXMLAnalysis()
+void XDirect::onImportXMLAnalysis()
 {
 	QString PathName;
 	PathName = QFileDialog::getOpenFileName(s_pMainFrame, tr("Open XML File"),
@@ -4993,7 +4984,7 @@ void QXDirect::onImportXMLAnalysis()
 /**
  * Imports the Analysis definition from an XML file
  */
-void QXDirect::importAnalysisFromXML(QFile &xmlFile)
+void XDirect::importAnalysisFromXML(QFile &xmlFile)
 {
 	if (!xmlFile.open(QIODevice::ReadOnly))
 	{
@@ -5013,7 +5004,7 @@ void QXDirect::importAnalysisFromXML(QFile &xmlFile)
 	}
 	else
 	{
-		Foil *pFoil = Objects2D::foil(pPolar->foilName());
+		Foil *pFoil = Objects2d::foil(pPolar->foilName());
 		if(!pFoil && m_pCurFoil)
 		{
 			s_pMainFrame->statusBar()->showMessage(tr("Attaching the analysis to the active foil"));
@@ -5027,7 +5018,7 @@ void QXDirect::importAnalysisFromXML(QFile &xmlFile)
 			return;
 		}
 
-		Objects2D::addPolar(pPolar);
+		Objects2d::addPolar(pPolar);
 		setCurOpp(NULL);
 		setCurPolar(pPolar);
 
@@ -5044,7 +5035,7 @@ void QXDirect::importAnalysisFromXML(QFile &xmlFile)
 /**
  * Exports the analysis data to an XML file
  */
-void QXDirect::onExportXMLAnalysis()
+void XDirect::onExportXMLAnalysis()
 {
 	if(!m_pCurPolar) return ;// is there anything to export ?
 

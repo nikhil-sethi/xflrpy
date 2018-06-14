@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	BodyLineWidget Class
-	Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,14 +19,15 @@
 
 *****************************************************************************/
 
-#include "globals.h"
+#include <QPainter>
+#include <QPaintEvent>
+#include <QtDebug>
+
+#include <globals/globals.h>
 #include "BodyLineWidget.h"
 #include <miarex/design/BodyScaleDlg.h>
 #include <misc/options/displayoptions.h>
 #include <misc/options/Units.h>
-#include <QPainter>
-#include <QPaintEvent>
-#include <QtDebug>
 
 
 BodyLineWidget::BodyLineWidget(QWidget *pParent, Body *pBody)
@@ -83,7 +84,7 @@ void BodyLineWidget::drawBodyLines()
 	double zpos;
 
 
-	QPen linePen(m_pBody->m_BodyColor);
+	QPen linePen(color(m_pBody->m_BodyColor));
 	linePen.setWidth(1);
 	painter.setPen(linePen);
 	linePen.setStyle(Qt::DashLine);
@@ -168,11 +169,11 @@ void BodyLineWidget::drawBodyPoints()
 		else if(m_pBody->m_iHighlightFrame==k)
 		{
 			pointPen.setWidth(4);
-			pointPen.setColor(m_pBody->m_BodyColor.lighter());
+			pointPen.setColor(color(m_pBody->m_BodyColor).lighter());
 		}
 		else
 		{
-			pointPen.setColor(m_pBody->m_BodyColor);
+			pointPen.setColor(color(m_pBody->m_BodyColor));
 			pointPen.setWidth(2);
 		}
 

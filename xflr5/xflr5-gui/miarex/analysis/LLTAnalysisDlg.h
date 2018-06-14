@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	LLTAnalysisDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,12 +38,12 @@
 #include <QFile>
 #include <QTextEdit>
 #include <QPoint>
-#include <plane_analysis/LLTAnalysis.h>
-#include <plane_analysis/planeanalysistask.h>
-#include <QGraph.h>
+#include <analysis3d/plane_analysis/LLTAnalysis.h>
+#include <analysis3d/plane_analysis/planeanalysistask.h>
+#include <graph/graph.h>
 #include "graphwidget.h"
-#include <objects3d/WPolar.h>
-#include <objects3d/Wing.h>
+#include <objects/objects3d/WPolar.h>
+#include <objects/objects3d/Wing.h>
 
 
 /**
@@ -78,7 +78,7 @@ public:
 	void cleanUp();
 	static void setPosition(QPoint pos) {s_Position = pos;}
 
-	QGraph* iterGraph(){return m_pIterGraph;}
+	Graph* iterGraph(){return m_pIterGraph;}
 
 private slots:
 	void onCancelAnalysis();
@@ -106,7 +106,7 @@ private:
 
 	bool m_bCancel;             /**< true if the user has cancelled the analysis */
 	bool m_bFinished;           /**< true if the analysis is completed, false if it is running */
-	QGraph *m_pIterGraph;         /**< A pointer to the QGraph object where the progress of the iterations are displayed */
+	Graph *m_pIterGraph;         /**< A pointer to the QGraph object where the progress of the iterations are displayed */
 	QPoint m_LegendPlace;       /**< The position where the legend should be diplayed in the output graph */
 	QRect m_ViscRect;           /**< The rectangle in the client area where the graph is displayed */
 

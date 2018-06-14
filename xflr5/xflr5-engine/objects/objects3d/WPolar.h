@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	WPolar Class
-	Copyright (C) 2005-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2005-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 
 
 
-#include <objects3d/Plane.h>
+#include <objects/objects3d/Plane.h>
 
 /**
 *@brief
@@ -49,7 +49,7 @@
 #include <QVarLengthArray>
 
 
-#include <analysis3d_enums.h>
+#include <analysis3d/analysis3d_enums.h>
 #include "WingOpp.h"
 #include "PlaneOpp.h"
 
@@ -58,7 +58,7 @@
 #define MAXCONTROLS 100
 
 
-class WPolar
+class XFLR5ENGINELIBSHARED_EXPORT WPolar
 {
 //	friend class LLTAnalysis;
 
@@ -145,15 +145,17 @@ public:
 	int &points()          {return m_PointStyle;}
 	int &curveStyle()      {return m_Style;}
 	int &curveWidth()      {return m_Width;}
-	QColor &curveColor()   {return m_Color;}
 
-	int dataSize(){return m_Alpha.size();}
+	ObjectColor curveColor()  const {return m_Color;}
+	void setCurveColor(ObjectColor colour) {m_Color=colour;}
+
+	int dataSize() const {return m_Alpha.size();}
 
 private:
 
 	int m_Style, m_Width, m_PointStyle;
 	bool m_bIsVisible;
-	QColor m_Color;
+	ObjectColor m_Color;
 
 	bool     m_bVLM1;              /**< true if the analysis is performed with horseshoe vortices, flase if quad rings */
 //	bool     m_bDirichlet;         /**< true if Dirichlet boundary conditions should be applied, false if Neumann */

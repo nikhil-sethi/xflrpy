@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	LegendWidget Class
-		Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+		Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,27 +22,27 @@
 
 #include "legendwidget.h"
 #include "graphtilewidget.h"
-#include <globals.h>
+#include <globals/globals.h>
 #include <graph_globals.h>
-#include <mainframe.h>
-#include <objects3d/Plane.h>
-#include <objects3d/WPolar.h>
-#include <objects3d/PlaneOpp.h>
-#include <objects2d/Foil.h>
-#include <objects2d/Polar.h>
-#include <objects2d/OpPoint.h>
+#include <globals/mainframe.h>
+#include <objects/objects3d/Plane.h>
+#include <objects/objects3d/WPolar.h>
+#include <objects/objects3d/PlaneOpp.h>
+#include <objects/objects2d/Foil.h>
+#include <objects/objects2d/Polar.h>
+#include <objects/objects2d/OpPoint.h>
 #include <misc/options/displayoptions.h>
 #include <miarex/Miarex.h>
-#include <miarex/Objects3D.h>
+#include <miarex/objects3d.h>
 #include <xinverse/XInverse.h>
 #include <xdirect/XDirect.h>
 #include <xdirect/objects2d.h>
 #include <QPainter>
 
 
-void* LegendWidget::s_pMainFrame = NULL;
-void* LegendWidget::s_pMiarex = NULL;
-void* LegendWidget::s_pXDirect = NULL;
+MainFrame* LegendWidget::s_pMainFrame = NULL;
+Miarex* LegendWidget::s_pMiarex = NULL;
+XDirect* LegendWidget::s_pXDirect = NULL;
 
 
 
@@ -149,12 +149,12 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 	WPolar * pWPolar;
 	Plane *pPlane;
 
-	for (j=0; j<Objects3D::s_oaPlane.size(); j++)
+    for (j=0; j<Objects3d::s_oaPlane.size(); j++)
 	{
-		pPlane = (Plane*)Objects3D::s_oaPlane.at(j);
-		for (i=0; i<Objects3D::s_oaWPolar.size(); i++)
+        pPlane = Objects3d::s_oaPlane.at(j);
+        for (i=0; i<Objects3d::s_oaWPolar.size(); i++)
 		{
-			pWPolar = (WPolar*)Objects3D::s_oaWPolar.at(i);
+            pWPolar = Objects3d::s_oaWPolar.at(i);
 			if (pWPolar->planeName()==pPlane->planeName() && pWPolar->isVisible())
 			{
 				if(m_MiarexView==XFLR5::WPOLARVIEW || (m_MiarexView==XFLR5::STABPOLARVIEW && pWPolar->isStabilityPolar()))
@@ -183,9 +183,9 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 	for (k=0; k<strPlaneList.size(); k++)
 	{
 		int nPlanePlrs = 0;
-		for (l=0; l < Objects3D::s_oaWPolar.size(); l++)
+        for (l=0; l < Objects3d::s_oaWPolar.size(); l++)
 		{
-			pWPolar = (WPolar*)Objects3D::s_oaWPolar.at(l);
+            pWPolar = Objects3d::s_oaWPolar.at(l);
 
 			if (pWPolar->dataSize() && pWPolar->isVisible()  && pWPolar->planeName()==strPlaneList.at(k))
 			{
@@ -211,9 +211,9 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 				painter.drawText(place.x(), place.y() + ypos*ny-(double)ypos/2, strPlaneList.at(k));
 			}
 
-			for (int nc=0; nc<Objects3D::s_oaWPolar.size(); nc++)
+            for (int nc=0; nc<Objects3d::s_oaWPolar.size(); nc++)
 			{
-				pWPolar = (WPolar*)Objects3D::s_oaWPolar.at(nc);
+                pWPolar = Objects3d::s_oaWPolar.at(nc);
 				if(strPlaneList.at(k) == pWPolar->planeName())
 				{
 					if(!pWPolar->dataSize())
@@ -227,7 +227,7 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 					}
 					else
 					{
-						LegendPen.setColor(pWPolar->curveColor());
+						LegendPen.setColor(color(pWPolar->curveColor()));
 						LegendPen.setStyle(getStyle(pWPolar->curveStyle()));
 						LegendPen.setWidth(pWPolar->curveWidth());
 						painter.setPen(LegendPen);
@@ -272,8 +272,6 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 	double ypos;
 	int i, j, k,l, x1, y1, nc, ny;
 
-	QMiarex *pMiarex = (QMiarex*)s_pMiarex;
-
 	ny=0;
 
 //	QString str1, str2, str3, str4, str5, str6;
@@ -285,10 +283,10 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 	PlaneOpp *pPOpp = NULL;
 
 
-	for (i=0; i<Objects3D::s_oaPOpp.size(); i++)
+    for (i=0; i<Objects3d::s_oaPOpp.size(); i++)
 	{
 		bFound = false;
-		pPOpp = (PlaneOpp*)Objects3D::s_oaPOpp.at(i);
+        pPOpp = (PlaneOpp*)Objects3d::s_oaPOpp.at(i);
 		for (j=0; j<str.size(); j++)
 		{
 			if (pPOpp->planeName() == str.at(j))	bFound = true;
@@ -316,9 +314,9 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 	QPen LegendPen;
 	LegendPen.setWidth(1);
 
-	if(pMiarex->curPOppOnly())
+	if(s_pMiarex->curPOppOnly())
 	{
-		if(!pMiarex->curPOpp() || !pMiarex->curPOpp()->isVisible())
+		if(!s_pMiarex->curPOpp() || !s_pMiarex->curPOpp()->isVisible())
 		{
 			painter.restore();
 			return;
@@ -326,29 +324,29 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 		ny++ ;
 
 		painter.setPen(TextPen);
-		painter.drawText(place.x() + 1.0*LegendSize, place.y() + ypos*ny-ypos/2.0, pMiarex->curPOpp()->planeName());
+		painter.drawText(place.x() + 1.0*LegendSize, place.y() + ypos*ny-ypos/2.0, s_pMiarex->curPOpp()->planeName());
 
-		LegendPen.setColor(pMiarex->curPOpp()->color());
-		LegendPen.setStyle(getStyle(pMiarex->curPOpp()->style()));
-		LegendPen.setWidth(pMiarex->curPOpp()->width());
+		LegendPen.setColor(color(s_pMiarex->curPOpp()->color()));
+		LegendPen.setStyle(getStyle(s_pMiarex->curPOpp()->style()));
+		LegendPen.setWidth(s_pMiarex->curPOpp()->width());
 		painter.setPen(LegendPen);
 
 		painter.drawLine(place.x() + 1.5*LegendSize, place.y() + 1.*ypos*ny,
 						 place.x() + 2.5*LegendSize, place.y() + 1.*ypos*ny);
 
-		if(pMiarex->curPOpp()->points())
+		if(s_pMiarex->curPOpp()->points())
 		{
 			x1 = place.x() + 2.0*LegendSize;
 			y1 = place.y() + 1.*ypos*ny;
 //			painter.drawRect(x1-2, place.y() + 1.*ypos*ny-2, 4, 4);
 
-			drawPoint(painter, pMiarex->curPOpp()->points(), Settings::s_BackgroundColor, QPoint(x1,y1));
+			drawPoint(painter, s_pMiarex->curPOpp()->points(), Settings::s_BackgroundColor, QPoint(x1,y1));
 		}
 
 		painter.setPen(TextPen);
 		painter.drawText(place.x() + 3*LegendSize,
 						 place.y() + 1.*ypos*ny+ypos/3,
-						 pMiarex->POppTitle(pMiarex->m_pCurPOpp));
+						 s_pMiarex->POppTitle(s_pMiarex->m_pCurPOpp));
 	}
 	else
 	{
@@ -356,9 +354,9 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 		for (k = 0; k<str.size(); k++)
 		{
 			int PlanePts = 0;
-			for (l=0; l < Objects3D::s_oaPOpp.size(); l++)
+            for (l=0; l < Objects3d::s_oaPOpp.size(); l++)
 			{
-				pPOpp = (PlaneOpp*)Objects3D::s_oaPOpp.at(l);
+                pPOpp = (PlaneOpp*)Objects3d::s_oaPOpp.at(l);
 				if (pPOpp->isVisible() && pPOpp->planeName() == str.at(k)) PlanePts++;
 			}
 			if (PlanePts)
@@ -382,9 +380,9 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 				}
 
 				bStarted = true;
-				for (nc=0; nc < Objects3D::s_oaPOpp.size(); nc++)
+                for (nc=0; nc < Objects3d::s_oaPOpp.size(); nc++)
 				{
-					pPOpp = (PlaneOpp*)Objects3D::s_oaPOpp.at(nc);
+                    pPOpp = (PlaneOpp*)Objects3d::s_oaPOpp.at(nc);
 					if(str.at(k) == pPOpp->planeName() && pPOpp->isVisible())
 					{
 						if(qAbs(bottom)<fabs(place.y() + 1.*ypos*ny+ypos))
@@ -394,7 +392,7 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 							ny=2;
 						}
 
-						LegendPen.setColor(pPOpp->color());
+						LegendPen.setColor(color(pPOpp->color()));
 						LegendPen.setStyle(getStyle(pPOpp->style()));
 						LegendPen.setWidth(pPOpp->width());
 						painter.setPen(LegendPen);
@@ -414,7 +412,7 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 						painter.setPen(TextPen);
 						painter.drawText(place.x() + 3.0*LegendSize,
 										 place.y() + 1.0*ypos*ny + ypos/3,
-										 pMiarex->POppTitle(pPOpp));
+										 s_pMiarex->POppTitle(pPOpp));
 						ny++ ;
 					}
 				}
@@ -435,7 +433,7 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 *@param the top left postition where the legend is to be drawn
 *@param the y coordinate of the bottom of the drawing rectangle
 */
-void LegendWidget::drawCpLegend(QPainter &painter, QGraph *pGraph, QPointF place, int bottom)
+void LegendWidget::drawCpLegend(QPainter &painter, Graph *pGraph, QPointF place, int bottom)
 {
 	painter.save();
 	double LegendSize, LegendWidth, dny, x1, y1, i, ny;
@@ -498,7 +496,7 @@ void LegendWidget::drawCpLegend(QPainter &painter, QGraph *pGraph, QPointF place
 *@param the top left postition where the legend is to be drawn
 *@param the y coordinate of the bottom of the drawing rectangle
 */
-void LegendWidget::drawStabTimeLegend(QPainter &painter, QGraph *pGraph, QPointF place, int bottom)
+void LegendWidget::drawStabTimeLegend(QPainter &painter, Graph *pGraph, QPointF place, int bottom)
 {
 	painter.save();
 	double LegendSize, LegendWidth, dny, x1, y1, i, ny;
@@ -584,12 +582,12 @@ void LegendWidget::drawPolarLegend(QPainter &painter, QPointF place, int bottom)
 	QStringList str; // we need to make an inventory of foils
 	Polar * pPolar;
 	Foil *pFoil;
-	for (j=0; j<Objects2D::s_oaFoil.size(); j++)
+    for (j=0; j<Objects2d::s_oaFoil.size(); j++)
 	{
-		pFoil = Objects2D::s_oaFoil.at(j);
-		for (i=0; i<Objects2D::s_oaPolar.size(); i++)
+        pFoil = Objects2d::s_oaFoil.at(j);
+        for (i=0; i<Objects2d::s_oaPolar.size(); i++)
 		{
-			pPolar = (Polar*)Objects2D::s_oaPolar.at(i);
+            pPolar = Objects2d::s_oaPolar.at(i);
 			if (pPolar->foilName() == pFoil->foilName() && pPolar->m_Alpha.size() && pPolar->isVisible())
 			{
 				str.append(pFoil->foilName());
@@ -611,9 +609,9 @@ void LegendWidget::drawPolarLegend(QPainter &painter, QPointF place, int bottom)
 	for (k=0; k<nFoils; k++)
 	{
 		int FoilPlrs = 0;
-		for (l=0; l < Objects2D::s_oaPolar.count(); l++)
+        for (l=0; l < Objects2d::s_oaPolar.count(); l++)
 		{
-			pPolar = (Polar*)Objects2D::s_oaPolar.at(l);
+            pPolar = Objects2d::s_oaPolar.at(l);
 			if (pPolar->m_Alpha.size() &&
 				pPolar->polarName().length() &&
 				pPolar->isVisible() &&
@@ -640,9 +638,9 @@ void LegendWidget::drawPolarLegend(QPainter &painter, QPointF place, int bottom)
 			painter.drawText(place.x() + 0.5*LegendSize, place.y() + legendHeight*ny-legendHeight/2,
 							 str.at(k));
 		}
-		for (nc=0; nc<Objects2D::s_oaPolar.count(); nc++)
+        for (nc=0; nc<Objects2d::s_oaPolar.count(); nc++)
 		{
-			pPolar = (Polar*)Objects2D::s_oaPolar.at(nc);
+            pPolar = Objects2d::s_oaPolar.at(nc);
 			if(str.at(k) == pPolar->foilName())
 			{
 				if (pPolar->m_Alpha.size() && pPolar->polarName().length() && pPolar->isVisible())

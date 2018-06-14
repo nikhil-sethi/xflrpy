@@ -2,7 +2,7 @@
 
 	PanelAnalysis Class
 
-	Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2017 Andre Deperrois techwinder@users.sourceforge.net 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,12 +21,13 @@
 *****************************************************************************/
 
 
-#include <QtDebug>
+#include <QDebug>
+#include <QTime>
 #include <QThread>
 #include <QCoreApplication>
 
 #include <matrix.h>
-#include <objects3d/Surface.h>
+#include <objects/objects3d/Surface.h>
 #include "PanelAnalysis.h"
 
 
@@ -665,10 +666,11 @@ bool PanelAnalysis::alphaLoop()
 
 	buildInfluenceMatrix();
 	if (s_bCancel) return true;
-
+//display_vec(m_aij, 2*m_MatSize);
 
 	createUnitRHS();
 	if (s_bCancel) return true;
+//for(int i=0; i<m_MatSize; i++)	displayDouble(m_uRHS[i], m_wRHS[i]);
 
 	if(!m_pWPolar->bThinSurfaces())
 	{
@@ -687,7 +689,7 @@ bool PanelAnalysis::alphaLoop()
 			}
 		}
 	}
-
+//display_vec(m_aijWake, 2*m_MatSize);
 	if (s_bCancel) return true;
 
 	if (!solveUnitRHS())
@@ -695,6 +697,7 @@ bool PanelAnalysis::alphaLoop()
 		s_bWarning = true;
 		return true;
 	}
+//for(int i=0; i<m_MatSize; i++)	displayDouble(m_uRHS[i], m_wRHS[i]);
 
 	if (s_bCancel) return true;
 
@@ -715,6 +718,7 @@ bool PanelAnalysis::alphaLoop()
 
 	computeOnBodyCp(m_vMin, m_vDelta, m_nRHS);
 	if (s_bCancel) return true;
+//for(int i=0; i<m_MatSize; i++)	displayDouble(m_Cp[i]);
 
 	computeAeroCoefs(m_vMin, m_vDelta, m_nRHS);
 
@@ -1933,10 +1937,10 @@ void PanelAnalysis::getDoubletInfluence(Vector3d const &C, Panel *pPanel, Vector
 /**
 * Returns the influence at point C of a uniform source distribution on the panel pPanel
 * The panel is necessarily located on a thick surface, else the source strength is zero
-*@param C the point where the influence is to be evaluated
-*@param pPanel a pointer to the Panel with the doublet strength
-*@param V the perturbation velocity at point C
-*@param phi the potential at point C
+* @param C the point where the influence is to be evaluated
+* @param pPanel a pointer to the Panel with the doublet strength
+* @param V the perturbation velocity at point C
+* @param phi the potential at point C
 */
 void PanelAnalysis::getSourceInfluence(Vector3d const &C, Panel *pPanel, Vector3d &V, double &phi)
 {
@@ -2117,6 +2121,9 @@ bool PanelAnalysis::solveUnitRHS()
 	double taskTime = 400.0;
 	int Size = m_MatSize;
 
+	QTime t;
+	t.start();
+
 	memcpy(m_RHS,      m_uRHS, Size * sizeof(double));
 	memcpy(m_RHS+Size, m_wRHS, Size * sizeof(double));
 
@@ -2132,6 +2139,11 @@ bool PanelAnalysis::solveUnitRHS()
 	Crout_LU_with_Pivoting_Solve(m_aij, m_uRHS, m_Index, m_RHS,      Size, &s_bCancel);
 	Crout_LU_with_Pivoting_Solve(m_aij, m_wRHS, m_Index, m_RHS+Size, Size, &s_bCancel);
 
+	QString strange;
+	strange.sprintf("      Time for matrix inversion: %.3f s\n", (double)t.elapsed()/1000.0);
+//	qDebug(strange.toStdString().c_str());
+	traceLog(strange);
+
 	memcpy(m_uRHS, m_RHS,           m_MatSize*sizeof(double));
 	memcpy(m_wRHS, m_RHS+m_MatSize, m_MatSize*sizeof(double));
 
@@ -2139,6 +2151,9 @@ bool PanelAnalysis::solveUnitRHS()
 	Vector3d u(1.0, 0.0, 0.0);
 	Vector3d w(0.0, 0.0, 1.0);
 	double Cp;
+
+//for(int i4=0; i4<m_MatSize; i4++) displayDouble(m_uRHS[i4], m_wRHS[i4]);
+
 	for (int p=0; p<m_MatSize; p++)
 	{
 		if(m_pPanel[p].m_Pos!=MIDSURFACE)
@@ -2148,6 +2163,8 @@ bool PanelAnalysis::solveUnitRHS()
 		}
 		if(s_bCancel) return false;
 	}
+
+//for(int p=0; p<m_MatSize; p++) displayDouble('local', m_uVl[p].x, m_uVl[p].y, m_uVl[p].z, m_wVl[p].x, m_wVl[p].y, m_wVl[p].z);
 
 	return true;
 }

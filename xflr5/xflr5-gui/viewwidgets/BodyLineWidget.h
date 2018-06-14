@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	BodyLineWidget Class
-	Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #define BODYLINEWIDGET_H
 
 #include "section2dwidget.h"
-#include <objects3d/Body.h>
+#include <objects/objects3d/Body.h>
 
 
 class BodyLineWidget : public Section2dWidget

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	WingOpp Class
-	Copyright (C) 2005-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2005-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include "Plane.h"
 #include "objects_global.h"
-#include <objects3d/WPolar.h>
+#include <objects/objects3d/WPolar.h>
 #include <math.h>
 #include <QTextStream>
 
@@ -383,7 +383,6 @@ bool WingOpp::serializeWingOppWPA(QDataStream &ar, bool bIsStoring)
 	int ArchiveFormat;
 	int a,p,k,l,n;
 	float f, f0, f1, f2, f3;
-	QColor clr;
 
 	if(bIsStoring)
 	{

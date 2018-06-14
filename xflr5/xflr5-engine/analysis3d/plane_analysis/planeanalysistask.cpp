@@ -2,7 +2,7 @@
 
 	PlaneAnalysisTask Class
 
-	Copyright (C) 2008-2017 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008-2017 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@
 
 
 #include "planeanalysistask.h"
-#include <objects3d/Plane.h>
-#include <objects3d/WPolar.h>
-#include <objects3d/Surface.h>
+#include <objects/objects3d/Plane.h>
+#include <objects/objects3d/WPolar.h>
+#include <objects/objects3d/Surface.h>
 
 
 bool PlaneAnalysisTask::s_bCancel = false;
@@ -216,7 +216,7 @@ WPolar* PlaneAnalysisTask::setWPolarObject(Plane *pCurPlane, WPolar *pCurWPolar)
 			if(pWingList[iw])
 			{
 				pWingList[iw]->computeChords();
-
+//for(int i=0; i<pWingList[iw]->m_NStation; i++) qDebug()<<"twist"<<pWingList[iw]->m_Twist[i];
 				NStation = 0;
 				m=0;
 				SpanPos = 0;
@@ -700,10 +700,10 @@ int PlaneAnalysisTask::createBodyElements(Plane *pCurPlane)
 				if(l==0)     m_Panel[m_MatSize].m_iPR = InitialSize + FullSize - p - 1;
 				if(l==nh-1)  m_Panel[m_MatSize].m_iPL = InitialSize + FullSize - p - 1;
 
-				m_MatSize++;
-				p++;
 				LB = LA;
 				TB = TA;
+				m_MatSize++;
+				p++;
 			}
 		}
 	}
@@ -796,10 +796,10 @@ int PlaneAnalysisTask::createBodyElements(Plane *pCurPlane)
 			if(l==0)     m_Panel[m_MatSize].m_iPL = InitialSize + FullSize - p - 1;
 			if(l==nh-1)  m_Panel[m_MatSize].m_iPR = InitialSize + FullSize - p - 1;
 
-			m_MatSize++;
-			p++;
 			LB = LA;
 			TB = TA;
+			m_MatSize++;
+			p++;
 		}
 	}
 	pCurBody->m_NElements = m_MatSize-InitialSize;

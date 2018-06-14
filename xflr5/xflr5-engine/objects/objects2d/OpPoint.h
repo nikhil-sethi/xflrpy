@@ -1,7 +1,7 @@
 /****************************************************************************
 
     OpPoint Class
-	Copyright (C) 2003 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2003 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,6 +35,8 @@
 #include <QTextStream>
 #include <QDataStream>
 
+#include <xflr5-engine_global.h>
+
 #include "xfoil_params.h"
 
 class Foil;
@@ -49,10 +51,10 @@ An OpPoint object stores the results of an XFoil calculation.
 Each instance of an OpPoint is uniquely attached to a Polar object, which is itself attached uniquely to a Foil object.
 The identification of the parent Polar and Foil are made using the QString names of the objects.
 */
-class OpPoint
+class XFLR5ENGINELIBSHARED_EXPORT OpPoint
 {
 	friend class Polar;
-	friend class QXDirect;
+	friend class XDirect;
 	friend class OpPointWidget;
 
 public:

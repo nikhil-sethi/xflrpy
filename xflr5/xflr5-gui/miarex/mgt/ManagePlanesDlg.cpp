@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	ManageUFOsDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,9 +26,9 @@
 #include <QMessageBox>
 
 #include "ManagePlanesDlg.h"
-#include <miarex/Objects3D.h>
+#include <miarex/objects3d.h>
 #include <misc/options/Units.h>
-#include <globals.h>
+#include <globals/globals.h>
 #include <misc/options/displayoptions.h>
 
 
@@ -106,7 +106,7 @@ void ManagePlanesDlg::initDialog(QString &UFOName)
 			if(pItem) UFOName = pItem->text();
 			else      UFOName.clear();
 		}
-		m_pPlane = Objects3D::getPlane(UFOName);
+		m_pPlane = Objects3d::getPlane(UFOName);
 	}
 	else
 	{
@@ -223,9 +223,9 @@ void ManagePlanesDlg::setupLayout()
 void ManagePlanesDlg::fillUFOTable()
 {
 	int i;
-	m_pUFOModel->setRowCount(Objects3D::s_oaPlane.size());
+	m_pUFOModel->setRowCount(Objects3d::s_oaPlane.size());
 
-	for(i=0; i<Objects3D::s_oaPlane.size(); i++)
+    for(i=0; i<Objects3d::s_oaPlane.size(); i++)
 	{
 		fillPlaneRow(i);
 	}
@@ -238,9 +238,9 @@ void ManagePlanesDlg::fillPlaneRow(int row)
 {
 	QModelIndex ind;
 
-	if(row>=Objects3D::s_oaPlane.size()) return;
+	if(row>=Objects3d::s_oaPlane.size()) return;
 
-	Plane *pPlane = (Plane*)Objects3D::s_oaPlane.at(row);
+	Plane *pPlane = (Plane*)Objects3d::s_oaPlane.at(row);
 	if(!pPlane) return;
 	Wing *pWing = pPlane->wing();
 
@@ -273,7 +273,7 @@ void ManagePlanesDlg::fillPlaneRow(int row)
 
 void ManagePlanesDlg::onRename()
 {
-	if(m_pPlane)      Objects3D::renamePlane(m_pPlane->planeName());
+	if(m_pPlane)      Objects3d::renamePlane(m_pPlane->planeName());
 
 	fillUFOTable();
 	m_bChanged = true;
@@ -293,8 +293,8 @@ void ManagePlanesDlg::onDelete()
 
     if(m_pPlane)
     {
-        Objects3D::deletePlaneResults(m_pPlane, true);
-        Objects3D::deletePlane(m_pPlane);
+        Objects3d::deletePlaneResults(m_pPlane, true);
+        Objects3d::deletePlane(m_pPlane);
     }
 	QModelIndex index = m_pctrlUFOTable->currentIndex();
 	int sel = qMax(index.row()-1,0);
@@ -310,7 +310,7 @@ void ManagePlanesDlg::onDelete()
 		if(pItem) UFOName = pItem->text();
 		else      UFOName.clear();
 
-		m_pPlane = Objects3D::getPlane(UFOName);
+		m_pPlane = Objects3d::getPlane(UFOName);
 	}
 	else
 	{
@@ -346,7 +346,7 @@ void ManagePlanesDlg::onPlaneClicked(QModelIndex index)
 	else      UFOName.clear();
 
 
-	m_pPlane = Objects3D::getPlane(UFOName);
+	m_pPlane = Objects3d::getPlane(UFOName);
 	if(m_pPlane) m_pctrlDescription->setText(m_pPlane->planeDescription());
 
 }

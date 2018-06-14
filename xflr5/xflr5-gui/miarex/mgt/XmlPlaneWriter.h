@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	XmlPlaneWriter Class
-	Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #define XMLPLANEWRITER_H
 
 #include <QXmlStreamWriter>
-#include <objects3d/Plane.h>
+#include <objects/objects3d/Plane.h>
 
 #include <QFile>
 
@@ -33,7 +33,10 @@ public:
 	XMLPlaneWriter(QFile &XFile);
 	void writeXMLPlane(Plane *m_pPlane);
 	void writeXMLBody(Body *pBody);
+	void writeXMLWing(Wing &wing);
 	void writeBody(Body *pBody, Vector3d position, double lengthUnit, double massUnit);
+	void writeWing(Wing &wing, Vector3d position, double Ry);
+
 
 private:
 	void writeHeader();

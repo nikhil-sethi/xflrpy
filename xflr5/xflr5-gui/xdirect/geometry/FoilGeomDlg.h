@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	FoilGeomDlg Class
-	Copyright (C) 2008 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2008 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,13 +29,13 @@
 #include <QLabel>
 
 #include <misc/text/DoubleEdit.h>
-#include <objects2d/Foil.h>
+#include <objects/objects2d/Foil.h>
 
 class FoilGeomDlg : public QDialog
 {
 	Q_OBJECT
-	friend class QAFoil;
-	friend class QXDirect;
+	friend class AFoil;
+	friend class XDirect;
 	friend class MainFrame;
 
 public:

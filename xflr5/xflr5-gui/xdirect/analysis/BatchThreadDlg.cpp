@@ -1,7 +1,7 @@
 ﻿/****************************************************************************
 
 	BatchThreadDlg Class
-	   Copyright (C) 2003-2016 Andre Deperrois adeperrois@xflr5.com
+	   Copyright (C) 2003-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@
 #include "BatchThreadDlg.h"
 #include "XFoilAdvancedDlg.h"
 #include "ReListDlg.h"
-#include <gui_params.h>
-#include "globals.h"
+#include <globals/gui_params.h>
+#include <globals/globals.h>
 #include <xdirect/XDirect.h>
 #include <xdirect/objects2d.h>
 #include <misc/options/displayoptions.h>
@@ -56,7 +56,7 @@ BatchThreadDlg::BatchThreadDlg(QWidget *pParent) : QDialog(pParent)
 
 	m_pXFile = NULL;
 
-	m_PolarType = XFOIL::FIXEDSPEEDPOLAR;
+	m_PolarType = XFLR5::FIXEDSPEEDPOLAR;
 
 	m_FoilList.clear();
 
@@ -85,7 +85,7 @@ BatchThreadDlg::BatchThreadDlg(QWidget *pParent) : QDialog(pParent)
 
 	m_bIsRunning      = false;
 
-	XFoil::s_bCancel = false;
+    XFoil::setCancel(false);
 	XFoilTask::s_bSkipOpp = false;
 	XFoilTask::s_bSkipPolar = false;
 
@@ -371,7 +371,7 @@ void BatchThreadDlg::cleanUp()
 	m_pctrlAnalyze->setText(tr("Analyze"));
 	m_bIsRunning = false;
 	m_bCancel    = false;
-	XFoil::s_bCancel = false;
+    XFoil::setCancel(false);
 	m_pctrlClose->setFocus();
 
 	//in case we cancelled, delete all Analysis that are left
@@ -405,19 +405,19 @@ Polar * BatchThreadDlg::createPolar(Foil *pFoil, double Re, double Mach, double 
 
 	switch (pNewPolar->polarType())
 	{
-	case XFOIL::FIXEDSPEEDPOLAR:
+	case XFLR5::FIXEDSPEEDPOLAR:
 		pNewPolar->MaType() = 1;
 		pNewPolar->ReType() = 1;
 		break;
-	case XFOIL::FIXEDLIFTPOLAR:
+	case XFLR5::FIXEDLIFTPOLAR:
 		pNewPolar->MaType() = 2;
 		pNewPolar->ReType() = 2;
 		break;
-	case XFOIL::RUBBERCHORDPOLAR:
+	case XFLR5::RUBBERCHORDPOLAR:
 		pNewPolar->MaType() = 1;
 		pNewPolar->ReType() = 3;
 		break;
-	case XFOIL::FIXEDAOAPOLAR:
+	case XFLR5::FIXEDAOAPOLAR:
 		pNewPolar->MaType() = 1;
 		pNewPolar->ReType() = 1;
 		break;
@@ -426,7 +426,7 @@ Polar * BatchThreadDlg::createPolar(Foil *pFoil, double Re, double Mach, double 
 		pNewPolar->MaType() = 1;
 		break;
 	}
-	if(m_PolarType!=XFOIL::FIXEDAOAPOLAR)  pNewPolar->Reynolds() = Re;
+	if(m_PolarType!=XFLR5::FIXEDAOAPOLAR)  pNewPolar->Reynolds() = Re;
 	else                                   pNewPolar->aoa()    = 0.0;
 
 	pNewPolar->Mach()    = Mach;
@@ -436,14 +436,14 @@ Polar * BatchThreadDlg::createPolar(Foil *pFoil, double Re, double Mach, double 
 
 
 	setPlrName(pNewPolar);
-	Polar *pOldPolar = Objects2D::getPolar(pFoil, pNewPolar->polarName());
+	Polar *pOldPolar = Objects2d::getPolar(pFoil, pNewPolar->polarName());
 
 	if(pOldPolar)
 	{
 		delete pNewPolar;
 		pNewPolar = pOldPolar;
 	}
-	else Objects2D::addPolar(pNewPolar);
+	else Objects2d::addPolar(pNewPolar);
 	return pNewPolar;
 }
 
@@ -471,7 +471,7 @@ void BatchThreadDlg::keyPressEvent(QKeyEvent *event)
 			{
 				m_bCancel = true;
 				XFoilTask::s_bCancel = true;
-				XFoil::s_bCancel = true;
+                XFoil::setCancel(true);
 			}
 			else
 			{
@@ -491,18 +491,18 @@ void BatchThreadDlg::keyPressEvent(QKeyEvent *event)
  */
 void BatchThreadDlg::initDialog()
 {
-	if(!QXDirect::curFoil()) return;
+	if(!XDirect::curFoil()) return;
 	blockSignals(true);
 
 	m_pctrlTextOutput->clear();
 	m_pctrlTextOutput->setFont(Settings::s_TableFont);
 
-	m_ACrit     = QXDirect::s_refPolar.NCrit();
-	m_XBot      = QXDirect::s_refPolar.XtrBot();
-	m_XTop      = QXDirect::s_refPolar.XtrTop();
-	m_Mach      = QXDirect::s_refPolar.Mach();
+	m_ACrit     = XDirect::s_refPolar.NCrit();
+	m_XBot      = XDirect::s_refPolar.XtrBot();
+	m_XTop      = XDirect::s_refPolar.XtrTop();
+	m_Mach      = XDirect::s_refPolar.Mach();
 
-	m_PolarType = XFOIL::FIXEDSPEEDPOLAR; //no choice...
+	m_PolarType = XFLR5::FIXEDSPEEDPOLAR; //no choice...
 
 	m_pctrlFoil1->setChecked(s_bCurrentFoil);
 	m_pctrlFoil2->setChecked(!s_bCurrentFoil);
@@ -559,7 +559,7 @@ void BatchThreadDlg::initDialog()
  */
 void BatchThreadDlg::onAcl()
 {
-	if(m_PolarType==XFOIL::FIXEDAOAPOLAR) return;
+	if(m_PolarType==XFLR5::FIXEDAOAPOLAR) return;
 	m_bAlpha = m_pctrlAlpha->isChecked();
 	if(m_bAlpha)
 	{
@@ -600,7 +600,7 @@ void BatchThreadDlg::onAnalyze()
 	{
 		m_bCancel = true;
 		XFoilTask::s_bCancel = true;
-		XFoil::s_bCancel = true;
+        XFoil::setCancel(true);
 		return;
 	}
 
@@ -635,10 +635,10 @@ void BatchThreadDlg::onClose()
 	QThreadPool::globalInstance()->waitForDone();
 	readParams();
 
-	QXDirect::s_refPolar.NCrit()    = m_ACrit;
-	QXDirect::s_refPolar.XtrBot()   = m_XBot;
-	QXDirect::s_refPolar.XtrTop()   = m_XTop;
-	QXDirect::s_refPolar.Mach()     = m_Mach;
+	XDirect::s_refPolar.NCrit()    = m_ACrit;
+	XDirect::s_refPolar.XtrBot()   = m_XBot;
+	XDirect::s_refPolar.XtrTop()   = m_XTop;
+	XDirect::s_refPolar.Mach()     = m_Mach;
 
 	accept();
 }
@@ -655,7 +655,7 @@ void BatchThreadDlg::reject()
 	if(m_bIsRunning)
 	{
 		m_bCancel    = true;
-		XFoil::s_bCancel = true;
+        XFoil::setCancel(true);
 	}
 	else
 	{
@@ -672,17 +672,17 @@ void BatchThreadDlg::reject()
 void BatchThreadDlg::onEditReList()
 {
 	ReListDlg dlg(this);
-	dlg.initDialog(QXDirect::s_ReList,QXDirect::s_MachList, QXDirect::s_NCritList);
+	dlg.initDialog(XDirect::s_ReList,XDirect::s_MachList, XDirect::s_NCritList);
 
 	if(QDialog::Accepted == dlg.exec())
 	{
-		QXDirect::s_ReList.clear();
-		QXDirect::s_MachList.clear();
-		QXDirect::s_NCritList.clear();
+		XDirect::s_ReList.clear();
+		XDirect::s_MachList.clear();
+		XDirect::s_NCritList.clear();
 
-		QXDirect::s_ReList.append(dlg.m_ReList);
-		QXDirect::s_MachList.append(dlg.m_MachList);
-		QXDirect::s_NCritList.append(dlg.m_NCritList);
+		XDirect::s_ReList.append(dlg.m_ReList);
+		XDirect::s_MachList.append(dlg.m_MachList);
+		XDirect::s_NCritList.append(dlg.m_NCritList);
 	}
 }
 
@@ -694,7 +694,7 @@ void BatchThreadDlg::onFoilList()
 {
 	FoilSelectionDlg dlg(this);
 //	dlg.SetSelectionMode(true);
-	dlg.m_poaFoil = &Objects2D::s_oaFoil;
+	dlg.m_poaFoil = &Objects2d::s_oaFoil;
 
 	dlg.m_FoilList.clear();
 	dlg.m_FoilList.append(m_FoilList);
@@ -721,7 +721,7 @@ void BatchThreadDlg::onFoilSelectionType()
 	if(s_bCurrentFoil)
 	{
 		m_FoilList.clear();
-		m_FoilList.append(QXDirect::curFoil()->foilName());
+		m_FoilList.append(XDirect::curFoil()->foilName());
 	}
 
 	outputFoilList();
@@ -773,7 +773,7 @@ void BatchThreadDlg::readParams()
 {
 	m_bAlpha = m_pctrlAlpha->isChecked();
 
-	if(m_PolarType!=XFOIL::FIXEDAOAPOLAR)
+	if(m_PolarType!=XFLR5::FIXEDAOAPOLAR)
 	{
 		m_ReInc = m_pctrlReDelta->value();
 		m_ReMax = m_pctrlReMax->value();
@@ -821,7 +821,7 @@ void BatchThreadDlg::setFileHeader()
 	out << "\n";
 	if(s_bCurrentFoil)
 	{
-		out << QXDirect::curFoil()->foilName();
+		out << XDirect::curFoil()->foilName();
 		out << "\n";
 	}
 
@@ -887,7 +887,7 @@ void BatchThreadDlg::startAnalysis()
 	if(s_bCurrentFoil)
 	{
 		m_FoilList.clear();
-		m_FoilList.append(QXDirect::curFoil()->foilName());
+		m_FoilList.append(XDirect::curFoil()->foilName());
 	}
 
 	if(!m_FoilList.count())
@@ -902,7 +902,7 @@ void BatchThreadDlg::startAnalysis()
 
 
 	if(!m_bFromList) nRe = (int)qAbs((m_ReMax-m_ReMin)/m_ReInc)+1;
-	else             nRe = QXDirect::s_ReList.count();
+	else             nRe = XDirect::s_ReList.count();
 
 //	QThreadPool::globalInstance()->setExpiryTimeout(60000);//ms
 
@@ -914,7 +914,7 @@ void BatchThreadDlg::startAnalysis()
 	FoilAnalysis *pAnalysis=NULL;
 	for(int i=0; i<m_FoilList.count(); i++)
 	{
-		pFoil = Objects2D::foil(m_FoilList.at(i));
+		pFoil = Objects2d::foil(m_FoilList.at(i));
 		if(pFoil)
 		{
 			for (iRe=0; iRe<nRe; iRe++)
@@ -924,7 +924,7 @@ void BatchThreadDlg::startAnalysis()
 				pAnalysis->pFoil = pFoil;
 
 				if(!m_bFromList) pPolar = createPolar(pFoil, m_ReMin + iRe *m_ReInc, m_Mach, m_ACrit);
-				else             pPolar = createPolar(pFoil, QXDirect::s_ReList[iRe], QXDirect::s_MachList[iRe], QXDirect::s_NCritList[iRe]);
+				else             pPolar = createPolar(pFoil, XDirect::s_ReList[iRe], XDirect::s_MachList[iRe], XDirect::s_NCritList[iRe]);
 				pAnalysis->pPolar=pPolar;
 
 				m_nAnalysis++;
@@ -975,7 +975,7 @@ void BatchThreadDlg::onTimerEvent()
 			m_pTimer->stop();
 			cleanUp();
 
-			QXDirect *pXDirect = (QXDirect*)s_pXDirect;
+			XDirect *pXDirect = (XDirect*)s_pXDirect;
 			if(pXDirect->m_bPolarView && s_bUpdatePolarView)
 			{
 				pXDirect->createPolarCurves();
@@ -1041,7 +1041,7 @@ void BatchThreadDlg::customEvent(QEvent * event)
 	else if(event->type() == XFOIL_END_OPP_EVENT)
 	{
 		XFoilOppEvent *pOppEvent = (XFoilOppEvent*)event;
-		Objects2D::addOpPoint(pOppEvent->foilPtr(), pOppEvent->polarPtr(), pOppEvent->XFoilPtr(), QXDirect::s_bStoreOpp);
+		Objects2d::addOpPoint(pOppEvent->foilPtr(), pOppEvent->polarPtr(), pOppEvent->XFoilPtr(), XDirect::s_bStoreOpp);
 	}
 }
 
@@ -1056,7 +1056,7 @@ void BatchThreadDlg::handleXFoilTaskEvent(const XFoilTaskEvent *event)
 	updateOutput(str);
 
 
-	QXDirect *pXDirect = (QXDirect*)s_pXDirect;
+	XDirect *pXDirect = (XDirect*)s_pXDirect;
 	if(s_bUpdatePolarView)
 	{
 		pXDirect->createPolarCurves();
@@ -1089,12 +1089,12 @@ void BatchThreadDlg::outputReList()
 	m_pctrlTextOutput->append("Reynolds numbers to analyze:");
 	if(m_bFromList)
 	{
-		for(int i=0; i<QXDirect::s_ReList.count(); i++)
+		for(int i=0; i<XDirect::s_ReList.count(); i++)
 		{
 			QString strong = QString("   Re = %L1  /  Mach = %L2  /  NCrit = %L3")
-								   .arg(QXDirect::s_ReList.at(i), 10,'f',0)
-								   .arg(QXDirect::s_MachList.at(i), 5,'f',3)
-								   .arg(QXDirect::s_NCritList.at(i), 5, 'f', 2);
+								   .arg(XDirect::s_ReList.at(i), 10,'f',0)
+								   .arg(XDirect::s_MachList.at(i), 5,'f',3)
+								   .arg(XDirect::s_NCritList.at(i), 5, 'f', 2);
 			m_pctrlTextOutput->append(strong);
 		}
 	}
@@ -1137,15 +1137,15 @@ void BatchThreadDlg::onAdvancedSettings()
 {
 	XFoilAdvancedDlg xfaDlg(this);
 	xfaDlg.m_IterLimit   = XFoilTask::s_IterLim;
-	xfaDlg.m_bAutoInitBL     = XFoilTask::s_bAutoInitBL;
-	xfaDlg.m_VAccel      = XFoil::vaccel;
-	xfaDlg.m_bFullReport = XFoil::s_bFullReport;
+    xfaDlg.m_bAutoInitBL = XFoilTask::s_bAutoInitBL;
+    xfaDlg.m_VAccel      = XFoil::VAccel();
+	xfaDlg.m_bFullReport = XFoil::fullReport();
 	xfaDlg.initDialog();
 
 	if (QDialog::Accepted == xfaDlg.exec())
 	{
-		XFoil::vaccel             = xfaDlg.m_VAccel;
-		XFoil::s_bFullReport      = xfaDlg.m_bFullReport;
+        XFoil::setVAccel(xfaDlg.m_VAccel);
+        XFoil::setFullReport(xfaDlg.m_bFullReport);
 		XFoilTask::s_bAutoInitBL  = xfaDlg.m_bAutoInitBL;
 		XFoilTask::s_IterLim      = xfaDlg.m_IterLimit;
 	}
@@ -1154,7 +1154,7 @@ void BatchThreadDlg::onAdvancedSettings()
 void BatchThreadDlg::onUpdatePolarView()
 {
 	s_bUpdatePolarView = m_pctrlUpdatePolarView->isChecked();
-	QXDirect *pXDirect = (QXDirect*)s_pXDirect;
+	XDirect *pXDirect = (XDirect*)s_pXDirect;
 	pXDirect->updateView();
 }
 

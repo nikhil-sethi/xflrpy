@@ -9,9 +9,12 @@ out vec4 fragColor;
 
 void main(void)
 {
-	if (vPosition.z > clipPlane0.w) {
+	if (vPosition.z > clipPlane0.w)
+	{
 	  discard;
-	} else {
+	}
+	else
+	{
 		fragColor = color;
 	}
 }

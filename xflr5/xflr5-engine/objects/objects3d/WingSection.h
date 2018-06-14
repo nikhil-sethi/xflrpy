@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	WingSection Class
-	Copyright (C) 2013 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2013 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,13 +32,15 @@
 
 
 #include <QString>
-#include <analysis3d_enums.h>
+
+#include <xflr5-engine_global.h>
+#include <analysis3d/analysis3d_enums.h>
 
 /**
 *@class WingSection
 *@brief  The class which defines the wing section object used to construct wing geometries.
 */
-class WingSection
+class XFLR5ENGINELIBSHARED_EXPORT WingSection
 {
 public:
 	WingSection()

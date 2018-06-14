@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	XMLPlaneReader Class
-	Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #define XMLPLANEREADER_H
 
 #include <QXmlStreamReader>
-#include <objects3d/Plane.h>
+#include <objects/objects3d/Plane.h>
 
 #include <QFile>
 
@@ -37,6 +37,7 @@ public:
 private:
 	bool readPlane(Plane *pPlane, double lengthUnit, double massUnit);
 	bool readBody(Body *pBody, Vector3d &position, double lengthUnit, double massUnit);
+	bool readWing(Wing &newwing, Vector3d &position, double tiltangle, double lengthUnit, double massUnit);
 	bool readPointMass(PointMass *ppm, double massUnit, double lengthUnit);
 	bool readColor(QColor &color);
 

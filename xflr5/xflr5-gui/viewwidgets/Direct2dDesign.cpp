@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	DirectDesignView Class
-	Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,16 +19,17 @@
 
 *****************************************************************************/
 
-#include "Direct2dDesign.h"
-#include <objects2d/Foil.h>
-#include <graph_globals.h>
-#include <mainframe.h>
-#include <xdirect/XDirect.h>
-#include <misc/options/displayoptions.h>
-#include <globals.h>
 #include <QPainter>
 #include <QMessageBox>
-#include <QtDebug>
+
+
+#include "Direct2dDesign.h"
+#include <objects/objects2d/Foil.h>
+#include <graph_globals.h>
+#include <globals/mainframe.h>
+#include <xdirect/XDirect.h>
+#include <misc/options/displayoptions.h>
+#include <globals/globals.h>
 
 Direct2dDesign::Direct2dDesign(QWidget *pParent) : Section2dWidget(pParent)
 {
@@ -410,7 +411,7 @@ void Direct2dDesign::dragSelectedPoint(double x, double y)
  */
 void Direct2dDesign::onInsertPt()
 {
-	if(QXDirect::curFoil()) return; // Action can be performed only if the spline foil is selected
+	if(XDirect::curFoil()) return; // Action can be performed only if the spline foil is selected
 
 	Vector3d Real = mousetoReal(m_PointDown);
 
@@ -439,7 +440,7 @@ void Direct2dDesign::onInsertPt()
 void Direct2dDesign::onRemovePt()
 {
 	//Removes a point in the spline
-	if(QXDirect::curFoil()) return; // Action can be performed only if the spline foil is selected
+	if(XDirect::curFoil()) return; // Action can be performed only if the spline foil is selected
 
 	Vector3d Real = mousetoReal(m_PointDown);
 

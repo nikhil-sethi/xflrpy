@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	Panel Class
-	Copyright (C) 2006-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2006-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -637,18 +637,18 @@ void Panel::sourceNASA4023(Vector3d const &C,  Vector3d &V, double &phi)
 
 
 /**
-* Evaluates the influence of a doublet at a point outside the panel.
-*
-* Follows the method provided in the VSAERO theory Manual NASA 4023.
-*
-* Vectorial operations are written inline to save computing times -->longer code, but 4x more efficient.
-*
-*@param C the point where the influence is to be evaluated
-*@param pPanel a pointer to the Panel with the doublet strength
-*@param V the perturbation velocity at point C
-*@param phi the potential at point C
-*@param bWake true if the panel is a wake panel, false if it is a surface panel
-*/
+ * Evaluates the influence of a doublet at a point outside the panel.
+ *
+ * Follows the method provided in the VSAERO theory Manual NASA 4023.
+ *
+ * Vectorial operations are written inline to save computing times -->longer code, but 4x more efficient.
+ *
+ * @param C the point where the influence is to be evaluated
+ * @param pPanel a pointer to the Panel with the doublet strength
+ * @param V the perturbation velocity at point C
+ * @param phi the potential at point C
+ * @param bWake true if the panel is a wake panel, false if it is a surface panel
+ */
 void Panel::doubletNASA4023(Vector3d const &C, Vector3d &V, double &phi, bool bWake)
 {
 	int i;

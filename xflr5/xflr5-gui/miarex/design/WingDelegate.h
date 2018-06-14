@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	WingDelegate Class
-	Copyright (C) 2009 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@
 #include <QStyledItemDelegate>
 
 #include <misc/text/DoubleEdit.h>
-#include <objects3d/WingSection.h>
-#include <objects2d/Foil.h>
+#include <objects/objects3d/WingSection.h>
+#include <objects/objects2d/Foil.h>
 
 class WingDelegate : public QStyledItemDelegate
 {

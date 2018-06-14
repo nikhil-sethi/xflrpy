@@ -20,10 +20,10 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QSettings>
-#include <QGraph.h>
-#include <QGraph.h>
+#include <graph/graph.h>
+#include <graph/graph.h>
 
-#include <gui_enums.h>
+#include <globals/gui_enums.h>
 
 class TextClrBtn;
 class ColorButton;
@@ -70,7 +70,7 @@ private slots:
 private:
 	void reject();
 	void setupLayout();
-	void setAllGraphSettings(QGraph *pGraph);
+	void setAllGraphSettings(Graph *pGraph);
 
 	ColorButton *m_pctrlBackColor;
 	TextClrBtn *m_pctrlTextClr;
@@ -87,7 +87,7 @@ private:
 
 	void *m_pMainFrame;
 	QDir m_StyleSheetDir;
-	QGraph m_MemGraph;
+	Graph m_MemGraph;
 	bool m_bIsGraphModified;
 
 public:
@@ -99,7 +99,7 @@ public:
 	static bool s_bStyleSheets;
 	static bool s_bReverseZoom;
 	static XFLR5::enumTextFileType s_ExportFileType;  /**< Defines if the list separator for the output text files should be a space or a comma. */
-	static QGraph s_RefGraph;//Reference setttings
+	static Graph s_RefGraph;//Reference setttings
 	static QString s_LastDirName, s_xmlDirName;
 	static QStringList s_colorList;
 	static QStringList s_colorNames;

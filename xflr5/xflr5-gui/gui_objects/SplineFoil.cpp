@@ -1,7 +1,7 @@
 /****************************************************************************
 
     Spline Foil Class
-	Copyright (C) 2003-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2003-2016 Andre Deperrois 
  
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,12 +19,13 @@
 
 *****************************************************************************/
 
+#include <QDebug>
 
 #include <math.h>
 #include "SplineFoil.h"
-#include <objects2d/Foil.h>
-#include <globals.h>
-#include <objects_global.h>
+#include <objects/objects2d/Foil.h>
+#include <globals/globals.h>
+#include <objects/objects_global.h>
 
 /**
  * The public costructor.
@@ -77,9 +78,9 @@ void SplineFoil::initSplineFoil()
 {
 	m_bModified   = false;
 	m_strFoilName = QObject::tr("Spline Foil");
-	
+
 	m_Extrados.setSplineParams(m_FoilStyle, m_FoilWidth, m_FoilColor);
-	m_Extrados.m_CtrlPoint.clear();
+	m_Extrados.clearPoints();
 	m_Extrados.insertPoint(0.0 , 0.0);
 	m_Extrados.insertPoint(0.0 , 0.00774066);
 	m_Extrados.insertPoint(0.0306026, 0.0343829);
@@ -89,7 +90,7 @@ void SplineFoil::initSplineFoil()
 	m_Extrados.insertPoint(1. , 0.);
 
 	m_Intrados.setSplineParams(m_FoilStyle, m_FoilWidth, m_FoilColor);
-	m_Intrados.m_CtrlPoint.clear();
+	m_Intrados.clearPoints();
 	m_Intrados.insertPoint(0. , 0.);
 	m_Intrados.insertPoint(0. , -0.00774066);
 	m_Intrados.insertPoint(0.0306026, -0.0343829);
@@ -99,6 +100,7 @@ void SplineFoil::initSplineFoil()
 	m_Intrados.insertPoint(1. , 0.);
 
 	compMidLine();
+
 	m_OutPoints = m_Extrados.m_iRes + m_Intrados.m_iRes;
 
 }
@@ -189,7 +191,7 @@ void SplineFoil::exportToBuffer(void *pFoilPtr)
 	memcpy(pFoil->xb, pFoil->x, sizeof(pFoil->x));
 	memcpy(pFoil->yb, pFoil->y, sizeof(pFoil->y));
 	pFoil->nb = pFoil->n;
-	pFoil->foilName() = m_strFoilName;
+	pFoil->setFoilName(m_strFoilName);
 }
 
 /**

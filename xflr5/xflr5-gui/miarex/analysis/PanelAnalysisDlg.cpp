@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	PanelAnalysisDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,10 +36,10 @@
 #include "PanelAnalysisDlg.h"
 #include <miarex/Miarex.h>
 #include <misc/options/displayoptions.h>
-#include <globals.h>
-#include <objects2d/Vector3d.h>
+#include <globals/globals.h>
+#include <objects/objects3d/vector3d.h>
 #include <misc/options/Units.h>
-#include <miarex/Objects3D.h>
+#include <miarex/objects3d.h>
 
 QPoint PanelAnalysisDlg::s_Position = QPoint(200,100);
 QSize  PanelAnalysisDlg::s_WindowSize = QSize(900,550);
@@ -76,7 +76,7 @@ void PanelAnalysisDlg::initDialog()
 	m_Progress = 0.0;
 	m_pctrlProgress->setValue(m_Progress);
 	m_pctrlTextOutput->clear();
-	m_pctrlLogFile->setChecked(QMiarex::m_bLogFile);
+	m_pctrlLogFile->setChecked(Miarex::m_bLogFile);
 }
 
 
@@ -112,7 +112,7 @@ void PanelAnalysisDlg::onCancelAnalysis()
 
 void PanelAnalysisDlg::onLogFile()
 {
-	QMiarex::m_bLogFile = m_pctrlLogFile->isChecked();
+	Miarex::m_bLogFile = m_pctrlLogFile->isChecked();
 }
 
 
@@ -210,6 +210,16 @@ void PanelAnalysisDlg::analyze()
 
 	m_pctrlProgress->setMaximum(100000);
 
+	clock.start(); // put some pressure
+
+	QString strange = "\n" + QString(VERSIONNAME) +"\n";
+	updateOutput(strange);
+	QDateTime dt = QDateTime::currentDateTime();
+	strange = dt.toString("dd.MM.yyyy  hh:mm:ss\n\n");
+	updateOutput(strange);
+	strange = "Launching Analysis\n\n";
+	updateOutput(strange);
+
 
 	connect(&m_Timer, SIGNAL(timeout()), this, SLOT(onProgress()));
 	m_Timer.setInterval(250);
@@ -243,7 +253,7 @@ void PanelAnalysisDlg::cleanUp()
 		{
 			//add the data to the polar object
 			PlaneOpp *pPOpp = m_pTheTask->m_pthePanelAnalysis->m_PlaneOppList.at(iPOpp);
-			if(PlaneOpp::s_bKeepOutOpps || !pPOpp->isOut())	Objects3D::insertPOpp(pPOpp);
+			if(PlaneOpp::s_bKeepOutOpps || !pPOpp->isOut())	Objects3d::insertPOpp(pPOpp);
 			else
 			{
 				delete pPOpp;
@@ -271,14 +281,14 @@ void PanelAnalysisDlg::cleanUp()
 	if(pXFile->open(QIODevice::WriteOnly | QIODevice::Text))
 	{
 		QTextStream outstream(pXFile);
-		outstream << "\n";
-		outstream << VERSIONNAME;
-		outstream << "\n";
-		QDateTime dt = QDateTime::currentDateTime();
-		QString str = dt.toString("dd.MM.yyyy  hh:mm:ss");
-		outstream << str<<"\n\n";
 
 		outstream << m_pctrlTextOutput->toPlainText();
+		outstream << "\n";
+		QDateTime dt = QDateTime::currentDateTime();
+		QString str = dt.toString(Qt::DefaultLocaleLongDate);
+		outstream << "Analysis ended "<<str<<"\n";
+		outstream << "Elapsed: "<<(double)clock.elapsed()/1000.0<<"s";
+		outstream << "\n";
 		outstream.flush();
 		pXFile->close();
 	}

@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	WAdvancedDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 *****************************************************************************/
 
-#include <globals.h>
+#include <globals/globals.h>
 #include <misc/options/Units.h>
 #include "WAdvancedDlg.h"
 #include <QLabel>
@@ -69,9 +69,6 @@ void WAdvancedDlg::setupLayout()
 	szPolicyMinimum.setHorizontalPolicy(QSizePolicy::Minimum);
 	szPolicyMinimum.setVerticalPolicy(QSizePolicy::Minimum);
 
-
-
-
 	QGroupBox *pAllBox = new QGroupBox(tr("All Analysis"));
 	{
 		QHBoxLayout *pAllLayout = new QHBoxLayout;
@@ -92,7 +89,7 @@ void WAdvancedDlg::setupLayout()
 			{
 				m_pctrlMinPanelSize = new DoubleEdit(1.00,5);
 				m_pctrlLength  = new QLabel("");
-				QLabel *lab5 = new QLabel(tr("Ignore wing panels with span <"));
+				QLabel *lab5 = new QLabel(tr("Ignore wing panels with span width <"));
 				lab5->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 				pWingPanelLayout->addStretch(1);
 				pWingPanelLayout->addWidget(lab5);

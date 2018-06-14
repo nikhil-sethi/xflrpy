@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	PanelAnalysisDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2018 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #define PANELANALYSISDLG_H
 
 #include <QDialog>
+#include <QTime>
 #include <QTimer>
 #include <QProgressBar>
 #include <QCheckBox>
@@ -39,11 +40,11 @@
 #include <QTextEdit>
 #include <QPushButton>
 #include <QCheckBox>
-#include <objects3d/WPolar.h>
-#include <objects3d/Plane.h>
-#include <objects2d/Vector3d.h>
-#include "plane_analysis/PanelAnalysis.h"
-#include "plane_analysis/planeanalysistask.h"
+#include <objects/objects3d/WPolar.h>
+#include <objects/objects3d/Plane.h>
+#include <objects/objects3d/vector3d.h>
+#include <analysis3d/plane_analysis/PanelAnalysis.h>
+#include <analysis3d/plane_analysis/planeanalysistask.h>
 
 #define VLMMAXRHS 100
 
@@ -59,7 +60,7 @@ class PanelAnalysisDlg : public QDialog
 {
 	Q_OBJECT
 
-	friend class QMiarex;
+	friend class Miarex;
 	friend class MainFrame;
 
 public:
@@ -97,6 +98,8 @@ private:
 	static QPoint s_Position;        /**< the position on the client area of the dialog's topleft corner */
 	static QSize  s_WindowSize;
 	static bool s_bWindowMaximized;
+
+	QTime clock;
 
 	bool m_bIsFinished;         /**< true if the analysis is completed */
 	bool m_bPointOut;           /** true if an interpolation was outside the min or max Cl */

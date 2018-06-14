@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	MiarexTileWidget Class
-		Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+		Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ public:
 public:
 	void connectSignals();
 	void adjustLayout();
-	void setMiarexGraphList(XFLR5::enumMiarexViews miarexView, QList<QGraph*>pGraphList, int nGraphs, int iGraphWidget=-1, Qt::Orientation orientation =Qt::Horizontal);
+	void setMiarexGraphList(XFLR5::enumMiarexViews miarexView, QList<Graph *> pGraphList, int nGraphs, int iGraphWidget=-1, Qt::Orientation orientation =Qt::Horizontal);
 	WingWidget *pWingWidget(){return m_pWingWidget;}
 
 private:

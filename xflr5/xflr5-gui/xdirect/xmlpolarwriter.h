@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	XMLPolarWriter Class
-	Copyright (C) 2016-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2016-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 
 #include <QFile>
 #include <QXmlStreamWriter>
-#include <objects2d/Polar.h>
+#include <objects/objects2d/Polar.h>
 
 class XmlPolarWriter : public QXmlStreamWriter
 {

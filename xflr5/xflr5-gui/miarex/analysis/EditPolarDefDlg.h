@@ -14,8 +14,8 @@
 #include <QTreeView>
 #include <QStandardItemModel>
 
-#include <objects3d/WPolar.h>
-#include <objects3d/Plane.h>
+#include <objects/objects3d/WPolar.h>
+#include <objects/objects3d/Plane.h>
 #include <miarex/design/EditObjectDelegate.h>
 
 
@@ -25,7 +25,7 @@ class EditPolarDefDlg : public QDialog
 
 	friend class Wing;
 	friend class Plane;
-	friend class QMiarex;
+	friend class Miarex;
 	friend class WPolar;
 
 private slots:

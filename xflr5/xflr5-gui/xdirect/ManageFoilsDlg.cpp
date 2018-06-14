@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	ManageFoilsDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -80,7 +80,7 @@ void ManageFoilsDlg::initDialog(QString FoilName)
 			QStandardItem *pItem = m_pFoilModel->item(0,0);
 			FoilName = pItem->text();
 		}
-		m_pFoil = Objects2D::foil(FoilName);
+		m_pFoil = Objects2d::foil(FoilName);
 	}
 	else
 	{
@@ -205,9 +205,9 @@ ManageFoilsDlg::~ManageFoilsDlg()
 void ManageFoilsDlg::fillFoilTable()
 {
 	int i;
-	m_pFoilModel->setRowCount(Objects2D::s_oaFoil.size());
+	m_pFoilModel->setRowCount(Objects2d::s_oaFoil.size());
 
-	for(i=0; i<Objects2D::s_oaFoil.size(); i++)
+    for(i=0; i< Objects2d::s_oaFoil.size(); i++)
 	{
 		fillTableRow(i);
 	}
@@ -217,7 +217,7 @@ void ManageFoilsDlg::fillFoilTable()
 void ManageFoilsDlg::fillTableRow(int row)
 {
 	QModelIndex ind;
-	Foil *pFoil = Objects2D::s_oaFoil.at(row);
+	Foil *pFoil = Objects2d::s_oaFoil.at(row);
 
 	ind = m_pFoilModel->index(row, 0, QModelIndex());
 	m_pFoilModel->setData(ind,pFoil->foilName());
@@ -271,9 +271,9 @@ void ManageFoilsDlg::onRename()
 	if (m_pFoil) 
 	{
 		QStringList NameList;
-		for(int k=0; k<Objects2D::s_oaFoil.size(); k++)
+        for(int k=0; k< Objects2d::s_oaFoil.size(); k++)
 		{
-			Foil *pOldFoil= Objects2D::s_oaFoil.at(k);
+			Foil *pOldFoil= Objects2d::s_oaFoil.at(k);
 			NameList.append(pOldFoil->foilName());
 		}
 
@@ -282,7 +282,7 @@ void ManageFoilsDlg::onRename()
 
 		if(renDlg.exec()!=QDialog::Rejected)
 		{
-			Objects2D::renameThisFoil(m_pFoil, renDlg.newName());
+			Objects2d::renameThisFoil(m_pFoil, renDlg.newName());
 			fillFoilTable();
 			m_bChanged = true;
 		}
@@ -322,7 +322,7 @@ void ManageFoilsDlg::onDelete()
 {
 	if(!m_pFoil) return;
 
-	Objects2D::deleteFoil(m_pFoil);
+	Objects2d::deleteFoil(m_pFoil);
 
 	QModelIndex index = m_pctrlFoilTable->currentIndex();
 	int sel = qMax(index.row()-1,0);
@@ -336,7 +336,7 @@ void ManageFoilsDlg::onDelete()
 		QStandardItem *pItem = m_pFoilModel->item(sel,0);
 		QString FoilName = pItem->text();
 
-		m_pFoil = Objects2D::foil(FoilName);
+		m_pFoil = Objects2d::foil(FoilName);
 	}
 	else m_pFoil = NULL;
 
@@ -353,12 +353,12 @@ void ManageFoilsDlg::onDoubleClickTable(const QModelIndex &index)
 
 void ManageFoilsDlg::onFoilClicked(const QModelIndex& index)
 {
-	if(index.row()>=Objects2D::s_oaFoil.size()) return;
+	if(index.row()>=Objects2d::s_oaFoil.size()) return;
 
 	QStandardItem *pItem = m_pFoilModel->item(index.row(),0);
 	QString FoilName =pItem->text();
 
-	m_pFoil= Objects2D::foil(FoilName);
+	m_pFoil= Objects2d::foil(FoilName);
 }
 
 

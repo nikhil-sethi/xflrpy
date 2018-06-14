@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	EditPlrDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -230,8 +230,8 @@ void EditPlrDlg::keyPressEvent(QKeyEvent *event)
 
 void EditPlrDlg::onDeletePoint()
 {
-	QXDirect *pXDirect = (QXDirect*)m_pXDirect;
-	QMiarex *pMiarex= (QMiarex*)m_pMiarex;
+	XDirect *pXDirect = (XDirect*)m_pXDirect;
+	Miarex *pMiarex= (Miarex*)m_pMiarex;
 
 	QModelIndex index = m_pctrlPointTable->currentIndex();
 
@@ -246,7 +246,7 @@ void EditPlrDlg::onDeletePoint()
 	{
 		m_pWPolar->remove(index.row());
 		fillWPolarData();
-		QMiarex::s_bResetCurves = true;
+		Miarex::s_bResetCurves = true;
 //		pMiarex->createWPolarCurves();
 		pMiarex->updateView();
 	}
@@ -262,8 +262,8 @@ void EditPlrDlg::onDeletePoint()
 
 void EditPlrDlg::onDeleteAllPoints()
 {
-	QXDirect *pXDirect = (QXDirect*)m_pXDirect;
-	QMiarex *pMiarex= (QMiarex*)m_pMiarex;
+	XDirect *pXDirect = (XDirect*)m_pXDirect;
+	Miarex *pMiarex= (Miarex*)m_pMiarex;
 
 	if(pXDirect)
 	{
@@ -276,7 +276,7 @@ void EditPlrDlg::onDeleteAllPoints()
 	{
 		m_pWPolar->clearData();
 		fillWPolarData();
-		QMiarex::s_bResetCurves = true;
+		Miarex::s_bResetCurves = true;
 		pMiarex->updateView();
 	}
 }

@@ -2,7 +2,7 @@
 
     CArcBall Class
 	Copyright (C)  Bradley Smith, March 24, 2006
-	Hideously modified in 2008-2009 by Andre Deperrois adeperrois@xflr5.com for miserable selfish purposes
+	Hideously modified in 2008-2009 by Andre Deperrois  for miserable selfish purposes
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -71,8 +71,8 @@
 
 
 
-#include <objects2d/Vector3d.h>
-#include <objects3d/Quaternion.h>
+#include <objects/objects3d/vector3d.h>
+#include <objects/objects3d/Quaternion.h>
 #include <QRect>
 
 

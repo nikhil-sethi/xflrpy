@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	GL3DScales Class
-	Copyright (C) 2009-2016 Andre Deperrois adeperrois@xflr5.com
+	Copyright (C) 2009-2016 Andre Deperrois 
 	
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ class GL3DScales : public QWidget
 {
 	Q_OBJECT
 	friend class MainFrame;
-	friend class QMiarex;
+	friend class Miarex;
 
 public:
 	GL3DScales(QWidget *);

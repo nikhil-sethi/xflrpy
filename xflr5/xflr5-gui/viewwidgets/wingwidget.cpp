@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	WingWidget Class
-		Copyright (C) 2015 Andre Deperrois adeperrois@xflr5.com
+		Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,11 +20,11 @@
 *****************************************************************************/
 
 #include <QPainter>
-#include <globals.h>
+#include <globals/globals.h>
 #include <graph_globals.h>
 #include "wingwidget.h"
 #include <misc/options/displayoptions.h>
-#include "miarex/Objects3D.h"
+#include "miarex/objects3d.h"
 #include "miarex/view/W3dPrefsDlg.h"
 #include "miarex/Miarex.h"
 
@@ -59,7 +59,7 @@ void WingWidget::contextMenuEvent (QContextMenuEvent *event)
 }
 
 
-void WingWidget::setWingGraph(QGraph *pGraph)
+void WingWidget::setWingGraph(Graph *pGraph)
 {
 	m_pGraph = pGraph;
 }
@@ -142,7 +142,7 @@ void WingWidget::mouseReleaseEvent(QMouseEvent *event)
 void WingWidget::paintEvent(QPaintEvent *event)
 {
 	Q_UNUSED(event);
-	QMiarex *pMiarex=(QMiarex*)s_pMiarex;
+	Miarex *pMiarex=(Miarex*)s_pMiarex;
 	if(pMiarex->m_bResetTextLegend) pMiarex->drawTextLegend();
 
 	QPainter painter(this);
@@ -184,7 +184,7 @@ void WingWidget::paintEvent(QPaintEvent *event)
  */
 void WingWidget::paintWing(QPainter &painter, QPointF ORef, double scale)
 {
-	QMiarex *pMiarex=(QMiarex*)s_pMiarex;
+	Miarex *pMiarex=(Miarex*)s_pMiarex;
 	if(!pMiarex->m_pCurPlane)	return;
 	int i;
 	double scalex, scaley;
@@ -263,7 +263,7 @@ void WingWidget::paintWing(QPainter &painter, QPointF ORef, double scale)
 void WingWidget::paintXCmRef(QPainter & painter, QPointF ORef, double scale)
 {
 	//Draws the moment reference point on the 2D view
-	QMiarex *pMiarex=(QMiarex*)s_pMiarex;
+	Miarex *pMiarex=(Miarex*)s_pMiarex;
 	if(!pMiarex->m_pCurPlane || !pMiarex->m_pCurWPolar)	return;
 
 	painter.save();
@@ -306,7 +306,7 @@ void WingWidget::paintXCmRef(QPainter & painter, QPointF ORef, double scale)
 void WingWidget::paintXCP(QPainter & painter, QPointF ORef, double scale)
 {
 	//Draws the lift line and center of pressure position on the the 2D view
-	QMiarex *pMiarex = (QMiarex*)s_pMiarex;
+	Miarex *pMiarex = (Miarex*)s_pMiarex;
 	if(!pMiarex->m_pCurPlane)	return;
 
 	Wing *pWing = pMiarex->m_pCurPlane->m_Wing;
@@ -374,7 +374,7 @@ void WingWidget::paintXCP(QPainter & painter, QPointF ORef, double scale)
 void WingWidget::paintXTr(QPainter & painter, QPointF ORef, double scale)
 {
 	//Draws the transition lines on the 2D view
-	QMiarex *pMiarex = (QMiarex*)s_pMiarex;
+	Miarex *pMiarex = (Miarex*)s_pMiarex;
 	if(!pMiarex->m_pCurPlane)	return;
 
 	Wing *pWing = pMiarex->m_pCurPlane->wing();
@@ -462,7 +462,7 @@ void WingWidget::paintXTr(QPainter & painter, QPointF ORef, double scale)
 void WingWidget::resizeEvent (QResizeEvent *event)
 {
 	Q_UNUSED(event);
-	QMiarex *pMiarex = (QMiarex*)s_pMiarex;
+	Miarex *pMiarex = (Miarex*)s_pMiarex;
 	pMiarex->m_bResetTextLegend = true;
 	setWingScale();
 	update();
@@ -496,7 +496,7 @@ void WingWidget::wheelEvent (QWheelEvent *event)
 
 void WingWidget::setWingScale()
 {
-	QMiarex *pMiarex=(QMiarex*)s_pMiarex;
+	Miarex *pMiarex=(Miarex*)s_pMiarex;
 
 	m_ptOffset.rx() = rect().width()/2.0;
 	m_ptOffset.ry() = rect().height()/4.0;

@@ -1,7 +1,7 @@
 /****************************************************************************
 
     PointMass Class
-    Copyright (C) 2013 Andre Deperrois adeperrois@xflr5.com
+    Copyright (C) 2013 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,12 +24,12 @@
 #define POINTMASS_H
 
 #include <QString>
-#include <objects2d/Vector3d.h>
+#include <objects/objects3d/vector3d.h>
 
 
 
 
-class PointMass
+class XFLR5ENGINELIBSHARED_EXPORT PointMass
 {
 public:
 	/** The public constructor */
