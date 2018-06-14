@@ -1,0 +1,3 @@
+#/bin/bash
+LD_LIBRARY_PATH=/opt/xflr5/XFoil-lib:/opt/xflr5/xflr5-engine
+/usr/local/bin/xflr5
