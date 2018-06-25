@@ -6,7 +6,7 @@
 
 **1** First of all, start by installing the required dependencies:
 ```
-sudo apt-get install build-essential mesa-common-dev mesa-utils libgl1-mesa-dev libglu1-mesa-dev lingl-dev libqt4-dev
+sudo apt-get install build-essential mesa-common-dev mesa-utils libgl1-mesa-dev libglu1-mesa-dev libqt4-dev
 ```
 
 **2** Next, head over to [Qt.io](https://www.qt.io/download-qt-installer) and download the Linux installer. Run it and make sure to install Qt 5.11.0 for GCC 64-bit.
