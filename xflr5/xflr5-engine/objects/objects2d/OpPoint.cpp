@@ -33,6 +33,8 @@
  */
 OpPoint::OpPoint()
 {
+    n=0;
+
 	m_bViscResults = false;//not a  viscous point a priori
 	m_bBL          = false;// no boundary layer surface either
 	m_bTEFlap      = false;
@@ -46,7 +48,6 @@ OpPoint::OpPoint()
 	Cdp        = 0.0;
 	Cl         = 0.0;
 	Cm         = 0.0;
-
 
 	Xtr1   = 0.0;
 	Xtr2   = 0.0;
@@ -63,39 +64,14 @@ OpPoint::OpPoint()
 //	memset(x,  0, sizeof(x));
 //	memset(y,  0, sizeof(y));
 
-	memset(xd1,  0, sizeof(xd1));
-	memset(xd2,  0, sizeof(xd2));
-	memset(xd3,  0, sizeof(xd3));
-	memset(yd1,  0, sizeof(yd1));
-	memset(yd2,  0, sizeof(yd2));
-	memset(yd3,  0, sizeof(yd3));
-	nd1 = 0;
-	nd2 = 0;
-	nd3 = 0;
-
-	tklam = qinf = 0.0;
-
-	memset(thet,   0, sizeof(thet));
-	memset(tau,    0, sizeof(tau));
-	memset(ctau,   0, sizeof(ctau));
-	memset(ctq,    0, sizeof(ctq));
-	memset(dis,    0, sizeof(dis));
-	memset(dstr,   0, sizeof(dstr));
-	memset(uedg,   0, sizeof(uedg));
-	memset(xbl,    0, sizeof(xbl));
-	memset(Hk,     0, sizeof(Hk));
-	memset(RTheta, 0, sizeof(RTheta));
-	memset(itran,  0, sizeof(itran));
-	nside1 = nside2 = 0;
-
 	m_bIsVisible = true;
 	m_PointStyle = 0;
 	m_Style = 0;
 	m_Width = 1;
 
-	m_red   = (int)(((double)rand()/(double)RAND_MAX)*200);
-	m_green = (int)(((double)rand()/(double)RAND_MAX)*200);
-	m_blue  = (int)(((double)rand()/(double)RAND_MAX)*200);
+    m_red   = int(((double)rand()/(double)RAND_MAX)*200);
+    m_green = int(((double)rand()/(double)RAND_MAX)*200);
+    m_blue  = int(((double)rand()/(double)RAND_MAX)*200);
 	m_alphaChannel = 255;
 }
 
@@ -108,7 +84,6 @@ OpPoint::OpPoint()
 void OpPoint::setHingeMoments(Foil *pFoil)
 {
 //	bool bFound;
-	int i;
 	double hmom, hfx, hfy;
 	double dx, dy, xmid, ymid, pmid;
 	double xof, yof;
@@ -125,7 +100,7 @@ void OpPoint::setHingeMoments(Foil *pFoil)
 		hfy  = 0.0;
 
 		//---- integrate pressures on top and bottom sides of flap
-		for (i=0;i<pFoil->n-1;i++)
+        for (int i=0;i<pFoil->n-1;i++)
 		{
 			if (pFoil->x[i]>xof &&	pFoil->x[i+1]>xof)
 			{
@@ -217,7 +192,7 @@ void OpPoint::exportOpp(QTextStream &out, QString Version, bool bCSV, Foil*pFoil
 	if(!bCSV) out << "   x        Cpi      Cpv        Qi        Qv\n";
 	else      out << "x,Cpi,Cpv,Qi,Qv\n";
 
-	for (k=0; k<n; k++)
+    for (k=0; k<n; k++)
 	{
 		if(!bCSV) strong=QString("%1  %2   %3   %4   %5\n")
 									   .arg(pFoil->x[k],7,'f',4).arg(Cpi[k],7,'f',3).arg(Cpv[k],7,'f',3).arg(Qi[k],7,'f',3).arg(Qv[k],7,'f',3);
@@ -354,7 +329,7 @@ bool OpPoint::serializeOppWPA(QDataStream &ar, bool bIsStoring, int ArchiveForma
 		ar >> f; m_Reynolds =f;
 		ar >> f; m_Mach = f;
 		ar >> f; m_Alpha = f;
-		ar >> n >> nd1 >> nd2 >> nd3;
+        ar >> n >> blx.nd1 >> blx.nd2 >> blx.nd3;
 		ar >> a >> b;
 		if(a) m_bViscResults = true; else m_bViscResults = false;
 		if(a!=0 && a!=1) return false;
@@ -371,36 +346,36 @@ bool OpPoint::serializeOppWPA(QDataStream &ar, bool bIsStoring, int ArchiveForma
 		ar >> f; ACrit =f;
 		ar >> f; m_TEHMom = f;
 		ar >> f; Cpmn = f;
-		for (k=0; k<n; k++)	{
+        for (k=0; k<n; k++)	{
 			ar >> f; Cpv[k] = f;
 			ar >> f; Cpi[k] = f;
 		}
 
 //			if (Format ==2) {
-		for (k=0; k<n; k++)
+        for (k=0; k<n; k++)
 		{
 			if(Format<=100002)	ar >> f; //s[k]  = f;
 			ar >> f; Qv[k] = f;
 			ar >> f; Qi[k] = f;
 		}
 //			}
-		for (k=0; k<=nd1; k++)
+        for (k=0; k<=blx.nd1; k++)
 		{
 			ar >> f >> gg;
-			xd1[k] = f;
-			yd1[k] = gg;
+            blx.xd1[k] = f;
+            blx.yd1[k] = gg;
 		}
-		for (k=0; k<nd2; k++)
+        for (k=0; k<blx.nd2; k++)
 		{
 			ar >> f >> gg;
-			xd2[k] = f;
-			yd2[k] = gg;
+            blx.xd2[k] = f;
+            blx.yd2[k] = gg;
 		}
-		for (k=0; k<nd3; k++)
+        for (k=0; k<blx.nd3; k++)
 		{
 			ar >> f >> gg;
-			xd3[k] = f;
-			yd3[k] = gg;
+            blx.xd3[k] = f;
+            blx.yd3[k] = gg;
 		}
 		if(ArchiveFormat>=100002)
 		{
@@ -446,7 +421,7 @@ bool OpPoint::serializeOppXFL(QDataStream &ar, bool bIsStoring, int ArchiveForma
 		ar << m_bIsVisible << false;
 
 		ar << m_Reynolds << m_Mach << m_Alpha;
-		ar << n << nd1 << nd2 << nd3;
+        ar << n << blx.nd1 << blx.nd2 << blx.nd3;
 
 		ar << m_bViscResults;
 		ar << m_bBL;
@@ -455,11 +430,11 @@ bool OpPoint::serializeOppXFL(QDataStream &ar, bool bIsStoring, int ArchiveForma
 		ar << Xtr1 << Xtr2 << m_XCP;
 		ar << ACrit << m_TEHMom << Cpmn;
 
-		for (k=0; k<n; k++)	     ar << (float)Cpv[k] << (float)Cpi[k];
-		for (k=0; k<n; k++)	     ar << (float)Qv[k]  << (float)Qi[k];
-		for (k=0; k<=nd1; k++)   ar << (float)xd1[k] << (float)yd1[k];
-		for (k=0; k<nd2; k++)	ar << (float)xd2[k] << (float)yd2[k];
-		for (k=0; k<nd3; k++)	ar << (float)xd3[k] << (float)yd3[k];
+        for (k=0; k<n; k++)	     ar << (float)Cpv[k] << (float)Cpi[k];
+        for (k=0; k<n; k++)	     ar << (float)Qv[k]  << (float)Qi[k];
+        for (k=0; k<=blx.nd1; k++)   ar << (float)blx.xd1[k] << (float)blx.yd1[k];
+        for (k=0; k<blx.nd2; k++)	ar << (float)blx.xd2[k] << (float)blx.yd2[k];
+        for (k=0; k<blx.nd3; k++)	ar << (float)blx.xd3[k] << (float)blx.yd3[k];
 
 		// space allocation for the future storage of more data, without need to change the format
 		for (int i=0; i<20; i++) ar << 0;
@@ -478,7 +453,7 @@ bool OpPoint::serializeOppXFL(QDataStream &ar, bool bIsStoring, int ArchiveForma
 		ar >> m_bIsVisible >> boolean;
 
 		ar >> m_Reynolds >> m_Mach >> m_Alpha;
-		ar >> n >> nd1 >> nd2 >> nd3;
+        ar >> n >> blx.nd1 >> blx.nd2 >> blx.nd3;
 
 		ar >> m_bViscResults;
 		ar >> m_bBL;
@@ -487,35 +462,35 @@ bool OpPoint::serializeOppXFL(QDataStream &ar, bool bIsStoring, int ArchiveForma
 		ar >> Xtr1 >> Xtr2 >> m_XCP;
 		ar >> ACrit >> m_TEHMom >> Cpmn;
 
-		for (k=0; k<n; k++)
+        for (k=0; k<n; k++)
 		{
 			ar >> f0 >> f1;
 			Cpv[k] = f0;
 			Cpi[k] = f1;
 		}
-		for (k=0; k<n; k++)
+        for (k=0; k<n; k++)
 		{
 			ar >> f0 >> f1;
 			Qv[k] = f0;
 			Qi[k] = f1;
 		}
-		for (k=0; k<=nd1; k++)
+        for (k=0; k<=blx.nd1; k++)
 		{
 			ar >> f0 >> f1;
-			xd1[k] = f0;
-			yd1[k] = f1;
+            blx.xd1[k] = f0;
+            blx.yd1[k] = f1;
 		}
-		for (k=0; k<nd2; k++)
+        for (k=0; k<blx.nd2; k++)
 		{
 			ar >> f0 >> f1;
-			xd2[k] = f0;
-			yd2[k] = f1;
+            blx.xd2[k] = f0;
+            blx.yd2[k] = f1;
 		}
-		for (k=0; k<nd3; k++)
+        for (k=0; k<blx.nd3; k++)
 		{
 			ar >> f0 >> f1;
-			xd3[k] = f0;
-			yd3[k] = f1;
+            blx.xd3[k] = f0;
+            blx.yd3[k] = f1;
 		}
 
 		// space allocation

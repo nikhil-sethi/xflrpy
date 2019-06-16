@@ -1,4 +1,3 @@
-
 /****************************************************************************
 
 	GLLightDlg class
@@ -30,23 +29,25 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QSettings>
-#include <misc/text/DoubleEdit.h>
-#include "exponentialslider.h"
+
+
+class gl3dView;
+class ExponentialSlider;
+class DoubleEdit;
 
 
 struct Light
 {
-	float m_Ambient, m_Diffuse, m_Specular; // the light intensities
-	float m_Red, m_Green, m_Blue; // the color of light
-	float m_X, m_Y, m_Z; // coordinates in camera space
-	bool m_bIsLightOn;
+    float m_Ambient=0.3f, m_Diffuse=1.2f, m_Specular=0.5f; // the light intensities
+    float m_Red=1.0f, m_Green=1.0f, m_Blue=1.0f; // the color of light
+    float m_X=0.1f, m_Y=0.3f, m_Z=0.5f; // coordinates in camera space
+    bool m_bIsLightOn=true;
 };
 
 struct Attenuation
 {
-	float m_Constant, m_Linear, m_Quadratic;
+    float m_Constant=1.0, m_Linear=0.5, m_Quadratic=0.0;
 };
-
 
 class GLLightDlg : public QDialog
 {
@@ -61,13 +62,13 @@ public:
 	void setDefaults();
 	void setModelSize(double span);
 	void setParams(void);
-	void setgl3dView(void*pglView) {m_pglView = pglView;}
+    void setgl3dView(gl3dView*pglView) {m_pglView = pglView;}
 
 	QSize minimumSizeHint() const;
 	QSize sizeHint() const;
 
-	static bool loadSettings(QSettings *pSettings);
-	static bool saveSettings(QSettings *pSettings);
+    static bool loadSettings(QSettings &settings);
+    static bool saveSettings(QSettings &settings);
 
 	static bool isLightOn() {return s_Light.m_bIsLightOn;}
 	static void setLightOn(bool bLight) {s_Light.m_bIsLightOn = bLight;}
@@ -101,7 +102,7 @@ private:
 
 
 private:
-	void *m_pglView;
+    gl3dView *m_pglView;
 
 	static Light s_Light;
 	static Attenuation s_Attenuation;

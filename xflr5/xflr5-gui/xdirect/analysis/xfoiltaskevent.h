@@ -22,7 +22,7 @@
 #ifndef XFOILTASKEVENT_H
 #define XFOILTASKEVENT_H
 
-#include <XFoil.h>
+
 #include <QEvent>
 #include <QString>
 
@@ -30,23 +30,26 @@
 const QEvent::Type XFOIL_END_TASK_EVENT = static_cast<QEvent::Type>(QEvent::User + 1);
 const QEvent::Type XFOIL_END_OPP_EVENT = static_cast<QEvent::Type>(QEvent::User + 2);
 
+class Foil;
+class Polar;
+class OpPoint;
 
 class XFoilTaskEvent : public QEvent
 {
 
 public:
-	XFoilTaskEvent(void * pFoil, void *pPolar): QEvent(XFOIL_END_TASK_EVENT),
+    XFoilTaskEvent(Foil *pFoil, Polar *pPolar): QEvent(XFOIL_END_TASK_EVENT),
 		m_pFoil(pFoil),
 		m_pPolar(pPolar)
 	{
 	}
 
-	void * foilPtr() const	{return m_pFoil;}
-	void * polarPtr() const	{return m_pPolar;}
+    Foil * foilPtr() const	{return m_pFoil;}
+    Polar * polarPtr() const	{return m_pPolar;}
 
 private:
-	void *m_pFoil=NULL;
-	void *m_pPolar=NULL;
+    Foil *m_pFoil=nullptr;
+    Polar *m_pPolar=nullptr;
 };
 
 
@@ -55,27 +58,26 @@ class XFoilOppEvent : public QEvent
 {
 
 public:
-	XFoilOppEvent(void * pFoil, void *pPolar, XFoil *pXFoilRef): QEvent(XFOIL_END_OPP_EVENT),
+    XFoilOppEvent(Foil * pFoil, Polar *pPolar, OpPoint *pOpPoint): QEvent(XFOIL_END_OPP_EVENT),
 		m_pFoil(pFoil),
 		m_pPolar(pPolar)
 	{
 //		memcpy(&m_XFoil, pXFoilPtr, sizeof(XFoil));
-		m_pXFoil = pXFoilRef; /** use the copy constructor and = operator defined implicitly by the compiler */
+        m_pOpPoint = pOpPoint; /** use the copy constructor and = operator defined implicitly by the compiler */
 	}
 
 	~XFoilOppEvent()
 	{
-		if(m_pXFoil) delete m_pXFoil;
 	}
 
-	void * foilPtr() const	{return m_pFoil;}
-	void * polarPtr() const	{return m_pPolar;}
-	XFoil * XFoilPtr() {return m_pXFoil;}
+    Foil * foilPtr()   const {return m_pFoil;}
+    Polar * polarPtr() const {return m_pPolar;}
+    OpPoint * oppPtr() {return m_pOpPoint;}
 
 private:
-	void *m_pFoil=NULL;
-	void *m_pPolar=NULL;
-	XFoil *m_pXFoil=NULL;    /** need to store current XFoil results */
+    Foil *m_pFoil=nullptr;
+    Polar *m_pPolar=nullptr;
+    OpPoint *m_pOpPoint=nullptr;    /** need to store current XFoil results */
 };
 
 #endif // XFOILTASKEVENT_H

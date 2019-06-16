@@ -27,9 +27,9 @@
 #include <QPushButton>
 #include <QTableView>
 #include <QStandardItemModel>
-#include <misc/text/FloatEditDelegate.h>
-#include <objects/objects2d/Foil.h>
 
+class FloatEditDelegate;
+class Foil;
 
 class FoilCoordDlg : public QDialog
 {

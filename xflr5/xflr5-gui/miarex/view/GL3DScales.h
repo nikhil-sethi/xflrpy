@@ -31,6 +31,7 @@
 #include <misc/exponentialslider.h>
 #include <misc/text/DoubleEdit.h>
 
+class Miarex;
 class GL3DScales : public QWidget
 {
 	Q_OBJECT
@@ -74,7 +75,7 @@ private:
 
 	QLabel *m_pctrlLengthUnit1, *m_pctrlLengthUnit2, *m_pctrlLengthUnit3;
 
-	static void *s_pMiarex;
+    static Miarex *s_pMiarex;
 
 	QWidget *m_pParent;
 	

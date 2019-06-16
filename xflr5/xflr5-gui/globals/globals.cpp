@@ -1,22 +1,22 @@
 /****************************************************************************
 
-	Global functions
+    Global functions
 
-	Copyright (C) 2008-2017 Andre Deperrois 
+    Copyright (C) 2008-2017 Andre Deperrois
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
 
@@ -24,9 +24,8 @@
 
 /**@file This file contains the definitions of methods used throughout the program and not specific to one application. */
 
-#include <globals/globals.h>
-#include <globals/mainframe.h>
-#include <QtDebug>
+
+#include <QDebug>
 #include <QPen>
 #include <QApplication>
 #include <QFile>
@@ -35,11 +34,14 @@
 #include <QByteArray>
 #include <math.h>
 #include <qopengl.h>
-#include <objects/objects3d/WPolar.h>
-#include <misc/options/Units.h>
+
+#include <globals/globals.h>
+#include <globals/mainframe.h>
 #include <graph_globals.h>
-
-
+#include <misc/options/units.h>
+#include <objects/objects2d/Foil.h>
+#include <objects/objects2d/Polar.h>
+#include <objects/objects3d/WPolar.h>
 /** 
 * Returns a double number as its root and its base 10 exponent
 * @param f the double number to reformat; is returned as f = f/pow(10.0,exp);
@@ -47,20 +49,20 @@
 */
 void ExpFormat(double &f, int &exp)
 {
-	if (f==0.0)
-	{
-		exp = 0;
-		f = 0.0;
-		return;
-	}
-	double f1 = qAbs(f);
-//	int sgn = int(f/f1);
-	if(f1<1)
-		exp = (int)log10(f1)-1;
-	else
-		exp = (int)log10(f1);
+    if (f==0.0)
+    {
+        exp = 0;
+        f = 0.0;
+        return;
+    }
+    double f1 = qAbs(f);
+    //	int sgn = int(f/f1);
+    if(f1<1)
+        exp = int(log10(f1))-1;
+    else
+        exp = int(log10(f1));
 
-	f = f/pow(10.0,exp);
+    f = f/pow(10.0,exp);
 }
 
 
@@ -75,30 +77,30 @@ void ExpFormat(double &f, int &exp)
 */
 void Trace(int n)
 {
-	if(!MainFrame::s_bTrace) return;
+    if(!MainFrame::s_bTrace) return;
 
-	if(MainFrame::s_pTraceFile && MainFrame::s_pTraceFile->isOpen())
-	{
-		QTextStream ts(MainFrame::s_pTraceFile);
-		ts << "Int value=" << n << "\n";
-	}
-	qDebug()<<"Int value="<<n;
+    if(MainFrame::s_pTraceFile && MainFrame::s_pTraceFile->isOpen())
+    {
+        QTextStream ts(MainFrame::s_pTraceFile);
+        ts << "Int value=" << n << "\n";
+    }
+    qDebug()<<"Int value="<<n;
 }
 
 
 void Trace(QString msg, bool b)
 {
-	if(!MainFrame::s_bTrace) return;
-	QString str;
-	if(b) str += msg + "=true";
-	else  str += msg + "=false";
+    if(!MainFrame::s_bTrace) return;
+    QString str;
+    if(b) str += msg + "=true";
+    else  str += msg + "=false";
 
-	if(MainFrame::s_pTraceFile && MainFrame::s_pTraceFile->isOpen())
-	{
-		QTextStream ts(MainFrame::s_pTraceFile);
-		ts << str << "\n";
-	}
-	qDebug()<<str;
+    if(MainFrame::s_pTraceFile && MainFrame::s_pTraceFile->isOpen())
+    {
+        QTextStream ts(MainFrame::s_pTraceFile);
+        ts << str << "\n";
+    }
+    qDebug()<<str;
 }
 
 /**
@@ -109,15 +111,15 @@ void Trace(QString msg, bool b)
 */
 void Trace(QString msg)
 {
-	if(!MainFrame::s_bTrace) return;
+    if(!MainFrame::s_bTrace) return;
 
-	if(MainFrame::s_pTraceFile && MainFrame::s_pTraceFile->isOpen())
-	{
-		QTextStream ts(MainFrame::s_pTraceFile);
-		ts<<msg<<"\n";
-		ts.flush();
-	}
-	qDebug()<<msg;
+    if(MainFrame::s_pTraceFile && MainFrame::s_pTraceFile->isOpen())
+    {
+        QTextStream ts(MainFrame::s_pTraceFile);
+        ts<<msg<<"\n";
+        ts.flush();
+    }
+    qDebug()<<msg;
 }
 
 
@@ -130,20 +132,20 @@ void Trace(QString msg)
 */
 void Trace(QString msg, int n)
 {
-	if(!MainFrame::s_bTrace) return;
+    if(!MainFrame::s_bTrace) return;
 
-	QString strong;
-	strong = QString("  %1").arg(n);
-	strong = msg + strong;
+    QString strong;
+    strong = QString("  %1").arg(n);
+    strong = msg + strong;
 
 
 
-	if(MainFrame::s_pTraceFile && MainFrame::s_pTraceFile->isOpen())
-	{
-		QTextStream ts(MainFrame::s_pTraceFile);
-		ts << strong << "\n";
-	}
-	qDebug()<<strong;
+    if(MainFrame::s_pTraceFile && MainFrame::s_pTraceFile->isOpen())
+    {
+        QTextStream ts(MainFrame::s_pTraceFile);
+        ts << strong << "\n";
+    }
+    qDebug()<<strong;
 }
 
 
@@ -156,19 +158,19 @@ void Trace(QString msg, int n)
 */
 void Trace(QString msg, double f)
 {
-	if(!MainFrame::s_bTrace) return;
+    if(!MainFrame::s_bTrace) return;
 
-	QString strong;
-	strong = QString("  %1").arg(f);
-	strong = msg + strong;
+    QString strong;
+    strong = QString("  %1").arg(f);
+    strong = msg + strong;
 
 
-	if(MainFrame::s_pTraceFile && MainFrame::s_pTraceFile->isOpen())
-	{
-		QTextStream ts(MainFrame::s_pTraceFile);
-		ts << strong << "\n";
-	}
-	qDebug()<<strong;
+    if(MainFrame::s_pTraceFile && MainFrame::s_pTraceFile->isOpen())
+    {
+        QTextStream ts(MainFrame::s_pTraceFile);
+        ts << strong << "\n";
+    }
+    qDebug()<<strong;
 }
 
 
@@ -178,11 +180,11 @@ void Trace(QString msg, double f)
 *@param tau the input parameter between 0 and 1.
 *@return the red component of the color
 */
-float GLGetRed(double tau)
+float GLGetRed(float tau)
 {
-	if(tau>2.0/3.0)      return 1.0;
-	else if(tau>1.0/3.0) return (3.0*(tau-1.0/3.0));
-	else                 return 0.0;
+    if(tau>2.0f/3.0f)      return 1.0f;
+    else if(tau>1.0f/3.0f) return (3.0f*(tau-1.0f/3.0f));
+    else                   return 0.0;
 }
 
 
@@ -192,12 +194,12 @@ float GLGetRed(double tau)
 *@param tau the input parameter between 0 and 1.
 *@return the green component of the color
 */
-float GLGetGreen(double tau)
+float GLGetGreen(float tau)
 {
-	if(tau<0.f || tau>1.0) 	return 0.0;
-	else if(tau<1.0/4.0) 	return (4.0*tau);
-	else if(tau>3.0/4.0) 	return (1.0-4.0*(tau-3.0/4.0));
-	else                    return 1.0;
+    if(tau<0.f || tau>1.0f) 	return 0.0f;
+    else if(tau<1.0f/4.0f) 	return (4.0f*tau);
+    else if(tau>3.0f/4.0f) 	return (1.0f-4.0f*(tau-3.0f/4.0f));
+    else                    return 1.0f;
 }
 
 
@@ -207,11 +209,11 @@ float GLGetGreen(double tau)
 *@param tau the input parameter between 0 and 1.
 *@return the blue component of the color
 */
-float GLGetBlue(double tau)
+float GLGetBlue(float tau)
 {
-	if(tau>2.0/3.0)      return 0.0;
-	else if(tau>1.0/3.0) return (1.0-3.0*(tau-1.0/3.0));
-	else                 return 1.0;
+    if(tau>2.0f/3.0f)      return 0.0;
+    else if(tau>1.0f/3.0f) return (1.0f-3.0f*(tau-1.0f/3.0f));
+    else                   return 1.0;
 }
 
 
@@ -220,65 +222,65 @@ float GLGetBlue(double tau)
 */
 int readValues(QString line, double &x, double &y, double &z)
 {
-/*	char *sx = new char[30];
-	char *sy = new char[30];
-	char *text;*/
-	int res=0;
+    /*	char *sx = new char[30];
+    char *sy = new char[30];
+    char *text;*/
+    int res=0;
 
-	QString str;
-	bool bOK;
+    QString str;
+    bool bOK;
 
-	line = line.simplified();
-	int pos = line.indexOf(" ");
+    line = line.simplified();
+    int pos = line.indexOf(" ");
 
 
-	if(pos>0)
-	{
-		str = line.left(pos);
-		line = line.right(line.length()-pos);
-	}
-	else
-	{
-		str = line;
-		line = "";
-	}
-	x = str.toDouble(&bOK);
-	if(bOK) res++;
-	else
-	{
-		y=z=0.0;
-		return res;
-	}
+    if(pos>0)
+    {
+        str = line.left(pos);
+        line = line.right(line.length()-pos);
+    }
+    else
+    {
+        str = line;
+        line = "";
+    }
+    x = str.toDouble(&bOK);
+    if(bOK) res++;
+    else
+    {
+        y=z=0.0;
+        return res;
+    }
 
-	line = line.trimmed();
-	pos = line.indexOf(" ");
-	if(pos>0)
-	{
-		str = line.left(pos);
-		line = line.right(line.length()-pos);
-	}
-	else
-	{
-		str = line;
-		line = "";
-	}
-	y = str.toDouble(&bOK);
-	if(bOK) res++;
-	else
-	{
-		z=0.0;
-		return res;
-	}
+    line = line.trimmed();
+    pos = line.indexOf(" ");
+    if(pos>0)
+    {
+        str = line.left(pos);
+        line = line.right(line.length()-pos);
+    }
+    else
+    {
+        str = line;
+        line = "";
+    }
+    y = str.toDouble(&bOK);
+    if(bOK) res++;
+    else
+    {
+        z=0.0;
+        return res;
+    }
 
-	line = line.trimmed();
-	if(!line.isEmpty())
-	{
-		z = line.toDouble(&bOK);
-		if(bOK) res++;
-	}
-	else z=0.0;
+    line = line.trimmed();
+    if(!line.isEmpty())
+    {
+        z = line.toDouble(&bOK);
+        if(bOK) res++;
+    }
+    else z=0.0;
 
-	return res;
+    return res;
 }
 
 
@@ -286,35 +288,26 @@ int readValues(QString line, double &x, double &y, double &z)
 
 QColor randomColor(bool bLightColor)
 {
-	QColor clr;
-	if(bLightColor)
-	{
-		clr.setHsv((int)(((double)qrand()/(double)RAND_MAX)*360),
-				   (int)(((double)qrand()/(double)RAND_MAX)*255),
-				   (int)(((double)qrand()/(double)RAND_MAX)*100)+155,
-					255);
-	}
-	else
-	{
-		clr.setHsv((int)(((double)qrand()/(double)RAND_MAX)*360),
-				   (int)(((double)qrand()/(double)RAND_MAX)*101)+ 99,
-				   (int)(((double)qrand()/(double)RAND_MAX)*100)+50,
-					255);
-	}
-	return clr;
+    QColor clr;
+    if(bLightColor)
+    {
+        clr.setHsv(int((double(qrand())/double(RAND_MAX))*360),
+                   int((double(qrand())/double(RAND_MAX))*255),
+                   int((double(qrand())/double(RAND_MAX))*100)+155,
+                   255);
+    }
+    else
+    {
+        clr.setHsv(int((double(qrand())/double(RAND_MAX))*360),
+                   int((double(qrand())/double(RAND_MAX))*101)+ 99,
+                   int((double(qrand())/double(RAND_MAX))*100)+50,
+                   255);
+    }
+    return clr;
 }
 
 
 
-
-void GLLineStipple(int style)
-{
-	if     (style == Qt::DashLine)       glLineStipple (1, 0xCFCF);
-	else if(style == Qt::DotLine)        glLineStipple (1, 0x6666);
-	else if(style == Qt::DashDotLine)    glLineStipple (1, 0xFF18);
-	else if(style == Qt::DashDotDotLine) glLineStipple (1, 0x7E66);
-	else                                 glLineStipple (1, 0xFFFF);
-}
 
 //-----------------------------------------------------------------------------------------------
 
@@ -322,42 +315,42 @@ void GLLineStipple(int style)
 
 XFLR5::enumPanelDistribution distributionType(QString strDist)
 {
-	if(strDist.compare("COSINE",           Qt::CaseInsensitive)==0) return XFLR5::COSINE;
-	else if(strDist.compare("UNIFORM",     Qt::CaseInsensitive)==0) return XFLR5::UNIFORM;
-	else if(strDist.compare("SINE",        Qt::CaseInsensitive)==0) return XFLR5::SINE;
-	else if(strDist.compare("INVERSESINE", Qt::CaseInsensitive)==0) return XFLR5::INVERSESINE;
-	else return XFLR5::UNIFORM;
+    if(strDist.compare("COSINE",           Qt::CaseInsensitive)==0) return XFLR5::COSINE;
+    else if(strDist.compare("UNIFORM",     Qt::CaseInsensitive)==0) return XFLR5::UNIFORM;
+    else if(strDist.compare("SINE",        Qt::CaseInsensitive)==0) return XFLR5::SINE;
+    else if(strDist.compare("INVERSESINE", Qt::CaseInsensitive)==0) return XFLR5::INVERSESINE;
+    else return XFLR5::UNIFORM;
 }
 
 
 QString distributionType(XFLR5::enumPanelDistribution dist)
 {
-	switch(dist)
-	{
-		case XFLR5::COSINE: return "COSINE"; break;
-		case XFLR5::UNIFORM: return "UNIFORM"; break;
-		case XFLR5::SINE: return "SINE"; break;
-		case XFLR5::INVERSESINE: return "INVERSE SINE"; break;
-		default: return "";
-	}
+    switch(dist)
+    {
+        case XFLR5::COSINE: return "COSINE";
+        case XFLR5::UNIFORM: return "UNIFORM";
+        case XFLR5::SINE: return "SINE";
+        case XFLR5::INVERSESINE: return "INVERSE SINE";
+        default: return "";
+    }
 }
 
 
 
 XFLR5::enumBodyLineType bodyPanelType(QString strPanelType)
 {
-	if(strPanelType.compare("FLATPANELS", Qt::CaseInsensitive)==0) return XFLR5::BODYPANELTYPE;
-	else                                                           return XFLR5::BODYSPLINETYPE;
+    if(strPanelType.compare("FLATPANELS", Qt::CaseInsensitive)==0) return XFLR5::BODYPANELTYPE;
+    else                                                           return XFLR5::BODYSPLINETYPE;
 }
 
 QString bodyPanelType(XFLR5::enumBodyLineType panelType)
 {
-	switch(panelType)
-	{
-		case XFLR5::BODYPANELTYPE:  return "FLATPANELS"; break;
-		case XFLR5::BODYSPLINETYPE: return "NURBS"; break;
-		default: return "";
-	}
+    switch(panelType)
+    {
+        case XFLR5::BODYPANELTYPE:  return "FLATPANELS";
+        case XFLR5::BODYSPLINETYPE: return "NURBS";
+        default: return "";
+    }
 }
 
 
@@ -372,60 +365,60 @@ XFLR5::enumPolarType polarType(QString strPolarType)
 
 QString polarType(XFLR5::enumPolarType polarType)
 {
-	switch(polarType)
-	{
-        case XFLR5::FIXEDSPEEDPOLAR:  return "FIXEDSPEEDPOLAR";   break;
-        case XFLR5::FIXEDLIFTPOLAR:   return "FIXEDLIFTPOLAR";    break;
-        case XFLR5::RUBBERCHORDPOLAR: return "RUBBERCHORDPOLAR";  break;
-        case XFLR5::FIXEDAOAPOLAR:    return "FIXEDAOAPOLAR";     break;
-		default: return "";
-	}
+    switch(polarType)
+    {
+        case XFLR5::FIXEDSPEEDPOLAR:  return "FIXEDSPEEDPOLAR";
+        case XFLR5::FIXEDLIFTPOLAR:   return "FIXEDLIFTPOLAR";
+        case XFLR5::RUBBERCHORDPOLAR: return "RUBBERCHORDPOLAR";
+        case XFLR5::FIXEDAOAPOLAR:    return "FIXEDAOAPOLAR";
+        default: return "";
+    }
 }
 
 
 
 XFLR5::enumPolarType WPolarType(QString strPolarType)
 {
-	if     (strPolarType.compare("FIXEDSPEEDPOLAR", Qt::CaseInsensitive)==0) return XFLR5::FIXEDSPEEDPOLAR;
-	else if(strPolarType.compare("FIXEDLIFTPOLAR",  Qt::CaseInsensitive)==0) return XFLR5::FIXEDLIFTPOLAR;
-	else if(strPolarType.compare("FIXEDAOAPOLAR",   Qt::CaseInsensitive)==0) return XFLR5::FIXEDAOAPOLAR;
-	else if(strPolarType.compare("STABILITYPOLAR",  Qt::CaseInsensitive)==0) return XFLR5::STABILITYPOLAR;
-	else if(strPolarType.compare("BETAPOLAR",       Qt::CaseInsensitive)==0) return XFLR5::BETAPOLAR;
-	else return XFLR5::FIXEDSPEEDPOLAR;
+    if     (strPolarType.compare("FIXEDSPEEDPOLAR", Qt::CaseInsensitive)==0) return XFLR5::FIXEDSPEEDPOLAR;
+    else if(strPolarType.compare("FIXEDLIFTPOLAR",  Qt::CaseInsensitive)==0) return XFLR5::FIXEDLIFTPOLAR;
+    else if(strPolarType.compare("FIXEDAOAPOLAR",   Qt::CaseInsensitive)==0) return XFLR5::FIXEDAOAPOLAR;
+    else if(strPolarType.compare("STABILITYPOLAR",  Qt::CaseInsensitive)==0) return XFLR5::STABILITYPOLAR;
+    else if(strPolarType.compare("BETAPOLAR",       Qt::CaseInsensitive)==0) return XFLR5::BETAPOLAR;
+    else return XFLR5::FIXEDSPEEDPOLAR;
 }
 
 QString WPolarType(XFLR5::enumPolarType polarType)
 {
-	switch(polarType)
-	{
-		case XFLR5::FIXEDSPEEDPOLAR:  return "FIXEDSPEEDPOLAR"; break;
-		case XFLR5::FIXEDLIFTPOLAR:   return "FIXEDLIFTPOLAR";  break;
-		case XFLR5::FIXEDAOAPOLAR:    return "FIXEDAOAPOLAR";   break;
-		case XFLR5::STABILITYPOLAR:   return "STABILITYPOLAR";  break;
-		case XFLR5::BETAPOLAR:        return "BETAPOLAR";       break;
-		default: return "";
-	}
+    switch(polarType)
+    {
+        case XFLR5::FIXEDSPEEDPOLAR:  return "FIXEDSPEEDPOLAR";
+        case XFLR5::FIXEDLIFTPOLAR:   return "FIXEDLIFTPOLAR";
+        case XFLR5::FIXEDAOAPOLAR:    return "FIXEDAOAPOLAR";
+        case XFLR5::STABILITYPOLAR:   return "STABILITYPOLAR";
+        case XFLR5::BETAPOLAR:        return "BETAPOLAR";
+        default: return "";
+    }
 }
 
 
 XFLR5::enumAnalysisMethod analysisMethod(QString strAnalysisMethod)
 {
-	if     (strAnalysisMethod.compare("LLTMETHOD",   Qt::CaseInsensitive)==0) return XFLR5::LLTMETHOD;
-	else if(strAnalysisMethod.compare("VLMMETHOD",   Qt::CaseInsensitive)==0) return XFLR5::VLMMETHOD;
-	else if(strAnalysisMethod.compare("PANELMETHOD", Qt::CaseInsensitive)==0) return XFLR5::PANEL4METHOD;
-	else return XFLR5::VLMMETHOD;
+    if     (strAnalysisMethod.compare("LLTMETHOD",   Qt::CaseInsensitive)==0) return XFLR5::LLTMETHOD;
+    else if(strAnalysisMethod.compare("VLMMETHOD",   Qt::CaseInsensitive)==0) return XFLR5::VLMMETHOD;
+    else if(strAnalysisMethod.compare("PANELMETHOD", Qt::CaseInsensitive)==0) return XFLR5::PANEL4METHOD;
+    else return XFLR5::VLMMETHOD;
 }
 
 
 QString analysisMethod(XFLR5::enumAnalysisMethod analysisMethod)
 {
-	switch(analysisMethod)
-	{
-		case XFLR5::LLTMETHOD:   return "LLTMETHOD";   break;
-		case XFLR5::VLMMETHOD:   return "VLMMETHOD";   break;
-		case XFLR5::PANEL4METHOD: return "PANELMETHOD"; break;
-		default: return "";
-	}
+    switch(analysisMethod)
+    {
+        case XFLR5::LLTMETHOD:   return "LLTMETHOD";
+        case XFLR5::VLMMETHOD:   return "VLMMETHOD";
+        case XFLR5::PANEL4METHOD: return "PANELMETHOD";
+        default: return "";
+    }
 }
 
 
@@ -440,170 +433,170 @@ QString boundaryCondition(XFLR5::enumBC boundaryCondition)
 {
     switch(boundaryCondition)
     {
-        case XFLR5::DIRICHLET: return "DIRICHLET";   break;
-        case XFLR5::NEUMANN:   return "NEUMANN";     break;
-        default: return "";
+        case XFLR5::DIRICHLET: return "DIRICHLET";
+        case XFLR5::NEUMANN:   return "NEUMANN";
     }
+    return "DIRICHLET";
 }
 
 bool stringToBool(QString str)
 {
-	return str.compare("true", Qt::CaseInsensitive)==0 ? true : false;
+    return str.compare("true", Qt::CaseInsensitive)==0 ? true : false;
 }
 
 QString referenceDimension(XFLR5::enumRefDimension refDimension)
 {
-	switch(refDimension)
-	{
-		case XFLR5::PLANFORMREFDIM:  return "PLANFORMREFDIM";
-		case XFLR5::PROJECTEDREFDIM: return "PROJECTEDREFDIM";
-		case XFLR5::MANUALREFDIM:    return "MANUALREFDIM";
-		default: return "";
-	}
+    switch(refDimension)
+    {
+        case XFLR5::PLANFORMREFDIM:  return "PLANFORMREFDIM";
+        case XFLR5::PROJECTEDREFDIM: return "PROJECTEDREFDIM";
+        case XFLR5::MANUALREFDIM:    return "MANUALREFDIM";
+        default: return "";
+    }
 }
 
 
 XFLR5::enumRefDimension referenceDimension(QString strRefDimension)
 {
-	if     (strRefDimension.compare("PLANFORMREFDIM",  Qt::CaseInsensitive)==0) return XFLR5::PLANFORMREFDIM;
-	else if(strRefDimension.compare("PROJECTEDREFDIM", Qt::CaseInsensitive)==0) return XFLR5::PROJECTEDREFDIM;
-	else if(strRefDimension.compare("MANUALREFDIM",    Qt::CaseInsensitive)==0) return XFLR5::MANUALREFDIM;
-	else return XFLR5::PLANFORMREFDIM;
+    if     (strRefDimension.compare("PLANFORMREFDIM",  Qt::CaseInsensitive)==0) return XFLR5::PLANFORMREFDIM;
+    else if(strRefDimension.compare("PROJECTEDREFDIM", Qt::CaseInsensitive)==0) return XFLR5::PROJECTEDREFDIM;
+    else if(strRefDimension.compare("MANUALREFDIM",    Qt::CaseInsensitive)==0) return XFLR5::MANUALREFDIM;
+    else return XFLR5::PLANFORMREFDIM;
 }
 
 
 
-void * readFoilFile(QFile &xFoilFile)
+Foil *readFoilFile(QFile &xFoilFile)
 {
-	QString strong;
-	QString tempStr;
-	QString FoilName;
+    QString strong;
+    QString tempStr;
+    QString FoilName;
 
-	Foil* pFoil = NULL;
-	int pos, i, ip;
-	pos = 0;
-	double x, y, z, area;
-	double xp, yp;
-	bool bRead;
-	QTextStream in(&xFoilFile);
+    Foil* pFoil = nullptr;
+    int pos, i, ip;
+    pos = 0;
+    double x, y, z, area;
+    double xp, yp;
+    bool bRead;
+    QTextStream in(&xFoilFile);
 
-	QString fileName = xFoilFile.fileName();
-	int idx = fileName.lastIndexOf(QDir::separator());
-	if(idx>0)
-	{
-		fileName = fileName.right(fileName.length()-idx-1);
-		if(fileName.endsWith(".dat", Qt::CaseInsensitive))
-		{
-			fileName = fileName.left(fileName.length()-4);
-		}
-	}
+    QString fileName = xFoilFile.fileName();
+    int idx = fileName.lastIndexOf(QDir::separator());
+    if(idx>0)
+    {
+        fileName = fileName.right(fileName.length()-idx-1);
+        if(fileName.endsWith(".dat", Qt::CaseInsensitive))
+        {
+            fileName = fileName.left(fileName.length()-4);
+        }
+    }
 
-	pFoil = new Foil();
-	if(!pFoil)	return NULL;
+    pFoil = new Foil();
+    if(!pFoil)	return nullptr;
 
-	while(tempStr.length()==0 && !in.atEnd())
-	{
-		strong = in.readLine();
-		pos = strong.indexOf("#",0);
-		// ignore everything after # (including #)
-		if(pos>0)strong.truncate(pos);
-		tempStr = strong;
-		tempStr.remove(" ");
-		FoilName = strong;
-	}
+    while(tempStr.length()==0 && !in.atEnd())
+    {
+        strong = in.readLine();
+        pos = strong.indexOf("#",0);
+        // ignore everything after # (including #)
+        if(pos>0)strong.truncate(pos);
+        tempStr = strong;
+        tempStr.remove(" ");
+        FoilName = strong;
+    }
 
-	if(!in.atEnd())
-	{
-		// FoilName contains the last comment
+    if(!in.atEnd())
+    {
+        // FoilName contains the last comment
 
-		if(readValues(strong,x,y,z)==2)
-		{
-			//there isn't a name on the first line, use the file's name
-			FoilName = fileName;
-			{
-				pFoil->xb[0] = x;
-				pFoil->yb[0] = y;
-				pFoil->nb=1;
-				xp = x;
-				yp = y;
-			}
-		}
-		else FoilName = strong;
-		// remove fore and aft spaces
-		FoilName = FoilName.trimmed();
-	}
+        if(readValues(strong,x,y,z)==2)
+        {
+            //there isn't a name on the first line, use the file's name
+            FoilName = fileName;
+            {
+                pFoil->xb[0] = x;
+                pFoil->yb[0] = y;
+                pFoil->nb=1;
+                xp = x;
+                yp = y;
+            }
+        }
+        else FoilName = strong;
+        // remove fore and aft spaces
+        FoilName = FoilName.trimmed();
+    }
 
-	bRead = true;
-	xp=-9999.0;
-	yp=-9999.0;
-	do
-	{
-		strong = in.readLine();
-		pos = strong.indexOf("#",0);
-		// ignore everything after # (including #)
-		if(pos>0)strong.truncate(pos);
-		tempStr = strong;
-		tempStr.remove(" ");
-		if (!strong.isNull() && bRead && tempStr.length())
-		{
-			if(readValues(strong, x,y,z)==2)
-			{
-				//add values only if the point is not coincident with the previous one
-				double dist = sqrt((x-xp)*(x-xp) + (y-yp)*(y-yp));
-				if(dist>0.000001)
-				{
-					pFoil->xb[pFoil->nb] = x;
-					pFoil->yb[pFoil->nb] = y;
-					pFoil->nb++;
-					if(pFoil->nb>IQX)
-					{
-						delete pFoil;
-						return NULL;
-					}
-					xp = x;
-					yp = y;
-				}
-			}
-			else bRead = false;
-		}
-	}while (bRead && !strong.isNull());
+    bRead = true;
+    xp=-9999.0;
+    yp=-9999.0;
+    do
+    {
+        strong = in.readLine();
+        pos = strong.indexOf("#",0);
+        // ignore everything after # (including #)
+        if(pos>0)strong.truncate(pos);
+        tempStr = strong;
+        tempStr.remove(" ");
+        if (!strong.isNull() && bRead && tempStr.length())
+        {
+            if(readValues(strong, x,y,z)==2)
+            {
+                //add values only if the point is not coincident with the previous one
+                double dist = sqrt((x-xp)*(x-xp) + (y-yp)*(y-yp));
+                if(dist>0.000001)
+                {
+                    pFoil->xb[pFoil->nb] = x;
+                    pFoil->yb[pFoil->nb] = y;
+                    pFoil->nb++;
+                    if(pFoil->nb>IQX)
+                    {
+                        delete pFoil;
+                        return nullptr;
+                    }
+                    xp = x;
+                    yp = y;
+                }
+            }
+            else bRead = false;
+        }
+    }while (bRead && !strong.isNull());
 
-	pFoil->setFoilName(FoilName);
+    pFoil->setFoilName(FoilName);
 
-	// Check if the foil was written clockwise or counter-clockwise
+    // Check if the foil was written clockwise or counter-clockwise
 
-	area = 0.0;
-	for (i=0; i<pFoil->nb; i++)
-	{
-		if(i==pFoil->nb-1)	ip = 0;
-		else				ip = i+1;
-		area +=  0.5*(pFoil->yb[i]+pFoil->yb[ip])*(pFoil->xb[i]-pFoil->xb[ip]);
-	}
+    area = 0.0;
+    for (i=0; i<pFoil->nb; i++)
+    {
+        if(i==pFoil->nb-1)	ip = 0;
+        else				ip = i+1;
+        area +=  0.5*(pFoil->yb[i]+pFoil->yb[ip])*(pFoil->xb[i]-pFoil->xb[ip]);
+    }
 
-	if(area < 0.0)
-	{
-		//reverse the points order
-		double xtmp, ytmp;
-		for (int i=0; i<pFoil->nb/2; i++)
-		{
-			xtmp         = pFoil->xb[i];
-			ytmp         = pFoil->yb[i];
-			pFoil->xb[i] = pFoil->xb[pFoil->nb-i-1];
-			pFoil->yb[i] = pFoil->yb[pFoil->nb-i-1];
-			pFoil->xb[pFoil->nb-i-1] = xtmp;
-			pFoil->yb[pFoil->nb-i-1] = ytmp;
-		}
-	}
+    if(area < 0.0)
+    {
+        //reverse the points order
+        double xtmp, ytmp;
+        for (int i=0; i<pFoil->nb/2; i++)
+        {
+            xtmp         = pFoil->xb[i];
+            ytmp         = pFoil->yb[i];
+            pFoil->xb[i] = pFoil->xb[pFoil->nb-i-1];
+            pFoil->yb[i] = pFoil->yb[pFoil->nb-i-1];
+            pFoil->xb[pFoil->nb-i-1] = xtmp;
+            pFoil->yb[pFoil->nb-i-1] = ytmp;
+        }
+    }
 
-	memcpy(pFoil->x, pFoil->xb, sizeof(pFoil->xb));
-	memcpy(pFoil->y, pFoil->yb, sizeof(pFoil->yb));
-	pFoil->n = pFoil->nb;
+    memcpy(pFoil->x, pFoil->xb, sizeof(pFoil->xb));
+    memcpy(pFoil->y, pFoil->yb, sizeof(pFoil->yb));
+    pFoil->n = pFoil->nb;
 
-	QColor clr = randomColor(false);
-	pFoil->setColor(clr.red(), clr.green(), clr.blue(), clr.alpha());
-	pFoil->initFoil();
+    QColor clr = randomColor(false);
+    pFoil->setColor(clr.red(), clr.green(), clr.blue(), clr.alpha());
+    pFoil->initFoil();
 
-	return pFoil;
+    return pFoil;
 }
 
 
@@ -615,67 +608,67 @@ void * readFoilFile(QFile &xFoilFile)
  * @param ar the binary stream
  * @return the pointer to the Foil object which has been created, or NULL if failure.
  */
-void * readPolarFile(QFile &plrFile, QList<Polar*> &polarList)
+Foil* readPolarFile(QFile &plrFile, QList<Polar*> &polarList)
 {
-	Foil* pFoil = NULL;
-	Polar *pPolar = NULL;
-	Polar * pOldPolar;
-	int i, n, l;
+    Foil* pFoil = nullptr;
+    Polar *pPolar = nullptr;
+    Polar * pOldPolar;
+    int i, n, l;
 
-	QDataStream ar(&plrFile);
-	ar.setVersion(QDataStream::Qt_4_5);
-	ar.setByteOrder(QDataStream::LittleEndian);
+    QDataStream ar(&plrFile);
+    ar.setVersion(QDataStream::Qt_4_5);
+    ar.setByteOrder(QDataStream::LittleEndian);
 
-	ar >> n;
+    ar >> n;
 
-	if(n<100000)
-	{
-		//old format
-		return NULL;
-	}
-	else if (n >=100000)
-	{
-		//new format XFLR5 v1.99+
-		//first read all available foils
-		ar>>n;
-		for (i=0;i<n; i++)
-		{
-			pFoil = new Foil();
-			if (!serializeFoil(pFoil, ar, false))
-			{
-				delete pFoil;
-				return NULL;
-			}
-		}
+    if(n<100000)
+    {
+        //old format
+        return nullptr;
+    }
+    else if (n >=100000)
+    {
+        //new format XFLR5 v1.99+
+        //first read all available foils
+        ar>>n;
+        for (i=0;i<n; i++)
+        {
+            pFoil = new Foil();
+            if (!serializeFoil(pFoil, ar, false))
+            {
+                delete pFoil;
+                return nullptr;
+            }
+        }
 
-		//next read all available polars
+        //next read all available polars
 
-		ar>>n;
-		for (i=0;i<n; i++)
-		{
-			pPolar = new Polar();
+        ar>>n;
+        for (i=0;i<n; i++)
+        {
+            pPolar = new Polar();
 
-			if (!serializePolar(pPolar, ar, false))
-			{
-				delete pPolar;
-				return NULL;
-			}
-			for (l=0; l<polarList.size(); l++)
-			{
-				pOldPolar = polarList.at(l);
-				if (pOldPolar->foilName()  == pPolar->foilName() &&
-					pOldPolar->polarName() == pPolar->polarName())
-				{
-					//just overwrite...
-					polarList.removeAt(l);
-					delete pOldPolar;
-					//... and continue to add
-				}
-			}
-			polarList.append(pPolar);
-		}
-	}
-	return pFoil;
+            if (!serializePolar(pPolar, ar, false))
+            {
+                delete pPolar;
+                return nullptr;
+            }
+            for (l=0; l<polarList.size(); l++)
+            {
+                pOldPolar = polarList.at(l);
+                if (pOldPolar->foilName()  == pPolar->foilName() &&
+                        pOldPolar->polarName() == pPolar->polarName())
+                {
+                    //just overwrite...
+                    polarList.removeAt(l);
+                    delete pOldPolar;
+                    //... and continue to add
+                }
+            }
+            polarList.append(pPolar);
+        }
+    }
+    return pFoil;
 }
 
 
@@ -694,38 +687,38 @@ void * readPolarFile(QFile &plrFile, QList<Polar*> &polarList)
  */
 void drawFoil(QPainter &painter, Foil*pFoil, double const &alpha, double const &scalex, double const &scaley, QPointF const &Offset)
 {
-	double xa, ya, sina, cosa;
-	QPointF From, To;
+    double xa, ya, sina, cosa;
+    QPointF From, To;
 
-	int k;
-	QPen FoilPen, HighPen;
+    int k;
+    QPen FoilPen, HighPen;
 
-	FoilPen.setColor(colour(pFoil));
-	FoilPen.setWidth(pFoil->foilLineWidth());
-	FoilPen.setStyle(getStyle(pFoil->foilLineStyle()));
-	painter.setPen(FoilPen);
+    FoilPen.setColor(colour(pFoil));
+    FoilPen.setWidth(pFoil->foilLineWidth());
+    FoilPen.setStyle(getStyle(pFoil->foilLineStyle()));
+    painter.setPen(FoilPen);
 
-	HighPen.setColor(QColor(255,0,0));
+    HighPen.setColor(QColor(255,0,0));
 
-	cosa = cos(alpha*PI/180.0);
-	sina = sin(alpha*PI/180.0);
+    cosa = cos(alpha*PI/180.0);
+    sina = sin(alpha*PI/180.0);
 
-	xa = (pFoil->x[0]-0.5)*cosa - pFoil->y[0]*sina + 0.5;
-	ya = (pFoil->x[0]-0.5)*sina + pFoil->y[0]*cosa;
-	From.rx() = ( xa*scalex + Offset.x());
-	From.ry() = (-ya*scaley + Offset.y());
+    xa = (pFoil->x[0]-0.5)*cosa - pFoil->y[0]*sina + 0.5;
+    ya = (pFoil->x[0]-0.5)*sina + pFoil->y[0]*cosa;
+    From.rx() = ( xa*scalex + Offset.x());
+    From.ry() = (-ya*scaley + Offset.y());
 
-	for (k=1; k<pFoil->n; k++)
-	{
-		xa = (pFoil->x[k]-0.5)*cosa - pFoil->y[k]*sina+ 0.5;
-		ya = (pFoil->x[k]-0.5)*sina + pFoil->y[k]*cosa;
-		To.rx() =  xa*scalex+Offset.x();
-		To.ry() = -ya*scaley+Offset.y();
+    for (k=1; k<pFoil->n; k++)
+    {
+        xa = (pFoil->x[k]-0.5)*cosa - pFoil->y[k]*sina+ 0.5;
+        ya = (pFoil->x[k]-0.5)*sina + pFoil->y[k]*cosa;
+        To.rx() =  xa*scalex+Offset.x();
+        To.ry() = -ya*scaley+Offset.y();
 
-		painter.drawLine(From,To);
+        painter.drawLine(From,To);
 
-		From = To;
-	}
+        From = To;
+    }
 }
 
 
@@ -739,28 +732,28 @@ void drawFoil(QPainter &painter, Foil*pFoil, double const &alpha, double const &
  */
 void drawMidLine(QPainter &painter, Foil*pFoil, double const &scalex, double const &scaley, QPointF const &Offset)
 {
-	QPointF From, To;
-	int k;
-	QPen FoilPen;
+    QPointF From, To;
+    int k;
+    QPen FoilPen;
 
-	FoilPen.setColor(colour(pFoil));
-	FoilPen.setWidth(pFoil->foilLineWidth());
-	FoilPen.setStyle(Qt::DashLine);
-	painter.setPen(FoilPen);
-
-
-	From.rx() = ( pFoil->m_rpMid[0].x*scalex)  +Offset.x();
-	From.ry() = (-pFoil->m_rpMid[0].y*scaley)  +Offset.y();
+    FoilPen.setColor(colour(pFoil));
+    FoilPen.setWidth(pFoil->foilLineWidth());
+    FoilPen.setStyle(Qt::DashLine);
+    painter.setPen(FoilPen);
 
 
-	for (k=0; k<MIDPOINTCOUNT; k++)
-	{
-		To.rx() = ( pFoil->m_rpMid[k].x*scalex)+Offset.x();
-		To.ry() = (-pFoil->m_rpMid[k].y*scaley)+Offset.y();
+    From.rx() = ( pFoil->m_rpMid[0].x*scalex)  +Offset.x();
+    From.ry() = (-pFoil->m_rpMid[0].y*scaley)  +Offset.y();
 
-		painter.drawLine(From, To);
-		From = To;
-	}
+
+    for (k=0; k<MIDPOINTCOUNT; k++)
+    {
+        To.rx() = ( pFoil->m_rpMid[k].x*scalex)+Offset.x();
+        To.ry() = (-pFoil->m_rpMid[k].y*scaley)+Offset.y();
+
+        painter.drawLine(From, To);
+        From = To;
+    }
 }
 
 
@@ -776,294 +769,292 @@ void drawMidLine(QPainter &painter, Foil*pFoil, double const &scalex, double con
  * @param Offset the foil offset in the client area
  */
 void drawPoints(QPainter &painter, Foil*pFoil, double alpha, double const &scalex, double const &scaley,
-				QPointF const &Offset, QColor backColor)
+                QPointF const &Offset, QColor backColor)
 {
-	QPen FoilPen, HighPen;
-	FoilPen.setColor(colour(pFoil));
-	FoilPen.setWidth(pFoil->foilLineWidth());
-	FoilPen.setStyle(Qt::SolidLine);
-	painter.setPen(FoilPen);
+    QPen FoilPen, HighPen;
+    FoilPen.setColor(colour(pFoil));
+    FoilPen.setWidth(pFoil->foilLineWidth());
+    FoilPen.setStyle(Qt::SolidLine);
+    painter.setPen(FoilPen);
 
 
-	HighPen.setColor(QColor(255,0,0));
+    HighPen.setColor(QColor(255,0,0));
 
-/*	for (int i=0; i<pFoil->n;i++)
-	{
-		pt1.rx() = ( pFoil->x[i]*scalex + Offset.x() - width);
-		pt1.ry() = (-pFoil->y[i]*scaley + Offset.y() - width);
+    /*	for (int i=0; i<pFoil->n;i++)
+    {
+        pt1.rx() = ( pFoil->x[i]*scalex + Offset.x() - width);
+        pt1.ry() = (-pFoil->y[i]*scaley + Offset.y() - width);
 
-		painter.drawRect(pt1.x(), pt1.y(), 4, 4) ;
-	}*/
+        painter.drawRect(pt1.x(), pt1.y(), 4, 4) ;
+    }*/
 
-	double xa, ya, cosa, sina;
-	cosa = cos(alpha*PI/180.0);
-	sina = sin(alpha*PI/180.0);
+    double xa, ya, cosa, sina;
+    cosa = cos(alpha*PI/180.0);
+    sina = sin(alpha*PI/180.0);
 
-	for (int i=0; i<pFoil->n;i++)
-	{
-		xa = (pFoil->x[i]-0.5)*cosa - pFoil->y[i]*sina + 0.5;
-		ya = (pFoil->x[i]-0.5)*sina + pFoil->y[i]*cosa;
+    for (int i=0; i<pFoil->n;i++)
+    {
+        xa = (pFoil->x[i]-0.5)*cosa - pFoil->y[i]*sina + 0.5;
+        ya = (pFoil->x[i]-0.5)*sina + pFoil->y[i]*cosa;
 
-		QPoint pt( xa*scalex + Offset.x(), -ya*scaley + Offset.y());
+        QPoint pt( xa*scalex + Offset.x(), -ya*scaley + Offset.y());
 
-		drawPoint(painter, pFoil->foilPointStyle(), backColor, pt);
-	}
+        drawPoint(painter, pFoil->foilPointStyle(), backColor, pt);
+    }
 
-	if(pFoil->iHighLight()>=0)
-	{
-		HighPen.setWidth(2);
-		painter.setPen(HighPen);
+    if(pFoil->iHighLight()>=0)
+    {
+        HighPen.setWidth(2);
+        painter.setPen(HighPen);
 
-		int ih = pFoil->iHighLight();
-		xa = (pFoil->x[ih]-0.5)*cosa - pFoil->y[ih]*sina + 0.5;
-		ya = (pFoil->x[ih]-0.5)*sina + pFoil->y[ih]*cosa;
+        int ih = pFoil->iHighLight();
+        xa = (pFoil->x[ih]-0.5)*cosa - pFoil->y[ih]*sina + 0.5;
+        ya = (pFoil->x[ih]-0.5)*sina + pFoil->y[ih]*cosa;
 
-		QPoint pt( xa*scalex + Offset.x(), -ya*scaley + Offset.y());
+        QPoint pt( xa*scalex + Offset.x(), -ya*scaley + Offset.y());
 
-		drawPoint(painter, pFoil->foilPointStyle(), backColor, pt);
-	}
+        drawPoint(painter, pFoil->foilPointStyle(), backColor, pt);
+    }
 }
 
 
 void drawPoint(QPainter &painter, int pointStyle, QColor bkColor, QPoint pt)
 {
-	painter.save();
-	QBrush backBrush(bkColor);
-	painter.setBrush(backBrush);
-	switch(pointStyle)
-	{
-		case 0: break;
-		case 1:
-		{
-			int ptSide = 2;
-			painter.drawEllipse(pt.x()-ptSide, pt.y()-ptSide, 2*ptSide, 2*ptSide );
-			break;
-		}
-		case 2:
-		{
-			int ptSide = 4;
-			painter.drawEllipse(pt.x()-ptSide, pt.y()-ptSide, 2*ptSide, 2*ptSide );
-			break;
-		}
-		case 3:
-		{
-			int ptSide = 2;
-			painter.drawRect(pt.x()-ptSide, pt.y()-ptSide, 2*ptSide, 2*ptSide );
-			break;
-		}
-		case 4:
-		{
-			int ptSide = 4;
-			painter.drawRect(pt.x()-ptSide, pt.y()-ptSide, 2*ptSide, 2*ptSide );
-			break;
-		}
-		default: break;
-	}
-	painter.restore();
+    painter.save();
+    QBrush backBrush(bkColor);
+    painter.setBrush(backBrush);
+    switch(pointStyle)
+    {
+        case 0: break;
+        case 1:
+        {
+            int ptSide = 2;
+            painter.drawEllipse(pt.x()-ptSide, pt.y()-ptSide, 2*ptSide, 2*ptSide );
+            break;
+        }
+        case 2:
+        {
+            int ptSide = 4;
+            painter.drawEllipse(pt.x()-ptSide, pt.y()-ptSide, 2*ptSide, 2*ptSide );
+            break;
+        }
+        case 3:
+        {
+            int ptSide = 2;
+            painter.drawRect(pt.x()-ptSide, pt.y()-ptSide, 2*ptSide, 2*ptSide );
+            break;
+        }
+        case 4:
+        {
+            int ptSide = 4;
+            painter.drawRect(pt.x()-ptSide, pt.y()-ptSide, 2*ptSide, 2*ptSide );
+            break;
+        }
+        default: break;
+    }
+    painter.restore();
 }
 
 
-void setAutoWPolarName(void * ptrWPolar, void *ptrPlane)
+void setAutoWPolarName(WPolar *pWPolar, Plane *pPlane)
 {
-	if(!ptrPlane) return;
-	QString str, strong;
-	QString strSpeedUnit;
-	Units::getSpeedUnitLabel(strSpeedUnit);
+    if(!pPlane) return;
+    QString str, strong;
+    QString strSpeedUnit;
+    Units::getSpeedUnitLabel(strSpeedUnit);
 
-	int i, nCtrl;
+    int i, nCtrl;
 
-	WPolar *pWPolar =(WPolar*)ptrWPolar;
-	Plane *pPlane = (Plane*)ptrPlane;
 
-	Units::getSpeedUnitLabel(str);
+    Units::getSpeedUnitLabel(str);
 
-	switch(pWPolar->polarType())
-	{
-		case XFLR5::FIXEDSPEEDPOLAR:
-		{
-			pWPolar->polarName() = QString("T1-%1 ").arg(pWPolar->velocity() * Units::mstoUnit(),0,'f',1);
-			pWPolar->polarName() += strSpeedUnit;
-			break;
-		}
-		case XFLR5::FIXEDLIFTPOLAR:
-		{
-			pWPolar->polarName() = QString("T2");
-			break;
-		}
-		case XFLR5::FIXEDAOAPOLAR:
-		{
-			pWPolar->polarName() = QString(QString::fromUtf8("T4-%1°")).arg(pWPolar->Alpha(),0,'f',1);
-			break;
-		}
-		case XFLR5::BETAPOLAR:
-		{
-			pWPolar->polarName() = QString(QString::fromUtf8("T5-a%1°-%2"))
-							  .arg(pWPolar->Alpha(),0,'f',1)
-							  .arg(pWPolar->velocity() * Units::mstoUnit(),0,'f',1);
-			pWPolar->polarName() += strSpeedUnit;
-			break;
-		}
-		case XFLR5::STABILITYPOLAR:
-		{
-			pWPolar->polarName() = QString("T7");
-			break;
-		}
-		default:
-		{
-			pWPolar->polarName() = "Tx";
-			break;
-		}
-	}
+    switch(pWPolar->polarType())
+    {
+        case XFLR5::FIXEDSPEEDPOLAR:
+        {
+            pWPolar->polarName() = QString("T1-%1 ").arg(pWPolar->velocity() * Units::mstoUnit(),0,'f',1);
+            pWPolar->polarName() += strSpeedUnit;
+            break;
+        }
+        case XFLR5::FIXEDLIFTPOLAR:
+        {
+            pWPolar->polarName() = QString("T2");
+            break;
+        }
+        case XFLR5::FIXEDAOAPOLAR:
+        {
+            pWPolar->polarName() = QString(QString::fromUtf8("T4-%1°")).arg(pWPolar->Alpha(),0,'f',1);
+            break;
+        }
+        case XFLR5::BETAPOLAR:
+        {
+            pWPolar->polarName() = QString(QString::fromUtf8("T5-a%1°-%2"))
+                    .arg(pWPolar->Alpha(),0,'f',1)
+                    .arg(pWPolar->velocity() * Units::mstoUnit(),0,'f',1);
+            pWPolar->polarName() += strSpeedUnit;
+            break;
+        }
+        case XFLR5::STABILITYPOLAR:
+        {
+            pWPolar->polarName() = QString("T7");
+            break;
+        }
+        default:
+        {
+            pWPolar->polarName() = "Tx";
+            break;
+        }
+    }
 
-	switch(pWPolar->analysisMethod())
-	{
-		case XFLR5::LLTMETHOD:
-		{
-			pWPolar->polarName() += "-LLT";
-			break;
-		}
-		case XFLR5::VLMMETHOD:
-		{
-			if(pWPolar->bVLM1()) pWPolar->polarName() += "-VLM1";
-			else                 pWPolar->polarName() += "-VLM2";
-			break;
-		}
-		case XFLR5::PANEL4METHOD:
-		{
-			if(!pWPolar->bThinSurfaces()) pWPolar->polarName() += "-Panel";
-			else
-			{
-				if(pWPolar->bVLM1()) pWPolar->polarName() += "-VLM1";
-				else                 pWPolar->polarName() += "-VLM2";
-			}
-			break;
-		}
-		default:
-			break;
-	}
+    switch(pWPolar->analysisMethod())
+    {
+        case XFLR5::LLTMETHOD:
+        {
+            pWPolar->polarName() += "-LLT";
+            break;
+        }
+        case XFLR5::VLMMETHOD:
+        {
+            if(pWPolar->bVLM1()) pWPolar->polarName() += "-VLM1";
+            else                 pWPolar->polarName() += "-VLM2";
+            break;
+        }
+        case XFLR5::PANEL4METHOD:
+        {
+            if(!pWPolar->bThinSurfaces()) pWPolar->polarName() += "-Panel";
+            else
+            {
+                if(pWPolar->bVLM1()) pWPolar->polarName() += "-VLM1";
+                else                 pWPolar->polarName() += "-VLM2";
+            }
+            break;
+        }
+        default:
+            break;
+    }
 
-	nCtrl = 0;
+    nCtrl = 0;
 
 
 
-	if(pWPolar->isStabilityPolar())
-	{
-		if(!pPlane->isWing())
-		{
-			if(pWPolar->m_ControlGain.size()>0 && qAbs(pWPolar->m_ControlGain[0])>PRECISION)
-			{
-				strong = QString::fromUtf8("-Wing(g%1)")
-								   .arg(pWPolar->m_ControlGain[0],0,'f',1);
-				pWPolar->polarName() += strong;
-			}
-			nCtrl++;
-		}
+    if(pWPolar->isStabilityPolar())
+    {
+        if(!pPlane->isWing())
+        {
+            if(pWPolar->m_ControlGain.size()>0 && qAbs(pWPolar->m_ControlGain[0])>PRECISION)
+            {
+                strong = QString::fromUtf8("-Wing(g%1)")
+                        .arg(pWPolar->m_ControlGain[0],0,'f',1);
+                pWPolar->polarName() += strong;
+            }
+            nCtrl++;
+        }
 
-		if(pPlane->stab())
-		{
-			if(pWPolar->m_ControlGain.size()>1 && qAbs(pWPolar->m_ControlGain[1])>PRECISION)
-			{
-				strong = QString::fromUtf8("-Elev(g%1)").arg(pWPolar->m_ControlGain[1],0,'f',1);
-				pWPolar->polarName() += strong;
-			}
-			nCtrl++;
-		}
+        if(pPlane->stab())
+        {
+            if(pWPolar->m_ControlGain.size()>1 && qAbs(pWPolar->m_ControlGain[1])>PRECISION)
+            {
+                strong = QString::fromUtf8("-Elev(g%1)").arg(pWPolar->m_ControlGain[1],0,'f',1);
+                pWPolar->polarName() += strong;
+            }
+            nCtrl++;
+        }
 
-		for(i=0; i<pPlane->wing()->nFlaps(); i++)
-		{
-			if(pWPolar->m_ControlGain.size()>i+nCtrl && qAbs(pWPolar->m_ControlGain[i+nCtrl])>PRECISION)
-			{
-				strong = QString::fromUtf8("-WF%1(g%2)")
-						 .arg(i+1)
-						 .arg(pWPolar->m_ControlGain[i+nCtrl],0,'f',1);
-				pWPolar->polarName() += strong;
-			}
-		}
-		nCtrl += pPlane->wing()->nFlaps();
+        for(i=0; i<pPlane->wing()->nFlaps(); i++)
+        {
+            if(pWPolar->m_ControlGain.size()>i+nCtrl && qAbs(pWPolar->m_ControlGain[i+nCtrl])>PRECISION)
+            {
+                strong = QString::fromUtf8("-WF%1(g%2)")
+                        .arg(i+1)
+                        .arg(pWPolar->m_ControlGain[i+nCtrl],0,'f',1);
+                pWPolar->polarName() += strong;
+            }
+        }
+        nCtrl += pPlane->wing()->nFlaps();
 
-		if(pPlane->stab())
-		{
-			for(i=0; i<pPlane->stab()->nFlaps(); i++)
-			{
-				if(pWPolar->m_ControlGain.size()>i+nCtrl && qAbs(pWPolar->m_ControlGain[i+nCtrl])>PRECISION)
-				{
-					strong = QString::fromUtf8("-EF%1(g%2)").arg(i+1).arg(pWPolar->m_ControlGain[i+nCtrl]);
-					pWPolar->polarName() += strong;
-				}
-			}
-			nCtrl += pPlane->stab()->nFlaps();
-		}
+        if(pPlane->stab())
+        {
+            for(i=0; i<pPlane->stab()->nFlaps(); i++)
+            {
+                if(pWPolar->m_ControlGain.size()>i+nCtrl && qAbs(pWPolar->m_ControlGain[i+nCtrl])>PRECISION)
+                {
+                    strong = QString::fromUtf8("-EF%1(g%2)").arg(i+1).arg(pWPolar->m_ControlGain[i+nCtrl]);
+                    pWPolar->polarName() += strong;
+                }
+            }
+            nCtrl += pPlane->stab()->nFlaps();
+        }
 
-		if(pPlane->fin())
-		{
-			for(i=0; i<pPlane->fin()->nFlaps(); i++)
-			{
-				if(pWPolar->m_ControlGain.size()>i+nCtrl && qAbs(pWPolar->m_ControlGain[i+nCtrl])>PRECISION)
-				{
-					strong = QString::fromUtf8("-FF%1(g%2)").arg(i+1).arg(pWPolar->m_ControlGain[i+nCtrl]);
-					pWPolar->polarName() += strong;
-				}
-			}
-		}
-	}
+        if(pPlane->fin())
+        {
+            for(i=0; i<pPlane->fin()->nFlaps(); i++)
+            {
+                if(pWPolar->m_ControlGain.size()>i+nCtrl && qAbs(pWPolar->m_ControlGain[i+nCtrl])>PRECISION)
+                {
+                    strong = QString::fromUtf8("-FF%1(g%2)").arg(i+1).arg(pWPolar->m_ControlGain[i+nCtrl]);
+                    pWPolar->polarName() += strong;
+                }
+            }
+        }
+    }
 
 
-	if(qAbs(pWPolar->Beta()) > .001  && pWPolar->polarType()!=XFLR5::BETAPOLAR)
-	{
-		strong = QString(QString::fromUtf8("-b%1°")).arg(pWPolar->Beta(),0,'f',1);
-		pWPolar->polarName() += strong;
-	}
+    if(qAbs(pWPolar->Beta()) > .001  && pWPolar->polarType()!=XFLR5::BETAPOLAR)
+    {
+        strong = QString(QString::fromUtf8("-b%1°")).arg(pWPolar->Beta(),0,'f',1);
+        pWPolar->polarName() += strong;
+    }
 
-	if(qAbs(pWPolar->Phi()) > .001)
-	{
-		strong = QString(QString::fromUtf8("-B%1°")).arg(pWPolar->Phi(),0,'f',1);
-		pWPolar->polarName() += strong;
-	}
+    if(qAbs(pWPolar->Phi()) > .001)
+    {
+        strong = QString(QString::fromUtf8("-B%1°")).arg(pWPolar->Phi(),0,'f',1);
+        pWPolar->polarName() += strong;
+    }
 
-	if(!pWPolar->bAutoInertia())
-	{
-		strong.sprintf("-%.1f", pWPolar->mass()*Units::kgtoUnit());
-		if(pWPolar->isStabilityPolar()&&fabs(pWPolar->m_inertiaGain[0])>PRECISION)
-			str.sprintf("/%0.2f", pWPolar->m_inertiaGain[0]*Units::kgtoUnit());
-		else str.clear();
-		pWPolar->polarName() += strong + str + Units::weightUnitLabel();
+    if(!pWPolar->bAutoInertia())
+    {
+        strong.sprintf("-%.1f", pWPolar->mass()*Units::kgtoUnit());
+        if(pWPolar->isStabilityPolar()&&fabs(pWPolar->m_inertiaGain[0])>PRECISION)
+            str.sprintf("/%0.2f", pWPolar->m_inertiaGain[0]*Units::kgtoUnit());
+        else str.clear();
+        pWPolar->polarName() += strong + str + Units::weightUnitLabel();
 
-		strong.sprintf("-x%.1f", pWPolar->CoG().x*Units::mtoUnit());
-		if(pWPolar->isStabilityPolar()&&fabs(pWPolar->m_inertiaGain[1])>PRECISION)
-			str.sprintf("/%0.2f", pWPolar->m_inertiaGain[1]*Units::mtoUnit());
-		else str.clear();
-		pWPolar->polarName() += strong + str + Units::lengthUnitLabel();
+        strong.sprintf("-x%.1f", pWPolar->CoG().x*Units::mtoUnit());
+        if(pWPolar->isStabilityPolar()&&fabs(pWPolar->m_inertiaGain[1])>PRECISION)
+            str.sprintf("/%0.2f", pWPolar->m_inertiaGain[1]*Units::mtoUnit());
+        else str.clear();
+        pWPolar->polarName() += strong + str + Units::lengthUnitLabel();
 
-		if(qAbs(pWPolar->CoG().z)>=.000001)
-		{
-			strong.sprintf("-z%.1f", pWPolar->CoG().z*Units::mtoUnit());
-			if(pWPolar->isStabilityPolar()&&fabs(pWPolar->m_inertiaGain[2])>PRECISION)
-				str.sprintf("/%0.2f", pWPolar->m_inertiaGain[2]*Units::mtoUnit());
-			else str.clear();
-			pWPolar->polarName() += strong + str + Units::lengthUnitLabel();
-		}
-	}
+        if(qAbs(pWPolar->CoG().z)>=.000001)
+        {
+            strong.sprintf("-z%.1f", pWPolar->CoG().z*Units::mtoUnit());
+            if(pWPolar->isStabilityPolar()&&fabs(pWPolar->m_inertiaGain[2])>PRECISION)
+                str.sprintf("/%0.2f", pWPolar->m_inertiaGain[2]*Units::mtoUnit());
+            else str.clear();
+            pWPolar->polarName() += strong + str + Units::lengthUnitLabel();
+        }
+    }
 
-	if(!pWPolar->bViscous())
-	{
-		pWPolar->polarName() += "-Inviscid";
-	}
-	if(pWPolar->bIgnoreBodyPanels())
-	{
-		pWPolar->polarName() += "-NoBodyPanels";
-	}
-//	if(pWPolar->referenceDim()==XFLR5::PROJECTEDREFDIM) pWPolar->polarName() += "-proj_area";
+    if(!pWPolar->bViscous())
+    {
+        pWPolar->polarName() += "-Inviscid";
+    }
+    /*	if(pWPolar->bIgnoreBodyPanels())
+    {
+        pWPolar->polarName() += "-NoBodyPanels";
+    }*/
+    //	if(pWPolar->referenceDim()==XFLR5::PROJECTEDREFDIM) pWPolar->polarName() += "-proj_area";
 
-	if(pWPolar->bTilted()) pWPolar->polarName() += "-TG";
+    if(pWPolar->bTilted()) pWPolar->polarName() += "-TG";
 
-	for(int i=0; i<MAXEXTRADRAG; i++)
-	{
-		if(fabs(pWPolar->m_ExtraDragCoef[i])>PRECISION && fabs(pWPolar->m_ExtraDragArea[i])>PRECISION)
-		{
-			pWPolar->polarName()+="+Drag";
-			break;
-		}
-	}
+    for(int i=0; i<MAXEXTRADRAG; i++)
+    {
+        if(fabs(pWPolar->m_ExtraDragCoef[i])>PRECISION && fabs(pWPolar->m_ExtraDragArea[i])>PRECISION)
+        {
+            pWPolar->polarName()+="+Drag";
+            break;
+        }
+    }
 }
 
 
@@ -1071,24 +1062,24 @@ void setAutoWPolarName(void * ptrWPolar, void *ptrPlane)
 
 XFLR5::enumWingType wingType(QString strWingType)
 {
-	if     (strWingType.compare("MAINWING",   Qt::CaseInsensitive)==0) return XFLR5::MAINWING;
-	else if(strWingType.compare("SECONDWING", Qt::CaseInsensitive)==0) return XFLR5::SECONDWING;
-	else if(strWingType.compare("ELEVATOR",   Qt::CaseInsensitive)==0) return XFLR5::ELEVATOR;
-	else if(strWingType.compare("FIN",        Qt::CaseInsensitive)==0) return XFLR5::FIN;
-	else                                                               return XFLR5::OTHERWING;
+    if     (strWingType.compare("MAINWING",   Qt::CaseInsensitive)==0) return XFLR5::MAINWING;
+    else if(strWingType.compare("SECONDWING", Qt::CaseInsensitive)==0) return XFLR5::SECONDWING;
+    else if(strWingType.compare("ELEVATOR",   Qt::CaseInsensitive)==0) return XFLR5::ELEVATOR;
+    else if(strWingType.compare("FIN",        Qt::CaseInsensitive)==0) return XFLR5::FIN;
+    else                                                               return XFLR5::OTHERWING;
 }
 
 QString wingType(XFLR5::enumWingType wingType)
 {
-	switch(wingType)
-	{
-		case XFLR5::MAINWING:   return "MAINWING";
-		case XFLR5::SECONDWING: return "SECONDWING";
-		case XFLR5::ELEVATOR:   return "ELEVATOR";
-		case XFLR5::FIN:        return "FIN";
-		case XFLR5::OTHERWING:  return "OTHERWING";
-	}
-	return "OTHERWING";
+    switch(wingType)
+    {
+        case XFLR5::MAINWING:   return "MAINWING";
+        case XFLR5::SECONDWING: return "SECONDWING";
+        case XFLR5::ELEVATOR:   return "ELEVATOR";
+        case XFLR5::FIN:        return "FIN";
+        case XFLR5::OTHERWING:  return "OTHERWING";
+    }
+    return "OTHERWING";
 }
 
 
@@ -1101,64 +1092,64 @@ QString wingType(XFLR5::enumWingType wingType)
 */
 void ReynoldsFormat(QString &str, double f)
 {
-	int i, q, r, exp;
-	f = (int(f/1000.0))*1000.0;
+    int i, q, r, exp;
+    f = (int(f/1000.0))*1000.0;
 
-	exp = (int)log10(f);
-	r = exp%3;
-	q = (exp-r)/3;
+    exp = (int)log10(f);
+    r = exp%3;
+    q = (exp-r)/3;
 
-	QString strong;
-	strong = QString("%1").arg(f,0,'f',0);
+    QString strong;
+    strong = QString("%1").arg(f,0,'f',0);
 
-	int l = strong.length();
+    int l = strong.length();
 
-	for (i=0; i<q; i++){
-		strong.insert(l-3*(i+1)-i," ");
-		l++;
-	}
+    for (i=0; i<q; i++){
+        strong.insert(l-3*(i+1)-i," ");
+        l++;
+    }
 
-	for (i=strong.length(); i<9; i++){
-		strong = " "+strong;
-	}
+    for (i=strong.length(); i<9; i++){
+        strong = " "+strong;
+    }
 
-	str = strong;
+    str = strong;
 }
 
 
 QColor getColor(int r, int g, int b, int a)
 {
-	r = min(r, 255);
-	r = max(r, 0);
-	g = min(g, 255);
-	g = max(g, 0);
-	b = min(b, 255);
-	b = max(b, 0);
-	a = min(a, 255);
-	a = max(a, 0);
-	return QColor(r,g,b,a);
+    r = min(r, 255);
+    r = max(r, 0);
+    g = min(g, 255);
+    g = max(g, 0);
+    b = min(b, 255);
+    b = max(b, 0);
+    a = min(a, 255);
+    a = max(a, 0);
+    return QColor(r,g,b,a);
 }
 
 QColor colour(OpPoint *pOpp)
 {
-	return QColor(pOpp->red(), pOpp->green(), pOpp->blue(), pOpp->alphaChannel());
+    return QColor(pOpp->red(), pOpp->green(), pOpp->blue(), pOpp->alphaChannel());
 }
 
 QColor colour(Polar *pPolar)
 {
-	return QColor(pPolar->red(), pPolar->green(), pPolar->blue(), pPolar->alphaChannel());
+    return QColor(pPolar->red(), pPolar->green(), pPolar->blue(), pPolar->alphaChannel());
 }
 
 QColor colour(Foil *pFoil)
 {
-	return QColor(pFoil->red(), pFoil->green(), pFoil->blue(), pFoil->alphaChannel());
+    return QColor(pFoil->red(), pFoil->green(), pFoil->blue(), pFoil->alphaChannel());
 }
 
 
 void setRandomFoilColor(Foil *pFoil, bool bLightTheme)
 {
-	QColor clr = randomColor(!bLightTheme);
-	pFoil->setColor(clr.red(), clr.green(), clr.blue(), clr.alpha());
+    QColor clr = randomColor(!bLightTheme);
+    pFoil->setColor(clr.red(), clr.green(), clr.blue(), clr.alpha());
 }
 
 
@@ -1171,13 +1162,13 @@ void setRandomFoilColor(Foil *pFoil, bool bLightTheme)
 */
 void readColor(QDataStream &ar, int &r, int &g, int &b)
 {
-	qint32 colorref;
+    qint32 colorref;
 
-	ar >> colorref;
-	b = (int)(colorref/256/256);
-	colorref -= b*256*256;
-	g = (int)(colorref/256);
-	r = colorref - g*256;
+    ar >> colorref;
+    b = (int)(colorref/256/256);
+    colorref -= b*256*256;
+    g = (int)(colorref/256);
+    r = colorref - g*256;
 }
 
 
@@ -1191,10 +1182,10 @@ void readColor(QDataStream &ar, int &r, int &g, int &b)
 */
 void writeColor(QDataStream &ar, int r, int g, int b)
 {
-	qint32 colorref;
+    qint32 colorref;
 
-	colorref = b*256*256+g*256+r;
-	ar << colorref;
+    colorref = b*256*256+g*256+r;
+    ar << colorref;
 }
 
 
@@ -1208,18 +1199,18 @@ void writeColor(QDataStream &ar, int r, int g, int b)
 */
 void readColor(QDataStream &ar, int &r, int &g, int &b, int &a)
 {
-	uchar byte=0;
+    uchar byte=0;
 
-	ar>>byte;//probably a format identificator
-	ar>>byte>>byte;
-	a = (int)byte;
-	ar>>byte>>byte;
-	r = (int)byte;
-	ar>>byte>>byte;
-	g = (int)byte;
-	ar>>byte>>byte;
-	b = (int)byte;
-	ar>>byte>>byte; //
+    ar>>byte;//probably a format identificator
+    ar>>byte>>byte;
+    a = (int)byte;
+    ar>>byte>>byte;
+    r = (int)byte;
+    ar>>byte>>byte;
+    g = (int)byte;
+    ar>>byte>>byte;
+    b = (int)byte;
+    ar>>byte>>byte; //
 }
 
 /**
@@ -1232,20 +1223,20 @@ void readColor(QDataStream &ar, int &r, int &g, int &b, int &a)
 */
 void writeColor(QDataStream &ar, int r, int g, int b, int a)
 {
-	uchar byte;
+    uchar byte;
 
-	byte = 1;
-	ar<<byte;
-	byte = a & 0xFF;
-	ar << byte<<byte;
-	byte = r & 0xFF;
-	ar << byte<<byte;
-	byte = g & 0xFF;
-	ar << byte<<byte;
-	byte = b & 0xFF;
-	ar << byte<<byte;
-	byte = 0;
-	ar << byte<<byte;
+    byte = 1;
+    ar<<byte;
+    byte = a & 0xFF;
+    ar << byte<<byte;
+    byte = r & 0xFF;
+    ar << byte<<byte;
+    byte = g & 0xFF;
+    ar << byte<<byte;
+    byte = b & 0xFF;
+    ar << byte<<byte;
+    byte = 0;
+    ar << byte<<byte;
 }
 
 
@@ -1256,18 +1247,18 @@ void writeColor(QDataStream &ar, int r, int g, int b, int a)
 */
 void readString(QDataStream &ar, QString &strong)
 {
-	qint8 qi, ch;
-	char c;
+    qint8 qi, ch;
+    char c;
 
-	ar >> qi;
-	strong.clear();
-	for(int j=0; j<qi;j++)
-	{
-		strong += " ";
-		ar >> ch;
-		c = char(ch);
-		strong[j] = c;
-	}
+    ar >> qi;
+    strong.clear();
+    for(int j=0; j<qi;j++)
+    {
+        strong += " ";
+        ar >> ch;
+        c = char(ch);
+        strong[j] = c;
+    }
 }
 
 /**
@@ -1277,14 +1268,14 @@ void readString(QDataStream &ar, QString &strong)
 */
 void writeString(QDataStream &ar, QString const &strong)
 {
-	qint8 qi = strong.length();
+    qint8 qi = strong.length();
 
-	QByteArray textline;
-	char *text;
-	textline = strong.toLatin1();
-	text = textline.data();
-	ar << qi;
-	ar.writeRawData(text, qi);
+    QByteArray textline;
+    char *text;
+    textline = strong.toLatin1();
+    text = textline.data();
+    ar << qi;
+    ar.writeRawData(text, qi);
 }
 
 
@@ -1298,132 +1289,132 @@ void writeString(QDataStream &ar, QString const &strong)
  */
 bool serializeFoil(Foil *pFoil, QDataStream &ar, bool bIsStoring)
 {
-	// saves or loads the foil to the archive ar
+    // saves or loads the foil to the archive ar
 
-	int ArchiveFormat = 1006;
-	// 1006 : QFLR5 v0.02 : added Foil description
-	// 1005 : added LE Flap data
-	// 1004 : added Points and Centerline property
-	// 1003 : added Visible property
-	// 1002 : added color and style save
-	// 1001 : initial format
-	int p, j;
-	float f,ff;
+    int ArchiveFormat = 1006;
+    // 1006 : QFLR5 v0.02 : added Foil description
+    // 1005 : added LE Flap data
+    // 1004 : added Points and Centerline property
+    // 1003 : added Visible property
+    // 1002 : added color and style save
+    // 1001 : initial format
+    int p, j;
+    float f,ff;
 
-	if(bIsStoring)
-	{
-		ar << ArchiveFormat;
-		writeString(ar, pFoil->m_FoilName);
-		writeString(ar, pFoil->m_FoilDescription);
-		ar << pFoil->m_FoilStyle << pFoil->m_FoilWidth;
-		writeColor(ar, pFoil->m_red, pFoil->m_green, pFoil->m_blue);
+    if(bIsStoring)
+    {
+        ar << ArchiveFormat;
+        writeString(ar, pFoil->m_FoilName);
+        writeString(ar, pFoil->m_FoilDescription);
+        ar << pFoil->m_FoilStyle << pFoil->m_FoilWidth;
+        writeColor(ar, pFoil->m_red, pFoil->m_green, pFoil->m_blue);
 
-		if (pFoil->m_bIsFoilVisible) ar << 1; else ar << 0;
-		if (pFoil->m_PointStyle>0)   ar << 1; else ar << 0;//1004
-		if (pFoil->m_bCenterLine)    ar << 1; else ar << 0;//1004
-		if (pFoil->m_bLEFlap)        ar << 1; else ar << 0;
-		ar << (float)pFoil->m_LEFlapAngle << (float)pFoil->m_LEXHinge << (float)pFoil->m_LEYHinge;
-		if (pFoil->m_bTEFlap)        ar << 1; else ar << 0;
-		ar << (float)pFoil->m_TEFlapAngle << (float)pFoil->m_TEXHinge << (float)pFoil->m_TEYHinge;
-		ar << 1.f << 1.f << 9.f;//formerly transition parameters
-		ar << pFoil->nb;
-		for (j=0; j<pFoil->nb; j++)
-		{
-			ar << (float)pFoil->xb[j] << (float)pFoil->yb[j];
-		}
-		ar << pFoil->n;
-		for (j=0; j<pFoil->n; j++)
-		{
-			ar << (float)pFoil->x[j] << (float)pFoil->y[j];
-		}
-		return true;
-	}
-	else
-	{
-		ar >> ArchiveFormat;
-		if(ArchiveFormat<1000||ArchiveFormat>1010)
-			return false;
+        if (pFoil->m_bIsFoilVisible) ar << 1; else ar << 0;
+        if (pFoil->m_PointStyle>0)   ar << 1; else ar << 0;//1004
+        if (pFoil->m_bCenterLine)    ar << 1; else ar << 0;//1004
+        if (pFoil->m_bLEFlap)        ar << 1; else ar << 0;
+        ar << (float)pFoil->m_LEFlapAngle << (float)pFoil->m_LEXHinge << (float)pFoil->m_LEYHinge;
+        if (pFoil->m_bTEFlap)        ar << 1; else ar << 0;
+        ar << (float)pFoil->m_TEFlapAngle << (float)pFoil->m_TEXHinge << (float)pFoil->m_TEYHinge;
+        ar << 1.f << 1.f << 9.f;//formerly transition parameters
+        ar << pFoil->nb;
+        for (j=0; j<pFoil->nb; j++)
+        {
+            ar << (float)pFoil->xb[j] << (float)pFoil->yb[j];
+        }
+        ar << pFoil->n;
+        for (j=0; j<pFoil->n; j++)
+        {
+            ar << (float)pFoil->x[j] << (float)pFoil->y[j];
+        }
+        return true;
+    }
+    else
+    {
+        ar >> ArchiveFormat;
+        if(ArchiveFormat<1000||ArchiveFormat>1010)
+            return false;
 
-		readString(ar, pFoil->m_FoilName);
+        readString(ar, pFoil->m_FoilName);
 
-		if(ArchiveFormat>=1006)
-		{
-			readString(ar, pFoil->m_FoilDescription);
-		}
-		if(ArchiveFormat>=1002)
-		{
-			ar >> pFoil->m_FoilStyle >> pFoil->m_FoilWidth;
-			readColor(ar, pFoil->m_red, pFoil->m_green, pFoil->m_blue);
-		}
-		if(ArchiveFormat>=1003)
-		{
-			ar >> p;
-			if(p) pFoil->m_bIsFoilVisible = true; else pFoil->m_bIsFoilVisible = false;
-		}
-		if(ArchiveFormat>=1004)
-		{
-			ar >> p;
-			pFoil->m_PointStyle = p;
-			ar >> p;
-			if(p) pFoil->m_bCenterLine = true; else pFoil->m_bCenterLine = false;
-		}
+        if(ArchiveFormat>=1006)
+        {
+            readString(ar, pFoil->m_FoilDescription);
+        }
+        if(ArchiveFormat>=1002)
+        {
+            ar >> pFoil->m_FoilStyle >> pFoil->m_FoilWidth;
+            readColor(ar, pFoil->m_red, pFoil->m_green, pFoil->m_blue);
+        }
+        if(ArchiveFormat>=1003)
+        {
+            ar >> p;
+            if(p) pFoil->m_bIsFoilVisible = true; else pFoil->m_bIsFoilVisible = false;
+        }
+        if(ArchiveFormat>=1004)
+        {
+            ar >> p;
+            pFoil->m_PointStyle = p;
+            ar >> p;
+            if(p) pFoil->m_bCenterLine = true; else pFoil->m_bCenterLine = false;
+        }
 
-		if(ArchiveFormat>=1005)
-		{
-			ar >> p;
-			if (p) pFoil->m_bLEFlap = true; else pFoil->m_bLEFlap = false;
-			ar >> f; pFoil->m_LEFlapAngle =f;
-			ar >> f; pFoil->m_LEXHinge = f;
-			ar >> f; pFoil->m_LEYHinge = f;
-		}
-		ar >> p;
-		if (p) pFoil->m_bTEFlap = true; else pFoil->m_bTEFlap = false;
-		ar >> f; pFoil->m_TEFlapAngle =f;
-		ar >> f; pFoil->m_TEXHinge = f;
-		ar >> f; pFoil->m_TEYHinge = f;
+        if(ArchiveFormat>=1005)
+        {
+            ar >> p;
+            if (p) pFoil->m_bLEFlap = true; else pFoil->m_bLEFlap = false;
+            ar >> f; pFoil->m_LEFlapAngle =f;
+            ar >> f; pFoil->m_LEXHinge = f;
+            ar >> f; pFoil->m_LEYHinge = f;
+        }
+        ar >> p;
+        if (p) pFoil->m_bTEFlap = true; else pFoil->m_bTEFlap = false;
+        ar >> f; pFoil->m_TEFlapAngle =f;
+        ar >> f; pFoil->m_TEXHinge = f;
+        ar >> f; pFoil->m_TEYHinge = f;
 
-		ar >> f >> f >> f; //formerly transition parameters
-		ar >> pFoil->nb;
-		if(pFoil->nb>IBX) return false;
+        ar >> f >> f >> f; //formerly transition parameters
+        ar >> pFoil->nb;
+        if(pFoil->nb>IBX) return false;
 
-		for (j=0; j<pFoil->nb; j++)
-		{
-			ar >> f >> ff;
-			pFoil->xb[j]  = f;  pFoil->yb[j]=ff;
-		}
+        for (j=0; j<pFoil->nb; j++)
+        {
+            ar >> f >> ff;
+            pFoil->xb[j]  = f;  pFoil->yb[j]=ff;
+        }
 
-		/** @todo remove. We don't need to save/load the current foil geom
-		 *  since we re-create later it using base geometry and flap data */
-		if(ArchiveFormat>=1001)
-		{
-			ar >> pFoil->n;
-			if(pFoil->n>IBX) return false;
+        /** @todo remove. We don't need to save/load the current foil geom
+         *  since we re-create later it using base geometry and flap data */
+        if(ArchiveFormat>=1001)
+        {
+            ar >> pFoil->n;
+            if(pFoil->n>IBX) return false;
 
-			for (j=0; j<pFoil->n; j++)
-			{
-				ar >> f >> ff;
-//				pFoil->x[j]=f; pFoil->y[j]=ff;
-			}
-/*			if(pFoil->nb==0 && pFoil->n!=0)
-			{
-				pFoil->nb = pFoil->n;
-				memcpy(pFoil->xb, pFoil->x, sizeof(pFoil->xb));
-				memcpy(pFoil->yb, pFoil->y, sizeof(pFoil->yb));
-			}*/
-		}
-		else
-		{
-/*			memcpy(pFoil->x, pFoil->xb, sizeof(pFoil->xb));
-			memcpy(pFoil->y, pFoil->yb, sizeof(pFoil->yb));
-			pFoil->n=pFoil->nb;*/
-		}
+            for (j=0; j<pFoil->n; j++)
+            {
+                ar >> f >> ff;
+                //				pFoil->x[j]=f; pFoil->y[j]=ff;
+            }
+            /*			if(pFoil->nb==0 && pFoil->n!=0)
+            {
+                pFoil->nb = pFoil->n;
+                memcpy(pFoil->xb, pFoil->x, sizeof(pFoil->xb));
+                memcpy(pFoil->yb, pFoil->y, sizeof(pFoil->yb));
+            }*/
+        }
+        else
+        {
+            /*			memcpy(pFoil->x, pFoil->xb, sizeof(pFoil->xb));
+            memcpy(pFoil->y, pFoil->yb, sizeof(pFoil->yb));
+            pFoil->n=pFoil->nb;*/
+        }
 
 
-		pFoil->initFoil();
-		pFoil->setFlap();
+        pFoil->initFoil();
+        pFoil->setFlap();
 
-		return true;
-	}
+        return true;
+    }
 }
 
 
@@ -1436,164 +1427,165 @@ bool serializeFoil(Foil *pFoil, QDataStream &ar, bool bIsStoring)
  */
 bool serializePolar(Polar *pPolar, QDataStream &ar, bool bIsStoring)
 {
-	int i, j, n, l, k;
-	int ArchiveFormat;// identifies the format of the file
-	float f;
+    int i=0, j=0, n=0, l=0, k=0;
+    int ArchiveFormat=0;// identifies the format of the file
+    float f=0;
 
-	if(bIsStoring)
-	{
-		//write variables
-		n = (int)pPolar->m_Alpha.size();
+    if(bIsStoring)
+    {
+        //write variables
+        n = (int)pPolar->m_Alpha.size();
 
-		ar << 1004; // identifies the format of the file
-		// 1004 : added XCp
-		// 1003 : re-instated NCrit, XtopTr and XBotTr with polar
-		writeString(ar, pPolar->m_FoilName);
-		writeString(ar, pPolar->m_PlrName);
+        ar << 1004; // identifies the format of the file
+        // 1004 : added XCp
+        // 1003 : re-instated NCrit, XtopTr and XBotTr with polar
+        writeString(ar, pPolar->m_FoilName);
+        writeString(ar, pPolar->m_PlrName);
 
         if(pPolar->m_PolarType==XFLR5::FIXEDSPEEDPOLAR)       ar<<1;
         else if(pPolar->m_PolarType==XFLR5::FIXEDLIFTPOLAR)   ar<<2;
         else if(pPolar->m_PolarType==XFLR5::RUBBERCHORDPOLAR) ar<<3;
         else if(pPolar->m_PolarType==XFLR5::FIXEDAOAPOLAR)    ar<<4;
-		else                                   ar<<1;
+        else                                   ar<<1;
 
-		ar << pPolar->m_MaType << pPolar->m_ReType  ;
-		ar << (int)pPolar->m_Reynolds << (float)pPolar->m_Mach ;
-		ar << (float)pPolar->m_ASpec;
-		ar << n << (float)pPolar->m_ACrit;
-		ar << (float)pPolar->m_XTop << (float)pPolar->m_XBot;
-		writeColor(ar, pPolar->m_red, pPolar->m_green, pPolar->m_blue);
+        ar << pPolar->m_MaType << pPolar->m_ReType  ;
+        ar << (int)pPolar->m_Reynolds << (float)pPolar->m_Mach ;
+        ar << (float)pPolar->m_ASpec;
+        ar << n << (float)pPolar->m_ACrit;
+        ar << (float)pPolar->m_XTop << (float)pPolar->m_XBot;
+        writeColor(ar, pPolar->m_red, pPolar->m_green, pPolar->m_blue);
 
-		ar << pPolar->m_Style << pPolar->m_Width;
-		if (pPolar->m_bIsVisible)  ar<<1; else ar<<0;
-		ar<<pPolar->m_PointStyle;
+        ar << pPolar->m_Style << pPolar->m_Width;
+        if (pPolar->m_bIsVisible)  ar<<1; else ar<<0;
+        ar<<pPolar->m_PointStyle;
 
-		for (i=0; i< pPolar->m_Alpha.size(); i++){
-			ar << (float)pPolar->m_Alpha[i] << (float)pPolar->m_Cd[i] ;
-			ar << (float)pPolar->m_Cdp[i]   << (float)pPolar->m_Cl[i] << (float)pPolar->m_Cm[i];
-			ar << (float)pPolar->m_XTr1[i]  << (float)pPolar->m_XTr2[i];
-			ar << (float)pPolar->m_HMom[i]  << (float)pPolar->m_Cpmn[i];
-			ar << (float)pPolar->m_Re[i];
-			ar << (float)pPolar->m_XCp[i];
-		}
+        for (i=0; i< pPolar->m_Alpha.size(); i++){
+            ar << (float)pPolar->m_Alpha[i] << (float)pPolar->m_Cd[i] ;
+            ar << (float)pPolar->m_Cdp[i]   << (float)pPolar->m_Cl[i] << (float)pPolar->m_Cm[i];
+            ar << (float)pPolar->m_XTr1[i]  << (float)pPolar->m_XTr2[i];
+            ar << (float)pPolar->m_HMom[i]  << (float)pPolar->m_Cpmn[i];
+            ar << (float)pPolar->m_Re[i];
+            ar << (float)pPolar->m_XCp[i];
+        }
 
-		ar << pPolar->m_ACrit << pPolar->m_XTop << pPolar->m_XBot;
+        ar << pPolar->m_ACrit << pPolar->m_XTop << pPolar->m_XBot;
 
-		return true;
-	}
-	else
-	{
-		//read variables
-		float Alpha, Cd, Cdp, Cl, Cm, XTr1, XTr2, HMom, Cpmn, Re, XCp;
-		int iRe;
-		ar >> ArchiveFormat;
-		if (ArchiveFormat <1001 ||ArchiveFormat>1100)
-		{
-			return false;
-		}
+        return true;
+    }
+    else
+    {
+        //read variables
+        float Alpha=0, Cd=0, Cdp=0, Cl=0, Cm=0, XTr1=0, XTr2=0, HMom=0, Cpmn=0, Re=0, XCp=0;
+        int iRe=0;
 
-		readString(ar, pPolar->m_FoilName);
-		readString(ar, pPolar->m_PlrName);
+        ar >> ArchiveFormat;
+        if (ArchiveFormat <1001 || ArchiveFormat>1100)
+        {
+            return false;
+        }
 
-		if(pPolar->m_FoilName =="" || pPolar->m_PlrName =="" )
-		{
-			return false;
-		}
+        readString(ar, pPolar->m_FoilName);
+        readString(ar, pPolar->m_PlrName);
 
-		ar >>k;
-        if(k==1)      pPolar->m_PolarType = XFLR5::FIXEDSPEEDPOLAR;
+        if(pPolar->m_FoilName =="" || pPolar->m_PlrName =="" )
+        {
+            return false;
+        }
+
+        ar >>k;
+        if     (k==1) pPolar->m_PolarType = XFLR5::FIXEDSPEEDPOLAR;
         else if(k==2) pPolar->m_PolarType = XFLR5::FIXEDLIFTPOLAR;
         else if(k==3) pPolar->m_PolarType = XFLR5::RUBBERCHORDPOLAR;
         else if(k==4) pPolar->m_PolarType = XFLR5::FIXEDAOAPOLAR;
         else          pPolar->m_PolarType = XFLR5::FIXEDSPEEDPOLAR;
 
 
-		ar >> pPolar->m_MaType >> pPolar->m_ReType;
+        ar >> pPolar->m_MaType >> pPolar->m_ReType;
 
-		if(pPolar->m_MaType!=1 && pPolar->m_MaType!=2 && pPolar->m_MaType!=3)
-		{
-			return false;
-		}
-		if(pPolar->m_ReType!=1 && pPolar->m_ReType!=2 && pPolar->m_ReType!=3)
-		{
-			return false;
-		}
+        if(pPolar->m_MaType!=1 && pPolar->m_MaType!=2 && pPolar->m_MaType!=3)
+        {
+            return false;
+        }
+        if(pPolar->m_ReType!=1 && pPolar->m_ReType!=2 && pPolar->m_ReType!=3)
+        {
+            return false;
+        }
 
-		ar >> iRe;
-		pPolar->m_Reynolds = (double) iRe;
-		ar >> f; pPolar->m_Mach =f;
+        ar >> iRe;
+        pPolar->m_Reynolds = (double) iRe;
+        ar >> f; pPolar->m_Mach =f;
 
-		ar >> f; pPolar->m_ASpec =f;
+        ar >> f; pPolar->m_ASpec =f;
 
-		ar >> n;
-		ar >> f; pPolar->m_ACrit =f;
-		ar >> f; pPolar->m_XTop =f;
-		ar >> f; pPolar->m_XBot =f;
+        ar >> n;
+        ar >> f; pPolar->m_ACrit =f;
+        ar >> f; pPolar->m_XTop =f;
+        ar >> f; pPolar->m_XBot =f;
 
-		readColor(ar, pPolar->m_red, pPolar->m_green, pPolar->m_blue);
+        readColor(ar, pPolar->m_red, pPolar->m_green, pPolar->m_blue);
 
-		ar >> pPolar->m_Style >> pPolar->m_Width;
+        ar >> pPolar->m_Style >> pPolar->m_Width;
 
-		if(ArchiveFormat>=1002)
-		{
-			ar >> l;
-			if(l!=0 && l!=1 )
-			{
-				return false;
-			}
-			if (l) pPolar->m_bIsVisible =true; else pPolar->m_bIsVisible = false;
-		}
+        if(ArchiveFormat>=1002)
+        {
+            ar >> l;
+            if(l!=0 && l!=1 )
+            {
+                return false;
+            }
+            if (l) pPolar->m_bIsVisible =true; else pPolar->m_bIsVisible = false;
+        }
 
-		ar >> l;  pPolar->m_PointStyle =l;
+        ar >> l;  pPolar->m_PointStyle =l;
 
-		bool bExists;
-		for (i=0; i< n; i++)
-		{
-			ar >> Alpha >> Cd >> Cdp >> Cl >> Cm;
-			ar >> XTr1 >> XTr2;
-			ar >> HMom >> Cpmn;
+        bool bExists;
+        for (i=0; i< n; i++)
+        {
+            ar >> Alpha >> Cd >> Cdp >> Cl >> Cm;
+            ar >> XTr1 >> XTr2;
+            ar >> HMom >> Cpmn;
 
-			if(ArchiveFormat >=4) ar >> Re;
-			else                  Re = (float)pPolar->m_Reynolds;
+            if(ArchiveFormat >=4) ar >> Re;
+            else                  Re = (float)pPolar->m_Reynolds;
 
-			if(ArchiveFormat>=1004) ar>> XCp;
-			else                    XCp = 0.0;
+            if(ArchiveFormat>=1004) ar>> XCp;
+            else                    XCp = 0.0;
 
-			bExists = false;
+            bExists = false;
             if(pPolar->m_PolarType!=XFLR5::FIXEDAOAPOLAR)
-			{
-				for (j=0; j<pPolar->m_Alpha.size(); j++)
-				{
-					if(qAbs(Alpha-pPolar->m_Alpha[j])<0.001)
-					{
-						bExists = true;
-						break;
-					}
-				}
-			}
-			else
-			{
-				for (j=0; j<pPolar->m_Re.size(); j++)
-				{
-					if(qAbs(Re-pPolar->m_Re[j])<0.1)
-					{
-						bExists = true;
-						break;
-					}
-				}
-			}
-			if(!bExists)
-			{
-				pPolar->addPoint(Alpha, Cd, Cdp, Cl, Cm, XTr1, XTr2, HMom, Cpmn, Re, XCp);
-			}
-		}
-		if(ArchiveFormat>=1003)
-			ar >>pPolar->m_ACrit >> pPolar->m_XTop >> pPolar->m_XBot;
-	}
-	return true;
+            {
+                for (j=0; j<pPolar->m_Alpha.size(); j++)
+                {
+                    if(qAbs(Alpha-pPolar->m_Alpha[j])<0.001)
+                    {
+                        bExists = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                for (j=0; j<pPolar->m_Re.size(); j++)
+                {
+                    if(qAbs(Re-pPolar->m_Re[j])<0.1)
+                    {
+                        bExists = true;
+                        break;
+                    }
+                }
+            }
+            if(!bExists)
+            {
+                pPolar->addPoint(Alpha, Cd, Cdp, Cl, Cm, XTr1, XTr2, HMom, Cpmn, Re, XCp);
+            }
+        }
+        if(ArchiveFormat>=1003)
+            ar >>pPolar->m_ACrit >> pPolar->m_XTop >> pPolar->m_XBot;
+    }
+    return true;
 }
 
 QColor color(ObjectColor clr)
 {
-	return QColor(clr.red(), clr.green(), clr.blue(), clr.alpha());
+    return QColor(clr.red(), clr.green(), clr.blue(), clr.alpha());
 }

@@ -1,5 +1,7 @@
 #version 330
 
+// the texture vertex shaders
+
 // Input vertex data, different for all executions of this shader.
 in vec4 vertexPosition_modelSpace;
 in vec3 vertexNormal_modelSpace;
@@ -11,7 +13,7 @@ uniform  vec4 incolor;
 uniform mat4 pvmMatrix;
 uniform mat4 vMatrix;
 uniform mat4 mMatrix;
-uniform vec4 clipPlane0; // defined in view-space
+
 uniform vec3 LightPosition_viewSpace;
 uniform vec3 EyePosition_viewSpace;
 
@@ -31,7 +33,7 @@ void main()
 	gl_Position =  pvmMatrix * vertexPosition_modelSpace;
 
 	vec4 vsPos = vMatrix * mMatrix * vertexPosition_modelSpace; // position of vertex in viewspace
-//	gl_ClipDistance[0] = dot(clipPlane0,vsPos);
+
 	vPosition = vsPos.xyz / vsPos.w;
 
 	// Position of the vertex, in worldspace : M * position

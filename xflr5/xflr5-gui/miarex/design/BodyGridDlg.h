@@ -28,9 +28,9 @@
 #include <QLabel>
 #include <QSettings>
 
-#include <misc/text/DoubleEdit.h>
-#include <misc/line/LineBtn.h>
-
+class DoubleEdit;
+class LineEdit;
+class LineBtn;
 
 class BodyGridDlg : public QDialog
 {
@@ -42,8 +42,8 @@ class BodyGridDlg : public QDialog
 
 public:
 	BodyGridDlg(QWidget *pParent);
-	static void loadSettings (QSettings *pSettings);
-	static void saveSettings (QSettings *pSettings);
+    static void loadSettings (QSettings &settings);
+    static void saveSettings (QSettings &settings);
 
 private slots:
 	void onOK();

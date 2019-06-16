@@ -23,9 +23,13 @@
 #define XMLPLANEREADER_H
 
 #include <QXmlStreamReader>
-#include <objects/objects3d/Plane.h>
-
 #include <QFile>
+
+class Plane;
+class Body;
+class Wing;
+class Vector3d;
+class PointMass;
 
 class XMLPlaneReader : public QXmlStreamReader
 {

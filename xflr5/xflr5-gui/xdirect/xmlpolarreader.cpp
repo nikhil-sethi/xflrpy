@@ -19,9 +19,11 @@
 
 *****************************************************************************/
 
-#include <QtDebug>
+#include <QDebug>
+
 #include <globals/globals.h>
 #include "xmlpolarreader.h"
+#include <objects/objects2d/Polar.h>
 
 XmlPolarReader::XmlPolarReader(QFile &file, Polar *pPolar)
 {
@@ -61,15 +63,15 @@ void XmlPolarReader::readPolar(Polar *pPolar)
 	{
         if (name().toString().compare(QString("polar_name"),Qt::CaseInsensitive) ==0)
 		{
-			pPolar->polarName() = readElementText();
+            pPolar->setPolarName(readElementText());
 		}
         else if (name().toString().compare(QString("foil_name"),Qt::CaseInsensitive) ==0)
 		{
-			pPolar->foilName() = readElementText();
+            pPolar->setFoilName(readElementText());
 		}
         else if (name().toString().compare(QString("type"),Qt::CaseInsensitive) ==0)
 		{
-			pPolar->polarType() = polarType(readElementText());
+            pPolar->setPolarType(polarType(readElementText()));
 		}
         else if (name().compare(QString("Fixed_Reynolds"),         Qt::CaseInsensitive)==0)
 		{

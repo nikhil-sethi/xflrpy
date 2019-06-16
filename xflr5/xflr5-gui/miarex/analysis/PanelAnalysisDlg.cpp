@@ -19,7 +19,7 @@
 
 *****************************************************************************/
 
-#include <QtDebug>
+#include <QDebug>
 #include <QtConcurrent/QtConcurrentRun>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -34,12 +34,17 @@
 #include <math.h>
 
 #include "PanelAnalysisDlg.h"
-#include <miarex/Miarex.h>
-#include <misc/options/displayoptions.h>
+#include <analysis3d/plane_analysis/PanelAnalysis.h>
+#include <analysis3d/plane_analysis/planeanalysistask.h>
 #include <globals/globals.h>
-#include <objects/objects3d/vector3d.h>
-#include <misc/options/Units.h>
+#include <globals/gui_params.h>
+#include <miarex/Miarex.h>
 #include <miarex/objects3d.h>
+#include <misc/options/units.h>
+#include <misc/options/displayoptions.h>
+#include <objects/objects3d/Plane.h>
+#include <objects/objects3d/WPolar.h>
+#include <objects/objects3d/vector3d.h>
 
 QPoint PanelAnalysisDlg::s_Position = QPoint(200,100);
 QSize  PanelAnalysisDlg::s_WindowSize = QSize(900,550);
@@ -54,7 +59,7 @@ PanelAnalysisDlg::PanelAnalysisDlg(QWidget *pParent) : QDialog(pParent)
 	setWindowTitle(tr("3D Panel Analysis"));
 	setupLayout();
 
-	m_pTheTask = NULL;
+	m_pTheTask = nullptr;
 }
 
 
@@ -257,7 +262,7 @@ void PanelAnalysisDlg::cleanUp()
 			else
 			{
 				delete pPOpp;
-				pPOpp = NULL;
+				pPOpp = nullptr;
 			}
 		}
 	}
@@ -294,7 +299,7 @@ void PanelAnalysisDlg::cleanUp()
 	}
 	delete pXFile;
 
-	m_pTheTask = NULL;
+	m_pTheTask = nullptr;
 
 	m_pctrlCancel->setText(tr("Close"));
 	m_pctrlCancel->setFocus();
@@ -347,5 +352,5 @@ void PanelAnalysisDlg::hideEvent(QHideEvent *event)
 void PanelAnalysisDlg::deleteTask()
 {
 	if(m_pTheTask) delete m_pTheTask;
-	m_pTheTask = NULL;
+	m_pTheTask = nullptr;
 }

@@ -26,6 +26,8 @@
 
 #include "FoilCoordDlg.h"
 #include <misc/options/displayoptions.h>
+#include <misc/text/FloatEditDelegate.h>
+#include <objects/objects2d/Foil.h>
 
 
 
@@ -35,8 +37,8 @@ FoilCoordDlg::FoilCoordDlg(QWidget *pParent) : QDialog(pParent)
 
 	m_pParent = pParent;
 
-	m_pBufferFoil = NULL;
-	m_pMemFoil    = NULL;
+	m_pBufferFoil = nullptr;
+	m_pMemFoil    = nullptr;
 	setupLayout();
 
 	m_bApplied  = true;

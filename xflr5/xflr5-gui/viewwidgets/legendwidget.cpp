@@ -19,6 +19,7 @@
 
 *****************************************************************************/
 
+#include <QPainter>
 
 #include "legendwidget.h"
 #include "graphtilewidget.h"
@@ -37,12 +38,12 @@
 #include <xinverse/XInverse.h>
 #include <xdirect/XDirect.h>
 #include <xdirect/objects2d.h>
-#include <QPainter>
+#include <graph/curve.h>
 
 
-MainFrame* LegendWidget::s_pMainFrame = NULL;
-Miarex* LegendWidget::s_pMiarex = NULL;
-XDirect* LegendWidget::s_pXDirect = NULL;
+MainFrame* LegendWidget::s_pMainFrame = nullptr;
+Miarex* LegendWidget::s_pMiarex = nullptr;
+XDirect* LegendWidget::s_pXDirect = nullptr;
 
 
 
@@ -50,7 +51,7 @@ LegendWidget::LegendWidget(QWidget *pParent) : QWidget(pParent)
 {
 	setMouseTracking(true);
 	m_pParent = pParent;
-	m_pGraph = NULL;
+	m_pGraph = nullptr;
 	m_MiarexView = XFLR5::OTHERVIEW;
 	m_LegendPosition = QPointF(11.0,11.0);
 	m_bTrans = false;
@@ -129,14 +130,13 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 {
 	painter.save();
 
-	double LegendSize, LegendWidth, ypos;
-	int i,j,k,l, ny, x1, y1;
+    int ny, x1, y1;
 
-	LegendSize = 30;
-	LegendWidth = 280;
+    double LegendSize = 30;
+    double LegendWidth = 280;
 
 	QFontMetrics fm(Settings::s_TextFont);
-	ypos = fm.height();
+    double ypos = fm.height();
 
 	painter.setFont(Settings::s_TextFont);
 
@@ -146,16 +146,16 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 	TextPen.setWidth(1);
 
 	QStringList strPlaneList; // we need to make an inventory of planes which have a visible polar of the desired type
-	WPolar * pWPolar;
-	Plane *pPlane;
+    WPolar * pWPolar=nullptr;
+    Plane *pPlane=nullptr;
 
-    for (j=0; j<Objects3d::s_oaPlane.size(); j++)
+    for (int j=0; j<Objects3d::s_oaPlane.size(); j++)
 	{
         pPlane = Objects3d::s_oaPlane.at(j);
-        for (i=0; i<Objects3d::s_oaWPolar.size(); i++)
+        for (int i=0; i<Objects3d::s_oaWPolar.size(); i++)
 		{
             pWPolar = Objects3d::s_oaWPolar.at(i);
-			if (pWPolar->planeName()==pPlane->planeName() && pWPolar->isVisible())
+            if (pWPolar->planeName()==pPlane->planeName() && pWPolar->isVisible() && !isFiltered(pWPolar))
 			{
 				if(m_MiarexView==XFLR5::WPOLARVIEW || (m_MiarexView==XFLR5::STABPOLARVIEW && pWPolar->isStabilityPolar()))
 				{
@@ -180,14 +180,14 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 	LegendPen.setWidth(1);
 
 	ny =0;
-	for (k=0; k<strPlaneList.size(); k++)
+    for (int k=0; k<strPlaneList.size(); k++)
 	{
 		int nPlanePlrs = 0;
-        for (l=0; l < Objects3d::s_oaWPolar.size(); l++)
+        for (int l=0; l < Objects3d::s_oaWPolar.size(); l++)
 		{
             pWPolar = Objects3d::s_oaWPolar.at(l);
 
-			if (pWPolar->dataSize() && pWPolar->isVisible()  && pWPolar->planeName()==strPlaneList.at(k))
+            if (pWPolar->dataSize() && pWPolar->isVisible() && !isFiltered(pWPolar) && pWPolar->planeName()==strPlaneList.at(k))
 			{
 				if(m_MiarexView==XFLR5::WPOLARVIEW || (m_MiarexView==XFLR5::STABPOLARVIEW && pWPolar->isStabilityPolar()))
 					nPlanePlrs++;
@@ -200,7 +200,7 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 			if(abs(bottom) > abs(YPos))
 			{
 				ny++;
-				painter.drawText(place.x(), place.y() + ypos*ny- (double)ypos/2, strPlaneList.at(k));
+                painter.drawText(place.x(), place.y() + ypos*ny- double(ypos)/2, strPlaneList.at(k));
 			}
 			else
 			{
@@ -208,7 +208,7 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 				place.rx() += LegendWidth;
 				ny=1;
 				painter.setPen(TextPen);
-				painter.drawText(place.x(), place.y() + ypos*ny-(double)ypos/2, strPlaneList.at(k));
+                painter.drawText(place.x(), place.y() + ypos*ny-double(ypos)/2, strPlaneList.at(k));
 			}
 
             for (int nc=0; nc<Objects3d::s_oaWPolar.size(); nc++)
@@ -219,7 +219,7 @@ void LegendWidget::drawWPolarLegend(QPainter &painter, QPointF place, int bottom
 					if(!pWPolar->dataSize())
 					{
 					}
-					else if(!pWPolar->isVisible())
+                    else if(!pWPolar->isVisible() || isFiltered(pWPolar))
 					{
 					}
 					else if(m_MiarexView!=XFLR5::WPOLARVIEW && (m_MiarexView!=XFLR5::STABPOLARVIEW || !pWPolar->isStabilityPolar()))
@@ -280,7 +280,7 @@ void LegendWidget::drawPOppGraphLegend(QPainter &painter, QPointF place, double 
 
 	QStringList str; // we need to make an inventory of wings
 	bool bFound;
-	PlaneOpp *pPOpp = NULL;
+	PlaneOpp *pPOpp = nullptr;
 
 
     for (i=0; i<Objects3d::s_oaPOpp.size(); i++)
@@ -437,7 +437,7 @@ void LegendWidget::drawCpLegend(QPainter &painter, Graph *pGraph, QPointF place,
 {
 	painter.save();
 	double LegendSize, LegendWidth, dny, x1, y1, i, ny;
-	Curve *pCurve=NULL;
+	Curve *pCurve=nullptr;
 	QString strong;
 
 	LegendSize = 30;
@@ -500,7 +500,7 @@ void LegendWidget::drawStabTimeLegend(QPainter &painter, Graph *pGraph, QPointF 
 {
 	painter.save();
 	double LegendSize, LegendWidth, dny, x1, y1, i, ny;
-	Curve *pCurve=NULL;
+	Curve *pCurve=nullptr;
 	QString strong;
 
 	LegendSize = 30;
@@ -715,15 +715,22 @@ void LegendWidget::mousePressEvent(QMouseEvent *event)
 
 
 
-void LegendWidget::mouseReleaseEvent(QMouseEvent *event)
+void LegendWidget::mouseReleaseEvent(QMouseEvent *)
 {
-	Q_UNUSED(event);
 	m_bTrans = false;
 	setCursor(Qt::CrossCursor);
 }
 
 
-
+bool LegendWidget::isFiltered(WPolar *pWPolar)
+{
+    if(!pWPolar) return true;
+    if(pWPolar->isFixedSpeedPolar() && !s_pMiarex->m_bType1) return true;
+    if(pWPolar->isFixedLiftPolar()  && !s_pMiarex->m_bType2) return true;
+    if(pWPolar->isFixedaoaPolar()   && !s_pMiarex->m_bType4) return true;
+    if(pWPolar->isStabilityPolar()  && !s_pMiarex->m_bType7) return true;
+    return false;
+}
 
 
 

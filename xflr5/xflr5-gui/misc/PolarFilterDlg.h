@@ -28,6 +28,7 @@
 #include <QPushButton>
 #include <QKeyEvent>
 
+
 class PolarFilterDlg : public QDialog
 {
 	Q_OBJECT
@@ -36,17 +37,15 @@ class PolarFilterDlg : public QDialog
 	friend class XDirect;
 
 public:
-	PolarFilterDlg(QWidget *pParent=NULL);
-	void InitDialog();
+    PolarFilterDlg(QWidget *pParent=nullptr);
+    void initDialog();
 
 private slots:
-	void OnOK();
+    void onClose();
 
 private:
-	void keyPressEvent(QKeyEvent *event);
-	void SetupLayout();
+    void setupLayout();
 
-	QPushButton *OKButton;
 	QCheckBox *m_pctrlType1, *m_pctrlType2, *m_pctrlType3, *m_pctrlType4, *m_pctrlType7;
 	bool m_bType1, m_bType2, m_bType3, m_bType4, m_bType7;
 	bool m_bMiarex;

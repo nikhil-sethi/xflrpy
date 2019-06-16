@@ -1,5 +1,7 @@
 #version 330
 
+// the texture fragment shader
+
 uniform int lightOn;
 uniform vec3 LightPosition_viewSpace;
 uniform vec4 LightColor;
@@ -16,7 +18,8 @@ in vec3 LightDirection_viewSpace;
 in vec2 UV;
 in vec3 vPosition;
 
-out vec4 fragColor;
+layout(location=0) out vec4 fragColor;
+
 
 void main()
 {
@@ -31,8 +34,8 @@ void main()
 
 	if(lightOn==1)
 	{
-		MaterialAmbientColor  = vec4(texture2D(textureSampler, UV).rgb*LightAmbient, 1.0) ;
-		MaterialDiffuseColor  = vec4(texture2D(textureSampler, UV).rgb*LightDiffuse, 1.0);
+        MaterialAmbientColor  = vec4(texture(textureSampler, UV).rgb*LightAmbient, 1.0);
+        MaterialDiffuseColor  = vec4(texture(textureSampler, UV).rgb*LightDiffuse, 1.0);
 
 
 		MaterialSpecularColor = vec4(1.0, 1.0, 1.0, 1.0);
@@ -60,13 +63,13 @@ void main()
 
 		float attenuation_factor = clamp(1.0/(Kc + Kl*distance + Kq*distance*distance), 0.00001, 1.0);
 
-		gl_FragColor =
+        fragColor =
 			  MaterialAmbientColor  * LightColor +
 			 (MaterialDiffuseColor  * LightDiffuse  * cosTheta)                         * LightColor * attenuation_factor
 			+(MaterialSpecularColor * LightSpecular * pow(cosAlpha, MaterialShininess)) * LightColor * attenuation_factor;
 	}
 	else
-		gl_FragColor  = vec4(texture2D(textureSampler, UV).rgb, 1.0);
+        fragColor  = vec4(texture(textureSampler, UV).rgb, 1.0);
 
 }
 

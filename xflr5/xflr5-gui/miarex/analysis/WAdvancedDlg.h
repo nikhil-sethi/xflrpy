@@ -25,12 +25,11 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QRadioButton>
-#include <QPushButton>
 #include <QLabel>
-#include <misc/text/DoubleEdit.h>
-#include <misc/text/IntEdit.h>
+#include <QDialogButtonBox>
 
-
+class DoubleEdit;
+class IntEdit;
 
 class WAdvancedDlg : public QDialog
 {
@@ -45,6 +44,7 @@ public:
 private slots:
 	void onOK();
 	void onResetDefaults();
+    void onButton(QAbstractButton *pButton);
 
 private:
 	void keyPressEvent(QKeyEvent *event);
@@ -52,8 +52,10 @@ private:
 	void setParams();
 	void setupLayout();
 
+    QDialogButtonBox *m_pButtonBox;
+
 	QLabel *m_pctrlLength, *m_pctrlLength2;
-	QPushButton *OKButton, *CancelButton;
+
 	QCheckBox *m_pctrlLogFile;
 	QCheckBox *m_pctrlKeepOutOpps;
 	QRadioButton *m_pctrlDirichlet, *m_pctrlNeumann;

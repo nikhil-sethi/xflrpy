@@ -1,7 +1,7 @@
 /****************************************************************************
 
-	ManageUFOsDlg Class
-	Copyright (C) 2009 Andre Deperrois 
+    ManagePlanesDlg Class
+    Copyright (C) 2009-2019 Andre Deperrois
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,10 +28,10 @@
 #include <QPushButton>
 #include <QTableView>
 #include <QStandardItemModel>
-#include "PlaneTableDelegate.h"
-#include <objects/objects3d/Plane.h>
+#include <QDialogButtonBox>
 
-
+class Plane;
+class PlaneTableDelegate;
 
 class ManagePlanesDlg : public QDialog
 {
@@ -48,28 +48,31 @@ public:
 private slots:
 	void onDelete();
 	void onRename();
-	void onPlaneClicked(QModelIndex index);
+    void onTableRowChanged(QModelIndex index);
 	void onDoubleClickTable(const QModelIndex &index);
 	void onDescriptionChanged();
+    void onButton(QAbstractButton *pButton);
 
 private:
 	void resizeEvent(QResizeEvent *event);
 	void keyPressEvent(QKeyEvent *event);
 
-	void fillUFOTable();
+    void fillPlaneTable();
 	void fillPlaneRow(int row);
 
 	void setupLayout();
-	void SelectUFO();
+    void selectPlane();
 
 private:
-	QPushButton *CloseButton;
+
+    QDialogButtonBox *m_pButtonBox;
+
 	QPushButton *m_pctrlRename, *m_pctrlDelete;
 	QTextEdit *m_pctrlDescription;
-	QTableView *m_pctrlUFOTable;
-	QStandardItemModel *m_pUFOModel;
-	PlaneTableDelegate *m_pUFODelegate;
-	QItemSelectionModel *m_pSelectionModel;
+    QTableView *m_pctrlPlaneTable;
+    QStandardItemModel *m_pPlaneModel;
+    PlaneTableDelegate *m_pPlaneDelegate;
+//	QItemSelectionModel *m_pSelectionModel;
 
 	int *m_pPrecision;
 
@@ -77,4 +80,4 @@ private:
 	bool m_bChanged;
 };
 
-#endif // MANAGEUFOSDLG_H
+#endif // MANAGEPLANESDLG_H

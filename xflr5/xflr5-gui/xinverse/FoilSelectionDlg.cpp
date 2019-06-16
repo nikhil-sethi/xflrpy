@@ -22,6 +22,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
+
 #include <objects/objects2d/Foil.h>
 #include "FoilSelectionDlg.h"
 
@@ -30,7 +31,7 @@
 FoilSelectionDlg::FoilSelectionDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setWindowTitle(tr("Foil Selection"));
-	m_poaFoil = NULL;
+	m_poaFoil = nullptr;
 	m_FoilName = "";
 	m_FoilList.clear();
 	setupLayout();

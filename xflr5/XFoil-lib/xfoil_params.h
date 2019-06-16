@@ -41,8 +41,6 @@
 #define IMX 64      /**< number of complex mapping coefficients  Cn */
 #define IMX4 16     /**< = IMX/4 */
 
-#define MIDPOINTCOUNT 100  /**< the number of points which define the foil's mid camber line */
-
 
 
 #endif // XFOIL_PARAMS_H

@@ -30,10 +30,13 @@ HEADERS +=\
     XFoil.h \
     xfoil_params.h
 
-OBJECTS_DIR = ./build/objects
-MOC_DIR = ./build/moc
-RCC_DIR = ./build/rcc
+OBJECTS_DIR = ./objects
 
+win32 {
+#prevent qmake from making useless \debug and \release subdirs
+    CONFIG -= debug_and_release debug_and_release_target
+
+}
 
 
 macx{
@@ -44,8 +47,12 @@ macx{
 }
 
 
-unix{
-	target.path = /usr/local/lib
-    INSTALLS += target
+linux-g++{
+
+	isEmpty(PREFIX){
+		PREFIX = /usr/local
+	}
+	target.path = $$PREFIX/lib
+	INSTALLS += target
 }
 

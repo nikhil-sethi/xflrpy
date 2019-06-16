@@ -34,8 +34,9 @@ class XFLR5Application : public QApplication
 public:
 	XFLR5Application(int&, char**);
 
-protected:
+private:
 	bool event(QEvent *);
+    void addStandardBtnStrings();
 };
 
 #endif // XFLR5APPLICATION_H

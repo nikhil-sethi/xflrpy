@@ -23,10 +23,13 @@
 #include "NacaFoilDlg.h"
 #include <QGridLayout>
 #include <QFormLayout>
+#include <objects/objects2d/Foil.h>
+#include <misc/text/IntEdit.h>
 
-void *NacaFoilDlg::s_pXFoil;
+XFoil *NacaFoilDlg::s_pXFoil;
 int NacaFoilDlg::s_Digits = 0;
 int NacaFoilDlg::s_Panels = 100;
+
 
 
 NacaFoilDlg::NacaFoilDlg(QWidget *pParent) : QDialog(pParent)
@@ -36,7 +39,7 @@ NacaFoilDlg::NacaFoilDlg(QWidget *pParent) : QDialog(pParent)
 	m_pParent = pParent;
 
 	m_bGenerated = false;
-	m_pBufferFoil = NULL;
+	m_pBufferFoil = nullptr;
 
 	setupLayout();
 
@@ -116,14 +119,13 @@ void NacaFoilDlg::generateFoil()
 {
 	int itype = 0;
 
-	XFoil *pXFoil = (XFoil*)s_pXFoil;
-	pXFoil->lflap = false;
-	pXFoil->lbflap = false;
+    s_pXFoil->lflap = false;
+    s_pXFoil->lbflap = false;
 
 	if(s_Digits<=25099) itype = 5;
 	if(s_Digits<=9999 ) itype = 4;
 
-	if(itype==4) pXFoil->naca4(s_Digits, (int)(s_Panels/2));
+    if(itype==4) s_pXFoil->naca4(s_Digits, (int)(s_Panels/2));
 	else if(itype==5)
 	{
 		int three  = s_Digits/100;
@@ -134,7 +136,7 @@ void NacaFoilDlg::generateFoil()
 			m_bGenerated = false;
 			return;
 		}
-		if(!pXFoil->naca5(s_Digits, s_Panels))
+        if(!s_pXFoil->naca5(s_Digits, s_Panels))
 		{
 			m_bGenerated = false;
 			m_pctrlMessage->setText(tr("Illegal NACA Number"));
@@ -150,15 +152,15 @@ void NacaFoilDlg::generateFoil()
 	}
 	m_pctrlMessage->setText(" ");
 
-	for (int j=0; j< pXFoil->nb; j++)
+    for (int j=0; j< s_pXFoil->nb; j++)
 	{
-		m_pBufferFoil->xb[j] = pXFoil->xb[j+1];
-		m_pBufferFoil->yb[j] = pXFoil->yb[j+1];
-		m_pBufferFoil->x[j]  = pXFoil->xb[j+1];
-		m_pBufferFoil->y[j]  = pXFoil->yb[j+1];
+        m_pBufferFoil->xb[j] = s_pXFoil->xb[j+1];
+        m_pBufferFoil->yb[j] = s_pXFoil->yb[j+1];
+        m_pBufferFoil->x[j]  = s_pXFoil->xb[j+1];
+        m_pBufferFoil->y[j]  = s_pXFoil->yb[j+1];
 	}
-	m_pBufferFoil->nb = pXFoil->nb;
-	m_pBufferFoil->n = pXFoil->nb;
+    m_pBufferFoil->nb = s_pXFoil->nb;
+    m_pBufferFoil->n = s_pXFoil->nb;
 	m_pBufferFoil->initFoil();
 
 	m_pParent->update();

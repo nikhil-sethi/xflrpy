@@ -17,7 +17,8 @@ uniform vec4 clipPlane0; // defined in view-space
 
 
 
-out vec4 fragColor;
+layout(location=0) out vec4 fragColor;
+
 
 void main()
 {
@@ -59,14 +60,14 @@ void main()
 
 		float attenuation_factor = clamp(1.0/(Kc + Kl*distance + Kq*distance*distance), 0.00001, 1.0);
 
-		gl_FragColor =
+        fragColor =
 			  MaterialAmbientColor  * LightColor +
 			 (MaterialDiffuseColor  * LightDiffuse  * cosTheta)                         * LightColor * attenuation_factor
 			+(MaterialSpecularColor * LightSpecular * pow(cosAlpha, MaterialShininess)) * LightColor * attenuation_factor;
 	}
 	else
 	{
-		gl_FragColor  = vertexcolor;
+        fragColor  = vertexcolor;
 	}
 }
 

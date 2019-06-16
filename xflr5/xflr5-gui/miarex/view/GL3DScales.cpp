@@ -19,17 +19,20 @@
 
 *****************************************************************************/
 
-#include "GL3DScales.h"
-#include <miarex/Miarex.h>
-#include <misc/options/Units.h>
-#include <globals/globals.h>
-#include <misc/options/displayoptions.h>
-
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QDockWidget>
 
-void *GL3DScales::s_pMiarex;
+
+#include "GL3DScales.h"
+#include <miarex/Miarex.h>
+#include <misc/options/units.h>
+#include <globals/globals.h>
+#include <misc/options/displayoptions.h>
+#include <viewwidgets/glWidgets/gl3dmiarexview.h>
+
+
+Miarex *GL3DScales::s_pMiarex;
 
 int GL3DScales::s_pos = 1;
 int GL3DScales::s_NX = 30;
@@ -44,7 +47,7 @@ GL3DScales::GL3DScales(QWidget *)
 	setAttribute(Qt::WA_DeleteOnClose, false);
 	setWindowTitle(tr("3D Scales Settings"));
 
-	m_pParent = NULL;
+	m_pParent = nullptr;
 	s_pos       = 1;
 	s_NX        =   30;
 	s_XFactor   = 1.10;
@@ -277,19 +280,19 @@ void GL3DScales::initDialog()
 	m_pctrlLengthUnit2->setText(str);
 	m_pctrlLengthUnit3->setText(str);
 
-	m_pctrlAutoCpScale->setChecked(Miarex::s_bAutoCpScale);
-	m_pctrlLegendMin->setValue(Miarex::s_LegendMin);
-	m_pctrlLegendMax->setValue(Miarex::s_LegendMax);
-	m_pctrlLegendMin->setEnabled(!Miarex::s_bAutoCpScale);
-	m_pctrlLegendMax->setEnabled(!Miarex::s_bAutoCpScale);
+    m_pctrlAutoCpScale->setChecked(gl3dMiarexView::s_bAutoCpScale);
+    m_pctrlLegendMin->setValue(gl3dMiarexView::s_LegendMin);
+    m_pctrlLegendMax->setValue(gl3dMiarexView::s_LegendMax);
+    m_pctrlLegendMin->setEnabled(!gl3dMiarexView::s_bAutoCpScale);
+    m_pctrlLegendMax->setEnabled(!gl3dMiarexView::s_bAutoCpScale);
 
-	m_pctrlLiftScaleSlider->setExpValue(Miarex::s_LiftScale);
-	m_pctrlDragScaleSlider->setExpValue(Miarex::s_DragScale);
-	m_pctrlVelocityScaleSlider->setExpValue(Miarex::s_VelocityScale);
+    m_pctrlLiftScaleSlider->setExpValue(gl3dMiarexView::s_LiftScale);
+    m_pctrlDragScaleSlider->setExpValue(gl3dMiarexView::s_DragScale);
+    m_pctrlVelocityScaleSlider->setExpValue(gl3dMiarexView::s_VelocityScale);
 
-	m_pctrlLiftScale->setValue(Miarex::s_LiftScale);
-	m_pctrlDragScale->setValue(Miarex::s_DragScale);
-	m_pctrlVelocityScale->setValue(Miarex::s_VelocityScale);
+    m_pctrlLiftScale->setValue(gl3dMiarexView::s_LiftScale);
+    m_pctrlDragScale->setValue(gl3dMiarexView::s_DragScale);
+    m_pctrlVelocityScale->setValue(gl3dMiarexView::s_VelocityScale);
 
 
 	if(s_pos==0)	    m_pctrlLE->setChecked(true);
@@ -306,98 +309,90 @@ void GL3DScales::initDialog()
 
 void GL3DScales::onCpScale()
 {
-	Miarex * pMiarex = (Miarex*)s_pMiarex;
-    Miarex::s_bAutoCpScale = m_pctrlAutoCpScale->isChecked();
-	if(!Miarex::s_bAutoCpScale)
+    gl3dMiarexView::s_bAutoCpScale = m_pctrlAutoCpScale->isChecked();
+    if(!gl3dMiarexView::s_bAutoCpScale)
 	{
-		Miarex::s_LegendMax = m_pctrlLegendMax->value();
-		Miarex::s_LegendMin = m_pctrlLegendMin->value();
+        gl3dMiarexView::s_LegendMax = m_pctrlLegendMax->value();
+        gl3dMiarexView::s_LegendMin = m_pctrlLegendMin->value();
 	}
-    m_pctrlLegendMin->setEnabled(!Miarex::s_bAutoCpScale);
-    m_pctrlLegendMax->setEnabled(!Miarex::s_bAutoCpScale);
+    m_pctrlLegendMin->setEnabled(!gl3dMiarexView::s_bAutoCpScale);
+    m_pctrlLegendMax->setEnabled(!gl3dMiarexView::s_bAutoCpScale);
 
-	pMiarex->m_bResetglPanelCp = true;
-	pMiarex->m_bResetglLegend = true;
-	pMiarex->m_bResetTextLegend = true;
-	pMiarex->updateView();
+    gl3dMiarexView::s_bResetglPanelCp = true;
+    gl3dMiarexView::s_bResetglLegend = true;
+    s_pMiarex->m_bResetTextLegend = true;
+    s_pMiarex->updateView();
 }
 
 
 void GL3DScales::onApply()
 {
-	Miarex * pMiarex = (Miarex*)s_pMiarex;
-	Miarex::s_LegendMax = m_pctrlLegendMax->value();
-	Miarex::s_LegendMin = m_pctrlLegendMin->value();
-	Miarex::s_bAutoCpScale = m_pctrlAutoCpScale->isChecked();
+    gl3dMiarexView::s_LegendMax = m_pctrlLegendMax->value();
+    gl3dMiarexView::s_LegendMin = m_pctrlLegendMin->value();
+    gl3dMiarexView::s_bAutoCpScale = m_pctrlAutoCpScale->isChecked();
 	readStreamParams();
-	pMiarex->m_bResetglStream = true;
-	pMiarex->updateView();
+    gl3dMiarexView::s_bResetglStream = true;
+    s_pMiarex->updateView();
 }
 
 
 
 void GL3DScales::onLiftEdit()
 {
-	Miarex * pMiarex = (Miarex*)s_pMiarex;
-	pMiarex->s_LiftScale = m_pctrlLiftScale->value();
-	m_pctrlLiftScaleSlider->setValue(pMiarex->s_LiftScale);
-	pMiarex->m_bResetglLift = true;
-	pMiarex->m_bResetglPanelForce = true;
-	pMiarex->updateView();
+    gl3dMiarexView::s_LiftScale = m_pctrlLiftScale->value();
+    m_pctrlLiftScaleSlider->setValue(gl3dMiarexView::s_LiftScale);
+    gl3dMiarexView::s_bResetglLift = true;
+    gl3dMiarexView::s_bResetglPanelForce = true;
+    s_pMiarex->updateView();
 }
 
 
 void GL3DScales::onDragEdit()
 {
-	Miarex * pMiarex = (Miarex*)s_pMiarex;
-	pMiarex->s_DragScale = m_pctrlDragScale->value();
-	m_pctrlDragScaleSlider->setValue(pMiarex->s_DragScale);
-	pMiarex->m_bResetglDrag = true;
-	pMiarex->updateView();
+    gl3dMiarexView::s_DragScale = m_pctrlDragScale->value();
+    m_pctrlDragScaleSlider->setValue(gl3dMiarexView::s_DragScale);
+    gl3dMiarexView::s_bResetglDrag = true;
+    s_pMiarex->updateView();
 }
 
 
 void GL3DScales::onVelocityEdit()
 {
-	Miarex * pMiarex = (Miarex*)s_pMiarex;
-	pMiarex->s_VelocityScale = m_pctrlVelocityScale->value();
-	m_pctrlVelocityScaleSlider->setValue(pMiarex->s_VelocityScale);
-	pMiarex->m_bResetglDownwash = true;
-	pMiarex->m_bResetglSurfVelocities = true;
-	pMiarex->updateView();
+    gl3dMiarexView::s_VelocityScale = m_pctrlVelocityScale->value();
+    m_pctrlVelocityScaleSlider->setValue(gl3dMiarexView::s_VelocityScale);
+    gl3dMiarexView::s_bResetglDownwash = true;
+    gl3dMiarexView::s_bResetglSurfVelocities = true;
+    s_pMiarex->updateView();
 
 }
 
 
 void GL3DScales::onLiftScale()
 {
-	Miarex * pMiarex = (Miarex*)s_pMiarex;
-	pMiarex->s_LiftScale    = m_pctrlLiftScaleSlider->expValue();
-	m_pctrlLiftScale->setValue(pMiarex->s_LiftScale);
-	pMiarex->m_bResetglLift = true;
-	pMiarex->m_bResetglPanelForce = true;
-	pMiarex->updateView();
+    gl3dMiarexView::s_LiftScale    = m_pctrlLiftScaleSlider->expValue();
+    m_pctrlLiftScale->setValue(gl3dMiarexView::s_LiftScale);
+    gl3dMiarexView::s_bResetglLift = true;
+    gl3dMiarexView::s_bResetglPanelForce = true;
+    s_pMiarex->updateView();
 }
 
 
 void GL3DScales::onDragScale()
 {
-	Miarex * pMiarex = (Miarex*)s_pMiarex;
-	pMiarex->s_DragScale    = m_pctrlDragScaleSlider->expValue();
-	m_pctrlDragScale->setValue(pMiarex->s_DragScale);
-	pMiarex->m_bResetglDrag = true;
-	pMiarex->updateView();
+    gl3dMiarexView::s_DragScale    = m_pctrlDragScaleSlider->expValue();
+    m_pctrlDragScale->setValue(gl3dMiarexView::s_DragScale);
+    gl3dMiarexView::s_bResetglDrag = true;
+    s_pMiarex->updateView();
 }
 
 
 void GL3DScales::onVelocityScale()
 {
-	Miarex * pMiarex = (Miarex*)s_pMiarex;
-	pMiarex->s_VelocityScale    = m_pctrlVelocityScaleSlider->expValue();
-	m_pctrlVelocityScale->setValue(pMiarex->s_VelocityScale);
-	pMiarex->m_bResetglDownwash = true;
-	pMiarex->m_bResetglSurfVelocities = true;
-	pMiarex->updateView();
+    gl3dMiarexView::s_VelocityScale    = m_pctrlVelocityScaleSlider->expValue();
+    m_pctrlVelocityScale->setValue(gl3dMiarexView::s_VelocityScale);
+    gl3dMiarexView::s_bResetglDownwash = true;
+    gl3dMiarexView::s_bResetglSurfVelocities = true;
+    s_pMiarex->updateView();
 }
 
 
@@ -410,8 +405,7 @@ void GL3DScales::showEvent(QShowEvent *event)
 
 void GL3DScales::hideEvent(QHideEvent *event)
 {
-	Miarex * pMiarex = (Miarex*)s_pMiarex;
-	pMiarex->setControls();
+    s_pMiarex->setControls();
 	event->accept();
 }
 
@@ -435,9 +429,9 @@ bool GL3DScales::loadSettings(QSettings *pSettings)
 {
 	pSettings->beginGroup("GL3DScales");
 	{
-		Miarex::s_bAutoCpScale = pSettings->value("AutoCpScale").toBool();
-		Miarex::s_LegendMin    = pSettings->value("LegendMin").toDouble();
-		Miarex::s_LegendMax    = pSettings->value("LegendMax").toDouble();
+        gl3dMiarexView::s_bAutoCpScale = pSettings->value("AutoCpScale").toBool();
+        gl3dMiarexView::s_LegendMin    = pSettings->value("LegendMin").toDouble();
+        gl3dMiarexView::s_LegendMax    = pSettings->value("LegendMax").toDouble();
 		s_pos     = pSettings->value("Position").toInt();
 		s_NX      = pSettings->value("NX").toInt();
 		s_DeltaL  = pSettings->value("DeltaL").toDouble();
@@ -454,9 +448,9 @@ bool GL3DScales::saveSettings(QSettings *pSettings)
 {
 	pSettings->beginGroup("GL3DScales");
 	{
-		pSettings->setValue("AutoCpScale", Miarex::s_bAutoCpScale);
-		pSettings->setValue("LegendMin", Miarex::s_LegendMin);
-		pSettings->setValue("LegendMax", Miarex::s_LegendMax);
+        pSettings->setValue("AutoCpScale", gl3dMiarexView::s_bAutoCpScale);
+        pSettings->setValue("LegendMin", gl3dMiarexView::s_LegendMin);
+        pSettings->setValue("LegendMax", gl3dMiarexView::s_LegendMax);
 		pSettings->setValue("Position", s_pos);
 		pSettings->setValue("NX", s_NX);
 		pSettings->setValue("DeltaL", s_DeltaL);

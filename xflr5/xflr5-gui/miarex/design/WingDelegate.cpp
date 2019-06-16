@@ -21,8 +21,11 @@
  
 
 #include <objects/objects2d/Foil.h>
-#include "WingDelegate.h"
-#include "GL3dWingDlg.h"
+#include <miarex/design/WingDelegate.h>
+#include <miarex/design/GL3dWingDlg.h>
+#include <misc/text/DoubleEdit.h>
+#include <objects/objects3d/WingSection.h>
+#include <objects/objects2d/Foil.h>
 
 
 WingDelegate::WingDelegate(QObject *parent)
@@ -79,7 +82,7 @@ QWidget *WingDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem 
 		}
 		return editor;
 	}
-	return NULL;
+	return nullptr;
 }
 
 

@@ -1,7 +1,6 @@
 /****************************************************************************
 
-	AeroData Class
-	Submitted by BuboMaximus 2014/03/17
+    AeroData Class
 	Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
@@ -33,11 +32,13 @@
  *
  */
 
-#include <misc/text/DoubleEdit.h>
+
 
 #include <QDialog>
 #include <QLabel>
 #include <QComboBox>
+
+class DoubleEdit;
 
 /**
  *@class AeroDataDlg

@@ -3,25 +3,24 @@
 if [ ! -d mac_release ]; then
 	mkdir mac_release
 fi
-if [ -d mac_release/XFLR5 ]; then
-	rm -rf mac_release/XFLR5
+
+if [ -f mac_release/XFLR5.app ]; then
+    rm mac_release/XFLR5.app
 fi
 
-mkdir mac_release/XFLR5
+if [ -f mac_release/XFLR5.dmg ]; then
+    rm mac_release/XFLR5.dmg
+fi
+
+#mkdir mac_release/XFLR5
 
 if [ -z "$QT_HOME" ]
 then 
 	QT_HOME=~/Applications/Qt5.8/5.8/clang_64/bin
 fi
-#rm -r mac_release/XFLR5/*
-cp -r ../build-xflr5/release/XFLR5.app mac_release/XFLR5/
-${QT_HOME}/bin/macdeployqt mac_release/XFLR5/XFLR5.app
 
-cp License.txt mac_release/XFLR5/
-cp doc/ReleaseNotes.txt mac_release/XFLR5/
+cp -r ../build/build-xflr5/release/xflr5.app mac_release/
+macdeployqt mac_release/xflr5.app -dmg
 
-if [ -f mac_release/XFLR5.dmg ]; then
-	rm mac_release/XFLR5.dmg
-fi
-hdiutil create mac_release/XFLR5.dmg -srcfolder mac_release/XFLR5
-hdiutil internet-enable -yes mac_release/XFLR5.dmg
+#hdiutil create mac_release/XFLR5.dmg -srcfolder mac_release/XFLR5
+hdiutil internet-enable -yes mac_release/xflr5.dmg

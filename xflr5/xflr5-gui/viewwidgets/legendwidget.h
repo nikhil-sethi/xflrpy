@@ -23,11 +23,12 @@
 
 #include <QWidget>
 #include <globals/gui_enums.h>
-#include <objects/objects3d/PlaneOpp.h>
-#include <graph/graph.h>
 
+class MainFrame;
 class Miarex;
 class XDirect;
+class Graph;
+class WPolar;
 
 class LegendWidget : public QWidget
 {
@@ -60,6 +61,7 @@ private:
 	void drawStabTimeLegend(QPainter &painter, Graph *pGraph, QPointF place, int bottom);
 	void drawCpLegend(QPainter &painter, Graph *pGraph, QPointF place, int bottom);
 	void drawPolarLegend(QPainter &painter, QPointF place, int bottom);
+    bool isFiltered(WPolar *pWPolar);
 
 private:
 	Graph *m_pGraph;

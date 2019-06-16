@@ -25,7 +25,9 @@
 #include "PertDlg.h"
 #include <misc/options/displayoptions.h>
 
-
+#include <misc/text/FloatEditDelegate.h>
+#include <objects/objects2d/Foil.h>
+#include <misc/text/DoubleEdit.h>
 
 
 PertDlg::PertDlg(QWidget *pParent) : QDialog(pParent)
@@ -37,9 +39,9 @@ PertDlg::PertDlg(QWidget *pParent) : QDialog(pParent)
 	memset(m_backr, 0, sizeof(m_backr));
 	memset(m_backi, 0, sizeof(m_backi));
 
-//	m_pCnModel = NULL;
-	m_precision = NULL;
-	m_pFloatDelegate = NULL;
+//	m_pCnModel = nullptr;
+	m_precision = nullptr;
+	m_pFloatDelegate = nullptr;
 
 	setupLayout();
 

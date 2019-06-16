@@ -64,7 +64,7 @@ private:
 	QLabel      *m_pctrlMessage;
 	QLineEdit   *m_pctrlName;
 	QListWidget *m_pctrlNameList;
-	QPushButton *m_pOverwriteButton;
+    QPushButton *m_pctrlOverwrite;
 	QDialogButtonBox *m_pButtonBox;
 };
 

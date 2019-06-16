@@ -1,7 +1,7 @@
 /****************************************************************************
 
     Polar Class
-	Copyright (C) 2003 Andre Deperrois 
+    Copyright (C) 2003-2019 Andre Deperrois
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,9 +35,9 @@ Polar::Polar()
 	m_Style = 0;// = PS_SOLID
 	m_Width = 1;
 
-	m_red   = (int)(((double)rand()/(double)RAND_MAX)*200);
-	m_green = (int)(((double)rand()/(double)RAND_MAX)*200);
-	m_blue  = (int)(((double)rand()/(double)RAND_MAX)*200);
+    m_red   = int(((double)rand()/(double)RAND_MAX)*200);
+    m_green = int(((double)rand()/(double)RAND_MAX)*200);
+    m_blue  = int(((double)rand()/(double)RAND_MAX)*200);
 	m_alphaChannel = 255;
 
 	m_ASpec = 0.0;
@@ -281,16 +281,18 @@ void Polar::replaceOppDataAt(int pos, OpPoint *pOpp)
 	m_ClCd[pos]  =  pOpp->Cl/pOpp->Cd;
 	m_XCp[pos]   =  pOpp->m_XCP;
 
-	if(pOpp->Cl>0.0) m_RtCl[pos] = 1.0/sqrt(pOpp->Cl);
-	else             m_RtCl[pos] = 0.0;
+//  Bug  if(pOpp->Cl>0.0) m_RtCl[pos] = 1.0/sqrt(pOpp->Cl);
+    if(pOpp->Cl>0.0) m_RtCl[pos] = sqrt(pOpp->Cl);
+    else             m_RtCl[pos] = 0.0;
 	if (pOpp->Cl>=0.0) m_Cl32Cd[pos] =  pow( pOpp->Cl, 1.5)/ pOpp->Cd;
 	else               m_Cl32Cd[pos] = -pow(-pOpp->Cl, 1.5)/ pOpp->Cd;
 
     if(m_PolarType==XFLR5::FIXEDSPEEDPOLAR)  m_Re[pos] =  pOpp->Reynolds();
     else if (m_PolarType==XFLR5::FIXEDLIFTPOLAR)
 	{
-		if(pOpp->Cl>0.0) m_Re[pos] =  pOpp->Reynolds()/ sqrt(pOpp->Cl);
-		else             m_Re[pos] = 0.0;
+//    Bug    if(pOpp->Cl>0.0) m_Re[pos] =  pOpp->Reynolds()/ sqrt(pOpp->Cl);
+        if(pOpp->Cl>0.0) m_Re[pos] =  pOpp->Reynolds();
+        else             m_Re[pos] = 0.0;
 	}
     else if (m_PolarType==XFLR5::RUBBERCHORDPOLAR)
 	{
@@ -315,8 +317,9 @@ void Polar::insertOppDataAt(int i, OpPoint *pOpp)
 	m_ClCd.insert(i, pOpp->Cl/pOpp->Cd);
 	m_XCp.insert(i, pOpp->m_XCP);
 
-	if(pOpp->Cl>0.0) m_RtCl.insert(i, 1.0/sqrt(pOpp->Cl));
-	else             m_RtCl.insert(i, 0.0);
+//  Bug  if(pOpp->Cl>0.0) m_RtCl.insert(i, 1.0/sqrt(pOpp->Cl));
+    if(pOpp->Cl>0.0) m_RtCl.insert(i, sqrt(pOpp->Cl));
+    else             m_RtCl.insert(i, 0.0);
 
 	if (pOpp->Cl>=0.0) m_Cl32Cd.insert(i,pow( pOpp->Cl, 1.5) / pOpp->Cd);
 	else               m_Cl32Cd.insert(i,-pow(-pOpp->Cl, 1.5)/ pOpp->Cd);
@@ -324,8 +327,9 @@ void Polar::insertOppDataAt(int i, OpPoint *pOpp)
     if(m_PolarType==XFLR5::FIXEDSPEEDPOLAR)	 m_Re.insert(i, pOpp->Reynolds());
     else if (m_PolarType==XFLR5::FIXEDLIFTPOLAR)
 	{
-		if(pOpp->Cl>0) m_Re.insert(i, pOpp->Reynolds()/sqrt(pOpp->Cl));
-		else           m_Re[i] = 0.0;
+//      Bug  if(pOpp->Cl>0) m_Re.insert(i, pOpp->Reynolds()/sqrt(pOpp->Cl));
+        if(pOpp->Cl>0) m_Re.insert(i, pOpp->Reynolds());
+        else           m_Re[i] = 0.0;
 	}
     else if (m_PolarType==XFLR5::RUBBERCHORDPOLAR)
 	{
@@ -668,10 +672,9 @@ QString Polar::variableName(int iVar)
 }
 
 
-
 void Polar::setPolarType(XFLR5::enumPolarType type)
 {
-	m_PolarType =type;
+    m_PolarType=type;
 	switch (m_PolarType)
 	{
         case XFLR5::FIXEDSPEEDPOLAR:
@@ -696,9 +699,6 @@ void Polar::setPolarType(XFLR5::enumPolarType type)
 			break;
 	}
 }
-
-
-
 
 
 void Polar::setAutoPolarName()
@@ -787,7 +787,14 @@ void Polar::getPolarProperties(QString &polarProps)
 //	strong = QString(QObject::tr("Analysis Type")+" = %1\n").arg(m_PolarType);
 	polarProps.clear();
 
-	strong = QString(QObject::tr("Type")+" = %1").arg(m_PolarType);
+    int iPolarNumber = 0;
+    if (m_PolarType==XFLR5::FIXEDSPEEDPOLAR)     iPolarNumber = 1;
+    else if (m_PolarType==XFLR5::FIXEDLIFTPOLAR) iPolarNumber = 2;
+    else if (m_PolarType==XFLR5::FIXEDAOAPOLAR)  iPolarNumber = 4;
+    else if (m_PolarType==XFLR5::STABILITYPOLAR) iPolarNumber = 7;
+    else if (m_PolarType==XFLR5::BETAPOLAR)      iPolarNumber = 5;
+    strong = QString(QObject::tr("Type")+" = %1").arg(iPolarNumber);
+
     if(m_PolarType==XFLR5::FIXEDSPEEDPOLAR)      strong += " ("+QObject::tr("Fixed speed") +")\n";
     else if(m_PolarType==XFLR5::FIXEDLIFTPOLAR) strong += " ("+QObject::tr("Fixed lift") +")\n";
     else if(m_PolarType==XFLR5::FIXEDAOAPOLAR) strong += " ("+QObject::tr("Fixed angle of attack") +")\n";
@@ -839,7 +846,7 @@ void Polar::getPolarProperties(QString &polarProps)
 
 
 
-void Polar::getColor(int &r, int &g, int &b, int &a)
+void Polar::getColor(int &r, int &g, int &b, int &a) const
 {
 	r = m_red;
 	g = m_green;
@@ -864,50 +871,36 @@ void Polar::setColor(int r, int g, int b, int a)
 * @param iVar the index of the variable
 * @return the pointer to the array holding the values of the variable
 */
-void * Polar::getPlrVariable(int iVar)
+QVector<double> const & Polar::getPlrVariable(int iVar)
 {
-	void * pVar;
 	switch (iVar)
 	{
 		case 0:
-			pVar = &m_Alpha;
-			break;
+            return m_Alpha;
 		case 1:
-			pVar = &m_Cl;
-			break;
+            return m_Cl;
 		case 2:
-			pVar = &m_Cd;
-			break;
+            return m_Cd;
 		case 3:
-			pVar = &m_Cdp;
-			break;
+            return m_Cdp;
 		case 4:
-			pVar = &m_Cm;
-			break;
+            return m_Cm;
 		case 5:
-			pVar = &m_XTr1;
-			break;
+            return m_XTr1;
 		case 6:
-			pVar = &m_XTr2;
-			break;
+            return m_XTr2;
 		case 7:
-			pVar = &m_HMom;
-			break;
+            return m_HMom;
 		case 8:
-			pVar = &m_Cpmn;
-			break;
+            return m_Cpmn;
 		case 9:
-			pVar = &m_ClCd;
-			break;
+            return m_ClCd;
 		case 10:
-			pVar = &m_Cl32Cd;
-			break;
+            return m_Cl32Cd;
 		case 11:
-			pVar = &m_XCp;
-			break;
+            return m_XCp;
 		default:
-			pVar = &m_Alpha;
-			break;
+            return m_Alpha;
 	}
-	return pVar;
+    return m_Alpha;
 }

@@ -19,25 +19,27 @@
 
 *****************************************************************************/
 
+#include <QStringList>
+
 #include "Plane.h"
 #include <objects/objects3d/Surface.h>
 #include <math.h>
 #include "objects_global.h"
-#include <QtDebug>
+
 
 /** The public constructor. */
 Plane::Plane()
 {
 	m_Wing[0].m_WingName   = QObject::tr("Wing");
-	m_Wing[0].wingType()   = XFLR5::MAINWING;
+    m_Wing[0].setWingType(XFLR5::MAINWING);
 	m_Wing[0].computeGeometry();
 
 	m_Wing[1].m_WingName   = QObject::tr("2nd Wing");
-	m_Wing[1].wingType()   = XFLR5::SECONDWING;
+    m_Wing[1].setWingType(XFLR5::SECONDWING);
 	m_Wing[1].computeGeometry();
 
 	m_Wing[2].m_WingName    = QObject::tr("Elevator");
-	m_Wing[2].wingType()    = XFLR5::ELEVATOR;
+    m_Wing[2].setWingType(XFLR5::ELEVATOR);
 	m_Wing[2].m_bIsFin      = false;
 	m_Wing[2].Chord(0)      = 0.100;
 	m_Wing[2].Chord(1)      = 0.080;
@@ -54,7 +56,7 @@ Plane::Plane()
 	m_Wing[2].computeGeometry();
 
 	m_Wing[3].m_WingName    = QObject::tr("Fin");
-	m_Wing[3].wingType()    = XFLR5::FIN;
+    m_Wing[3].setWingType(XFLR5::FIN);
 	m_Wing[3].m_bIsFin      = true;
 	m_Wing[3].Chord(0)      = 0.100;
 	m_Wing[3].Chord(1)      = 0.060;
@@ -124,7 +126,7 @@ void Plane::computeVolumeInertia(double &Mass, Vector3d & CoG, double &CoGIxx, d
 	Vector3d CoGBody;
 	Vector3d CoGWing[MAXWINGS];
 	Wing *pWing[MAXWINGS];
-	pWing[0] = pWing[1] = pWing[2] = pWing[3] = NULL;
+    pWing[0] = pWing[1] = pWing[2] = pWing[3] = nullptr;
 
 	pWing[0] = m_Wing;
 	if(m_bBiplane) pWing[1] = m_Wing+1;
@@ -170,7 +172,7 @@ void Plane::computeVolumeInertia(double &Mass, Vector3d & CoG, double &CoGIxx, d
 	else              CoG.set(0.0, 0.0, 0.0);
 
 
-	// Deduce inertia tensor in plane CoG from Huyghens/Steiner theorem
+    // Deduce inertia tensor in plane CoG from Huygens/Steiner theorem
 	// we transfer the inertia of each component, defined in its own CG, 
 	// to the new origin which is the plane's Volume CoG, excluding point masses
 
@@ -216,9 +218,9 @@ void Plane::computeBodyAxisInertia()
 
 
 	pWing[0] = m_Wing;
-	if(m_bBiplane) pWing[1] = m_Wing+1; else pWing[1] = NULL;
-	if(m_bStab)    pWing[2] = m_Wing+2; else pWing[2] = NULL;
-	if(m_bFin)     pWing[3] = m_Wing+3; else pWing[3] = NULL;
+    if(m_bBiplane) pWing[1] = m_Wing+1; else pWing[1] = nullptr;
+    if(m_bStab)    pWing[2] = m_Wing+2; else pWing[2] = nullptr;
+    if(m_bFin)     pWing[3] = m_Wing+3; else pWing[3] = nullptr;
 
 	computeVolumeInertia(VolumeMass, VolumeCoG, Ixx, Iyy, Izz, Ixz);
 	m_TotalMass = VolumeMass;
@@ -311,7 +313,7 @@ void Plane::computePlane(void)
 	int i;
 	if(m_bStab)
 	{
-		double SLA = m_WingLE[2].x + m_Wing[2].Chord(0)/4.0 - m_Wing[0].Chord(0)/4.0;
+		double SLA = m_WingLE[2].x + m_Wing[2].Chord(0)/4.0 - m_WingLE[0].x - m_Wing[0].Chord(0)/4.0;
 		double area = m_Wing[0].m_ProjectedArea;
 		if(m_bBiplane) area += m_Wing[1].m_ProjectedArea;
 
@@ -446,10 +448,10 @@ void Plane::clearPointMasses()
 */
 void Plane::renameWings()
 {
-	m_Wing[0].m_WingName = "Main Wing";
-	m_Wing[1].m_WingName = "Second Wing2";
-	m_Wing[2].m_WingName = "Elevator";
-	m_Wing[3].m_WingName = "Fin";
+    m_Wing[0].m_WingName = QObject::tr("Main Wing");
+    m_Wing[1].m_WingName = QObject::tr("Second Wing2");
+    m_Wing[2].m_WingName = QObject::tr("Elevator");
+    m_Wing[3].m_WingName = QObject::tr("Fin");
 }
 
 
@@ -551,9 +553,9 @@ Wing *Plane::wing(XFLR5::enumWingType wingType)
 		case XFLR5::FIN:
 			return fin();
 		default:
-			return NULL;
+            return nullptr;
 	}
-	return NULL;
+    return nullptr;
 }
 
 
@@ -563,17 +565,17 @@ Wing *Plane::wing(int iw)
 	if(iw==0)	return m_Wing;
 	else if (iw==1)
 	{
-		return m_bBiplane ? m_Wing+1 : NULL;
+        return m_bBiplane ? m_Wing+1 : nullptr;
 	}
 	else if (iw==2)
 	{
-		return m_bStab    ? m_Wing+2 : NULL;
+        return m_bStab    ? m_Wing+2 : nullptr;
 	}
 	else if (iw==3)
 	{
-		return m_bFin     ? m_Wing+3 : NULL;
+        return m_bFin     ? m_Wing+3 : nullptr;
 	}
-	return NULL;
+    return nullptr;
 }
 
 
@@ -763,7 +765,6 @@ bool Plane::serializePlaneXFL(QDataStream &ar, bool bIsStoring)
 {
 	double dble, m, px, py, pz;
 	QString str;
-	int i;
 
 	int ArchiveFormat;// identifies the format of the file
 	if (bIsStoring)
@@ -796,7 +797,7 @@ bool Plane::serializePlaneXFL(QDataStream &ar, bool bIsStoring)
 		}
 
 		ar << m_PointMass.size();
-		for(i=0; i<m_PointMass.size(); i++)
+		for(int i=0; i<m_PointMass.size(); i++)
 		{
 			ar << m_PointMass.at(i)->mass();
 			ar << m_PointMass.at(i)->position().x << m_PointMass.at(i)->position().y << m_PointMass.at(i)->position().z;
@@ -826,10 +827,10 @@ bool Plane::serializePlaneXFL(QDataStream &ar, bool bIsStoring)
 		m_Wing[2].serializeWingXFL(ar, bIsStoring);
 		m_Wing[3].serializeWingXFL(ar, bIsStoring);
 
-		m_Wing[0].wingType() = XFLR5::MAINWING;
-		m_Wing[1].wingType() = XFLR5::SECONDWING;
-		m_Wing[2].wingType() = XFLR5::ELEVATOR;
-		m_Wing[3].wingType() = XFLR5::FIN;
+        m_Wing[0].setWingType(XFLR5::MAINWING);
+        m_Wing[1].setWingType(XFLR5::SECONDWING);
+        m_Wing[2].setWingType(XFLR5::ELEVATOR);
+        m_Wing[3].setWingType(XFLR5::FIN);
 
 		bool bl;
 		ar >> m_bBiplane>> m_bStab >>m_bFin >> m_bDoubleFin >> m_bSymFin >> bl; // m_bDoubleSymFin;
@@ -849,7 +850,7 @@ bool Plane::serializePlaneXFL(QDataStream &ar, bool bIsStoring)
 
 		clearPointMasses();
 		ar >> k;
-		for(i=0; i<k; i++)
+		for(int i=0; i<k; i++)
 		{
 			ar >> m >> px >>py >> pz;
 			ar >> str;

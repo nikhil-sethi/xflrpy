@@ -18,15 +18,20 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
+
 #include <globals/globals.h>
+
 #include "XInverse.h"
 #include "InverseOptionsDlg.h"
 #include <misc/line/LinePickerDlg.h>
+#include <objects/objects2d/Foil.h>
+#include <misc/line/LineBtn.h>
+
 
 InverseOptionsDlg::InverseOptionsDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setWindowTitle(tr("XInverse Style"));
-	m_pXInverse = NULL;
+	m_pXInverse = nullptr;
 	setupLayout();
 }
 

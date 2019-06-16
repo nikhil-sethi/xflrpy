@@ -52,8 +52,8 @@ public slots:
 	void setNeutralLineColor(QColor clr){m_crNeutralColor = clr;}
 	QColor neutralLineColor(){return m_crNeutralColor;}
 	void setGraph(Graph* pGraph){m_pCpGraph = pGraph;}
-	void loadSettings(QSettings *pSettings);
-	void saveSettings(QSettings *pSettings);
+    void loadSettings(QSettings &settings);
+    void saveSettings(QSettings &settings);
 
 signals:
 	void graphChanged(Graph *);

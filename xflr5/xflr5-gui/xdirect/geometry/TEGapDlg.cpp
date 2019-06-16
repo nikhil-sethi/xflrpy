@@ -19,14 +19,17 @@
 
 *****************************************************************************/
 
-#include "TEGapDlg.h"
-#include <XFoil.h>
-
 #include <QLabel>
 #include <QMessageBox>
 #include <QHBoxLayout>
 
-void *TEGapDlg::s_pXFoil;
+#include "TEGapDlg.h"
+#include <XFoil.h>
+#include <misc/text/DoubleEdit.h>
+#include <objects/objects2d/Foil.h>
+
+
+XFoil *TEGapDlg::s_pXFoil;
 
 TEGapDlg::TEGapDlg(QWidget *pParent) : QDialog(pParent)
 {
@@ -65,7 +68,7 @@ void TEGapDlg::setupLayout()
 
 	QHBoxLayout *pBlendValueLayout = new QHBoxLayout;
 	{
-		QLabel *lab3 = new QLabel(tr("Blending Distance from L.E."));
+        QLabel *lab3 = new QLabel(tr("Blending Distance from T.E."));
 		lab3->setAlignment(Qt::AlignRight);
 		lab3->setMinimumWidth(150);
 		QLabel *lab4 = new QLabel(tr("% chord"));
@@ -168,22 +171,21 @@ void TEGapDlg::onApply()
 	if(m_bApplied) return;
 	//reset everything and retry
 
-	XFoil *pXFoil = (XFoil*)s_pXFoil;
 	int i, j;
 
 	for (i=0; i< m_pMemFoil->nb; i++)
 	{
-		pXFoil->xb[i+1] = m_pMemFoil->xb[i] ;
-		pXFoil->yb[i+1] = m_pMemFoil->yb[i];
+        s_pXFoil->xb[i+1] = m_pMemFoil->xb[i] ;
+        s_pXFoil->yb[i+1] = m_pMemFoil->yb[i];
 	}
-	pXFoil->nb = m_pMemFoil->nb;
+    s_pXFoil->nb = m_pMemFoil->nb;
 
-	pXFoil->lflap = false;
-	pXFoil->lbflap = false;
+    s_pXFoil->lflap = false;
+    s_pXFoil->lbflap = false;
 
-	if(pXFoil->Preprocess())
+    if(s_pXFoil->Preprocess())
 	{
-		pXFoil->CheckAngles();
+        s_pXFoil->CheckAngles();
 /*		for (int k=0; k<pXFoil->n;k++)
 		{
 			m_pMemFoil->nx[k] = pXFoil->nx[k+1];
@@ -199,27 +201,26 @@ void TEGapDlg::onApply()
 
 	m_Gap = m_pctrlGap->value();
 	m_Blend = m_pctrlBlend->value();
-
-	pXFoil->tgap(m_Gap/100.0,m_Blend/100.0);
-	if(pXFoil->n>IQX)
+    s_pXFoil->tgap(m_Gap/100.0,m_Blend/100.0);
+    if(s_pXFoil->n>IQX)
 	{
 		QMessageBox::information(window(), tr("Warning"), tr("Panel number cannot exceed 300"));
 		//reset everything and retry
 		for (i=0; i< m_pMemFoil->nb; i++)
 		{
-			pXFoil->x[i+1] = m_pMemFoil->xb[i] ;
-			pXFoil->y[i+1] = m_pMemFoil->yb[i];
+            s_pXFoil->x[i+1] = m_pMemFoil->xb[i] ;
+            s_pXFoil->y[i+1] = m_pMemFoil->yb[i];
 		}
-		pXFoil->n = m_pMemFoil->nb;
+        s_pXFoil->n = m_pMemFoil->nb;
 	}
 	else
 	{
-		for (j=0; j< pXFoil->n; j++)
+        for (j=0; j< s_pXFoil->n; j++)
 		{
-			m_pBufferFoil->xb[j] = pXFoil->xb[j+1];
-			m_pBufferFoil->yb[j] = pXFoil->yb[j+1];
+            m_pBufferFoil->xb[j] = s_pXFoil->xb[j+1];
+            m_pBufferFoil->yb[j] = s_pXFoil->yb[j+1];
 		}
-		m_pBufferFoil->nb = pXFoil->nb;
+        m_pBufferFoil->nb = s_pXFoil->nb;
 		m_pBufferFoil->initFoil();
 		m_pBufferFoil->setFlap();
 	}

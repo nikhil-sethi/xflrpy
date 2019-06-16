@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	StabPolarDlg Class
-	Copyright (C) 2010-2016 Andre Deperrois 
+    Copyright (C) 2010-2019 Andre Deperrois
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,13 +19,6 @@
 
 *****************************************************************************/
   
-#include <globals/globals.h>
-#include <misc/options/displayoptions.h>
-#include <objects/objects3d/WPolar.h>
-#include <misc/options/Units.h>
-#include <miarex/Miarex.h>
-#include "StabPolarDlg.h"
-#include "AeroDataDlg.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -34,9 +27,18 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <math.h>
-#include <QtDebug>
+#include <QDebug>
 
-
+#include "./CtrlTableDelegate.h"
+#include "AeroDataDlg.h"
+#include "StabPolarDlg.h"
+#include <globals/globals.h>
+#include <miarex/Miarex.h>
+#include <misc/options/units.h>
+#include <misc/options/displayoptions.h>
+#include <misc/text/DoubleEdit.h>
+#include <objects/objects3d/Plane.h>
+#include <objects/objects3d/WPolar.h>
 
 WPolar StabPolarDlg::s_StabWPolar;
 
@@ -49,15 +51,15 @@ StabPolarDlg::StabPolarDlg(QWidget *pParent) : QDialog(pParent)
 	m_bAutoName = true;
 	m_UnitType   = 1;
 
-	m_pWingList[0] = NULL;
-	m_pWingList[1] = NULL;
-	m_pWingList[2] = NULL;
-	m_pWingList[3] = NULL;
-	m_pInertiaControlTable = NULL;
-	m_pInertiaControlModel = NULL;
+	m_pWingList[0] = nullptr;
+	m_pWingList[1] = nullptr;
+	m_pWingList[2] = nullptr;
+	m_pWingList[3] = nullptr;
+	m_pInertiaControlTable = nullptr;
+	m_pInertiaControlModel = nullptr;
 
-	m_pAngleControlTable = NULL;
-	m_pAngleControlModel = NULL;
+	m_pAngleControlTable = nullptr;
+	m_pAngleControlModel = nullptr;
 
 
 	s_StabWPolar.polarType() = XFLR5::STABILITYPOLAR;
@@ -111,10 +113,13 @@ void StabPolarDlg::connectSignals()
 	connect(m_pMassCtrlDelegate,  SIGNAL(closeEditor(QWidget *)), this, SLOT(onInertiaCellChanged(QWidget *)));
 	connect(m_pAngleCtrlDelegate,  SIGNAL(closeEditor(QWidget *)), this, SLOT(onAngleCellChanged(QWidget *)));
 	connect(m_pDragCtrlDelegate,  SIGNAL(closeEditor(QWidget *)), this, SLOT(onDragCellChanged(QWidget *)));
+}
 
 
-	connect(OKButton,     SIGNAL(clicked()), this, SLOT(onOK()));
-	connect(CancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+void StabPolarDlg::onButton(QAbstractButton *pButton)
+{
+    if (m_pButtonBox->button(QDialogButtonBox::Save) == pButton)            onOK();
+    else if (m_pButtonBox->button(QDialogButtonBox::Discard) == pButton)  reject();
 }
 
 
@@ -458,13 +463,13 @@ void StabPolarDlg::keyPressEvent(QKeyEvent *event)
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
 		{
-			if(!OKButton->hasFocus() && !CancelButton->hasFocus())
+            if(!m_pButtonBox->hasFocus())
 			{
 				readCtrlData();
 				readInertiaData();
 				readExtraDragData();
 				setWPolarName();
-				OKButton->setFocus();
+                m_pButtonBox->setFocus();
 				return;
 			}
 			else
@@ -477,6 +482,7 @@ void StabPolarDlg::keyPressEvent(QKeyEvent *event)
 		case Qt::Key_Escape:
 		{
 			reject();
+			break;
 		}
 		default:
 			event->ignore();
@@ -888,9 +894,9 @@ void StabPolarDlg::setupLayout()
 
 				QGridLayout *pRefAreaLayout = new QGridLayout;
 				{
-					QLabel *labRefArea  = new QLabel("Ref. area=");
-					QLabel *labRefSpan  = new QLabel("Ref. span length=");
-					QLabel *labRefChord = new QLabel("Ref. chord length=");
+                    QLabel *labRefArea  = new QLabel(tr("Ref. area="));
+                    QLabel *labRefSpan  = new QLabel(tr("Ref. span length="));
+                    QLabel *labRefChord = new QLabel(tr("Ref. chord length="));
 					m_pctrlRefArea  = new DoubleEdit(0.0, 3);
 					m_pctrlRefChord = new DoubleEdit(0.0, 3);
 					m_pctrlRefSpan  = new DoubleEdit(0.0, 3);
@@ -1117,17 +1123,10 @@ void StabPolarDlg::setupLayout()
 
 	m_pTabWidget->setCurrentIndex(0);
 
-	QHBoxLayout *pCommandButtons = new QHBoxLayout;
-	{
-		OKButton = new QPushButton(tr("OK"));
-		OKButton->setDefault(true);
-		CancelButton = new QPushButton(tr("Cancel"));
-		pCommandButtons->addStretch(1);
-		pCommandButtons->addWidget(OKButton);
-		pCommandButtons->addStretch(1);
-		pCommandButtons->addWidget(CancelButton);
-		pCommandButtons->addStretch(1);
-	}
+    m_pButtonBox = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Discard);
+    {
+        connect(m_pButtonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(onButton(QAbstractButton*)));
+    }
 
 	QVBoxLayout * pMainLayout = new QVBoxLayout(this);
 	{
@@ -1144,7 +1143,7 @@ void StabPolarDlg::setupLayout()
 		pMainLayout->addWidget(m_pTabWidget,13);
 		pMainLayout->addStretch(1);
 		pMainLayout->addSpacing(23);
-		pMainLayout->addLayout(pCommandButtons,1);
+        pMainLayout->addWidget(m_pButtonBox,1);
 	}
 
 	setLayout(pMainLayout);

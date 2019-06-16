@@ -1,6 +1,6 @@
 /****************************************************************************
 
-	AFoilGridDlg Class
+    GridSettingsDlg Class
 	Copyright (C) 2009 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
@@ -25,9 +25,9 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QCheckBox>
-#include <misc/line/LineBtn.h>
-#include <misc/text/DoubleEdit.h>
 
+class LineBtn;
+class DoubleEdit;
 
 class GridSettingsDlg : public QDialog
 {

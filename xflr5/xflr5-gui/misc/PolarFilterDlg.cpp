@@ -21,6 +21,8 @@
 
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QDialogButtonBox>
+
 #include "PolarFilterDlg.h"
 
 
@@ -31,13 +33,13 @@ PolarFilterDlg::PolarFilterDlg(QWidget *pParent) : QDialog(pParent)
 	m_bType1 = m_bType2 = m_bType3 = m_bType4 = m_bType7 = true;
 
 	m_bMiarex = false;
-	SetupLayout();
+    setupLayout();
 }
 
 
-void PolarFilterDlg::SetupLayout()
+void PolarFilterDlg::setupLayout()
 {
-	QVBoxLayout *MainLayout = new QVBoxLayout;
+    QVBoxLayout *pMainLayout = new QVBoxLayout;
 	{
 		QLabel *Label = new QLabel(tr("Show polar types"));
 
@@ -47,41 +49,28 @@ void PolarFilterDlg::SetupLayout()
 		m_pctrlType4 = new QCheckBox(tr("Type 4")+" - "+tr("fixed a.o.a. polars"));
 		m_pctrlType7 = new QCheckBox(tr("Type 7")+" - "+tr("stability polars"));
 
-		QHBoxLayout *CommandButtons = new QHBoxLayout;
-		{
-			QPushButton *CancelButton = new QPushButton(tr("Cancel"));
-			OKButton= new QPushButton(tr("OK"));
 
+        QDialogButtonBox *pButtonBox =  new QDialogButtonBox(QDialogButtonBox::Close);
+        connect(pButtonBox, &QDialogButtonBox::rejected, this, &PolarFilterDlg::onClose);
 
-			CancelButton->setAutoDefault(false);
-			OKButton->setAutoDefault(false);
-			connect(OKButton, SIGNAL(clicked()),this, SLOT(OnOK()));
-			connect(CancelButton, SIGNAL(clicked()),this, SLOT(reject()));
-			CommandButtons->addStretch(1);
-			CommandButtons->addWidget(OKButton);
-			CommandButtons->addStretch(1);
-			CommandButtons->addWidget(CancelButton);
-			CommandButtons->addStretch(1);
-		}
-
-		MainLayout->addWidget(Label);
-		MainLayout->addWidget(m_pctrlType1);
-		MainLayout->addWidget(m_pctrlType2);
-		MainLayout->addWidget(m_pctrlType3);
-		MainLayout->addWidget(m_pctrlType4);
+        pMainLayout->addWidget(Label);
+        pMainLayout->addWidget(m_pctrlType1);
+        pMainLayout->addWidget(m_pctrlType2);
+        pMainLayout->addWidget(m_pctrlType3);
+        pMainLayout->addWidget(m_pctrlType4);
 //		MainLayout->addWidget(m_pctrlType5);
 //		MainLayout->addWidget(m_pctrlType6);
-		MainLayout->addWidget(m_pctrlType7);
-		MainLayout->addStretch(1);
-		MainLayout->addLayout(CommandButtons);
-		MainLayout->addStretch(1);
+        pMainLayout->addWidget(m_pctrlType7);
+        pMainLayout->addStretch(1);
+        pMainLayout->addWidget(pButtonBox);
+        pMainLayout->addStretch(1);
 	}
-	setLayout(MainLayout);
+    setLayout(pMainLayout);
 
 }
 
 
-void PolarFilterDlg::InitDialog()
+void PolarFilterDlg::initDialog()
 {
 	m_pctrlType1->setChecked(m_bType1);
 	m_pctrlType2->setChecked(m_bType2);
@@ -102,7 +91,7 @@ void PolarFilterDlg::InitDialog()
 }
 
 
-void PolarFilterDlg::OnOK()
+void PolarFilterDlg::onClose()
 {
 	m_bType1 = m_pctrlType1->isChecked();
 	m_bType2 = m_pctrlType2->isChecked();
@@ -114,33 +103,5 @@ void PolarFilterDlg::OnOK()
 }
 
 
-
-void PolarFilterDlg::keyPressEvent(QKeyEvent *event)
-{
-	// Prevent Return Key from closing App
-	switch (event->key())
-	{
-		case Qt::Key_Return:
-		case Qt::Key_Enter:
-		{
-			if(!OKButton->hasFocus())
-			{
-				OKButton->setFocus();
-				return;
-			}
-			else
-			{
-				accept();
-				return;
-			}
-			break;
-		}
-		case Qt::Key_Escape:
-		{
-			reject();
-			return;
-		}
-	}
-}
 
 

@@ -1,22 +1,22 @@
 /****************************************************************************
 
-	Global functions
+    Global functions
 
-	Copyright (C) 2008-2017 Andre Deperrois 
+    Copyright (C) 2008-2017 Andre Deperrois
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
 
@@ -33,14 +33,18 @@
 #include <QPainter>
 #include <complex>
 
-#include <globals/gui_params.h>
+
 #include "analysis3d/analysis3d_enums.h"
 #include <objects/objectcolor.h>
-#include <objects/objects2d/Foil.h>
-#include <objects/objects2d/Polar.h>
+
 
 using namespace std;
 
+class Foil;
+class Polar;
+class OpPoint;
+class Plane;
+class WPolar;
 
 int readValues(QString line, double &x, double &y, double &z);
 
@@ -48,9 +52,9 @@ void ExpFormat(double &f, int &exp);
 void ReynoldsFormat(QString &str, double f);
 
 
-float GLGetRed(double tau);
-float GLGetGreen(double tau);
-float GLGetBlue(double tau);
+float GLGetRed(float tau);
+float GLGetGreen(float tau);
+float GLGetBlue(float tau);
 
 
 QColor randomColor(bool bLightColor);
@@ -61,9 +65,6 @@ void Trace(QString msg, bool b);
 void Trace(QString msg, int n);
 void Trace(QString msg, double f);
 
-
-
-void GLLineStipple(int style);
 
 
 XFLR5::enumPanelDistribution distributionType(QString strDist);
@@ -87,8 +88,8 @@ QString analysisMethod(XFLR5::enumAnalysisMethod analysisMethod);
 XFLR5::enumBC boundaryCondition(QString strBC);
 QString boundaryCondition(XFLR5::enumBC boundaryCondition);
 
-void * readFoilFile(QFile &xFoilFile);
-void * readPolarFile(QFile &plrFile, QList<Polar*> &polarList);
+Foil *readFoilFile(QFile &xFoilFile);
+Foil *readPolarFile(QFile &plrFile, QList<Polar*> &polarList);
 
 void drawFoil(QPainter &painter, Foil*pFoil, double const &alpha, double const &scalex, double const &scaley, QPointF const &Offset);
 void drawMidLine(QPainter &painter, Foil*pFoil, double const &scalex, double const &scaley, QPointF const &Offset);
@@ -102,7 +103,7 @@ XFLR5::enumRefDimension referenceDimension(QString strRefDimension);
 XFLR5::enumWingType wingType(QString strWingType);
 QString wingType(XFLR5::enumWingType wingType);
 
-void setAutoWPolarName(void * ptrWPolar, void *ptrPlane);
+void setAutoWPolarName(WPolar * pWPolar, Plane *pPlane);
 
 
 void ReynoldsFormat(QString &str, double f);

@@ -24,14 +24,13 @@
 
 #include <QDialog>
 #include <QPushButton>
-//#include <QListWidget>
 #include <QTableView>
 #include <QStandardItemModel>
-#include <misc/text/FloatEditDelegate.h>
 
-#include <objects/objects2d/Polar.h>
-#include <objects/objects3d/WPolar.h>
 
+class Polar;
+class WPolar;
+class FloatEditDelegate;
 
 class EditPlrDlg : public QDialog
 {
@@ -41,7 +40,7 @@ class EditPlrDlg : public QDialog
 	friend class Miarex;
 
 public:
-	EditPlrDlg(QWidget *pParent=NULL);
+    EditPlrDlg(QWidget *pParent=nullptr);
 	~EditPlrDlg();
 
 

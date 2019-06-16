@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	PlaneOpp Class
-	Copyright (C) 2006-2016 Andre Deperrois 
+    Copyright (C) 2006-2019 Andre Deperrois
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,7 +37,8 @@
 #include <objects/objects3d/WingOpp.h>
 #include <objects/objectcolor.h>
 
-
+class Plane;
+class WPolar;
 
 //using namespace std;
 
@@ -61,7 +62,7 @@ class XFLR5ENGINELIBSHARED_EXPORT PlaneOpp
 	friend class LLTAnalysis;
 
 public:
-	PlaneOpp(void *pPlanePtr=NULL, void *pWPolarPtr=NULL, int PanelArraySize=0);
+    PlaneOpp(Plane *pPlane=nullptr, WPolar *pWPolar=nullptr, int PanelArraySize=0);
 	~PlaneOpp();
 
 
@@ -132,7 +133,7 @@ private:
 
 public:
 	XFLR5::enumPolarType m_WPolarType;   /**< defines the type of the parent WPolar */
-	WingOpp *m_pPlaneWOpp[MAXWINGS];      /**< An array of pointers to the four WingOpp objects associated to the four wings */
+    WingOpp *m_pWOpp[MAXWINGS];      /**< An array of pointers to the four WingOpp objects associated to the four wings */
 	double m_QInf;                        /**< the freestream velocity */
 	double *m_dG;                         /**< the VLM vortex strengths, or the panel's doublet's strengths */
 	double *m_dSigma;                     /**< the panel's source strengths */

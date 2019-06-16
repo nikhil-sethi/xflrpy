@@ -1,7 +1,7 @@
 /****************************************************************************
 
-	QXDirect Class
-	Copyright (C) 2008-2016 Andre Deperrois 
+    XDirect Class
+    Copyright (C) 2008-2019 Andre Deperrois
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,6 +36,8 @@
 #include <QCheckBox>
 #include <QStackedWidget>
 #include <QSlider>
+
+
 #include <objects/objects2d/Polar.h>
 #include <objects/objects2d/Foil.h>
 #include <xdirect/analysis/XFoilAnalysisDlg.h>
@@ -43,6 +45,7 @@
 #include <globals/gui_enums.h>
 #include <objects/objects2d/OpPoint.h>
 #include <graph/graph.h>
+#include <graph/linestyle.h>
 #include <XFoil.h>
 
 class LineBtn;
@@ -50,6 +53,7 @@ class LineCbBox;
 class LineDelegate;
 class MainFrame; // to shut the compiler up
 class DoubleEdit;
+class MinTextEdit;
 
 /**
 * @class QXDirect
@@ -183,11 +187,11 @@ public:
 	void importAnalysisFromXML(QFile &xmlFile);
 	Polar *importXFoilPolar(QFile &txtFile);
 
-	void loadSettings(QSettings *pSettings);
+    void loadSettings(QSettings &settings);
 	void readParams();
 	Foil *addNewFoil(Foil *pFoil);
 	void renameFoil(Foil *pFoil);
-	void saveSettings(QSettings *pSettings);
+    void saveSettings(QSettings &settings);
 	void setCurveParams();
 	void setFoilScale();
 	void setGraphTiles();
@@ -200,7 +204,7 @@ public:
 	void stopAnimate();
 	void updateCurveStyle();
 
-	void * getVariable(Polar *pPolar, int iVar);
+    QVector<double> * getVariable(Polar *pPolar, int iVar);
 
 	Foil* setFoil(Foil* pFoil=NULL);
 	Polar *setPolar(Polar *pPolar=NULL);
@@ -248,7 +252,7 @@ private:
 	QCheckBox* m_pctrlAnimate;
 	QSlider* m_pctrlAnimateSpeed;
 
-	QLabel *m_pctrlPolarProps;
+    MinTextEdit *m_pctrlPolarProps;
 
 	QCheckBox *m_pctrlShowCurve;
 //	QCheckBox *m_pctrlShowPoints;
@@ -320,7 +324,7 @@ private:
 //	double m_XBotTr;            /**< Stores the position of the bottom transition point defined in the last Polar creation */
 //	enumPolarType m_PolarType;  /**< Stores the type of the last polar which has been created. */
 
-	static Polar s_refPolar;    /**< Used a static reference to store default data */
+	static Polar s_RefPolar;    /**< Used a static reference to store default data */
 
 
 	QList<Foil*> *m_poaFoil;    /**< pointer to the foil object array */

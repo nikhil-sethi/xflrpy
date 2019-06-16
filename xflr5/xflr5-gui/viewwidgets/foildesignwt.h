@@ -1,6 +1,6 @@
 /****************************************************************************
 
-	BodyFrameWidget Class
+	DirectDesignView Class
 	Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
@@ -19,28 +19,20 @@
 
 *****************************************************************************/
 
-#ifndef BODYFRAMEWIDGET_H
-#define BODYFRAMEWIDGET_H
-
+#ifndef DIRECT2DDESIGN_H
+#define DIRECT2DDESIGN_H
 
 #include "section2dwidget.h"
-#include <objects/objects3d/Body.h>
 
+class Foil;
+class SplineFoil;
 
-class BodyFrameWidget : public Section2dWidget
+class FoilDesignWt : public Section2dWidget
 {
-	Q_OBJECT
-
-	friend class GL3dBodyDlg;
-//	friend class Body;
-
 public:
-	BodyFrameWidget(QWidget *pParent=NULL, Body *pBody=NULL);
+    FoilDesignWt(QWidget *pParent=nullptr);
 
-	void setBody(Body *pBody);
-	void drawFrameLines();
-	void drawFramePoints();
-	void drawScaleLegend(QPainter &painter);
+	void setObjects(Foil *pBufferFoil, SplineFoil *pSF, QList<Foil *> *poaFoil);
 
 	void setScale();
 	void paintEvent(QPaintEvent *event);
@@ -49,22 +41,30 @@ public:
 	int highlightPoint(Vector3d real);
 	int selectPoint(Vector3d real);
 	void dragSelectedPoint(double x, double y);
-	void createActions();
 
-signals:
-	void pointSelChanged();
+	void setNeutralLineColor(QColor clr){m_NeutralColor = clr;}
+	QColor neutralLineColor(){return m_NeutralColor;}
 
-private slots:
+public slots:
 	void onInsertPt();
 	void onRemovePt();
-	void onScaleFrame();
-	void onShowCurFrameOnly();
 
 private:
-	Body *m_pBody;
-	QAction *m_pShowCurFrameOnly;
-	static bool s_bCurFrameOnly;
+	void paintSplines(QPainter &painter);
+	void paintFoils(QPainter &painter);
+	void paintLegend(QPainter &painter);
+	void paintLECircle(QPainter &painter);
+
+
+private:
+	QList<Foil*> *m_poaFoil;   /**< a pointer to the array of Foil objects */
+	SplineFoil *m_pSF;          /**< a pointer to the SplineFoil object */
+	Foil *m_pBufferFoil;
+
+public:
+	bool m_bLECircle;           /**< true if the leading edge circle should be displayed >*/
+	double m_LERad;             /**< the radius of the leading edge circle to draw >*/
 
 };
 
-#endif // BODYFRAMEWIDGET_H
+#endif // DIRECT2DDESIGN_H

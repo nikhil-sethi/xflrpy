@@ -38,7 +38,7 @@ void RenameDlg::onButton(QAbstractButton *pButton)
 {
 	if (m_pButtonBox->button(QDialogButtonBox::Ok) == pButton)            onOK();
 	else if (m_pButtonBox->button(QDialogButtonBox::Discard) == pButton)  reject();
-	else if(m_pOverwriteButton==pButton)                                  onOverwrite();
+    else if(m_pctrlOverwrite==pButton)                                  onOverwrite();
 }
 
 
@@ -46,9 +46,9 @@ void RenameDlg::setupLayout()
 {
 	m_pButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Discard);
 	{
-		m_pOverwriteButton = new QPushButton(tr("Overwrite"));
-		m_pOverwriteButton->setAutoDefault(false);
-		m_pButtonBox->addButton(m_pOverwriteButton, QDialogButtonBox::ActionRole);
+        m_pctrlOverwrite = new QPushButton(tr("Overwrite"));
+        m_pctrlOverwrite->setAutoDefault(false);
+        m_pButtonBox->addButton(m_pctrlOverwrite, QDialogButtonBox::ActionRole);
 		connect(m_pButtonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(onButton(QAbstractButton*)));
 	}
 
@@ -93,7 +93,7 @@ void RenameDlg::initDialog(QStringList *pStrList, QString startName, QString que
 
 	m_strQuestion = question;
 
-	if(!m_bEnableOverwrite) m_pOverwriteButton->setEnabled(false);
+    if(!m_bEnableOverwrite) m_pctrlOverwrite->setEnabled(false);
 
 	if(m_strQuestion.length())
 	{
@@ -122,7 +122,7 @@ void RenameDlg::initDialog(QStringList *pStrList, QString startName, QString que
 	else
 	{
 		m_pctrlNameList->setEnabled(false);
-		m_pOverwriteButton->setEnabled(false);
+        m_pctrlOverwrite->setEnabled(false);
 	}
 }
 
@@ -130,7 +130,6 @@ void RenameDlg::initDialog(QStringList *pStrList, QString startName, QString que
 
 void RenameDlg::keyPressEvent(QKeyEvent *event)
 {
-	// Prevent Return Key from closing App
 	switch (event->key())
 	{
 		case Qt::Key_Return:

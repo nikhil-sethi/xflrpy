@@ -85,7 +85,7 @@ public:
 	* Returns the translation to be applied to the Body object.
 	* @return the translation to be applied to the Body object.
 	*/
-	Vector3d &bodyPos(){ return m_BodyPos; }
+    Vector3d &bodyPos() {return m_BodyPos;}
 	
 	/**
 	* Returns the leading edge, root position of a specified Wing.
@@ -117,6 +117,8 @@ public:
 	QString& rPlaneDescription() {return m_PlaneDescription;}
 
 
+    Wing *mainWing() {return &m_Wing[0];}
+
 	Wing *wing(int iw);
 	Wing *wing(XFLR5::enumWingType wingType);
 
@@ -124,16 +126,16 @@ public:
 	Wing *wing()  {return m_Wing;}
 
 	/** Returns a pointer to the Plane's secondary wing, or NULL if none. */
-	Wing *wing2() {if(m_bBiplane) return m_Wing+1; else return NULL;}
+    Wing *wing2() {if(m_bBiplane) return m_Wing+1; else return nullptr;}
 
 	/** Returns a pointer to the Plane's elevator, or NULL if none. */
-	Wing *stab()  {if(m_bStab) return m_Wing+2; else return NULL;}
+    Wing *stab()  {if(m_bStab) return m_Wing+2; else return nullptr;}
 
 	/** Returns a pointer to the Plane's fin, or NULL if none. */
-	Wing *fin()   {if(m_bFin) return m_Wing+3; else return NULL;}
+    Wing *fin()   {if(m_bFin) return m_Wing+3; else return nullptr;}
 
 	/** Returns a pointer to the Plane's Body, or NULL if none. */
-	Body *body()  {if(m_bBody)    return &m_Body; else return NULL;}
+    Body *body()  {if(m_bBody)    return &m_Body; else return nullptr;}
 	
 	/** Returns the Plane's CoG position */
 	Vector3d &CoG()  {return m_CoG;}

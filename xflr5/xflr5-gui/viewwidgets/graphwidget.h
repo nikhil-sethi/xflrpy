@@ -24,7 +24,8 @@
 #define GRAPHWIDGET_H
 
 #include <QWidget>
-#include <graph/graph.h>
+
+class Graph;
 
 class GraphWidget : public QWidget
 {

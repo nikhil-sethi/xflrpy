@@ -1,6 +1,6 @@
 /****************************************************************************
 
-	Objects2D    Copyright (C) 2016-2016 Andre Deperrois 
+    Objects2D    Copyright (C) 2016-2019 Andre Deperrois
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,9 +25,13 @@
   */
 
 #include <QList>
-#include <objects/objects2d/Foil.h>
-#include <objects/objects2d/Polar.h>
-#include <objects/objects2d/OpPoint.h>
+
+#include <analysis3d/analysis3d_enums.h>
+
+
+class Foil;
+class Polar;
+class OpPoint;
 
 class Objects2d
 {
@@ -64,9 +68,8 @@ public:
 	static OpPoint*  getFoilOpp(Foil *pFoil, Polar *pPolar, double x);
 	static void      insertOpPoint(OpPoint *pNewPoint);
 	static bool      deleteOpp(OpPoint *pOpp);
-	static OpPoint*  addOpPoint(void *pFoilPtr, void *pPolarPtr, void *pXFoilPtr, bool bStoreOpp);
+    static OpPoint*  addOpPoint(Foil *pFoil, Polar *pPolar, OpPoint *pOpPoint, bool bStoreOpp);
 
-	static void addXFoilData(OpPoint *pOpp, void *pXFoilPtr, void *pFoilPtr);
 
 
 public:

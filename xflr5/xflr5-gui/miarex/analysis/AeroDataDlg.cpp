@@ -1,7 +1,6 @@
 /****************************************************************************
 
 	AeroData Class
-	Submitted by BuboMaximus 2014/03/17
 	Copyright (C) 2015 Andre Deperrois 
 
 	This program is free software; you can redistribute it and/or modify
@@ -21,14 +20,16 @@
 *****************************************************************************/
 
 
-#include "AeroDataDlg.h"
-#include <misc/options/Units.h>
-
-#include <QtDebug>
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <math.h>
+
+#include "AeroDataDlg.h"
+#include <misc/options/units.h>
+#include <misc/text/DoubleEdit.h>
+
 // International Standard Atmosphere
 
 #define STANDARDTEMPERATURE  288.15  // [°K]
@@ -275,6 +276,7 @@ void AeroDataDlg::keyPressEvent(QKeyEvent *event)
 		case Qt::Key_Escape:
 		{
 			reject();
+			break;
 		}
 		default:
 			event->ignore();

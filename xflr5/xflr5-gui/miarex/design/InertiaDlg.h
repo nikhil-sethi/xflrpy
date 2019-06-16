@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	InertiaDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois 
+    Copyright (C) 2009-2019 Andre Deperrois
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,12 +29,17 @@
 #include <QPushButton>
 #include <QTableView>
 #include <QStandardItemModel>
+#include <QDialogButtonBox>
 
-#include <globals/gui_params.h>
-#include <misc/text/FloatEditDelegate.h>
-#include <misc/text/DoubleEdit.h>
+
 #include <objects/objects3d/vector3d.h>
-#include <objects/objects3d/Plane.h>
+
+class FloatEditDelegate;
+class DoubleEdit;
+class Plane;
+class Wing;
+class Body;
+class PointMass;
 
 class InertiaDlg : public QDialog
 {
@@ -64,11 +69,12 @@ private slots:
 	void onInsertMassRow();
 	void onDeleteMassRow();
 	void onVolumeMass();
+    void onButton(QAbstractButton *pButton);
 
 private:
 	void contextMenuEvent(QContextMenuEvent *event);
 	void keyPressEvent(QKeyEvent *event);
-	void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *pEvent);
 	void showEvent(QShowEvent *event);
 	void hideEvent(QHideEvent *event);
 
@@ -82,7 +88,7 @@ private:
 	//layout widget variables
 	QStackedWidget *m_pctrlTopStack;
 	QPushButton *m_pctrlWingInertia, *m_pctrlWing2Inertia, *m_pctrlStabInertia, *m_pctrlFinInertia, *m_pctrlBodyInertia;
-	QPushButton *OKButton;
+
 	QLabel *m_pctrlMassUnit, *m_pctrlMassUnit2;
 	QLabel *m_pctrlLengthUnit10, *m_pctrlLengthUnit11, *m_pctrlLengthUnit12;
 	QLabel *m_pctrlLengthUnit20, *m_pctrlLengthUnit21, *m_pctrlLengthUnit22;
@@ -99,6 +105,9 @@ private:
 	DoubleEdit *m_pctrlTotalIxx, *m_pctrlTotalIyy, *m_pctrlTotalIzz, *m_pctrlTotalIxz;
 	DoubleEdit *m_pctrlXTotalCoG,*m_pctrlYTotalCoG,*m_pctrlZTotalCoG;
 	DoubleEdit *m_pctrlTotalMass;
+
+    QPushButton *m_pctrlExportToAVL;
+    QDialogButtonBox *m_pButtonBox;
 
 	QMenu *m_pContextMenu;
 	QAction *m_pInsertMassRow, *m_pDeleteMassRow;
@@ -119,11 +128,9 @@ private:
 
 	bool m_bChanged;
 
-	static QSize  s_WindowSize;
-	static bool s_bWindowMaximized;
 
 public:
-	static QPoint s_Position;
+    static QByteArray s_Geometry;
 };
 
 #endif // INERTIADLG_H

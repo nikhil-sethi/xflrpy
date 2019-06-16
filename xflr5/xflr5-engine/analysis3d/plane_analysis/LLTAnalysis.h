@@ -34,11 +34,9 @@
 #define LLTANALYSIS_H
 
 
-#include <analysis3d/plane_analysis/planetaskevent.h>
 #include <analysis3d/analysis3d_params.h>
 #include <analysis3d/analysis3d_globals.h>
-#include <objects/objects3d/Plane.h>
-#include <objects/objects3d/PlaneOpp.h>
+
 #include <QList>
 
 /**
@@ -49,7 +47,12 @@
 	All the data is in International Standard units kg, m, s.
  */
 
-
+class Plane;
+class WPolar;
+class PlaneOpp;
+class PlaneTaskEvent;
+class Wing;
+class Polar;
 
 class XFLR5ENGINELIBSHARED_EXPORT LLTAnalysis : QObject
 {
@@ -116,8 +119,8 @@ private:
 	double GetCd(Foil *pFoil0, Foil *pFoil1, double Re, double Alpha, double Tau, double AR, bool &bOutRe, bool &bError);
 	double GetXCp(Foil *pFoil0, Foil *pFoil1, double Re, double Alpha, double Tau,  bool &bOutRe, bool &bError);
 	double GetXTr(Foil *pFoil0, Foil *pFoil1, double Re, double Alpha, double Tau, bool bTop, bool &bOutRe, bool &bError);
-	double GetPlrPointFromAlpha(Foil *pFoil, double Re, double Alpha, int PlrVar, bool &bOutRe, bool &bError);
-	void GetLinearizedPolar(Foil *pFoil0, Foil *pFoil1, double Re, double Tau, double &Alpha0, double &Slope);
+	double getPlrPointFromAlpha(Foil *pFoil, double Re, double Alpha, int PlrVar, bool &bOutRe, bool &bError);
+	void getLinearizedPolar(Foil *pFoil0, Foil *pFoil1, double Re, double Tau, double &Alpha0, double &Slope);
 
 
 signals:

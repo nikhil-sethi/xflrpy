@@ -23,29 +23,37 @@
 #include <QVBoxLayout>
 #include "FoilPolarDlg.h"
 #include <globals/globals.h>
-#include <misc/options/Units.h>
+#include <misc/options/units.h>
 #include <xdirect/XDirect.h>
+#include <misc/text/DoubleEdit.h>
+#include <objects/objects2d/Polar.h>
+
+QByteArray FoilPolarDlg::s_WindowGeometry;
 
 int FoilPolarDlg::s_UnitType = 1;
 double FoilPolarDlg::s_Viscosity = 1.5e-5;
 double FoilPolarDlg::s_Density   = 1.225;
-double FoilPolarDlg::s_Chord = 0.0;
-double FoilPolarDlg::s_Span = 0.0;
-double FoilPolarDlg::s_Mass = 0.0;
+double FoilPolarDlg::s_Chord = 1.0;
+double FoilPolarDlg::s_Span = 1.0;
+double FoilPolarDlg::s_Mass = 1.0;
 
 
 FoilPolarDlg::FoilPolarDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setWindowTitle(tr("Foil Polar Definition"));
-	m_PolarType = XFLR5::FIXEDSPEEDPOLAR;
-	m_NCrit     = 9.0;
-	m_XTop      = 1.0;
-	m_XBot      = 1.0;
-	m_Mach      = 0.0;
-	m_Reynolds  = 100000.0;
-	m_ASpec     = 0.0;
+
+    m_PolarType = XFLR5::FIXEDSPEEDPOLAR;
+    m_NCrit     = 9.0;
+    m_XTop      = 1.0;
+    m_XBot      = 1.0;
+    m_Mach      = 0.0;
+    m_Reynolds  = 100000.0;
+    m_ASpec     = 0.0;
+
 	m_bAutoName = true;
-	setupLayout();
+
+    setupLayout();
+    connectSignals();
 }
 
 
@@ -53,40 +61,40 @@ void FoilPolarDlg::setupLayout()
 {
 	QFont SymbolFont("Symbol");
 
-    QGroupBox *NameGroupBox = new QGroupBox(tr("Analysis Name"));
+    QGroupBox *pNameGroupBox = new QGroupBox(tr("Analysis Name"));
     {
-        QVBoxLayout *AnalysisLayout = new QVBoxLayout;
+        QVBoxLayout *pAnalysisLayout = new QVBoxLayout;
         {
-            QHBoxLayout *autoname = new QHBoxLayout;
+            QHBoxLayout *pAutoNameLayout = new QHBoxLayout;
             {
                 m_pctrlAuto1 = new QRadioButton(tr("Automatic"));
                 m_pctrlAuto2 = new QRadioButton(tr("User Defined"));
                 m_pctrlAnalysisName = new QLineEdit(tr("Analysis Name"));
-                autoname->addStretch(1);
-                autoname->addWidget(m_pctrlAuto1);
-                autoname->addStretch(1);
-                autoname->addWidget(m_pctrlAuto2);
-                autoname->addStretch(1);
+                pAutoNameLayout->addStretch(1);
+                pAutoNameLayout->addWidget(m_pctrlAuto1);
+                pAutoNameLayout->addStretch(1);
+                pAutoNameLayout->addWidget(m_pctrlAuto2);
+                pAutoNameLayout->addStretch(1);
             }
-            AnalysisLayout->addLayout(autoname);
-            AnalysisLayout->addWidget(m_pctrlAnalysisName);
+            pAnalysisLayout->addLayout(pAutoNameLayout);
+            pAnalysisLayout->addWidget(m_pctrlAnalysisName);
         }
-        NameGroupBox->setLayout(AnalysisLayout);
+        pNameGroupBox->setLayout(pAnalysisLayout);
     }
 
-    QGroupBox *TypeGroup = new QGroupBox(tr("Analysis Type"));
+    QGroupBox *pTypeGroup = new QGroupBox(tr("Analysis Type"));
     {
-        QHBoxLayout *AnalysisType = new QHBoxLayout;
+        QHBoxLayout *pAnalysisTypeLayout = new QHBoxLayout;
         {
 		  m_rbtype1 = new QRadioButton(tr("Type 1"));
             m_rbtype2 = new QRadioButton(tr("Type 2"));
             m_rbtype3 = new QRadioButton(tr("Type 3"));
             m_rbtype4 = new QRadioButton(tr("Type 4"));
-            AnalysisType->addWidget(m_rbtype1);
-            AnalysisType->addWidget(m_rbtype2);
-            AnalysisType->addWidget(m_rbtype3);
-            AnalysisType->addWidget(m_rbtype4);
-            TypeGroup->setLayout(AnalysisType);
+            pAnalysisTypeLayout->addWidget(m_rbtype1);
+            pAnalysisTypeLayout->addWidget(m_rbtype2);
+            pAnalysisTypeLayout->addWidget(m_rbtype3);
+            pAnalysisTypeLayout->addWidget(m_rbtype4);
+            pTypeGroup->setLayout(pAnalysisTypeLayout);
         }
     }
 
@@ -94,7 +102,7 @@ void FoilPolarDlg::setupLayout()
     {
 	   QVBoxLayout *pReMachLayout = new QVBoxLayout;
         {
-			QHBoxLayout *Type2DataLayout = new QHBoxLayout;
+            QHBoxLayout *pType2DataLayout = new QHBoxLayout;
 			{
 				//type 2 input data
 				QGroupBox *pPlaneDataGroupBox = new QGroupBox(tr("Plane Data"));
@@ -122,13 +130,13 @@ void FoilPolarDlg::setupLayout()
 					}
 					pPlaneDataGroupBox->setLayout(PlaneDataLayout);
 				}
-				QGroupBox *pAeroDataGroupBox = new QGroupBox(tr("Aerodynamic Data"));
+                QGroupBox *pAeroDataGroupBox = new QGroupBox(tr("Fluid properties"));
 				{
-					QGridLayout *AeroDataLayout = new QGridLayout;
+                    QGridLayout *pAeroDataLayout = new QGridLayout;
 					{
 						QLabel *lab9 = new QLabel(tr("Unit"));
-						m_pctrlUnit1 = new QRadioButton(tr("International"));
-						m_pctrlUnit2 = new QRadioButton(tr("Imperial"));
+                        m_pctrlFluidUnit1 = new QRadioButton(tr("International"));
+                        m_pctrlFluidUnit2 = new QRadioButton(tr("Imperial"));
 						m_pctrlRho = new QLabel("r =");
 						m_pctrlDensity = new DoubleEdit(1.225,3);
 						m_pctrlDensityUnit = new QLabel("kg/m3");
@@ -143,21 +151,21 @@ void FoilPolarDlg::setupLayout()
 						m_pctrlViscosity->setPrecision(3);
 						m_pctrlDensity->setMin(0.0);
 						m_pctrlViscosity->setMin(0.0);
-						AeroDataLayout->addWidget(lab9,1,1);
-						AeroDataLayout->addWidget(m_pctrlUnit1,1,2);
-						AeroDataLayout->addWidget(m_pctrlUnit2,1,3);
-						AeroDataLayout->addWidget(m_pctrlRho,2,1);
-						AeroDataLayout->addWidget(m_pctrlDensity,2,2);
-						AeroDataLayout->addWidget(m_pctrlDensityUnit,2,3);
-						AeroDataLayout->addWidget(m_pctrlNu,3,1);
-						AeroDataLayout->addWidget(m_pctrlViscosity,3,2);
-						AeroDataLayout->addWidget(m_pctrlViscosityUnit,3,3);
+                        pAeroDataLayout->addWidget(lab9,1,1);
+                        pAeroDataLayout->addWidget(m_pctrlFluidUnit1,   1,2);
+                        pAeroDataLayout->addWidget(m_pctrlFluidUnit2,   1,3);
+                        pAeroDataLayout->addWidget(m_pctrlRho,          2,1);
+                        pAeroDataLayout->addWidget(m_pctrlDensity,      2,2);
+                        pAeroDataLayout->addWidget(m_pctrlDensityUnit,  2,3);
+                        pAeroDataLayout->addWidget(m_pctrlNu,           3,1);
+                        pAeroDataLayout->addWidget(m_pctrlViscosity,    3,2);
+                        pAeroDataLayout->addWidget(m_pctrlViscosityUnit,3,3);
 					}
-					pAeroDataGroupBox->setLayout(AeroDataLayout);
+                    pAeroDataGroupBox->setLayout(pAeroDataLayout);
 				}
 
-				Type2DataLayout->addWidget(pPlaneDataGroupBox);
-				Type2DataLayout->addWidget(pAeroDataGroupBox);
+                pType2DataLayout->addWidget(pPlaneDataGroupBox);
+                pType2DataLayout->addWidget(pAeroDataGroupBox);
 			}
 
 			QHBoxLayout *pReMachValuesLayout= new QHBoxLayout;
@@ -168,9 +176,11 @@ void FoilPolarDlg::setupLayout()
 				m_pctrlReUnit->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 				m_pctrlMachLabel = new QLabel(tr("Mach ="));
 				m_pctrlMachLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-				m_pctrlReynolds = new DoubleEdit();
+                m_pctrlReynolds = new DoubleEdit();
 				m_pctrlReynolds->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 				m_pctrlReynolds->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+                QFontMetrics fm(m_pctrlReynolds->font());
+                m_pctrlReynolds->setMinimumWidth(fm.averageCharWidth()*15);
 				m_pctrlMach = new DoubleEdit(0.0, 3);
 				m_pctrlMach->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 				pReMachValuesLayout->addStretch(1);
@@ -183,36 +193,26 @@ void FoilPolarDlg::setupLayout()
 				pReMachValuesLayout->addStretch(1);
 			}
 
-			pReMachLayout->addLayout(Type2DataLayout);
+            pReMachLayout->addLayout(pType2DataLayout);
 			pReMachLayout->addLayout(pReMachValuesLayout);
 		}
 		pAeroGroupBox->setLayout(pReMachLayout);
 	}
 
-	QHBoxLayout *CommandButtons = new QHBoxLayout;
-	{
-        OKButton = new QPushButton(tr("OK"));
-        OKButton->setAutoDefault(false);
-        CancelButton = new QPushButton(tr("Cancel"));
-        CancelButton->setAutoDefault(false);
-        CommandButtons->addStretch(1);
-        CommandButtons->addWidget(OKButton);
-        CommandButtons->addStretch(1);
-        CommandButtons->addWidget(CancelButton);
-        CommandButtons->addStretch(1);
-		connect(OKButton, SIGNAL(clicked()),this, SLOT(onOK()));
-        connect(CancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    m_pButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Discard, this);
+    {
+        connect(m_pButtonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(onButton(QAbstractButton*)));
     }
 
-    QGroupBox *TransGroup = new QGroupBox(tr("Transition settings"));
+    QGroupBox *pTransGroup = new QGroupBox(tr("Transition settings"));
     {
-        QGridLayout *Transitions = new QGridLayout;
+        QGridLayout *pTransitionsLayout = new QGridLayout;
         {
-            QLabel *FreeTransLabel   = new QLabel(tr("Free transitions (e^n) method"));
-            QLabel *ForceTransLabel  = new QLabel(tr("Forced transition:"));
-            QLabel	*NCritLabel      = new QLabel(tr("NCrit="));
-            QLabel *TopTripLabel     = new QLabel(tr("TripLocation (top)"));
-            QLabel *BotTripLabel     = new QLabel(tr("TripLocation (bot)"));
+            QLabel *pFreeTransLabel   = new QLabel(tr("Free transitions (e^n) method"));
+            QLabel *pForceTransLabel  = new QLabel(tr("Forced transition:"));
+            QLabel*pNCritLabel      = new QLabel(tr("NCrit="));
+            QLabel *pTopTripLabel     = new QLabel(tr("TripLocation (top)"));
+            QLabel *pBotTripLabel     = new QLabel(tr("TripLocation (bot)"));
             m_pctrlNCrit    = new DoubleEdit();
             m_pctrlTopTrans = new DoubleEdit();
             m_pctrlBotTrans = new DoubleEdit();
@@ -220,33 +220,33 @@ void FoilPolarDlg::setupLayout()
             m_pctrlNCrit->setAlignment(   Qt::AlignRight);
             m_pctrlTopTrans->setAlignment(Qt::AlignRight);
             m_pctrlBotTrans->setAlignment(Qt::AlignRight);
-            Transitions->addWidget(FreeTransLabel,   1,1, 1,1, Qt::AlignLeft| Qt::AlignVCenter);
-            Transitions->addWidget(ForceTransLabel,  2,1, 1,1, Qt::AlignLeft| Qt::AlignVCenter);
-            Transitions->addWidget(NCritLabel,       1,2, 1,1, Qt::AlignRight| Qt::AlignVCenter);
-            Transitions->addWidget(TopTripLabel,     2,2, 1,1, Qt::AlignRight| Qt::AlignVCenter);
-            Transitions->addWidget(BotTripLabel,     3,2, 1,1, Qt::AlignRight| Qt::AlignVCenter);
-            Transitions->addWidget(m_pctrlNCrit,     1,3, 1,1, Qt::AlignRight| Qt::AlignVCenter);
-            Transitions->addWidget(m_pctrlTopTrans,  2,3, 1,1, Qt::AlignRight| Qt::AlignVCenter);
-            Transitions->addWidget(m_pctrlBotTrans,  3,3, 1,1, Qt::AlignRight| Qt::AlignVCenter);
-            TransGroup->setLayout(Transitions);
+            pTransitionsLayout->addWidget(pFreeTransLabel,   1,1, 1,1, Qt::AlignLeft| Qt::AlignVCenter);
+            pTransitionsLayout->addWidget(pForceTransLabel,  2,1, 1,1, Qt::AlignLeft| Qt::AlignVCenter);
+            pTransitionsLayout->addWidget(pNCritLabel,       1,2, 1,1, Qt::AlignRight| Qt::AlignVCenter);
+            pTransitionsLayout->addWidget(pTopTripLabel,     2,2, 1,1, Qt::AlignRight| Qt::AlignVCenter);
+            pTransitionsLayout->addWidget(pBotTripLabel,     3,2, 1,1, Qt::AlignRight| Qt::AlignVCenter);
+            pTransitionsLayout->addWidget(m_pctrlNCrit,     1,3, 1,1, Qt::AlignRight| Qt::AlignVCenter);
+            pTransitionsLayout->addWidget(m_pctrlTopTrans,  2,3, 1,1, Qt::AlignRight| Qt::AlignVCenter);
+            pTransitionsLayout->addWidget(m_pctrlBotTrans,  3,3, 1,1, Qt::AlignRight| Qt::AlignVCenter);
+            pTransGroup->setLayout(pTransitionsLayout);
         }
     }
 
-	QVBoxLayout *mainLayout = new QVBoxLayout;
+    QVBoxLayout *pMainLayout = new QVBoxLayout;
 	{
-		mainLayout->addStretch();
-		mainLayout->addWidget(NameGroupBox);
-		mainLayout->addStretch();
-		mainLayout->addWidget(TypeGroup);
-		mainLayout->addStretch();
-		mainLayout->addWidget(pAeroGroupBox);
-		mainLayout->addWidget(TransGroup);
-		mainLayout->addStretch();
-		mainLayout->addLayout(CommandButtons);
-		mainLayout->addStretch();
+        pMainLayout->addStretch();
+        pMainLayout->addWidget(pNameGroupBox);
+        pMainLayout->addStretch();
+        pMainLayout->addWidget(pTypeGroup);
+        pMainLayout->addStretch();
+        pMainLayout->addWidget(pAeroGroupBox);
+        pMainLayout->addWidget(pTransGroup);
+        pMainLayout->addStretch();
+        pMainLayout->addWidget(m_pButtonBox);
+        pMainLayout->addStretch();
 	}
 
-	setLayout(mainLayout);
+    setLayout(pMainLayout);
 
 	m_pctrlTopTrans->setPrecision(2);
 	m_pctrlTopTrans->setMin(0.0);
@@ -262,14 +262,13 @@ void FoilPolarDlg::setupLayout()
 	m_pctrlNCrit->setMax(1000000.0);
 
 
-	m_pctrlReynolds->setPrecision(0);
-	m_pctrlReynolds->setMin(-1.0e10);
-	m_pctrlReynolds->setMax(1.e10);
-
-
 	m_pctrlMach->setMin(0.0);
 	m_pctrlMach->setMax(1000.0);
+}
 
+
+void FoilPolarDlg::connectSignals()
+{
 	connect(m_pctrlAuto1, SIGNAL(clicked()), this, SLOT(onAutoName()));
 	connect(m_pctrlAuto2, SIGNAL(clicked()), this, SLOT(onAutoName()));
 
@@ -279,21 +278,32 @@ void FoilPolarDlg::setupLayout()
 	connect(m_rbtype4, SIGNAL(clicked()), this, SLOT(onPolarType()));
 
 	connect(m_pctrlReynolds, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
-	connect(m_pctrlMach, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
-	connect(m_pctrlNCrit, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
+    connect(m_pctrlMach,     SIGNAL(editingFinished()), this, SLOT(editingFinished()));
+    connect(m_pctrlNCrit,    SIGNAL(editingFinished()), this, SLOT(editingFinished()));
 	connect(m_pctrlTopTrans, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
 	connect(m_pctrlBotTrans, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
 
 	connect(m_pctrlAnalysisName, SIGNAL(textEdited (const QString &)), this, SLOT(onNameChanged()));
 
-	connect(m_pctrlUnit1, SIGNAL(toggled(bool)), this, SLOT(onUnit()));
-	connect(m_pctrlUnit2, SIGNAL(toggled(bool)), this, SLOT(onUnit()));
+    connect(m_pctrlFluidUnit1, SIGNAL(clicked(bool)), this, SLOT(onFluiUnit()));
+    connect(m_pctrlFluidUnit2, SIGNAL(clicked(bool)), this, SLOT(onFluiUnit()));
 
-	connect(m_pctrlChord, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(m_pctrlSpan, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(m_pctrlMass, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(m_pctrlViscosity, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-	connect(m_pctrlDensity, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(m_pctrlChord,     SIGNAL(editingFinished()), this, SLOT(onCalcReynolds()));
+    connect(m_pctrlSpan,      SIGNAL(editingFinished()), this, SLOT(onCalcReynolds()));
+    connect(m_pctrlMass,      SIGNAL(editingFinished()), this, SLOT(onCalcReynolds()));
+    connect(m_pctrlViscosity, SIGNAL(editingFinished()), this, SLOT(onCalcReynolds()));
+    connect(m_pctrlDensity,   SIGNAL(editingFinished()), this, SLOT(onCalcReynolds()));
+}
+
+
+void FoilPolarDlg::onButton(QAbstractButton *pButton)
+{
+    if (m_pButtonBox->button(QDialogButtonBox::Ok) == pButton)
+    {
+        onOK();
+    }
+    else if (m_pButtonBox->button(QDialogButtonBox::Cancel) == pButton)     reject();
+    else if (m_pButtonBox->button(QDialogButtonBox::Discard) == pButton)    reject();
 }
 
 
@@ -306,28 +316,19 @@ void FoilPolarDlg::editingFinished()
 
 void FoilPolarDlg::initDialog()
 {
-	if(XDirect::curFoil()) m_FoilName = XDirect::curFoil()->foilName();
-	else                    m_FoilName = "";
+    if(XDirect::curFoil()) XDirect::s_RefPolar.m_FoilName = XDirect::curFoil()->foilName();
+    else                   XDirect::s_RefPolar.m_FoilName = "";
 
 	QString str = tr("Analysis parameters for ");
-	setWindowTitle(str+ m_FoilName);
+    setWindowTitle(str+ XDirect::s_RefPolar.m_FoilName);
 
-	m_NCrit     = XDirect::s_refPolar.NCrit();
-	m_XBot      = XDirect::s_refPolar.XtrBot();
-	m_XTop      = XDirect::s_refPolar.XtrTop();
-	m_Mach      = XDirect::s_refPolar.Mach();
-	m_Reynolds  = XDirect::s_refPolar.Reynolds();
-	m_ASpec     = XDirect::s_refPolar.aoa();
-	m_PolarType = XDirect::s_refPolar.polarType();
+    m_pctrlReynolds->setValue(XDirect::s_RefPolar.m_Reynolds);
+    m_pctrlMach->setValue(XDirect::s_RefPolar.m_Mach);
+    m_pctrlNCrit->setValue(XDirect::s_RefPolar.m_ACrit);
+    m_pctrlTopTrans->setValue(XDirect::s_RefPolar.m_XTop);
+    m_pctrlBotTrans->setValue(XDirect::s_RefPolar.m_XBot);
 
-
-	m_pctrlReynolds->setValue(m_Reynolds);
-	m_pctrlMach->setValue(m_Mach);
-	m_pctrlNCrit->setValue(m_NCrit);
-	m_pctrlTopTrans->setValue(m_XTop);
-	m_pctrlBotTrans->setValue(m_XBot);
-
-	switch(XDirect::s_refPolar.polarType())
+    switch(XDirect::s_RefPolar.polarType())
 	{
 		case XFLR5::FIXEDSPEEDPOLAR:
 		{
@@ -363,15 +364,14 @@ void FoilPolarDlg::initDialog()
 	Units::getWeightUnitLabel(str);
 	m_pctrlMassUnit->setText(str);
 
-	m_pctrlUnit1->setChecked(s_UnitType==1);
-	m_pctrlUnit2->setChecked(s_UnitType!=1);
+    m_pctrlFluidUnit1->setChecked(s_UnitType==1);
+    m_pctrlFluidUnit2->setChecked(s_UnitType!=1);
 	m_pctrlViscosity->setValue(s_Viscosity);
-	m_pctrlDensity->setValue(s_Density);
-	onUnit();
+    onFluiUnit();
 
-	m_pctrlMass->setValue(s_Mass);
-	m_pctrlSpan->setValue(s_Span);
-	m_pctrlChord->setValue(s_Chord);
+    m_pctrlMass->setValue(s_Mass*Units::kgtoUnit());
+    m_pctrlSpan->setValue(s_Span*Units::mtoUnit());
+    m_pctrlChord->setValue(s_Chord*Units::mtoUnit());
 
 	onPolarType();
 
@@ -381,26 +381,26 @@ void FoilPolarDlg::initDialog()
 }
 
 
-void FoilPolarDlg::keyPressEvent(QKeyEvent *event)
+void FoilPolarDlg::keyPressEvent(QKeyEvent *pEvent)
 {
     // Prevent Return Key from closing App
-    switch (event->key())
+    switch (pEvent->key())
     {
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
 		{
-			if(!OKButton->hasFocus() && !CancelButton->hasFocus())
+            if(!m_pButtonBox->hasFocus())
 			{
 				readParams();
 				setPlrName();
-				OKButton->setFocus();
+                m_pButtonBox->setFocus();
 				return;
 			}
-			else if(OKButton->hasFocus())
+/*			else if(m_pButtonBox->hasFocus())
 			{
 				onOK();
 				return;
-			}
+            }*/
 			break;
 		}
 		case Qt::Key_Escape:
@@ -409,7 +409,7 @@ void FoilPolarDlg::keyPressEvent(QKeyEvent *event)
 			return;
 		}
 		default:
-			event->ignore();
+            pEvent->ignore();
 	}
 }
 
@@ -440,15 +440,15 @@ void FoilPolarDlg::onNameChanged()
 
 void FoilPolarDlg::onOK()
 {
-	m_PlrName = m_pctrlAnalysisName->text();
+    XDirect::s_RefPolar.m_PlrName = m_pctrlAnalysisName->text();
 
-	XDirect::s_refPolar.polarType() = m_PolarType;
-	XDirect::s_refPolar.NCrit()     = m_NCrit;
-	XDirect::s_refPolar.XtrBot()    = m_XBot;
-	XDirect::s_refPolar.XtrTop()    = m_XTop;
-	XDirect::s_refPolar.Mach()      = m_Mach;
-	XDirect::s_refPolar.Reynolds()  = m_Reynolds;
-	XDirect::s_refPolar.aoa()       = m_ASpec;
+    XDirect::s_RefPolar.setPolarType(m_PolarType);
+    XDirect::s_RefPolar.NCrit()     = m_NCrit;
+    XDirect::s_RefPolar.XtrBot()    = m_XBot;
+    XDirect::s_RefPolar.XtrTop()    = m_XTop;
+    XDirect::s_RefPolar.Mach()      = m_Mach;
+    XDirect::s_RefPolar.Reynolds()  = m_Reynolds;
+    XDirect::s_RefPolar.aoa()       = m_ASpec;
 
 	accept();
 }
@@ -461,35 +461,35 @@ void FoilPolarDlg::onPolarType()
 		m_pctrlReLabel->setText(tr("Reynolds ="));
 		m_pctrlReUnit->setText(" ");
 		m_pctrlMachLabel->setText(tr("Mach ="));
-		m_pctrlReynolds->setPrecision(0);
-		m_pctrlReynolds->setValue(m_Reynolds);
-		m_PolarType = XFLR5::FIXEDSPEEDPOLAR;
+        m_pctrlReynolds->setValue(XDirect::s_RefPolar.m_Reynolds);
+//        m_pctrlReynolds->setPrecision(0);
+        m_PolarType = XFLR5::FIXEDSPEEDPOLAR;
 	}
 	else if(m_rbtype2->isChecked())
 	{
 		m_pctrlReLabel->setText(tr("Re.sqrt(Cl) ="));
 		m_pctrlReUnit->setText(" ");
 		m_pctrlMachLabel->setText(tr("Ma.sqrt(Cl) ="));
-		m_pctrlReynolds->setPrecision(0);
-		m_pctrlReynolds->setValue(m_Reynolds);		
 		m_PolarType = XFLR5::FIXEDLIFTPOLAR;
-	}
+//        m_pctrlReynolds->setPrecision(0);
+        onCalcReynolds();
+    }
 	else if(m_rbtype3->isChecked())
 	{
 		m_pctrlReLabel->setText(tr("Re.Cl ="));
 		m_pctrlReUnit->setText(" ");
 		m_pctrlMachLabel->setText(tr("Mach ="));
-		m_pctrlReynolds->setPrecision(0);
-		m_pctrlReynolds->setValue(m_Reynolds);
-		m_PolarType = XFLR5::RUBBERCHORDPOLAR;
+        m_pctrlReynolds->setValue(XDirect::s_RefPolar.m_Reynolds);
+//        m_pctrlReynolds->setPrecision(0);
+        m_PolarType = XFLR5::RUBBERCHORDPOLAR;
 	}
 	else if(m_rbtype4->isChecked())
 	{
 		m_pctrlReLabel->setText(tr("Alpha ="));
 		m_pctrlReUnit->setText(QString::fromUtf8("°"));
 		m_pctrlMachLabel->setText(tr("Mach ="));
-		m_pctrlReynolds->setPrecision(2);
 		m_pctrlReynolds->setValue(m_ASpec);
+//        m_pctrlReynolds->setPrecision(3);
 		m_PolarType = XFLR5::FIXEDAOAPOLAR;
 	}
 
@@ -498,8 +498,8 @@ void FoilPolarDlg::onPolarType()
 	m_pctrlMass->setEnabled(m_PolarType==XFLR5::FIXEDLIFTPOLAR);
 	m_pctrlViscosity->setEnabled(m_PolarType==XFLR5::FIXEDLIFTPOLAR);
 	m_pctrlDensity->setEnabled(m_PolarType==XFLR5::FIXEDLIFTPOLAR);
-	m_pctrlUnit1->setEnabled(m_PolarType==XFLR5::FIXEDLIFTPOLAR);
-	m_pctrlUnit2->setEnabled(m_PolarType==XFLR5::FIXEDLIFTPOLAR);
+    m_pctrlFluidUnit1->setEnabled(m_PolarType==XFLR5::FIXEDLIFTPOLAR);
+    m_pctrlFluidUnit2->setEnabled(m_PolarType==XFLR5::FIXEDLIFTPOLAR);
 
 	setPlrName();
 }
@@ -517,24 +517,28 @@ void FoilPolarDlg::setPlrName()
 }
 
 
-
-void FoilPolarDlg::onUnit()
+void FoilPolarDlg::onFluiUnit()
 {
-	if(m_pctrlUnit1->isChecked())
+    if(m_pctrlFluidUnit1->isChecked())
 	{
 		s_UnitType   = 1;
+
 		m_pctrlViscosity->setValue(s_Viscosity);
-		m_pctrlDensityUnit->setText("kg/m3");
 		m_pctrlViscosityUnit->setText("m"+QString::fromUtf8("²")+"/s");
-	}
+
+        m_pctrlDensity->setValue(s_Density);
+        m_pctrlDensityUnit->setText("kg/m3");
+    }
 	else
 	{
 		s_UnitType   = 2;
-		m_pctrlViscosity->setValue(s_Viscosity* 10.7182881);
-		m_pctrlDensityUnit->setText("slugs/ft3");
+
+        m_pctrlViscosity->setValue(s_Viscosity* 10.7182881);
 		m_pctrlViscosityUnit->setText("ft"+QString::fromUtf8("²")+"/s");
-	}
-	setDensity();
+
+        m_pctrlDensity->setValue(s_Density*0.00194122);
+        m_pctrlDensityUnit->setText("slugs/ft3");
+    }
 }
 
 
@@ -545,7 +549,7 @@ void FoilPolarDlg::readParams()
     str = m_pctrlReynolds->text();
     str.replace(" ","");
 	if(m_PolarType==XFLR5::FIXEDAOAPOLAR) m_ASpec    = locale().toDouble(str, &bOK);
-	else                                  m_Reynolds = locale().toDouble(str, &bOK);
+    else                                  m_Reynolds = locale().toDouble(str, &bOK);
 
 	m_Mach     = m_pctrlMach->value();
 //  m_pctrlMach->clear();
@@ -555,55 +559,88 @@ void FoilPolarDlg::readParams()
 	m_XTop = m_pctrlTopTrans->value();
 	m_XBot = m_pctrlBotTrans->value();
 
-    s_Mass = m_pctrlMass->value();
-    s_Chord = m_pctrlChord->value();
-    s_Span = m_pctrlSpan->value();
+    s_Mass = m_pctrlMass->value()/Units::kgtoUnit();
+    s_Chord = m_pctrlChord->value()/Units::mtoUnit();
+    s_Span = m_pctrlSpan->value()/Units::mtoUnit();
+    s_Viscosity = m_pctrlViscosity->value();
+
+    if(m_pctrlFluidUnit1->isChecked()) s_UnitType=1; else s_UnitType=2;
+
     s_Viscosity = m_pctrlViscosity->value();
     s_Density = m_pctrlDensity->value();
+    if(s_UnitType==2)
+    {
+        s_Viscosity *= 1.0/10.7182881;
+        s_Density   *= 1.0/0.00194122;
+    }
 }
 
 
 
-void FoilPolarDlg::setDensity()
+
+
+void FoilPolarDlg::onCalcReynolds()
 {
-	int exp, precision;
-	if(m_pctrlUnit1->isChecked())
-	{
-		exp = (int)log(s_Density);
-		if(exp>1) precision = 1;
-		else if(exp<-4) precision = 4;
-		else precision = 3-exp;
-		m_pctrlDensity->setPrecision(precision);
-		m_pctrlDensity->setValue(s_Density);
-	}
-	else
-	{
-		exp = (int)log(s_Density* 0.00194122);
-		if(exp>1) precision = 1;
-		else if(exp<-4) precision = 4;
-		else precision = 3-exp;
-		m_pctrlDensity->setPrecision(precision);
-		m_pctrlDensity->setValue(s_Density* 0.00194122);
-	}
-}
+    readParams();
 
-
-
-void FoilPolarDlg::onEditingFinished()
-{
-	readParams();
 	if(m_PolarType==XFLR5::FIXEDLIFTPOLAR)
 	{
-		//compute Re.sqrt(Cl)
-		m_pctrlReynolds->setValue(sqrt(2.0*s_Mass*9.81*s_Density*s_Chord/s_Viscosity/s_Viscosity/s_Span));
+        double lift   = s_Mass*9.81;
+        double area   = s_Chord*s_Span;
+        double VCl05  = sqrt(2.0*lift/s_Density/area);
+        double ReCl05 = s_Chord/s_Viscosity*VCl05;
+        m_pctrlReynolds->setValue(ReCl05);
 	}
 }
 
 
+void FoilPolarDlg::showEvent(QShowEvent *pEvent)
+{
+    restoreGeometry(s_WindowGeometry);
+    pEvent->accept();
+}
 
 
 
+void FoilPolarDlg::hideEvent(QHideEvent *pEvent)
+{
+    s_WindowGeometry = saveGeometry();
+
+    pEvent->accept();
+}
+
+
+void FoilPolarDlg::loadSettings(QSettings &settings)
+{
+    settings.beginGroup("FoilPolarDlg");
+    {
+        s_WindowGeometry = settings.value("WindowGeom", QByteArray()).toByteArray();
+
+        s_UnitType      = settings.value("UnitType", 1).toInt();
+        s_Chord         = settings.value("Chord", 1.0).toDouble();
+        s_Span          = settings.value("Span", 1.0).toDouble();
+        s_Mass          = settings.value("Mass", 1.0).toDouble();
+        s_Density       = settings.value("Density", 1.225).toDouble();
+        s_Viscosity     = settings.value("Viscosity", 1.5e-5).toDouble();
+    }
+    settings.endGroup();
+}
 
 
 
+void FoilPolarDlg::saveSettings(QSettings &settings)
+{
+    settings.beginGroup("FoilPolarDlg");
+    {
+        settings.setValue("WindowGeom", s_WindowGeometry);
+
+        settings.setValue("UnitType", s_UnitType);
+        settings.setValue("Chord", s_Chord);
+        settings.setValue("Span", s_Span);
+        settings.setValue("Mass", s_Mass);
+        settings.setValue("Density", s_Density);
+        settings.setValue("Viscosity", s_Viscosity);
+    }
+    settings.endGroup();
+}
 

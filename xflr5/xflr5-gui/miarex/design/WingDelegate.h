@@ -26,9 +26,9 @@
 #include <QPainter>
 #include <QStyledItemDelegate>
 
-#include <misc/text/DoubleEdit.h>
-#include <objects/objects3d/WingSection.h>
-#include <objects/objects2d/Foil.h>
+class Foil;
+class WingSection;
+class DoubleEdit;
 
 class WingDelegate : public QStyledItemDelegate
 {

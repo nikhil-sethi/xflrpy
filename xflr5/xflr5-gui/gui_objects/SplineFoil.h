@@ -1,7 +1,7 @@
 /****************************************************************************
 
     Spline Foil Class
-	Copyright (C) 2003-2016 Andre Deperrois 
+    Copyright (C) 2003-2016 Andre Deperrois
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 
 
 #include "Spline5.h"
-
+#include <objects/objects2d/Foil.h>
 
 /**
 *@class SplineFoil
@@ -43,76 +43,85 @@ The foil is contructed based on one spline for the upper surface and one spline 
 */
 class SplineFoil
 {
-	friend class AFoil;
-	friend class SplineCtrlsDlg;
-	friend class FoilTableDelegate;
+    friend class AFoil;
+    friend class SplineCtrlsDlg;
+    friend class FoilTableDelegate;
 
 
 public:
-	SplineFoil();
-	SplineFoil(SplineFoil *pSF);
+    SplineFoil();
+    SplineFoil(SplineFoil *pSF);
 
-	bool isVisible(){return m_bVisible;}
-	bool isSymetric(){return m_bSymetric;}
-	bool showOutPoints(){return m_bOutPoints;}
-	bool showCenterLine(){return m_bCenterLine;}
-	int splineFoilWidth(){return m_FoilWidth;}
-	int splineFoilStyle(){return m_FoilStyle;}
-	int splinePointStyle(){return m_PointStyle;}
-	QColor splineFoilColor(){return m_FoilColor;}
-	QString splineFoilName(){return m_strFoilName;}
+    bool isVisible(){return m_bVisible;}
+    bool isSymetric(){return m_bSymetric;}
+    bool showOutPoints(){return m_bOutPoints;}
+    bool showCenterLine(){return m_bCenterLine;}
+    int splineFoilWidth(){return m_FoilWidth;}
+    int splineFoilStyle(){return m_FoilStyle;}
+    int splinePointStyle(){return m_PointStyle;}
+    QColor splineFoilColor(){return m_FoilColor;}
+    QString splineFoilName(){return m_strFoilName;}
 
-	Spline *extrados(){return &m_Extrados;}
-	Spline *intrados(){return &m_Intrados;}
+    Spline *extrados(){return &m_Extrados;}
+    Spline *intrados(){return &m_Intrados;}
 
-	bool isModified(){return m_bModified;}
-	void setModified(bool bModified){m_bModified = bModified;}
+    bool isModified(){return m_bModified;}
+    void setModified(bool bModified){m_bModified = bModified;}
 
-	void setVisible(bool bVisible){m_bVisible = bVisible;}
+    void setVisible(bool bVisible){m_bVisible = bVisible;}
 
-	void compMidLine();
+    void compMidLine();
 
-	void initSplineFoil();
+    void initSplineFoil();
 
-	bool serialize(QDataStream &ar, bool bIsStoring);
-	bool serializeXFL(QDataStream &ar, bool bIsStoring);
+    bool serialize(QDataStream &ar, bool bIsStoring);
+    bool serializeXFL(QDataStream &ar, bool bIsStoring);
 
-	void copy(SplineFoil* pSF);
-	void drawCtrlPoints(QPainter &painter, double scalex, double scaley, QPointF Offset);
-	void drawMidLine(QPainter &painter, double scalex, double scaley, QPointF Offset);
-	void drawFoil(QPainter &painter, double scalex, double scaley, QPointF Offset);
-	void drawOutPoints(QPainter &painter, double scalex, double scaley, QPointF Offset);
-	void exportToBuffer(void *pFoilPtr);
-	void exportToFile(QTextStream &out);
-	void updateSplineFoil();
-	void setCurveParams(int style, int width, QColor color);
+    void copy(SplineFoil* pSF);
+    void drawCtrlPoints(QPainter &painter, double scalex, double scaley, QPointF Offset);
+    void drawMidLine(QPainter &painter, double scalex, double scaley, QPointF Offset);
+    void drawFoil(QPainter &painter, double scalex, double scaley, QPointF Offset);
+    void drawOutPoints(QPainter &painter, double scalex, double scaley, QPointF Offset);
+    void exportToBuffer(Foil *pFoil);
+    void exportToFile(QTextStream &out);
+    void updateSplineFoil();
+    void setCurveParams(int style, int width, QColor color);
 
-	double camber() {return m_fCamber;}
-	double xCamber() {return m_fxCambMax;}
-	double thickness() {return m_fThickness;}
-	double xThickness() {return m_fxThickMax;}
+    double camber() const {return m_fCamber;}
+    double xCamber() const {return m_fxCambMax;}
+    double thickness() const {return m_fThickness;}
+    double xThickness() const {return m_fxThickMax;}
+
+    bool bClosedTE() const {return m_bForceCloseTE;}
+    bool bClosedLE() const {return m_bForceCloseLE;}
+    void setClosedTE(bool bClosed) {m_bForceCloseTE=bClosed;}
+    void setClosedLE(bool bClosed) {m_bForceCloseLE=bClosed;}
+
 
 private:
-	bool m_bModified;                /**< false if the SplineFoil has been serialized in its current dtate, false otherwise */
-	bool m_bVisible;                 /**< true if this SplineFoil object is visible */
-	bool m_bOutPoints;               /**< true if the ouput line points should be displayed */
-	bool m_bCenterLine;              /**< true if the SplineFoil's mean camber line is to be displayed */
-	bool m_bSymetric;                /**< true if the SplineFoil is symetric. In which case the lower surface is set as symetric of the upper surface. */
+    bool m_bModified;                /**< false if the SplineFoil has been serialized in its current dtate, false otherwise */
+    bool m_bVisible;                 /**< true if this SplineFoil object is visible */
+    bool m_bOutPoints;               /**< true if the ouput line points should be displayed */
+    bool m_bCenterLine;              /**< true if the SplineFoil's mean camber line is to be displayed */
+    bool m_bSymetric;                /**< true if the SplineFoil is symetric. In which case the lower surface is set as symetric of the upper surface. */
+    bool m_bForceCloseLE;            /**< true if the leading end points of the top and bottom spline should be positioned at the same place */
+    bool m_bForceCloseTE;            /**< true if the traling end points of the top and bottom spline should be positioned at the same place */
+    int m_OutPoints;                 /**< the number of output points with which to draw the SplineFoil. */
 
-	int m_OutPoints;                 /**< the number of output points with which to draw the SplineFoil. */
+    int m_PointStyle;                /**< the index of the style for the SplineFoil's points*/
+    int m_FoilStyle;                 /**< the index of the style with which to draw the SplineFoil */
+    int m_FoilWidth;                 /**< the width with which to draw the SplineFoil */
+    QColor m_FoilColor;              /**< the color with which to draw the SplineFoil */
 
-	int m_PointStyle;                /**< the index of the style for the SplineFoil's points*/
-	int m_FoilStyle;                 /**< the index of the style with which to draw the SplineFoil */
-	int m_FoilWidth;                 /**< the width with which to draw the SplineFoil */
-	QColor m_FoilColor;              /**< the color with which to draw the SplineFoil */
+    double m_fCamber;                /**< the SplineFoil's max camber */
+    double m_fThickness;             /**< the SplineFoil's max thickness */
+    double m_fxCambMax;              /**< the x-position of the SplineFoil's max camber point */
+    double m_fxThickMax;             /**< the x-position of the SplineFoil's max thickness point */
+    QString m_strFoilName;           /**< the SplineFoil's name */
+    Spline5 m_Extrados;               /**< the spline which defines the upper surface */
+    Spline5 m_Intrados;               /**< the spline which defines the lower surface */
+    Vector3d m_rpMid[MIDPOINTCOUNT];  /**< the points on the SplineFoil's mid camber line @todo replace with a QVarLengthArray */
 
-	double m_fCamber;                /**< the SplineFoil's max camber */
-	double m_fThickness;             /**< the SplineFoil's max thickness */
-	double m_fxCambMax;              /**< the x-position of the SplineFoil's max camber point */
-	double m_fxThickMax;             /**< the x-position of the SplineFoil's max thickness point */
-	QString m_strFoilName;           /**< the SplineFoil's name */
-	Spline5 m_Extrados;               /**< the spline which defines the upper surface */
-	Spline5 m_Intrados;               /**< the spline which defines the lower surface */
-	Vector3d m_rpMid[MIDPOINTCOUNT];  /**< the points on the SplineFoil's mid camber line @todo replace with a QVarLengthArray */
 };
+
 #endif

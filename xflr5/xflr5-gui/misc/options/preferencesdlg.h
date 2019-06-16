@@ -1,13 +1,23 @@
 /****************************************************************************
 
-	Techwing Application
+    Preferences Class
+    Copyright (C) 2018 Andre Deperrois
 
-	Copyright (C) Andre Deperrois techwinder@gmail.com
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-	All rights reserved.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
-
 
 #pragma once
 
@@ -19,16 +29,15 @@
 #include <QComboBox>
 #include <QListWidget>
 #include <QLabel>
+#include <QDialogButtonBox>
 
-#include <misc/text/IntEdit.h>
-#include <misc/text/TextClrBtn.h>
-#include <misc/color/ColorButton.h>
-
-
-class TranslatorDlg;
+class LanguageWt;
 class SaveOptions;
 class Units;
 class Settings;
+class IntEdit;
+class TextClrBtn;
+class ColorButton;
 
 class PreferencesDlg : public QDialog
 {
@@ -40,20 +49,25 @@ public:
 
 private:
 	void setupLayout();
+    void keyPressEvent(QKeyEvent *event);
 
 private slots:
 	void onPage(int iRow);
-	void onOK();
+    void onButton(QAbstractButton *pButton);
+    void onClose();
 
 private:
 	QListWidget *m_pTabWidget;
 	QStackedWidget *m_pPageStack;
 
-	SaveOptions *m_pSaveOptionsWidget;
-	TranslatorDlg *m_pLanguageOptionsWidget;
-	Units *m_pUnitsWidget;
-	Settings *m_pDisplayOptionsWidget;
+    SaveOptions *m_pSaveOptionsWt;
+    LanguageWt *m_pLanguageWt;
+    Units *m_pUnitsWt;
+    Settings *m_pDisplayOptionsWt;
 
+    QCheckBox *m_pctrlUpdateCheck;
+
+    QDialogButtonBox *m_pButtonBox;
 };
 
 

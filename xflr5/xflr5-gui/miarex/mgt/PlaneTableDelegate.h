@@ -26,8 +26,8 @@
 #include <QItemDelegate>
 #include <QStandardItemModel>
 
-#include <misc/text/DoubleEdit.h>
 
+class DoubleEdit;
 
 class PlaneTableDelegate : public QItemDelegate
 {
@@ -47,7 +47,7 @@ public:
 	bool editorEvent(QEvent *, QAbstractItemModel *, const QStyleOptionViewItem &, const QModelIndex &);
 
 private:
-	QStandardItemModel *m_pUFOModel;
+	QStandardItemModel *m_pPlaneModel;
 	int *m_Precision; ///table of float precisions for each column
 };
 

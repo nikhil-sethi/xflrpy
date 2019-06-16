@@ -27,10 +27,12 @@
 #include <QPushButton>
 #include <QTableView>
 #include <QStandardItem>
-#include <misc/text/FloatEditDelegate.h>
-#include <objects/objects2d/Foil.h>
-#include <misc/text/DoubleEdit.h>
-#include <globals/gui_params.h>
+
+#include <xfoil_params.h>
+
+class DoubleEdit;
+class Foil;
+class FloatEditDelegate;
 
 class PertDlg : public QDialog
 {

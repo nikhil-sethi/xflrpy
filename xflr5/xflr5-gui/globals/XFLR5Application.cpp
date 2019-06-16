@@ -25,7 +25,9 @@
 #include <QMessageBox>
 #include <QCommandLineOption>
 #include <QCommandLineParser>
-#include <QtDebug>
+#include <QDebug>
+
+
 #include "XFLR5Application.h"
 #include <globals/mainframe.h>
 #include <misc/options/displayoptions.h>
@@ -63,7 +65,7 @@ XFLR5Application::XFLR5Application(int &argc, char** argv) : QApplication(argc, 
 	QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
 #endif
 
-    qsrand(time(NULL));
+    qsrand(time(nullptr));
 
 	bool bMaximized = true;
 	bool bOK;
@@ -88,12 +90,11 @@ XFLR5Application::XFLR5Application(int &argc, char** argv) : QApplication(argc, 
 	}
 	settings.endGroup();
 
-	QTranslator xflr5Translator;
-
+    QTranslator xflr5Translator;
 	if(LanguagePath.length())
 	{
 		if(xflr5Translator.load(LanguagePath)) installTranslator(&xflr5Translator);
-	}
+    }
 
 	QPoint pt(a,b);
 	QSize sz(c,d);
@@ -140,7 +141,32 @@ XFLR5Application::XFLR5Application(int &argc, char** argv) : QApplication(argc, 
 	}
 #endif
 
+    addStandardBtnStrings();
 }
+
+
+void XFLR5Application::addStandardBtnStrings()
+{
+    QT_TRANSLATE_NOOP("QPlatformTheme", "OK");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Save");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Save All");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Open");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "&Yes");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Yes to &All");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "&No");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "N&o to All");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Abort");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Retry");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Ignore");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Close");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Cancel");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Discard");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Help");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Apply");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Reset");
+    QT_TRANSLATE_NOOP("QPlatformTheme", "Restore Defaults");
+}
+
 
 
 bool XFLR5Application::event(QEvent *event)

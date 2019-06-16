@@ -24,7 +24,10 @@
 #include <QVBoxLayout>
 #include "InterpolateFoilsDlg.h"
 #include <xdirect/objects2d.h>
+
 #include <XFoil.h>
+#include <objects/objects2d/Foil.h>
+#include <misc/text/DoubleEdit.h>
 
 
 void *InterpolateFoilsDlg::s_pXFoil;
@@ -36,8 +39,8 @@ InterpolateFoilsDlg::InterpolateFoilsDlg(QWidget *pParent) : QDialog(pParent)
 	setWindowTitle(tr("Interpolate Foils"));
 
 	m_pParent = pParent;
-	m_pBufferFoil = NULL;
-	m_poaFoil = NULL;
+	m_pBufferFoil = nullptr;
+	m_poaFoil = nullptr;
 
 
 	setupLayout();

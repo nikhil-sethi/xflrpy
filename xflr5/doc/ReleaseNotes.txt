@@ -1,4 +1,4 @@
-﻿
+
 *******************************************************************************
 
 
@@ -7,7 +7,7 @@
                      A tool for the design of Airfoils, Wings and Planes
                           operating at low Reynolds numbers
 
-                                 Copyright (C) 2003-2018
+                                 Copyright (C) 2003-2019
 
                                      Andre Deperrois
 
@@ -15,7 +15,57 @@
 *******************************************************************************
 
 
-xflr5 v6.42 May 19th 2018
+xflr5 v6.46 May 4th, 2019
+    - Fix for bug #134 - LLT now restored in v6.46
+    - Fix for bug #139 - corrected crash bug when switching from plane design to another app with streamlines displayed.
+    - Fixed some minor other issues
+    - Code cleaning
+
+
+xflr5 v6.45 April 10th, 2019
+    - updated the German and French translations
+    - added VAO support for the OpenGL 3.2+ core profile
+    - fixed a crash bug when trying to plot BL graphs without an active operating point
+    - corrected the names of some variables in boundary layer plots
+    - corrected imperial unit conversions in the foil polar definition
+    - changed the unix directory for shared files to /usr/local/share instead of /usr/share
+    - increased the sampling of the foil's mid camber line from 100 to 1000 points; this improves
+      the precision of the calculated camber and thickness value and position
+    - disabled the auto-check for update feature due to crash bugs on some systems
+    - added error management to the check for update process
+    - cleaned up all .pro files
+    - code cleaning
+
+xflr5 v6.44 January 7th, 2019
+    - tentative fix for an occasional crash bug when displaying streamlines or surface velocities
+    - fix for bug #128 relative to the display of the wings and body in the advanced plane editor
+    - fix for bug #126 relative to the highlighting of frames in the advanced fuse editor
+    - feature request #127: shortcut added for the menu entries "show only associated polars"
+    - fix for bug report #121 - synchronized the background image position with the object views
+    - mod for request #124 - added an option in the spline parameters to force closed LE and TE.
+    - prevented the multiple repaint of surface velocities in the 3d view
+    - corrected minor errors in the derotate operation of airfoils
+    - corrected translations errors from fortran to C in the XFoil flap setting routine - thanks to Nicolas C.
+    - added an optional automatic check for updates at startup
+    - completed the archiving of the default plane polar with all of its data.
+      Incremented the format of the project file to 200002.
+    - corrected a crash bug when trying to overwrite a saved foil operating point
+    - code cleaning
+
+
+xflr5 v6.43 August 27th, 2018
+    - improved the VLM mesh of flapped surfaces with hinge points located at different %chord
+    - corrected a bug in the display of inertia values for a wing or body - no impact on results
+    - fixes for request #117 relative to the construction of double fins for a plane with a body
+	- corrected the wrong sign of viscous pitching and yawing moments - slight impact on results
+	- forced thin surface analysis whenever more than one wing is defined
+	- set the "ignore body panels" to true by default in the definition of the 3d analysis
+	- corrected the calculation of the tail volume for wings with an offset leading edge
+    - corrected the asymetric position of double fins
+    - corrected a potential crash bug when trying to display panels for a plane with a body and an LLT type polar
+
+
+xflr5 v6.42 May 19th, 2018
     - restored the option in Windows and linux to launch the app by opening a project.xfl, polar.plr, or foil.dat file
 	- corrected a bug which prevented the reference dimensions of an analysis to be updated when the geometry
 	  is modified by the user

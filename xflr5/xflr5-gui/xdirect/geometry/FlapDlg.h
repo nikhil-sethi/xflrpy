@@ -25,9 +25,9 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QPushButton>
-#include <objects/objects2d/Foil.h>
-#include <misc/text/DoubleEdit.h>
 
+class Foil;
+class DoubleEdit;
 
 class FlapDlg : public QDialog
 {

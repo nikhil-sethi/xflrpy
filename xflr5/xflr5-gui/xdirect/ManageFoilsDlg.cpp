@@ -25,11 +25,14 @@
 #include <QVBoxLayout>
 #include <QFileDialog>
 #include <QStringList>
+
+
+#include "ManageFoilsDlg.h"
 #include <misc/options/displayoptions.h>
 #include <misc/RenameDlg.h>
-#include "ManageFoilsDlg.h"
 #include <xdirect/objects2d.h>
-
+#include <design/FoilTableDelegate.h>
+#include <objects/objects2d/Foil.h>
 
 ManageFoilsDlg::ManageFoilsDlg(QWidget *pParent) : QDialog(pParent)
 {
@@ -37,8 +40,8 @@ ManageFoilsDlg::ManageFoilsDlg(QWidget *pParent) : QDialog(pParent)
 
 	m_bChanged = false;
 	m_iSelection = 0;
-	m_pFoil = NULL;
-	m_precision = NULL;
+	m_pFoil = nullptr;
+	m_precision = nullptr;
 
 	setupLayout();
 
@@ -84,7 +87,7 @@ void ManageFoilsDlg::initDialog(QString FoilName)
 	}
 	else
 	{
-		m_pFoil = NULL;
+		m_pFoil = nullptr;
 	}
 }
 
@@ -338,7 +341,7 @@ void ManageFoilsDlg::onDelete()
 
 		m_pFoil = Objects2d::foil(FoilName);
 	}
-	else m_pFoil = NULL;
+	else m_pFoil = nullptr;
 
 	m_bChanged = true;
 }

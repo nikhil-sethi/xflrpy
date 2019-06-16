@@ -1,6 +1,6 @@
 /****************************************************************************
 
-	Miarex    Copyright (C) 2008-2016 Andre Deperrois 
+    Miarex    Copyright (C) 2008-2019 Andre Deperrois
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 
 class MainFrame;
 
-#include "gl3dmiarexview.h"
+
 #include <QWidget>
 #include <QPixmap>
 #include <QLabel>
@@ -45,24 +45,36 @@ class MainFrame;
 #include <QDialog>
 #include <QSettings>
 #include <QXmlStreamWriter>
-#include <globals/gui_params.h>
+
+#include <globals/gui_enums.h>
+
 #include "./analysis/PanelAnalysisDlg.h"
 #include "./analysis/LLTAnalysisDlg.h"
 #include <analysis3d/plane_analysis/planeanalysistask.h>
-#include <misc/line/LineBtn.h>
-#include <misc/text/DoubleEdit.h>
-#include <misc/text/MinTextEdit.h>
-#include <misc/line/LineCbBox.h>
-#include <misc/line/LineDelegate.h>
-#include <objects/objects3d/Body.h>
-#include <objects/objects3d/Wing.h>
-#include <objects/objects3d/Plane.h>
-#include <objects/objects3d/WPolar.h>
-#include <objects/objects3d/WingOpp.h>
-#include <objects/objects3d/PlaneOpp.h>
-#include "view/GLLightDlg.h"
 #include <graph/graph.h>
-#include "graphtilewidget.h"
+#include <graph/linestyle.h>
+
+
+
+//forward declarations
+class Body;
+class Curve;
+class DoubleEdit;
+class GLLightDlg;
+class GraphTileWidget;
+class LLTAnalysisDlg;
+class LineBtn;
+class LineCbBox;
+class LineDelegate;
+class MinTextEdit;
+class PanelAnalysisDlg;
+class Plane;
+class PlaneAnalysisTask;
+class PlaneOpp;
+class WPolar;
+class Wing;
+class WingOpp;
+class gl3dMiarexView;
 
 /**
  *@class QMiarex
@@ -79,25 +91,24 @@ class MainFrame;
 */
 class Miarex : public QWidget
 {
-	friend class MainFrame;
-	friend class TwoDWidget;
-	friend class GL3DScales;
-	friend class GL3dBodyDlg;
-	friend class WingDlg;
-	friend class Wing;
-	friend class LLTAnalysisDlg;
-	friend class StabPolarDlg;
-	friend class StabViewDlg;
-	friend class PanelAnalysisDlg;
-	friend class Plane;
-	friend class PlaneDlg;
-	friend class ManageBodiesDlg;
-	friend class ManageUFOsDlg;
-	friend class GL3dWingDlg;
-	friend class Settings;
-	friend class UFOTableDelegate;
-	friend class WPolarDlg;
-	friend class WPolar;
+    friend class GL3DScales;
+    friend class GL3dBodyDlg;
+    friend class GL3dWingDlg;
+    friend class LLTAnalysisDlg;
+    friend class MainFrame;
+    friend class ManageBodiesDlg;
+    friend class ManageUFOsDlg;
+    friend class PanelAnalysisDlg;
+    friend class Plane;
+    friend class PlaneDlg;
+    friend class Settings;
+    friend class StabPolarDlg;
+    friend class StabViewDlg;
+    friend class TwoDWidget;
+    friend class WPolar;
+    friend class WPolarDlg;
+    friend class Wing;
+    friend class WingDlg;
 
 	Q_OBJECT
 
@@ -173,7 +184,6 @@ private slots:
 	void onInitLLTCalc();
 	void onKeepCpSection();
 	void onManagePlanes();
-	void onModalView();
 	void onMoment();
 	void onNewPlane();
 	void onNewPlaneObject();
@@ -244,12 +254,11 @@ public:
 	void fillWOppCurve(WingOpp *pWOpp, Graph *pGraph, Curve *pCurve);
 	void fillStabCurve(Curve *pCurve, WPolar *pWPolar, int iMode);
 	void getPolarProperties(WPolar *pWPolar, QString &polarProps, bool bData=false);
-	void glMake3DObjects();
 	void importPlaneFromXML(QFile &xmlFile);
 	void importWPolarFromXML(QFile &xmlFile);
 	bool intersectObject(Vector3d O,  Vector3d U, Vector3d &I);
 	void LLTAnalyze(double V0, double VMax, double VDelta, bool bSequence, bool bInitCalc);	
-	bool loadSettings(QSettings *pSettings);
+    bool loadSettings(QSettings &settings);
 	int  matSize() {return m_theTask.m_MatSize;}
 	void drawColorGradient(QPainter &painter, QRect const & gradientRect);
 	void paintCpLegendText(QPainter &painter);
@@ -259,7 +268,7 @@ public:
 	void paintPlaneOppLegend(QPainter &painter, QRect drawRect);
 	QString POppTitle(PlaneOpp *pPOpp);
 	void renamePlane(QString PlaneName);
-	bool saveSettings(QSettings *pSettings);
+    bool saveSettings(QSettings &settings);
 	void setAnalysisParams();
 	void setControls();
 	void setCurveParams();
@@ -349,7 +358,6 @@ public:
 	bool m_bAnimateWOpp;               /**< true if there is an animation going on for an operating point */
 	bool m_bAnimateMode;               /**< true if there is an animation going on for a Mode */
 	bool m_bAnimateWOppPlus;           /**< true if the animation is going in aoa crescending order */
-	bool m_bCrossPoint;                /**< true if the control point on the arcball is to be displayed */
 	bool m_bCurPOppOnly;               /**< true if only the current WOpp is to be displayed */
 	bool m_bCurFrameOnly;              /**< true if only the currently selected body frame is to be displayed */
 	bool m_bDirichlet;                 /**< true if Dirichlet BC are applied in 3D panel analysis, false if Neumann */
@@ -359,24 +367,19 @@ public:
 	bool m_bLongitudinal;              /**< true if longitudinal stability results are to be displayed, false if lateral */
 	bool m_bMoments;                   /**< true if the arrows representing moments are to be displayed on the 3D openGl view */
 	bool m_bPanelForce;                /**< true if the forces acting on the panels are to be displayed in the 3D view */
-	bool m_bPickCenter;                /**< true if the user is in the process of picking a new center for OpenGL display */
 	bool m_bResetWake;                 /**< true if the wake geometry should be reset to its default shape prior to the analysis */
 	bool m_bSequence;                  /**< true if a sequential analysis is to be performed */
 	bool m_bShowCp;                    /**< true if the active curve should be displayed in Cp view */
-	bool m_bShowCpScale;               /**< true if the Cp Scale in Miarex is to be displayed */
 	bool m_bShowEllipticCurve;         /**< true if the elliptic loading should be displayed in the local lift graph */
 	bool m_bShowBellCurve;             /**< true if the bell distribution loading should be displayed in the local lift graph */
 	bool m_bShowWingCurve[MAXWINGS];   /**< true if various plane's wing curves shoud be displayed*/
 	bool m_bShowFlapMoments;           /**< true if the flap moment values should be display together with the operating point results*/
-	bool m_bSurfVelocities;            /**< true if the velocities should be displayed in the operating point or 3D view*/
-	bool m_bStream;                    /**< true if the streamlines should be displayed in the operating point or 3D view*/
 	bool m_bTrans;                     /**< true if the view is being dragged */
 	bool m_bTransGraph;	               /**< true if a graph is being dragged */
 	bool m_bType1;                     /**< true if polars of type 1 are to be displayed */
 	bool m_bType2;                     /**< true if polars of type 2 are to be displayed */
 	bool m_bType4;                     /**< true if polars of type 4 are to be displayed */
 	bool m_bType7;                     /**< true if polars of type 71 are to be displayed */
-	bool m_bPanelNormals;              /**< true if the panel normals should be displayed */
 	bool m_bXCmRef; 	               /**< true if the position of the reference point for the moments should be displayed in the operating point view*/
 	bool m_bXBot;                      /**< true if the transition on the bottom surface should be displayed in the operating point or in 3D view*/
 	bool m_bXCP;                       /**< true if the lift curve should be displayed in the operating point or in the 3D view*/
@@ -387,32 +390,11 @@ public:
 	static bool m_bLogFile;			       /**< true if the log file warning is turned on */
 
 
-	static bool m_bResetglGeom;               /**< true if the geometry OpenGL list needs to be re-generated */
-	static bool m_bResetglMesh;               /**< true if the mesh OpenGL list needs to be re-generated */
-	static bool m_bResetglWake;               /**< true if the wake OpenGL list needs to be re-generated */
-	static bool m_bResetglOpp;                /**< true if the OpenGL lists need to be re-generated */
-	static bool m_bResetglLift;               /**< true if the OpenGL lists need to be re-generated */
-	static bool m_bResetglDrag;               /**< true if the OpenGL lists need to be re-generated */
-	static bool m_bResetglDownwash;           /**< true if the OpenGL lists need to be re-generated */
-	static bool m_bResetglPanelForce;         /**< true if the OpenGL lists need to be re-generated */
-	static bool m_bResetglPanelCp;            /**< true if the OpenGL lists need to be re-generated */
-	static bool m_bResetglStream;             /**< true if the streamlines OpenGL list needs to be re-generated */
-	static bool m_bResetglLegend;             /**< true if the legend needs to be reset if the window has been resized */
-	static bool m_bResetglBody;               /**< true if the openGL list for the body needs to be re-generated */
-	static bool m_bResetglSurfVelocities;     /**< true if the crossflow OpenGL list needs to be refreshed */
 
 	static bool s_bResetCurves;               /**< true if the curves of the active view should be regenerated before the next view update >*/
 
-	static bool s_bAutoCpScale;		          /**< true if the Cp scale should be set automatically */
-	static double s_LegendMin;                /**< minimum value of the Cp scale in 3D view */
-	static double s_LegendMax;                /**< maximum value of the Cp scale in 3D view */
-
-	static double s_LiftScale;                /**< scaling factor for the lift display in 3D view */
-	static double s_VelocityScale;            /**< scaling factor for the velocity display in 3D view */
-	static double s_DragScale;                /**< scaling factor for the drag display in 3D view */
 
 	PlaneOpp * m_pCurPOpp;                    /**< a pointer to the active Plane Operating Point, or NULL if none is active*/
-
 
 
 	bool m_bCurveVisible;                     /**< true if the active curve is to be displayed */

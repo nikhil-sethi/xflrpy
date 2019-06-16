@@ -114,7 +114,7 @@ void WPolar::replacePOppDataAt(int pos, PlaneOpp *pPOpp)
 	m_XCP[pos]        =  pPOpp->m_CP.x;
 	m_YCP[pos]        =  pPOpp->m_CP.x;
 	m_ZCP[pos]        =  pPOpp->m_CP.z;
-	m_MaxBending[pos] =  pPOpp->m_pPlaneWOpp[0]->m_MaxBending;
+	m_MaxBending[pos] =  pPOpp->m_pWOpp[0]->m_MaxBending;
 	m_Ctrl[pos]       =  pPOpp->m_Ctrl;
 	m_XNP[pos]        =  pPOpp->m_XNP;
 
@@ -149,7 +149,7 @@ void WPolar::insertPOppDataAt(int pos, PlaneOpp *pPOpp)
 	m_XCP.insert(pos,  pPOpp->m_CP.x);
 	m_YCP.insert(pos,  pPOpp->m_CP.y);
 	m_ZCP.insert(pos,  pPOpp->m_CP.z);
-	if(pPOpp->m_pPlaneWOpp[0])	m_MaxBending.insert(pos, pPOpp->m_pPlaneWOpp[0]->m_MaxBending);
+	if(pPOpp->m_pWOpp[0])	m_MaxBending.insert(pos, pPOpp->m_pWOpp[0]->m_MaxBending);
 	else                        m_MaxBending.insert(pos, 0.0);
 	m_Ctrl.insert(pos, pPOpp->m_Ctrl);
 	m_XNP.insert(pos,  pPOpp->m_XNP);
@@ -278,7 +278,7 @@ void WPolar::insertDataAt(int pos, double Alpha, double Beta, double QInf, doubl
 void WPolar::addPlaneOpPoint(PlaneOpp *pPOpp)
 {
 	bool bInserted = false;
-	int i;
+    int i=0;
 	int size = dataSize();
 
 	if(size)
@@ -374,10 +374,6 @@ void WPolar::addPlaneOpPoint(PlaneOpp *pPOpp)
  */
 void WPolar::calculatePoint(int iPt)
 {
-	//finish calculations
-//	double cl = m_CL[i];
-//	double tcd = m_TCd[i];
-//	double Qinf =  m_QInfinite[i];
 	//dynamic pressure
 	double q =  0.5 * m_Density * m_QInfinite[iPt]*m_QInfinite[iPt];
 
@@ -393,11 +389,12 @@ void WPolar::calculatePoint(int iPt)
 	m_FY[iPt]  = q * m_CY[iPt]*m_referenceArea;
 	m_FX[iPt]  = q * (m_ICd[iPt]+m_PCd[iPt])*m_referenceArea;
 
-	for(int iExtra=0; iExtra<MAXEXTRADRAG; iExtra++) m_FX[iPt] += m_ExtraDragArea[iExtra] * m_ExtraDragCoef[iExtra] *q;
-
 	m_ExtraDrag[iPt] = 0.0;
-	for(int i=0; i<MAXEXTRADRAG; i++) m_ExtraDrag[iPt] += m_ExtraDragArea[i]*m_ExtraDragCoef[i];
-	m_ExtraDrag[iPt] *= q;
+	for(int iExtra=0; iExtra<MAXEXTRADRAG; iExtra++)
+	{
+		m_FX[iPt]        += m_ExtraDragArea[iExtra] * m_ExtraDragCoef[iExtra] *q;
+		m_ExtraDrag[iPt] += m_ExtraDragArea[iExtra] * m_ExtraDragCoef[iExtra] *q;
+	}
 
 	m_TCd[iPt] = m_FX[iPt]/q/m_referenceArea;
 

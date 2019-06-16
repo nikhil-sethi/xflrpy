@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	GL3dWingDlg Class
-	Copyright (C) 2009 Andre Deperrois 
+    Copyright (C) 2009-2019 Andre Deperrois
  
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,14 +36,18 @@
 #include <QTableView>
 #include <QPushButton>
 #include <QSplitter>
+#include <QOpenGLBuffer>
+#include <QDialogButtonBox>
 
-#include "WingDelegate.h"
-#include <gl3dwingview.h>
-#include <viewwidgets/glWidgets/ArcBall.h>
-#include <misc/text/DoubleEdit.h>
-#include <misc/color/ColorButton.h>
-#include <objects/objects3d/Wing.h>
+#include <objects/objects3d/vector3d.h>
 
+class gl3dWingView;
+class DoubleEdit;
+class ColorButton;
+class Wing;
+class WingDelegate;
+class Panel;
+class Foil;
 
 
 class GL3dWingDlg: public QDialog
@@ -60,7 +64,7 @@ class GL3dWingDlg: public QDialog
 	friend class WingDelegate;
 
 public:
-	GL3dWingDlg(QWidget *pParent=NULL);
+    GL3dWingDlg(QWidget *pParent=nullptr);
 	~GL3dWingDlg();
 
 	bool intersectObject(Vector3d AA,  Vector3d U, Vector3d &I);
@@ -96,6 +100,7 @@ private slots:
 	void onExportWing();
 	void onImportWingFromXML();
 	void onExportWingToXML();
+    void onButton(QAbstractButton *pButton);
 
 private:
 	void accept();
@@ -158,7 +163,8 @@ private:
 	QStandardItemModel *m_pWingModel;
 	WingDelegate *m_pWingDelegate;
 
-	QPushButton *OKButton, *CancelButton;
+    QDialogButtonBox *m_pButtonBox;
+
     QCheckBox *m_pctrlAxes, *m_pctrlSurfaces, *m_pctrlOutline, *m_pctrlPanels, *m_pctrlFoilNames;
 	QCheckBox *m_pctrlShowMasses;
 	QPushButton *m_pctrlReset;

@@ -19,10 +19,12 @@
 
 *****************************************************************************/
 
+#include <QStringList>
+
+
 #include "Body.h"
 #include "objects_global.h"
 #include <math.h>
-#include <QtDebug>
 
 /**
  * The public constructor
@@ -42,7 +44,7 @@ Body::Body()
 	m_nxPanels = 19;
 	m_nhPanels = 11;
 
-	m_pBodyPanel = NULL; 
+	m_pBodyPanel = nullptr; 
 	m_NElements = m_nxPanels * m_nhPanels * 2;
 
 
@@ -196,7 +198,7 @@ void Body::computeAero(double *Cp, double &XCP, double &YCP, double &ZCP,
  * Copies the data of an existing Body object to this Body
  * @param pBody the source Body object
  */
-void Body::duplicate(Body *pBody)
+void Body::duplicate(Body const *pBody)
 {
 	if(!pBody) return;
 
@@ -586,9 +588,15 @@ int Body::insertFrame(Vector3d Real)
  */
 bool Body::intersect(Vector3d A, Vector3d B, Vector3d &I, bool bRight)
 {
-	if(m_LineType==XFLR5::BODYPANELTYPE)        return intersectFlatPanels(A,B,I);
-	else if (m_LineType==XFLR5::BODYSPLINETYPE) return intersectNURBS(A,B,I, bRight);
-	return false;
+    if(m_LineType==XFLR5::BODYPANELTYPE)
+    {
+        return intersectFlatPanels(A,B,I);
+    }
+    else if (m_LineType==XFLR5::BODYSPLINETYPE)
+    {
+        return intersectNURBS(A,B,I, bRight);
+    }
+    return false;
 }
 
 /**
@@ -670,7 +678,7 @@ bool Body::intersectNURBS(Vector3d A, Vector3d B, Vector3d &I, bool bRight)
  * @param I the intersection point
  * @return true if an intersection point has been found, false otherwise.
  */
-bool Body::intersectFlatPanels(Vector3d A, Vector3d B, Vector3d &I)
+bool Body::intersectFlatPanels(Vector3d const &A, Vector3d const &B, Vector3d &I) const
 {
 	bool b1, b2, b3, b4, b5;
 	int i,k;
@@ -1028,7 +1036,7 @@ void Body::translate(Vector3d T, bool bFrameOnly, int FrameID)
 Frame *Body::frame(int iFrame)
 {
 	if(iFrame>=0 && iFrame<frameCount()) return m_SplineSurface.m_pFrame[iFrame];
-	return NULL;
+	return nullptr;
 }
 
 
@@ -1050,7 +1058,7 @@ double Body::framePosition(int iFrame)
 Frame *Body::activeFrame()
 {
 	if(m_iActiveFrame>=0 && m_iActiveFrame<frameCount()) return m_SplineSurface.m_pFrame[m_iActiveFrame];
-	else                                                 return NULL;
+	else                                                 return nullptr;
 }
 
 
@@ -1095,8 +1103,6 @@ Frame * Body::setActiveFrame(int iFrame)
  */
 void Body::computeBodyAxisInertia()
 {
-
-	int i;
 	Vector3d LA, VolumeCoG;
 	double Ixx, Iyy, Izz, Ixz, VolumeMass;
 	Ixx = Iyy = Izz = Ixz = VolumeMass = 0.0;
@@ -1107,31 +1113,31 @@ void Body::computeBodyAxisInertia()
 	m_CoG = VolumeCoG *m_VolumeMass;
 
 	// add point masses
-	for(i=0; i<m_PointMass.size(); i++)
+    for(int im=0; im<m_PointMass.size(); im++)
 	{
-		m_TotalMass += m_PointMass[i]->mass();
-		m_CoG += m_PointMass[i]->position() * m_PointMass[i]->mass();
+        m_TotalMass += m_PointMass[im]->mass();
+        m_CoG += m_PointMass[im]->position() * m_PointMass[im]->mass();
 	}
 
 	if(m_TotalMass>0) m_CoG = m_CoG/m_TotalMass;
 	else              m_CoG.set(0.0,0.0,0.0);
 
 	// The CoG position is now available, so calculate the inertia w.r.t the CoG
-	// using Huyghens theorem
-	//LA is the displacement vector from the centre of mass to the new axis
+    // using Huygens theorem
+    // LA is the distance vector from the centre of mass to the new axis
 	LA = m_CoG-VolumeCoG;
 	m_CoGIxx = Ixx + m_VolumeMass * (LA.y*LA.y + LA.z*LA.z);
 	m_CoGIyy = Iyy + m_VolumeMass * (LA.x*LA.x + LA.z*LA.z);
 	m_CoGIzz = Izz + m_VolumeMass * (LA.x*LA.x + LA.y*LA.y);
 	m_CoGIxz = Ixz + m_VolumeMass * LA.x*LA.z;
 
-	for(i=0; i<m_PointMass.size(); i++)
+    for(int im=0; im<m_PointMass.size(); im++)
 	{
-		LA = m_PointMass[i]->position() - m_CoG;
-		m_CoGIxx += m_PointMass[i]->mass() * (LA.y*LA.y + LA.z*LA.z);
-		m_CoGIyy += m_PointMass[i]->mass() * (LA.x*LA.x + LA.z*LA.z);
-		m_CoGIzz += m_PointMass[i]->mass() * (LA.x*LA.x + LA.y*LA.y);
-		m_CoGIxz -= m_PointMass[i]->mass() * (LA.x*LA.z);
+        LA = m_PointMass[im]->position() - m_CoG;
+        m_CoGIxx += m_PointMass[im]->mass() * (LA.y*LA.y + LA.z*LA.z);
+        m_CoGIyy += m_PointMass[im]->mass() * (LA.x*LA.x + LA.z*LA.z);
+        m_CoGIzz += m_PointMass[im]->mass() * (LA.x*LA.x + LA.y*LA.y);
+        m_CoGIxz -= m_PointMass[im]->mass() * (LA.x*LA.z);
 	}
 }
 
@@ -1239,7 +1245,7 @@ void Body::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 		else                       CoG.set(0.0, 0.0, 0.0);
 
 		//Then Get Inertias
-		// we could do it one calculation, for CG and inertia, by using Hyghens/steiner theorem
+        // we could do it one calculation, for CG and inertia, by using Huyghens/steiner theorem
 		for (int i=0; i<frameCount()-1; i++)
 		{
 			for (int j=0; j<m_xPanels[i]; j++)

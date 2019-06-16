@@ -23,10 +23,14 @@
 #define XMLPLANEWRITER_H
 
 #include <QXmlStreamWriter>
-#include <objects/objects3d/Plane.h>
-
 #include <QFile>
 
+#include <objects/objects3d/vector3d.h>
+
+class Plane;
+class Wing;
+class Body;
+class PointMass;
 class XMLPlaneWriter : public QXmlStreamWriter
 {
 public:

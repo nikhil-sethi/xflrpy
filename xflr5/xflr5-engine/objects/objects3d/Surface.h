@@ -33,7 +33,7 @@
 
 
 
-#include <QVarLengthArray>
+#include <QVector>
 #include <objects/objects3d/Panel.h>
 #include <analysis3d/analysis3d_enums.h>
 
@@ -140,12 +140,12 @@ public:
 	void translate(Vector3d const &T);
 	void translate(double tx, double ty, double tz);
 
-	bool isCenterSurf() {return m_bIsCenterSurf;}
-	bool isLeftSurf()   {return m_bIsLeftSurf;}
-	bool isRightSurf()  {return m_bIsRightSurf;}
-	bool isTipLeft()    {return m_bIsTipLeft;}
-	bool isTipRight()   {return m_bIsTipRight;}
-	bool isInSymPlane() {return m_bIsInSymPlane;}
+    bool isCenterSurf() const {return m_bIsCenterSurf;}
+    bool isLeftSurf()   const {return m_bIsLeftSurf;}
+    bool isRightSurf()  const {return m_bIsRightSurf;}
+    bool isTipLeft()    const {return m_bIsTipLeft;}
+    bool isTipRight()   const {return m_bIsTipRight;}
+    bool isInSymPlane() const {return m_bIsInSymPlane;}
 
 	bool isFlapPanel(Panel *pPanel);
 	bool isFlapPanel(int p);
@@ -160,14 +160,14 @@ public:
 	double foilArea(double tau);
 	double stripWidth(int k);
 	double spanLength();
-	double planformLength(){return m_Length;}
+    double planformLength() const {return m_Length;}
 
-	int innerSection(){return m_innerSection;}
-	int outerSection(){return m_outerSection;}
+    int innerSection() const {return m_innerSection;}
+    int outerSection()const {return m_outerSection;}
 
-	int NXPanels(){return m_NXPanels;}
-	int NYPanels(){return m_NYPanels;}
-	int NXFlap() {return m_NXFlap;}
+    int NXPanels() const {return m_NXPanels;}
+    int NYPanels() const {return m_NYPanels;}
+    int NXFlap() const {return m_NXFlap;}
 	int & NElements(){return m_NElements;}
 
 	Foil *foilA() {return m_pFoilA;}
@@ -175,8 +175,8 @@ public:
 
 	static void setPanelPointers(Panel *pPanel, Vector3d *pNode);
 
-	QList<Vector3d> SideA;      /**< the array of panel points on the left foil's mid-line*/
-	QList<Vector3d> SideB;      /**< the array of panel points on the right foil's mid-line*/
+    QVector<Vector3d> SideA;      /**< the array of panel points on the left foil's mid-line*/
+    QVector<Vector3d> SideB;      /**< the array of panel points on the right foil's mid-line*/
 
 	Vector3d m_LA;              /**< the Surface's leading left point */
 	Vector3d m_LB;              /**< the Surface's leading right point */
@@ -189,10 +189,10 @@ public:
 	double m_TwistB;           /**< the twist at side B in degrees */
 
 private :
-	QList<Vector3d> SideA_T;    /**< the array of panel points on the left foil's top-line*/
-	QList<Vector3d> SideB_T;    /**< the array of panel points on the right foil's top-line*/
-	QList<Vector3d> SideA_B;    /**< the array of panel points on the left foil's bottom-line*/
-	QList<Vector3d> SideB_B;    /**< the array of panel points on the right foil's bottom-line*/
+    QVector<Vector3d> SideA_T;    /**< the array of panel points on the left foil's top-line*/
+    QVector<Vector3d> SideB_T;    /**< the array of panel points on the right foil's top-line*/
+    QVector<Vector3d> SideA_B;    /**< the array of panel points on the left foil's bottom-line*/
+    QVector<Vector3d> SideB_B;    /**< the array of panel points on the right foil's bottom-line*/
 	Vector3d VTemp;
 	static Panel *s_pPanel;    /**< a pointer to the array of this Surface's panels, This array is a sub-array of the total array.*/
 	static Vector3d *s_pNode;   /**< a pointer to the array of this panel nodes.*/
@@ -211,14 +211,14 @@ private :
 	double chordB;             /**< the chord length at tip B */
 
 	double m_posATE, m_posBTE;      /**< the relative flap hinge positions at sides A and B */
-	QVarLengthArray<double> m_xPointA;        /**< the chordwise relative position of the VLM panel left corner points at side A */
-	QVarLengthArray<double> m_xPointB;        /**< the chordwise relative position of the VLM panel right corner points at side B */
+    QVector<double> m_xPointA;        /**< the chordwise relative position of the VLM panel left corner points at side A */
+    QVector<double> m_xPointB;        /**< the chordwise relative position of the VLM panel right corner points at side B */
 
 	XFLR5::enumPanelDistribution m_XDistType;            /**< the type of distribution along the Surface's x axis */
 	XFLR5::enumPanelDistribution m_YDistType;            /**< the type of distribution along the Surface's y axis */
-	int m_NXLead;               /**< the number of panels upstream of the flap, i.e. between the leading edge and the hinge */
-	int m_NXFlap;               /**< the number of panels on the flap, i.e. between the hinge and the trailing edge */
-	int m_NElements;            /**< the number of panel elements constructer on this Surface. */
+    int m_NXLead;               /**< the number of panels upstream of the flap, i.e. between the leading edge and the hinge */
+    int m_NXFlap;               /**< the number of panels on the flap, i.e. between the hinge and the trailing edge */
+    int m_NElements;            /**< the number of panel elements constructer on this Surface. */
 
 	int m_nFlapNodes;           /**< the number of nodes defined on the trailing edge flap */
 	int m_nFlapPanels;          /**< the number of panels defined on the trailing edge flap */

@@ -18,21 +18,27 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
+
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDateTime>
-#include <QtDebug>
+#include <QDebug>
 
-#include <globals/globals.h>
 #include "xflscriptexec.h"
-#include <misc/options/displayoptions.h>
+#include <analysis3d/plane_analysis/planeanalysistask.h>
+#include <globals/globals.h>
+#include <globals/gui_params.h>
 #include <miarex/mgt/XmlPlaneReader.h>
 #include <miarex/mgt/xmlwpolarreader.h>
+#include <misc/options/displayoptions.h>
+#include <objects/objects3d/Plane.h>
+#include <objects/objects3d/WPolar.h>
+#include <xdirect/analysis/XFoilTask.h>
 #include <xdirect/xmlpolarreader.h>
 
 XflScriptExec::XflScriptExec()
 {
-	m_pXFile = NULL;
+    m_pXFile = nullptr;
 
 	setLogFile();
 }
@@ -185,7 +191,7 @@ void XflScriptExec::loadFoilPolarFiles()
 		{
 			QList<Polar*> polarList;
 
-			Foil *pFoil = (Foil*)readPolarFile(plrFile, polarList);
+            Foil *pFoil = readPolarFile(plrFile, polarList);
 			if(pFoil)
 			{
 				traceLog("   adding foil: "+pFoil->foilName());
@@ -219,7 +225,7 @@ void XflScriptExec::makeFoils()
 		}
 		else
 		{
-			Foil *pFoil = (Foil*)readFoilFile(datFile);
+            Foil *pFoil = readFoilFile(datFile);
 			if(pFoil)
 			{
 				traceLog("   adding foil: "+pFoil->foilName());
@@ -275,7 +281,7 @@ Polar* XflScriptExec::makePolar(QString fileName)
 	{
 		QString strange = "Could not read the file"+pathName;
 		traceLog(strange);
-		return NULL;
+		return nullptr;
 	}
 	else
 	{
@@ -285,7 +291,7 @@ Polar* XflScriptExec::makePolar(QString fileName)
 		m_oaPolar.append(pPolar);
 		return pPolar;
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -297,7 +303,7 @@ WPolar* XflScriptExec::makeWPolar(QString fileName)
 	{
 		QString strange = "Could not read the file"+pathName;
 		traceLog(strange);
-		return NULL;
+		return nullptr;
 	}
 	else
 	{
@@ -307,7 +313,7 @@ WPolar* XflScriptExec::makeWPolar(QString fileName)
 		m_oaWPolar.append(pWPolar);
 		return pWPolar;
 	}
-	return NULL;
+	return nullptr;
 }
 
 

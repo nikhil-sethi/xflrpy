@@ -21,26 +21,29 @@
 
 #include <QApplication>
 
-#include "FoilTableDelegate.h"
-#include "AFoil.h"
+#include <design/FoilTableDelegate.h>
+#include <design/AFoil.h>
+#include <gui_objects/SplineFoil.h>
+#include <objects/objects2d/Foil.h>
 #include <xdirect/objects2d.h>
 #include <globals/globals.h>
 #include <graph_globals.h>
 #include <misc/options/displayoptions.h>
+#include <misc/text/DoubleEdit.h>
 
 
 
 FoilTableDelegate::FoilTableDelegate(QObject *pParent)
  : QItemDelegate(pParent)
 {
-	m_pManageFoils = NULL;
-	m_pAFoil = NULL;
+	m_pManageFoils = nullptr;
+	m_pAFoil = nullptr;
 }
 
 
 QWidget *FoilTableDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex & index ) const
 {
-	return NULL;//No edition possible - display only
+	return nullptr;//No edition possible - display only
 
 	if(index.column()==0)
 	{
@@ -56,7 +59,7 @@ QWidget *FoilTableDelegate::createEditor(QWidget *parent, const QStyleOptionView
 		return editor;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 

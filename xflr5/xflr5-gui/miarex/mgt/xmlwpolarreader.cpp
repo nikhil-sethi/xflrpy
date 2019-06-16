@@ -21,6 +21,7 @@
 #include <QStringList>
 #include <globals/globals.h>
 #include "xmlwpolarreader.h"
+#include <objects/objects3d/WPolar.h>
 
 XmlWPolarReader::XmlWPolarReader(QFile &file, WPolar *pWPolar)
 {

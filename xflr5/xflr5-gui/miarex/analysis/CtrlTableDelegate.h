@@ -25,7 +25,9 @@
 #include <QList>
 #include <QItemDelegate>
 #include <QStandardItemModel>
-#include <misc/text/DoubleEdit.h>
+
+
+class DoubleEdit;
 
 class CtrlTableDelegate : public QItemDelegate
 {

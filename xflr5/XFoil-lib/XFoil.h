@@ -2,7 +2,8 @@
 
     XFoil Class
 	Copyright (C) 2000 Mark Drela 
-	Copyright (C) 2003 Andre Deperrois techwinder@gmail.com
+    Andre Deperrois techwinder@gmail.com - translation to C - 2003
+
 	
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +21,7 @@
 
 *****************************************************************************/
 
-
+ 
 /**
  *@file This class defines the Xfoil object.
  */
@@ -84,16 +85,16 @@ public:
 					 double xf2[], double yf2[], int n2, double mixt);
 
 	bool CheckAngles();
-	void pangen();
 	bool Preprocess();
-	void pert_process(int kqsp);
+    void pangen();
+    void pert_process(int kqsp);
 	void pert_init(int kqsp);
 	void HanningFilter(double cfilt, QTextStream &ts);
 	void smooq(int kq1,int kq2,int kqsp);
 	void ExecMDES();
 	bool ExecQDES();
 	bool initialize();
-	bool initXFoilGeometry(int fn, double *fx, double *fy, double *fnx, double *fny);
+    bool initXFoilGeometry(int fn, const double *fx, const double *fy, double *fnx, double *fny);
 	bool initXFoilAnalysis(double Re, double alpha, double Mach, double NCrit, double XtrTop, double XtrBot,
 								  int reType, int maType, bool bViscous, QTextStream &outStream);
 
@@ -105,9 +106,9 @@ public:
 	double qcomp(double g);
 	bool clcalc(double xref, double yref);
 
-	void createXBL(double xs[IVX][3]);
-	void fillHk(double ws[IVX][3]);
-	void fillRTheta(double ws[IVX][3]);
+    void createXBL();
+    void fillHk();
+    void fillRTheta();
 	void writeString(QString str, bool bFullReport = false);
 	double DeRotate();
 	bool specal();
@@ -146,6 +147,7 @@ public:
     static void setVAccel(double accel) {vaccel=accel;}
 
 private:
+
 	void inter(double x0[], double xp0[], double y0[], double yp0[], double s0[],int n0,double sle0,
 			   double x1[], double xp1[], double y1[], double yp1[], double s1[],int n1,double sle1,
 			   double x[], double y[], int n, double frac);
@@ -286,8 +288,9 @@ private:
 public:
 	static double vaccel;
 	static bool s_bCancel;
-	static bool s_bFullReport;	QTextStream *m_pOutStream;
+    static bool s_bFullReport;
 
+    QTextStream *m_pOutStream;
 
 	double agte,ag0,qim0,qimold;
 	double ssple, dwc,algam,clgam,cmgam;
@@ -340,8 +343,8 @@ public:
 	double xp[IZX],yp[IZX],s[IZX];
 	double dtor;
 
-	double thet[IVX][ISX],tau[IVX][ISX],ctau[IVX][ISX],ctq[IVX][ISX];
-	double dis[IVX][ISX],uedg[IVX][ISX];
+    double thet[IVX][ISX], tau[IVX][ISX], ctau[IVX][ISX], ctq[IVX][ISX];
+    double dis[IVX][ISX], uedg[IVX][ISX];
 	double xbl[IVX][ISX], Hk[IVX][ISX], RTheta[IVX][ISX];
 	double dstr[IVX][ISX];
 	double delt[IVX][ISX];
@@ -431,7 +434,7 @@ private:
 //	double circ;
 	double tkl_msq,cpstar,qstar;
 	double cpmni,cpmnv,xcpmni,xcpmnv;
-	double arad;//added arcds
+    double arad;
 	double xssi[IVX][ISX],uinv[IVX][ISX],mass[IVX][ISX];
 	double uslp[IVX][ISX],guxq[IVX][ISX],guxd[IVX][ISX];
 	double vti[IVX][ISX];

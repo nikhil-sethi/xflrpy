@@ -5,7 +5,8 @@ uniform vec4 clipPlane0; // defined in view-space
 
 in vec3 vPosition;
 
-out vec4 fragColor;
+layout(location=0) out vec4 fragColor;
+
 
 void main(void)
 {
@@ -16,5 +17,5 @@ void main(void)
 	else
 	{
 		fragColor = color;
-	}
+    }
 }

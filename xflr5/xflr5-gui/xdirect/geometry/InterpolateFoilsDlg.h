@@ -29,8 +29,9 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QSlider>
-#include <objects/objects2d/Foil.h>
-#include <misc/text/DoubleEdit.h>
+
+class Foil;
+class DoubleEdit;
 
 class InterpolateFoilsDlg : public QDialog
 {

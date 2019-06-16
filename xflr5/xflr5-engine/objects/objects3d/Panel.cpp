@@ -795,5 +795,28 @@ void Panel::doubletNASA4023(Vector3d const &C, Vector3d &V, double &phi, bool bW
 	}
 }
 
+/** output the panel's properties - debug only */
+void Panel::printPanel()
+{
+	qDebug("Panel %d:", m_iElement);
+	qDebug("  neighbour panels:  PU=%3d    PD=%3d   PL=%3d   PR=%3d", m_iPU, m_iPD, m_iPL, m_iPR);
+	qDebug("  TrailingWakeElem=%2d  TrailingWakeColumn=%2d", m_iWake, m_iWakeColumn);
+	qDebug("  isLeading=%1d    isTrailing=%1d", m_bIsLeading, m_bIsTrailing);
+	qDebug("  isInSymPlane=%1d    isLeftWingPanel=%d    isWakePanel=%d", m_bIsInSymPlane, m_bIsLeftPanel, m_bIsWakePanel);
+	qDebug("  Area=%13.5g  Size=%13.5g", Area, Size);
+	setPanelFrame(s_pNode[m_iLA], s_pNode[m_iLB], s_pNode[m_iTA], s_pNode[m_iTB]);
+	s_pNode[m_iLA].displayCoords("  LA");
+	s_pNode[m_iLB].displayCoords("  LB");
+	s_pNode[m_iTA].displayCoords("  TA");
+	s_pNode[m_iTB].displayCoords("  TB");
+	qDebug("  Normal: %13.7f  %13.7f  %13.7f", Normal.x, Normal.y, Normal.z);
+	qDebug("  CollPt: %13.7f  %13.7f  %13.7f", CollPt.x, CollPt.y, CollPt.z);
+	qDebug("  CtrlPt: %13.7f  %13.7f  %13.7f", CtrlPt.x, CtrlPt.y, CtrlPt.z);
+	qDebug("  Vortex: %13.7f  %13.7f  %13.7f", Vortex.x, Vortex.y, Vortex.z);
+	qDebug("  VtxPos: %13.7f  %13.7f  %13.7f", VortexPos.x, VortexPos.y, VortexPos.z);
+	qDebug(" ");
+}
+
+
 
 

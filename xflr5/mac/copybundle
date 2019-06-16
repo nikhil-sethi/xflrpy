@@ -6,9 +6,9 @@ then
 fi
 ${QT_HOME}/bin/lrelease xflr5*.pro
 
-if [ ! -e ../build-xflr5/release/XFLR5.app/Contents/MacOS/translations ]
+if [ ! -e ../build/build-xflr5/release/XFLR5.app/Contents/MacOS/translations ]
 then
-	mkdir ../build-xflr5/release/XFLR5.app/Contents/MacOS/translations
+	mkdir ../build/build-xflr5/release/XFLR5.app/Contents/MacOS/translations
 fi
-cp translations/*.qm ../build-xflr5/release/XFLR5.app/Contents/MacOS/translations
+cp translations/*.qm ../build/build-xflr5/release/XFLR5.app/Contents/MacOS/translations
 	

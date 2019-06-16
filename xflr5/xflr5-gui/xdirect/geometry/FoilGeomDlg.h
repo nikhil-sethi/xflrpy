@@ -28,9 +28,9 @@
 #include <QSlider>
 #include <QLabel>
 
-#include <misc/text/DoubleEdit.h>
-#include <objects/objects2d/Foil.h>
-
+class XFoil;
+class Foil;
+class DoubleEdit;
 class FoilGeomDlg : public QDialog
 {
 	Q_OBJECT
@@ -68,11 +68,11 @@ private:
 	DoubleEdit	*m_pctrlThickness;
 	DoubleEdit	*m_pctrlCamber;
 
-	QPushButton *OKButton, *CancelButton, *RestoreButton;
+	QPushButton *m_OKButton, *m_CancelButton, *m_pRestoreButton;
 
 
 private:
-	static void* s_pXFoil;
+    static XFoil* s_pXFoil;
 
 	double m_fCamber;
 	double m_fThickness;

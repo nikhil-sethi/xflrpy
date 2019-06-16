@@ -37,7 +37,8 @@
 
 #include <xflr5-engine_global.h>
 
-#include "xfoil_params.h"
+#include <xfoil_params.h>
+#include <objects/objects2d/blxfoil.h>
 
 class Foil;
 class Polar;
@@ -104,7 +105,9 @@ public:
 	bool m_bIsVisible;
 	int m_red, m_blue, m_green, m_alphaChannel;
 
-	int n, nd1, nd2, nd3;
+    int n;                          /**< the number of foil surface points */
+
+
 	double m_Reynolds;            /**< the Re number of the OpPoint */
 	double m_Mach;                /**< the Mach number of the OpPoint */
 	double m_Alpha;               /**< the aoa*/
@@ -121,26 +124,14 @@ public:
 	double Cpi[IQX];            /**< the distribution of Cp on the surfaces for an inviscid analysis */
 	double Qv[IQX];             /**< the distribution of stream velocity on the surfaces for a viscous analysis */
 	double Qi[IQX];             /**< the distribution of stream velocity on the surfaces for an inviscid analysis */
-	double xd1[IQX];            /**< x-coordinate of the first part of the boundary layer */
-	double yd1[IQX];            /**< y-coordinate of the first part of the boundary layer */
-	double xd2[IWX];            /**< x-coordinate of the second part of the boundary layer */
-	double yd2[IWX];            /**< y-coordinate of the second part of the boundary layer */
-	double xd3[IWX];            /**< x-coordinate of the third part of the boundary layer */
-	double yd3[IWX];            /**< y-coordinate of the third part of the boundary layer */
+
 	double m_TEHMom;            /**< the moment on the foil's trailing edge flap */
 	double m_LEHMom;            /**< the moment on the foil's leading edge flap */
 	double XForce;              /**< the y-component of the pressure forces */
 	double YForce;              /**< the y-component of the pressure forces */
 	double Cpmn;                /**< @todo check significance in XFoil doc */
 
-	// BL data
-	double tklam, qinf;
-	double thet[IVX][ISX],tau[IVX][ISX],ctau[IVX][ISX],ctq[IVX][ISX];
-	double dis[IVX][ISX],uedg[IVX][ISX];
-	double dstr[IVX][ISX];
-	double xbl[IVX][ISX], Hk[IVX][ISX], RTheta[IVX][ISX];
-	int nside1, nside2;
-	int itran[ISX];
+    BLXFoil blx;          /**< BL data from an XFoil analysis */
 
 
 	QString m_FoilName;      /**< the name of the parent Foil */

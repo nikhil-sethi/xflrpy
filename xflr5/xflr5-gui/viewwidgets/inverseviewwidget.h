@@ -28,7 +28,10 @@
 #define INVERSEVIEWDWIDGET_H
 
 #include <QWidget>
-#include <globals/gui_params.h>
+
+
+class XInverse;
+class MainFrame;
 
 /**
 *@class InverseViewWidget
@@ -61,8 +64,8 @@ protected:
  	void wheelEvent (QWheelEvent *event);
 
 private:
-	void *m_pMainFrame;   /**< A void pointer to the instance of the MainFrame object. */
-	void *m_pXInverse;    /**< A void pointer to the instance of the QXInverse object. */
+    MainFrame *m_pMainFrame;   /**< A void pointer to the instance of the MainFrame object. */
+    XInverse *m_pXInverse;    /**< A void pointer to the instance of the QXInverse object. */
 
 };
 

@@ -1,25 +1,25 @@
 /****************************************************************************
 
-	StabPolarDlg Class
-	Copyright (C) 2010 Andre Deperrois 
+    StabPolarDlg Class
+    Copyright (C) 2010-2019 Andre Deperrois
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
 
- 
+
 #ifndef STABPOLARDLG_H
 #define STABPOLARDLG_H
 
@@ -31,127 +31,131 @@
 #include <QStackedWidget>
 #include <QTableView>
 #include <QStandardItemModel>
-#include "./CtrlTableDelegate.h"
-#include <misc/text/DoubleEdit.h>
-#include <objects/objects3d/Plane.h>
+#include <QDialogButtonBox>
 
-
+#include <analysis3d/analysis3d_params.h>
+class Plane;
+class Wing;
+class WPolar;
+class DoubleEdit;
+class CtrlTableDelegate;
 
 
 class CtrlTableModel: public QStandardItemModel
 {
 public:
-    CtrlTableModel(QObject * parent=NULL) : QStandardItemModel(parent)  { }
+    CtrlTableModel(QObject * parent=nullptr) : QStandardItemModel(parent)  { }
 
     Qt::ItemFlags flags(const QModelIndex & index) const
     {
-	    if (index.column() == 0)
-		    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-	    else
-		    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+        if (index.column() == 0)
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        else
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
     }
 };
 
 
 class StabPolarDlg : public QDialog
 {
-	Q_OBJECT
-	friend class Miarex;
-	friend class MainFrame;
+    Q_OBJECT
+    friend class Miarex;
+    friend class MainFrame;
 
 public:
-	StabPolarDlg(QWidget *pParent=NULL);
-	~StabPolarDlg();
+    StabPolarDlg(QWidget *pParent=nullptr);
+    ~StabPolarDlg();
 
-	void initDialog(Plane *pPlane, WPolar *pWPolar=NULL);
+    void initDialog(Plane *pPlane, WPolar *pWPolar=nullptr);
 
 private:
-	void setupLayout();
-	void connectSignals();
-	void resizeColumns();
-	void keyPressEvent(QKeyEvent *event);
+    void setupLayout();
+    void connectSignals();
+    void resizeColumns();
+    void keyPressEvent(QKeyEvent *event);
 
 
 private slots:
-	void onOK();
-	void onAutoInertia(bool isChecked);
-	void onAutoName();
-	void onWPolarName();
-	void onArea();
-	void onEditingFinished();
-	void onViscous();
-	void onIgnoreBodyPanels();
-	void onUnit();
-	void onAngleCellChanged(QWidget *);
-	void onInertiaCellChanged(QWidget *);
-	void onDragCellChanged(QWidget *);
-	void onMethod();
-	void onAeroData();
-	void onTabChanged(int index);
+    void onOK();
+    void onAutoInertia(bool isChecked);
+    void onAutoName();
+    void onWPolarName();
+    void onArea();
+    void onEditingFinished();
+    void onViscous();
+    void onIgnoreBodyPanels();
+    void onUnit();
+    void onAngleCellChanged(QWidget *);
+    void onInertiaCellChanged(QWidget *);
+    void onDragCellChanged(QWidget *);
+    void onMethod();
+    void onAeroData();
+    void onTabChanged(int index);
+    void onButton(QAbstractButton *pButton);
 
 private:
-	void enableControls();
-	void fillControlList();
-	void fillExtraDragList();
-	void fillInertiaPage();
-	void readCtrlData();
-	void readExtraDragData();
-	void readInertiaData();
-	void readData();
-	void setDensity();
-	void setWPolarName();
-	void setViscous();
+    void enableControls();
+    void fillControlList();
+    void fillExtraDragList();
+    void fillInertiaPage();
+    void readCtrlData();
+    void readExtraDragData();
+    void readInertiaData();
+    void readData();
+    void setDensity();
+    void setWPolarName();
+    void setViscous();
 
 
 private:
 
-	QTableView *m_pInertiaControlTable;
-	CtrlTableModel *m_pInertiaControlModel;
-	QTabWidget *m_pTabWidget;
+    QDialogButtonBox *m_pButtonBox;
 
-	QTableView *m_pAngleControlTable;
-	CtrlTableModel *m_pAngleControlModel;
+    QTableView *m_pInertiaControlTable;
+    CtrlTableModel *m_pInertiaControlModel;
+    QTabWidget *m_pTabWidget;
 
-	QTableView *m_pExtraDragControlTable;
-	CtrlTableModel *m_pExtraDragControlModel;
+    QTableView *m_pAngleControlTable;
+    CtrlTableModel *m_pAngleControlModel;
 
-	CtrlTableDelegate *m_pMassCtrlDelegate, *m_pAngleCtrlDelegate, *m_pDragCtrlDelegate;
+    QTableView *m_pExtraDragControlTable;
+    CtrlTableModel *m_pExtraDragControlModel;
 
-	DoubleEdit *m_pctrlDensity;
-	DoubleEdit *m_pctrlViscosity;
-	DoubleEdit *m_pctrlBeta;
-	DoubleEdit *m_pctrlPhi;
-	QLineEdit *m_pctrlWPolarName;
+    CtrlTableDelegate *m_pMassCtrlDelegate, *m_pAngleCtrlDelegate, *m_pDragCtrlDelegate;
 
-	QCheckBox *m_pctrlViscous;
-	QCheckBox *m_pctrlAutoName;
-	QCheckBox *m_pctrlIgnoreBodyPanels;
-	QCheckBox *m_pctrlAutoPlaneInertia;
+    DoubleEdit *m_pctrlDensity;
+    DoubleEdit *m_pctrlViscosity;
+    DoubleEdit *m_pctrlBeta;
+    DoubleEdit *m_pctrlPhi;
+    QLineEdit *m_pctrlWPolarName;
 
-	QRadioButton *m_pctrlUnit1, *m_pctrlUnit2;
-	QRadioButton *m_pctrlArea1, *m_pctrlArea2, *m_pctrlArea3;
+    QCheckBox *m_pctrlViscous;
+    QCheckBox *m_pctrlAutoName;
+    QCheckBox *m_pctrlIgnoreBodyPanels;
+    QCheckBox *m_pctrlAutoPlaneInertia;
 
-	DoubleEdit *m_pctrlRefChord, *m_pctrlRefArea, *m_pctrlRefSpan;
+    QRadioButton *m_pctrlUnit1, *m_pctrlUnit2;
+    QRadioButton *m_pctrlArea1, *m_pctrlArea2, *m_pctrlArea3;
 
-	QStackedWidget *m_pctrlAnalysisControls;
-	QRadioButton *m_pctrlWingMethod2, *m_pctrlWingMethod3;
-	QRadioButton *m_pctrlPanelMethod;
+    DoubleEdit *m_pctrlRefChord, *m_pctrlRefArea, *m_pctrlRefSpan;
 
-	QLabel *m_pctrlRho, *m_pctrlNu;
-	QLabel *m_pctrlDensityUnit, *m_pctrlViscosityUnit;
+    QStackedWidget *m_pctrlAnalysisControls;
+    QRadioButton *m_pctrlWingMethod2, *m_pctrlWingMethod3;
+    QRadioButton *m_pctrlPanelMethod;
 
-	int  *m_anglePrecision, *m_massPrecision;
+    QLabel *m_pctrlRho, *m_pctrlNu;
+    QLabel *m_pctrlDensityUnit, *m_pctrlViscosityUnit;
 
-	QPushButton *OKButton, *CancelButton;
+    int  *m_anglePrecision, *m_massPrecision;
 
-	static WPolar s_StabWPolar;
+    static WPolar s_StabWPolar;
 
-	Plane *m_pPlane;
-	Wing *m_pWingList[MAXWINGS];         // pointers to the four wings of the currently selected plane
+    Plane *m_pPlane;
+    Wing *m_pWingList[MAXWINGS];         // pointers to the four wings of the currently selected plane
 
 
-	bool m_bAutoName;
-	int m_UnitType;//1= International, 2= Imperial
+    bool m_bAutoName;
+    int m_UnitType;//1= International, 2= Imperial
 };
 
 

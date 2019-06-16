@@ -28,7 +28,7 @@
 #include <objects/objects2d/Polar.h>
 #include <objects/objects3d/WPolar.h>
 #include <miarex/Miarex.h>
-#include <misc/options/Units.h>
+#include <misc/options/units.h>
 #include <QPen>
 #include <QPainterPath>
 #include <QPainter>
@@ -38,7 +38,7 @@
 
 
 
-void *GraphWidget::s_pMainFrame = NULL;
+void *GraphWidget::s_pMainFrame = nullptr;
 
 GraphWidget::GraphWidget(QWidget *pParent) : QWidget(pParent)
 {
@@ -55,7 +55,7 @@ GraphWidget::GraphWidget(QWidget *pParent) : QWidget(pParent)
 	m_bTransGraph = false;
 	m_bXPressed = m_bYPressed = false;
 
-	m_pGraph = NULL;
+	m_pGraph = nullptr;
 	setLegendPosition(QPoint(20,20));
 }
 

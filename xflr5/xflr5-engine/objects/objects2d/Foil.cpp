@@ -103,8 +103,7 @@ Foil::Foil()
 */
 void Foil::compMidLine(bool bParams)
 {
-	int l;
-	double xt, yex, yin, step, nx, ny;
+    double xt=0, yex=0, yin=0, step=0, nx=0, ny=0;
 
 	if(bParams)
 	{
@@ -114,25 +113,25 @@ void Foil::compMidLine(bool bParams)
 		m_fXThickness = 0.0;
 	}
 
-	step = (m_rpExtrados[m_iExt].x-m_rpExtrados[0].x)/(double)(MIDPOINTCOUNT-1);
+    step = (m_rpExtrados[m_iExt].x-m_rpExtrados[0].x)/double(MIDPOINTCOUNT-1);
 
-	for (l=0; l<MIDPOINTCOUNT; l++)
+    for (int l=0; l<MIDPOINTCOUNT; l++)
 	{
 		xt = m_rpExtrados[0].x + l*step;
-		getUpperY((double)l*step, yex, nx, ny);
-		getLowerY((double)l*step, yin, nx, ny);
+        getUpperY(double(l)*step, yex, nx, ny);
+        getLowerY(double(l)*step, yin, nx, ny);
 
 		m_rpMid[l].x = xt;
 		m_rpMid[l].y = (yex+yin)/2.0;
 
 		if(bParams)
 		{
-			if(qAbs(yex-yin)>m_fThickness)
+            if(fabs(yex-yin)>m_fThickness)
 			{
-				m_fThickness  = qAbs(yex-yin);
+                m_fThickness  = fabs(yex-yin);
 				m_fXThickness = xt;
 			}
-			if(qAbs(m_rpMid[l].y)>qAbs(m_fCamber))
+            if(fabs(m_rpMid[l].y)>fabs(m_fCamber))
 			{
 				m_fCamber  = m_rpMid[l].y;
 				m_fXCamber = xt;
@@ -208,69 +207,58 @@ void Foil::copyFoil(Foil *pSrcFoil)
 */
 double Foil::deRotate()
 {
-	//De-rotates the foil,
-
-//	double xle, xte, yle, yte;
-	double angle, cosa, sina;
-	int i;
-	// first find offset
-	//and translate the leading edge to the origin point
-	for (i=0; i<nb; i++)
+    // first translate the leading edge to the origin point
+    for (int i=0; i<nb; i++)
 	{
 		xb[i] -= m_LE.x;
 		yb[i] -= m_LE.y;
 	}
 
-	for (i=0; i<n; i++)
+    for (int i=0; i<n; i++)
 	{
 		x[i] -= m_LE.x;
 		y[i] -= m_LE.y;
 	}
-//	InitFoil();//to get the new LE and TE
 
-//	xle = (m_rpIntrados[0].x+m_rpExtrados[0].x)/2.0;
-//	yle = (m_rpIntrados[0].y+m_rpExtrados[0].y)/2.0;
-
-//	xte = (m_rpIntrados[m_iInt].x+m_rpExtrados[m_iExt].x)/2.0;
-//	yte = (m_rpIntrados[m_iInt].y+m_rpExtrados[m_iExt].y)/2.0;
+    m_LE.set(0.0,0.0,0.0);
+    m_TE.x  -= m_LE.x;
+    m_TE.y  -= m_LE.y;
 
 	// then find current angle
-//	angle = atan2(yte-yle, xte-xle);// xle=tle=0;
-	angle = atan2(m_TE.y-m_LE.y, m_TE.x-m_LE.x);// xle=tle=0;
+
+    double angle = atan2(m_TE.y-m_LE.y, m_TE.x-m_LE.x);// xle=tle=0;
 
 	//rotate about the L.E.
-	cosa = cos(angle);
-	sina = sin(angle);
+    double cosa = cos(-angle);
+    double sina = sin(-angle);
 
-/*	for (i=0; i<nb; i++)
-	{
-		xb[i] = ( (xb[i]-m_LE.x)*cosa + (yb[i]-m_LE.y)*sina);
-		yb[i] = (-(xb[i]-m_LE.x)*sina + (yb[i]-m_LE.y)*cosa);
-	}
 
-	for (i=0; i<n; i++)
+    double xr=0, yr=0;
+    for (int i=0; i<nb; i++)
 	{
-		x[i] = ( (x[i]-m_LE.x)*cosa + (y[i]-m_LE.y)*sina);
-		y[i] = (-(x[i]-m_LE.x)*sina + (y[i]-m_LE.y)*cosa);
-	}*/
+        xr = xb[i]*cosa - yb[i]*sina;
+        yr = xb[i]*sina + yb[i]*cosa;
+        xb[i] = xr;
+        yb[i] = yr;
+    }
 
-	for (i=0; i<nb; i++)
+    for (int i=0; i<n; i++)
 	{
-		xb[i] = ( (xb[i])*cosa + (yb[i])*sina);
-		yb[i] = (-(xb[i])*sina + (yb[i])*cosa);
-	}
+        xr = x[i]*cosa - y[i]*sina;
+        yr = x[i]*sina + y[i]*cosa;
+        x[i] = xr;
+        y[i] = yr;
+    }
 
-	for (i=0; i<n; i++)
-	{
-		x[i] = ( (x[i])*cosa + (y[i])*sina);
-		y[i] = (-(x[i])*sina + (y[i])*cosa);
-	}
-	
+    xr = m_TE.x*cosa - m_TE.y*sina;
+    yr = m_TE.x*sina + m_TE.y*cosa;
+    m_TE.x = xr;
+    m_TE.y = yr;
+
 	initFoil();
 
 	return angle*180.0/PI;
 }
-
 
 
 

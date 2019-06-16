@@ -23,7 +23,7 @@
  *@file mainframe.h
  *@brief This file contains the description of the MainFrame class associated to the application's main window
  *
-*/
+ */
 #ifndef MAINFRAME_H
 #define MAINFRAME_H
 
@@ -39,6 +39,7 @@
 #include <QTranslator>
 #include <QMainWindow>
 #include <QList>
+#include <QActionGroup>
 
 #include <globals/gui_params.h>
 #include <globals/gui_enums.h>
@@ -47,22 +48,26 @@
 #include <miarex/view/GLLightDlg.h>
 #include <misc/voidwidget.h>
 
-class Miarex;
-class XDirect;
 class AFoil;
+class FoilDesignWt;
+class Foil;
+class GL3DScales;
+class GLLightDlg;
+class Graph;
+class InverseViewWidget;
+class Miarex;
+class MiarexTileWidget;
+class OpPoint;
+class Plane;
+class PlaneOpp;
+class Polar;
+class StabViewDlg;
+class Updater;
+class WPolar;
+class XDirect;
+class XDirectTileWidget;
 class XInverse;
 class gl3dMiarexView;
-class InverseViewWidget;
-class Graph;
-class Direct2dDesign;
-class XDirectTileWidget;
-class MiarexTileWidget;
-class CVector;
-class GLLightDlg;
-class GL3DScales;
-class Foil;
-class Polar;
-class OpPoint;
 
 /**
 *@class MainFrame
@@ -78,58 +83,55 @@ class OpPoint;
 */
 class MainFrame : public QMainWindow
 {
-	friend class InverseViewWidget;
-	friend class XDirect;
-	friend class Miarex;
-	friend class Objects3D;
-	friend class AFoil;
-	friend class XInverse;
-	friend class Body;
-	friend class Wing;
-	friend class WPolar;
-	friend class OpPoint;
-	friend class CWOpp;
-	friend class Plane;
-	friend class BodyGridDlg;
-	friend class XFoilAnalysisDlg;
-	friend class FoilPolarDlg;
-	friend class BatchDlg;
-	friend class BatchThreadDlg;
-	friend class InterpolateFoilsDlg;
-	friend class WingDlg;
-	friend class WPolarDlg;
-	friend class StabPolarDlg;
-	friend class StabViewDlg;
-	friend class PlaneDlg;
-	friend class PanelAnalysisDlg;
-	friend class GL3dBodyDlg;
-	friend class GL3DScales;
-	friend class ManageBodiesDlg;
-	friend class WingScaleDlg;
-	friend class BodyTransDlg;
-	friend class GL3dWingDlg;
-	friend class WAdvancedDlg;
-	friend class GraphDlg;
-	friend class LLTAnalysisDlg;
-	friend class wySettingsDlg;
-	friend class ManageFoilsDlg;
-	friend class ManagePlanesDlg;
-	friend class InertiaDlg;
-	friend class TranslatorDlg;
-	friend class Settings;
-	friend class Direct2dDesign;
-	friend class GraphTileWidget;
-	friend class MiarexTileWidget;
-	friend class XDirectTileWidget;
-	friend class OpPointWidget;
-	friend class gl3dView;
-	friend class gl3dMiarexView;
-	friend class LanguageOptions;
+    friend class AFoil;
+    friend class BatchDlg;
+    friend class BatchThreadDlg;
+    friend class Body;
+    friend class BodyGridDlg;
+    friend class BodyTransDlg;
+    friend class FoilDesignWt;
+    friend class FoilPolarDlg;
+    friend class GL3DScales;
+    friend class GL3dBodyDlg;
+    friend class GL3dWingDlg;
+    friend class GraphDlg;
+    friend class GraphTileWidget;
+    friend class InertiaDlg;
+    friend class InterpolateFoilsDlg;
+    friend class InverseViewWidget;
+    friend class LLTAnalysisDlg;
+    friend class ManageBodiesDlg;
+    friend class ManageFoilsDlg;
+    friend class ManagePlanesDlg;
+    friend class Miarex;
+    friend class MiarexTileWidget;
+    friend class Objects3D;
+    friend class OpPoint;
+    friend class OpPointWidget;
+    friend class PanelAnalysisDlg;
+    friend class Plane;
+    friend class PlaneDlg;
+    friend class Settings;
+    friend class StabPolarDlg;
+    friend class StabViewDlg;
+    friend class WAdvancedDlg;
+    friend class WPolar;
+    friend class WPolarDlg;
+    friend class Wing;
+    friend class WingDlg;
+    friend class WingScaleDlg;
+    friend class XDirect;
+    friend class XDirectTileWidget;
+    friend class XFoilAnalysisDlg;
+    friend class XInverse;
+    friend class gl3dMiarexView;
+    friend class gl3dView;
+    friend class LanguageWt;
 
 	Q_OBJECT
 
 public:
-	MainFrame(QWidget * parent = 0, Qt::WindowFlags flags = 0);
+    MainFrame(QWidget * parent = nullptr, Qt::WindowFlags flags = 0);
     ~MainFrame();
 
 	XFLR5::enumApp loadXFLR5File(QString PathName);
@@ -149,7 +151,7 @@ public slots:
 private slots:
 	void aboutQt();
 	void aboutXFLR5();
-	void onCurFoilStyle();
+    void onCurFoilStyle();
 	void onExportCurGraph();
 	void onCurGraphSettings();
 	void onInsertProject();
@@ -177,17 +179,20 @@ private slots:
 	void onSavePlaneAsProject();
 	void onOpenRecentFile();
 	void onShowMousePos();
+    void onAutoCheckForUpdates();
+    void onCheckForUpdates();
+    void onFinishedUpdater();
 
 protected:
-	void keyPressEvent(QKeyEvent *event);
-	void keyReleaseEvent(QKeyEvent *event);
-	void closeEvent (QCloseEvent * event);
-	void showEvent(QShowEvent *event);
+    void keyPressEvent(QKeyEvent *pEvent);
+    void keyReleaseEvent(QKeyEvent *pEvent);
+    void closeEvent (QCloseEvent * pEvent);
+    void showEvent(QShowEvent *pEvent);
 
 public:
-	void addRecentFile(const QString &PathNAme);
-	void checkGraphActions();
-	void ClientToGL(QPoint const &point, CVector &real);
+    void addRecentFile(const QString &PathName);
+    void checkGraphActions();
+    void checkForUpdates();
 	void createDockWindows();
 	void createToolbars();
 	void createStatusBar();
@@ -208,19 +213,18 @@ public:
 	void createAFoilToolbar();
 	void deleteProject(bool bClosing=false);
 	void exportGraph(Graph *pGraph);
-	void GLToClient(CVector const &real, QPoint &point);
 	static bool hasOpenGL(){return s_bOpenGL;}
 	bool loadSettings();
 	bool loadPolarFileV3(QDataStream &ar, bool bIsStoring, int ArchiveFormat=0);
 	void readPolarFile(QDataStream &ar);
 	bool saveProject(QString PathName="");
 	void saveSettings();
-	void selectFoil(void *pFoilPtr);
-	void selectPolar(void *pPolarPtr);
-	void selectOpPoint(void *pOppPtr);
-	void selectPlane(void *pPlanePtr);
-	void selectWPolar(void *pWPolarPtr);
-	void selectPlaneOpp(void *pPlaneOppPtr);
+    void selectFoil(Foil *pFoil);
+    void selectPolar(Polar *pPolar);
+    void selectOpPoint(OpPoint *pOpp);
+    void selectPlane(Plane *pPlane);
+    void selectWPolar(WPolar *pWPolar);
+    void selectPlaneOpp(PlaneOpp *pPlaneOpp);
 	bool serializeProjectWPA(QDataStream &ar, bool bIsStoring);
 	bool serializeProjectXFL(QDataStream &ar, bool bIsStoring);
 	bool serializePlaneProject(QDataStream &ar);
@@ -234,6 +238,7 @@ public:
 	void setMenus();
 	void setupDataDir();
 	QString shortenFileName(QString &PathName);
+    void testConfiguration();
 	void updateFoilListBox();
 	void updatePolarListBox();
 	void updateOppListBox();
@@ -242,7 +247,7 @@ public:
 	void updateView();
 	void updateWPolarListBox();
 	void updatePOppListBox();
-	void writePolars(QDataStream &ar, void *pFoilPtr=NULL);
+    void writePolars(QDataStream &ar, Foil *pFoil=nullptr);
 
 	bool bAutoLoadLast() const {return m_bAutoLoadLast;}
 
@@ -264,7 +269,7 @@ private:
 	Miarex *m_pMiarex;    /**< A void pointer to the instance of the QMiarex application. The pointer will be cast to the QMiarex type at runtime. This is necessary to prevent loop includes of header files. */
 	XInverse *m_pXInverse;  /**< A void pointer to the instance of the QXInverse application. The pointer will be cast to the QXInverse type at runtime. This is necessary to prevent loop includes of header files. */
 	XDirect *m_pXDirect;   /**< A void pointer to the instance of the QXDirect application. The pointer will be cast to the QXDirect type at runtime. This is necessary to prevent loop includes of header files. */
-	void *m_pStabView;  /** < A void pointer to the instance of the StabViewDlg window. */
+    StabViewDlg *m_pStabView;  /** < A void pointer to the instance of the StabViewDlg window. */
 	
 	GLLightDlg m_glLightDlg;
 	GL3DScales *m_pGL3DScales;
@@ -275,7 +280,7 @@ private:
 	QStackedWidget *m_pctrlCentralWidget;     /** The stacked widget which is loaded at the center of the display area. The stack switches between the widgets depending on the user's request. */
 	VoidWidget m_VoidWidget;
 	InverseViewWidget *m_p2dWidget;           /** A pointer to the instance of the TwoDWidget which is used to perform 2d drawings */
-	Direct2dDesign *m_pDirect2dWidget;        /** A pointer to the instance of the TwoDWidget which is used to perform 2d drawings of foils in Direct Design */
+	FoilDesignWt *m_pDirect2dWidget;        /** A pointer to the instance of the TwoDWidget which is used to perform 2d drawings of foils in Direct Design */
 	gl3dMiarexView *m_pgl3dMiarexView;                  /** A pointer to the instance of the OpenGL 3.0 widget where 3d calculations and rendering are performed */
 	MiarexTileWidget *m_pMiarexTileWidget;
 	XDirectTileWidget *m_pXDirectTileWidget;
@@ -330,7 +335,7 @@ private:
 	QAction *m_pSaveAct, *m_pSaveProjectAsAct,*m_pNewProjectAct, *m_pCloseProjectAct;
 
 	QAction *m_pExitAct;
-	QAction *m_pAboutAct, *m_pAboutQtAct, *m_pOpenGLAct;
+    QAction *m_pAboutAct, *m_pAboutQtAct, *m_pOpenGLAct, *m_pCheckForUpdates;
 	QAction *m_pPreferencesAct;
 	QAction *m_pRecentFileActs[MAXRECENTFILES];
 	QAction *m_pSeparatorAct;
@@ -358,6 +363,7 @@ private:
 	QAction *m_pAFoilLoadImage, *m_pAFoilClearImage;
 
 	//Miarex Actions
+    QActionGroup *m_pMiarexViewActGroup;
 	QAction *m_pWPolarAct, *m_pWOppAct, *m_pW3DAct, *m_pCpViewAct, *m_pStabTimeAct, *m_pRootLocusAct;
 	QAction *m_pW3DPrefsAct, *m_pW3DLightAct, *m_pW3DScalesAct, *m_pReset3DScale;
 	QAction *m_pDefinePlaneAct, *m_pDefinePlaneObjectAct, *m_pEditPlaneAct, *m_pEditBodyAct, *m_pEditBodyObjectAct;
@@ -381,10 +387,11 @@ private:
 	QAction *m_pExporttoAVL, *m_pExporttoSTL;
 	QAction *m_pManagePlanesAct, *m_pScaleWingAct;
 	QAction *m_pImportWPolars, *m_pExportWPolars, *m_pPlaneInertia;
-	QAction *m_pShowFlapMoments;
+    QAction *m_pShowFlapMoments;
 
 	//XDirect Actions
-	QAction *m_pPolarsAct, *m_pOpPointsAct, *m_pDeletePolar, *m_pDefinePolarAct, *m_pEditCurPolar, *m_pBatchAnalysisAct, *m_pResetCurPolar;
+    QActionGroup *m_pXDirectViewActGroup;
+    QAction *m_pPolarsAct, *m_pOpPointsAct, *m_pDeletePolar, *m_pDefinePolarAct, *m_pEditCurPolar, *m_pBatchAnalysisAct, *m_pResetCurPolar;
 	QAction *m_pMultiThreadedBatchAct;
 	QAction *m_pRestoreToolbarsAct;
 	QAction *m_pExportCurPolar, *m_pExportAllPolars, *m_pHideFoilPolars, *m_pShowFoilPolars, *m_pShowFoilPolarsOnly, *m_pSaveFoilPolars,*m_pDeleteFoilPolars;
@@ -414,13 +421,11 @@ private:
 	static QLabel *m_pctrlProjectName;
 
 	//XInverse Actions
-	QAction *m_pStoreFoil, *m_pExtractFoil, *m_pXInverseStyles, *m_pXInverseResetFoilScale, *m_pInverseInsertCtrlPt, *m_pInverseRemoveCtrlPt;
-	QAction *m_pInvQInitial, *m_pInvQSpec, *m_pInvQViscous, *m_pInvQPoints, *m_pInvQReflected;
-	QAction *m_pInverseZoomIn;
+    QAction *m_pStoreFoil, *m_pExtractFoil, *m_pXInverseStyles, *m_pXInverseResetFoilScale, *m_pInverseInsertCtrlPt, *m_pInverseRemoveCtrlPt;
+    QAction *m_pInvQInitial, *m_pInvQSpec, *m_pInvQViscous, *m_pInvQPoints, *m_pInvQReflected;
+    QAction *m_pInverseZoomIn;
+    QAction *m_pOverlayFoil, *m_pClearOverlayFoil;
 
-
-	//Script actions
-	QAction *m_pExecScript;
 
 	QStringList m_RecentFiles;
 
@@ -448,6 +453,10 @@ private:
 
 	XFLR5::enumImageFormat m_ImageFormat;   /**< The index of the type of image file which should be used. */
 	QTimer *m_pSaveTimer;          /**< The timer which triggers the autosaving of the project at given intervals */
+
+    bool m_bManualUpdateCheck;
+
+    Updater *m_pUpdater;
 
 public:
 	static bool s_bTrace;

@@ -19,10 +19,13 @@
 
 *****************************************************************************/
 
+
+#include <QMessageBox>
+#include <QDebug>
+
 #include "XmlPlaneReader.h"
 #include <globals/globals.h>
-#include <QMessageBox>
-#include <QtDebug>
+#include <objects/objects3d/Plane.h>
 
 XMLPlaneReader::XMLPlaneReader(QFile &file, Plane *pPlane)
 {
@@ -134,7 +137,7 @@ bool XMLPlaneReader::readPlane(Plane *pPlane, double lengthunit, double massunit
 			newwing.clearPointMasses();
 			newwing.clearSurfaces();
 			newwing.clearWingSections();
-			newwing.wingType() = XFLR5::OTHERWING;
+            newwing.setWingType(XFLR5::OTHERWING);
 			newwing.m_WingSection.clear();
 
 			Vector3d pos;
@@ -147,18 +150,18 @@ bool XMLPlaneReader::readPlane(Plane *pPlane, double lengthunit, double massunit
 			{
 				if(newwing.isFin())
 				{
-					newwing.wingType() = XFLR5::FIN;
+                    newwing.setWingType(XFLR5::FIN);
 					pPlane->hasFin() = true;
 					iWing = 3;
 				}
 				else if(iw==0)
 				{
-					newwing.wingType() = XFLR5::MAINWING;
+                    newwing.setWingType(XFLR5::MAINWING);
 					iWing = 0;
 				}
 				else if(iw==1)
 				{
-					newwing.wingType() = XFLR5::ELEVATOR;
+                    newwing.setWingType(XFLR5::ELEVATOR);
 					pPlane->hasElevator() = true;
 					iWing = 2;
 				}
@@ -213,7 +216,7 @@ bool XMLPlaneReader::readWing(Wing &newwing, Vector3d &position, double tiltangl
 		}
 		else if (name().compare(QString("type"),            Qt::CaseInsensitive)==0)
 		{
-			newwing.wingType() = wingType(readElementText());
+            newwing.setWingType(wingType(readElementText()));
 			if(m_pPlane)
 			{
 				if(newwing.wingType()==XFLR5::ELEVATOR)        m_pPlane->hasElevator() = true;

@@ -28,7 +28,7 @@
 class MinTextEdit : public QTextEdit
 {
 public:
-	MinTextEdit(QWidget *parent=NULL);
+    MinTextEdit(QWidget *parent=nullptr);
 	QSize sizeHint() const;
 
 };

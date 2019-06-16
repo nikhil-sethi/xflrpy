@@ -32,7 +32,7 @@ GLRenderWindow::GLRenderWindow(const QSurfaceFormat &format)
 		m_pContext = 0;
     }
 	xRot = yRot = zRot = 0;
-	m_pOpenGLTexture = NULL;
+	m_pOpenGLTexture = nullptr;
 
 }
 
@@ -193,8 +193,11 @@ void GLRenderWindow::render()
 
     if (m_vao.isCreated())
         m_vao.bind();
-    else // no VAO support, set the vertex attribute arrays now
+	else
+	{
+		// no VAO support, set the vertex attribute arrays now
         setupVertexAttribs();
+	}
 
 	m_pOpenGLTexture->bind();
 	f->glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

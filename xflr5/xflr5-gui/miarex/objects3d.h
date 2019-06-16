@@ -1,6 +1,6 @@
 /****************************************************************************
 
-	Objects3D    Copyright (C) 2014-2016 Andre Deperrois 
+    Objects3D    Copyright (C) 2014-2019 Andre Deperrois
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,11 +27,9 @@
 #define OBJECTS3D_H
 
 #include <QList>
-#include <objects/objects3d/Body.h>
-#include <objects/objects3d/Plane.h>
-#include <objects/objects3d/PlaneOpp.h>
 
 class Plane;
+class Wing;
 class Body;
 class WPolar;
 class PlaneOpp;
@@ -54,8 +52,8 @@ public:
 	static PlaneOpp* getPlaneOpp(Plane *pPlane, WPolar *pWPolar, double x);
 	static Wing*     getWing(QString PlaneName);
 	static WPolar*   getWPolar(Plane *pPlane, QString WPolarName);
-	static void      insertPOpp(PlaneOpp *pPOpp);
-	static WPolar *  insertNewWPolar(WPolar *pModWPolar, Plane *pCurPlane);
+    static void      insertPOpp(PlaneOpp *pPOpp);
+    static WPolar *  insertNewWPolar(WPolar *pModWPolar, Plane *pCurPlane);
 	static bool      planeExists(QString planeName);
 	static void      renamePlane(QString PlaneName);
 	static Plane *   setModPlane(Plane *pModPlane);

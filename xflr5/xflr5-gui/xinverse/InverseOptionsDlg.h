@@ -22,10 +22,9 @@
 #ifndef INVERSEOPTIONSDLG_H
 #define INVERSEOPTIONSDLG_H
 
-#include <misc/line/LineBtn.h>
 #include <QDialog>
 
-
+class LineBtn;
 class InverseOptionsDlg:public QDialog
 {
 	Q_OBJECT

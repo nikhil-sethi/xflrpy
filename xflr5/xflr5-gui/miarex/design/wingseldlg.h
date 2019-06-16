@@ -21,17 +21,19 @@
 
 #ifndef WINGSELDLG_H
 #define WINGSELDLG_H
-#include <globals/gui_params.h>
-#include <objects/objects3d/Plane.h>
 #include <QDialog>
 #include <QCheckBox>
+
+#include <analysis3d/analysis3d_params.h>
+
+class Plane;
 
 class WingSelDlg : public QDialog
 {
 	Q_OBJECT
 
 public:
-	WingSelDlg(QWidget *pParent=NULL);
+    WingSelDlg(QWidget *pParent=nullptr);
 
 	void initDialog(Plane *pPlane);
 

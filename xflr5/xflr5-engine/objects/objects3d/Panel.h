@@ -96,6 +96,8 @@ public:
 	Vector3d collPt() const {return CollPt;}
 	Vector3d normal() const {return Normal;}
 
+	void printPanel();
+
 	static void setCoreSize(double CoreSize) { s_CoreSize=CoreSize;	}
 	static double coreSize() { return s_CoreSize; }
 

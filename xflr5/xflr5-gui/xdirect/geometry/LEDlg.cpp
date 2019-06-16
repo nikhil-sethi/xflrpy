@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	LEDlg Class
-	Copyright (C) 2008 Andre Deperrois 
+    Copyright (C) 2008-2019 Andre Deperrois
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,7 +25,11 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-void *LEDlg::s_pXFoil;
+
+#include <misc/text/DoubleEdit.h>
+#include <objects/objects2d/Foil.h>
+
+XFoil *LEDlg::s_pXFoil;
 
 LEDlg::LEDlg(QWidget *pParent) : QDialog(pParent)
 {
@@ -162,23 +166,20 @@ void LEDlg::onApply()
 	if(m_bApplied) return;
 
 	//reset everything and retry
-	XFoil *pXFoil = (XFoil*)s_pXFoil;
 
-	int i, j;
-
-	for (i=0; i< m_pMemFoil->nb; i++)
+    for (int i=0; i< m_pMemFoil->nb; i++)
 	{
-		pXFoil->xb[i+1] = m_pMemFoil->xb[i] ;
-		pXFoil->yb[i+1] = m_pMemFoil->yb[i];
+        s_pXFoil->xb[i+1] = m_pMemFoil->xb[i] ;
+        s_pXFoil->yb[i+1] = m_pMemFoil->yb[i];
 	}
-	pXFoil->nb = m_pMemFoil->nb;
+    s_pXFoil->nb = m_pMemFoil->nb;
 
-	pXFoil->lflap = false;
-	pXFoil->lbflap = false;
+    s_pXFoil->lflap = false;
+    s_pXFoil->lbflap = false;
 
-	if(pXFoil->Preprocess())
+    if(s_pXFoil->Preprocess())
 	{
-		pXFoil->CheckAngles();
+        s_pXFoil->CheckAngles();
 /*		for (int k=0; k<pXFoil->n;k++)
 		{
 			m_pMemFoil->nx[k] = pXFoil->nx[k+1];
@@ -195,27 +196,27 @@ void LEDlg::onApply()
 	m_LErfac = m_pctrlLE->value();
 	m_Blend = m_pctrlBlend->value()/100.0;
 
-	pXFoil->lerad(m_LErfac,m_Blend);
+    s_pXFoil->lerad(m_LErfac,m_Blend);
 
-	if(pXFoil->n>IQX)
+    if(s_pXFoil->n>IQX)
 	{
 		QMessageBox::information(window(), tr("Warning"), tr("Panel number cannot exceed 300"));
 		//reset everything and retry
-		for (i=0; i< m_pMemFoil->nb; i++)
+        for (int i=0; i< m_pMemFoil->nb; i++)
 		{
-			pXFoil->x[i+1] = m_pMemFoil->xb[i] ;
-			pXFoil->y[i+1] = m_pMemFoil->yb[i];
+            s_pXFoil->x[i+1] = m_pMemFoil->xb[i] ;
+            s_pXFoil->y[i+1] = m_pMemFoil->yb[i];
 		}
-		pXFoil->n = m_pMemFoil->nb;
+        s_pXFoil->n = m_pMemFoil->nb;
 	}
 	else
 	{
-		for (j=0; j< pXFoil->n; j++)
+        for (int j=0; j< s_pXFoil->n; j++)
 		{
-			m_pBufferFoil->xb[j] = pXFoil->xb[j+1];
-			m_pBufferFoil->yb[j] = pXFoil->yb[j+1];
+            m_pBufferFoil->xb[j] = s_pXFoil->xb[j+1];
+            m_pBufferFoil->yb[j] = s_pXFoil->yb[j+1];
 		}
-		m_pBufferFoil->nb = pXFoil->nb;
+        m_pBufferFoil->nb = s_pXFoil->nb;
 		m_pBufferFoil->initFoil();
 		m_pBufferFoil->setFlap();
 	}

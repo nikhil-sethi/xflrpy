@@ -1,7 +1,7 @@
 /****************************************************************************
 
 	EditPlrDlg Class
-	Copyright (C) 2009-2016 Andre Deperrois 
+    Copyright (C) 2009-2018 Andre Deperrois
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,10 +26,12 @@
 
 
 #include "EditPlrDlg.h"
-#include <misc/options/displayoptions.h>
-
-#include <xdirect/XDirect.h>
 #include <miarex/Miarex.h>
+#include <misc/options/displayoptions.h>
+#include <misc/text/FloatEditDelegate.h>
+#include <objects/objects2d/Polar.h>
+#include <objects/objects3d/WPolar.h>
+#include <xdirect/XDirect.h>
 
 
 QPoint EditPlrDlg::s_Position;
@@ -41,15 +43,15 @@ bool EditPlrDlg::s_bWindowMaximized;
 EditPlrDlg::EditPlrDlg(QWidget *pParent) : QDialog(pParent)
 {
 	setWindowTitle(tr("Polar Points Edition"));
-	m_pXDirect    = NULL;
-	m_pMiarex     = NULL;
+	m_pXDirect    = nullptr;
+	m_pMiarex     = nullptr;
 
-	m_pPolar      = NULL;
-	m_pWPolar     = NULL;
+	m_pPolar      = nullptr;
+	m_pWPolar     = nullptr;
 
-	m_pctrlPointTable = NULL;
-	m_pPointModel     = NULL;
-	m_pFloatDelegate  = NULL;
+	m_pctrlPointTable = nullptr;
+	m_pPointModel     = nullptr;
+	m_pFloatDelegate  = nullptr;
 
 	setupLayout();
 }

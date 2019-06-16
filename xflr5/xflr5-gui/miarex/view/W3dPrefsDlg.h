@@ -26,10 +26,10 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QSettings>
-#include <misc/line/LineBtn.h>
-#include <misc/color/ColorButton.h>
-#include <misc/text/IntEdit.h>
 
+class LineBtn;
+class ColorButton;
+class IntEdit;
 
 class W3dPrefsDlg : public QDialog
 {

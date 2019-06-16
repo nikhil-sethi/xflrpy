@@ -27,7 +27,7 @@
 BodyTableDelegate::BodyTableDelegate(QObject *parent)
  : QItemDelegate(parent)
 {
-	m_pNRows = NULL;
+	m_pNRows = nullptr;
 }
 
 

@@ -21,6 +21,7 @@
 
 #ifndef XFLSCRIPTREADER_H
 #define XFLSCRIPTREADER_H
+
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QList>

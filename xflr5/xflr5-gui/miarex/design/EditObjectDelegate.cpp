@@ -137,7 +137,7 @@ QWidget *EditObjectDelegate::createEditor(QWidget *parent, const QStyleOptionVie
 			editor->addItem("FIN");
 
 			return editor;*/
-			return NULL;
+			return nullptr;
 		}
 		case XFLR5::DOUBLEVALUE:
 		{
@@ -154,10 +154,10 @@ QWidget *EditObjectDelegate::createEditor(QWidget *parent, const QStyleOptionVie
 		{
 			//String case, only edit the first line with the polar name
 			if(index.row()==0 && index.column()==2)  return new QLineEdit(parent);
-			else                                     return NULL;
+			else                                     return nullptr;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 

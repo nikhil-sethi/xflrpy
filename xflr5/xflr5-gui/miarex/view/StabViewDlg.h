@@ -35,11 +35,10 @@
 #include <QTableView>
 #include <QStandardItemModel>
 
-#include <misc/text/DoubleEdit.h>
-#include <misc/text/FloatEditDelegate.h>
-#include <graph/curve.h>
-
 class Miarex;
+class DoubleEdit;
+class FloatEditDelegate;
+class Curve;
 
 class StabViewDlg : public QWidget
 {

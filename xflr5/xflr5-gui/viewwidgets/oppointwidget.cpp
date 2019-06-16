@@ -39,7 +39,7 @@
 #define PI 3.141592654
 
 
-void *OpPointWidget::s_pMainFrame = NULL;
+void *OpPointWidget::s_pMainFrame = nullptr;
 
 /**
 *The public constructor
@@ -75,7 +75,7 @@ OpPointWidget::OpPointWidget(QWidget *parent) : QWidget(parent)
 	m_iPressureWidth = 1;
 
 	m_fScale = m_fYScale = 1.0;
-	m_pCpGraph = NULL;
+	m_pCpGraph = nullptr;
 }
 
 
@@ -947,42 +947,42 @@ void OpPointWidget::paintBL(QPainter &painter, OpPoint* pOpPoint, double scalex,
 
 	painter.setPen(WakePen);
 
-	x = (pOpPoint->xd1[1]-0.5)*cosa - pOpPoint->yd1[1]*sina + 0.5;
-	y = (pOpPoint->xd1[1]-0.5)*sina + pOpPoint->yd1[1]*cosa;
+    x = (pOpPoint->blx.xd1[1]-0.5)*cosa - pOpPoint->blx.yd1[1]*sina + 0.5;
+    y = (pOpPoint->blx.xd1[1]-0.5)*sina + pOpPoint->blx.yd1[1]*cosa;
 	From.rx() =  x*scalex + offset.x();
 	From.ry() = -y*scaley + offset.y();
-	for (i=2; i<=pOpPoint->nd1; i++)
+    for (i=2; i<=pOpPoint->blx.nd1; i++)
 	{
-		x = (pOpPoint->xd1[i]-0.5)*cosa - pOpPoint->yd1[i]*sina + 0.5;
-		y = (pOpPoint->xd1[i]-0.5)*sina + pOpPoint->yd1[i]*cosa;
+        x = (pOpPoint->blx.xd1[i]-0.5)*cosa - pOpPoint->blx.yd1[i]*sina + 0.5;
+        y = (pOpPoint->blx.xd1[i]-0.5)*sina + pOpPoint->blx.yd1[i]*cosa;
 		To.rx() =  x*scalex + offset.x();
 		To.ry() = -y*scaley + offset.y();
 		painter.drawLine(From, To);
 		From = To;
 	}
 
-	x = (pOpPoint->xd2[0]-0.5)*cosa - pOpPoint->yd2[0]*sina + 0.5;
-	y = (pOpPoint->xd2[0]-0.5)*sina + pOpPoint->yd2[0]*cosa;
+    x = (pOpPoint->blx.xd2[0]-0.5)*cosa - pOpPoint->blx.yd2[0]*sina + 0.5;
+    y = (pOpPoint->blx.xd2[0]-0.5)*sina + pOpPoint->blx.yd2[0]*cosa;
 	From.rx() =  x*scalex + offset.x();
 	From.ry() = -y*scaley + offset.y();
-	for (i=1; i<pOpPoint->nd2; i++)
+    for (i=1; i<pOpPoint->blx.nd2; i++)
 	{
-		x = (pOpPoint->xd2[i]-0.5)*cosa - pOpPoint->yd2[i]*sina + 0.5;
-		y = (pOpPoint->xd2[i]-0.5)*sina + pOpPoint->yd2[i]*cosa;
+        x = (pOpPoint->blx.xd2[i]-0.5)*cosa - pOpPoint->blx.yd2[i]*sina + 0.5;
+        y = (pOpPoint->blx.xd2[i]-0.5)*sina + pOpPoint->blx.yd2[i]*cosa;
 		To.rx() =  x*scalex + offset.x();
 		To.ry() = -y*scaley + offset.y();
 		painter.drawLine(From, To);
 		From = To;
 	}
 
-	x = (pOpPoint->xd3[0]-0.5)*cosa - pOpPoint->yd3[0]*sina + 0.5;
-	y = (pOpPoint->xd3[0]-0.5)*sina + pOpPoint->yd3[0]*cosa;
+    x = (pOpPoint->blx.xd3[0]-0.5)*cosa - pOpPoint->blx.yd3[0]*sina + 0.5;
+    y = (pOpPoint->blx.xd3[0]-0.5)*sina + pOpPoint->blx.yd3[0]*cosa;
 	From.rx() =  x*scalex + offset.x();
 	From.ry() = -y*scaley + offset.y();
-	for (i=1; i<pOpPoint->nd3; i++)
+    for (i=1; i<pOpPoint->blx.nd3; i++)
 	{
-		x = (pOpPoint->xd3[i]-0.5)*cosa - pOpPoint->yd3[i]*sina + 0.5;
-		y = (pOpPoint->xd3[i]-0.5)*sina + pOpPoint->yd3[i]*cosa;
+        x = (pOpPoint->blx.xd3[i]-0.5)*cosa - pOpPoint->blx.yd3[i]*sina + 0.5;
+        y = (pOpPoint->blx.xd3[i]-0.5)*sina + pOpPoint->blx.yd3[i]*cosa;
 		To.rx() =  x*scalex + offset.x();
 		To.ry() = -y*scaley + offset.y();
 		painter.drawLine(From, To);
@@ -1111,43 +1111,43 @@ void OpPointWidget::onShowBL(bool bBL)
 }
 
 
-void OpPointWidget::saveSettings(QSettings *pSettings)
+void OpPointWidget::saveSettings(QSettings &settings)
 {
-	pSettings->beginGroup("OpPointSettings");
+    settings.beginGroup("OpPointSettings");
 	{
-		pSettings->setValue("BLColor", m_crBLColor);
-		pSettings->setValue("BLWidth", m_iBLWidth);
-		pSettings->setValue("BLStyle", m_iBLStyle);
+        settings.setValue("BLColor", m_crBLColor);
+        settings.setValue("BLWidth", m_iBLWidth);
+        settings.setValue("BLStyle", m_iBLStyle);
 
-		pSettings->setValue("PressureWidth", m_iPressureWidth);
-		pSettings->setValue("PressureStyle", m_iPressureStyle);
-		pSettings->setValue("PressureColor", m_crPressureColor);
+        settings.setValue("PressureWidth", m_iPressureWidth);
+        settings.setValue("PressureStyle", m_iPressureStyle);
+        settings.setValue("PressureColor", m_crPressureColor);
 
-		pSettings->setValue("NeutralColor", m_crNeutralColor);
-		pSettings->setValue("NeutralWidth", m_iNeutralWidth);
-		pSettings->setValue("NeutralStyle", m_iNeutralStyle);
+        settings.setValue("NeutralColor", m_crNeutralColor);
+        settings.setValue("NeutralWidth", m_iNeutralWidth);
+        settings.setValue("NeutralStyle", m_iNeutralStyle);
 	}
-	pSettings->endGroup();
+    settings.endGroup();
 }
 
 
 
-void OpPointWidget::loadSettings(QSettings *pSettings)
+void OpPointWidget::loadSettings(QSettings &settings)
 {
-	pSettings->beginGroup("OpPointSettings");
+    settings.beginGroup("OpPointSettings");
 	{
-		m_iBLStyle  = pSettings->value("BLStyle", 1).toInt();
-		m_iBLWidth  = pSettings->value("BLWidth", 1).toInt();
-		m_crBLColor = pSettings->value("BLColor",QColor(235,50,50)).value<QColor>();
+        m_iBLStyle  = settings.value("BLStyle", 1).toInt();
+        m_iBLWidth  = settings.value("BLWidth", 1).toInt();
+        m_crBLColor = settings.value("BLColor",QColor(235,50,50)).value<QColor>();
 
-		m_iPressureStyle  = pSettings->value("PressureStyle", 0).toInt();
-		m_iPressureWidth  = pSettings->value("PressureWidth", 1).toInt();
-		m_crPressureColor = pSettings->value("PressureColor",QColor(100,150,100)).value<QColor>();
+        m_iPressureStyle  = settings.value("PressureStyle", 0).toInt();
+        m_iPressureWidth  = settings.value("PressureWidth", 1).toInt();
+        m_crPressureColor = settings.value("PressureColor",QColor(100,150,100)).value<QColor>();
 
-		m_iNeutralStyle  = pSettings->value("NeutralStyle", 3).toInt();
-		m_iNeutralWidth  = pSettings->value("NeutralWidth", 1).toInt();
-		m_crNeutralColor = pSettings->value("NeutralColor",QColor(190,190,190)).value<QColor>();
+        m_iNeutralStyle  = settings.value("NeutralStyle", 3).toInt();
+        m_iNeutralWidth  = settings.value("NeutralWidth", 1).toInt();
+        m_crNeutralColor = settings.value("NeutralColor",QColor(190,190,190)).value<QColor>();
 	}
-	pSettings->endGroup();
+    settings.endGroup();
 }
 

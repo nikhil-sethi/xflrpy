@@ -23,7 +23,11 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+
 #include "FlapDlg.h"
+
+#include <objects/objects2d/Foil.h>
+#include <misc/text/DoubleEdit.h>
 
 
 FlapDlg::FlapDlg(QWidget *pParent) : QDialog(pParent)
@@ -32,8 +36,8 @@ FlapDlg::FlapDlg(QWidget *pParent) : QDialog(pParent)
 
 	m_pParent = pParent;
 
-	m_pMemFoil    = NULL;
-	m_pBufferFoil = NULL;
+	m_pMemFoil    = nullptr;
+	m_pBufferFoil = nullptr;
 	m_bTEFlap     = false;
 	m_TEFlapAngle = 0.0;
 	m_TEXHinge    = 80.0;//%

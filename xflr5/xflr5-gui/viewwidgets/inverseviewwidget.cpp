@@ -35,8 +35,8 @@
 InverseViewWidget::InverseViewWidget(QWidget *parent)
 	: QWidget(parent)
 {
-	m_pMainFrame = NULL;
-	m_pXInverse = NULL;
+	m_pMainFrame = nullptr;
+	m_pXInverse = nullptr;
 
 	setMouseTracking(true);
 	setCursor(Qt::CrossCursor);
@@ -54,11 +54,9 @@ InverseViewWidget::InverseViewWidget(QWidget *parent)
 */
 void InverseViewWidget::keyPressEvent(QKeyEvent *event)
 {
-	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
-	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
+    if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		XInverse *pXInverse= (XInverse*)m_pXInverse;
-		pXInverse->keyPressEvent(event);
+        m_pXInverse->keyPressEvent(event);
 	}
 }
 
@@ -69,12 +67,9 @@ void InverseViewWidget::keyPressEvent(QKeyEvent *event)
 */
 void InverseViewWidget::keyReleaseEvent(QKeyEvent *event)
 {
-
-	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
-	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
+    if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		XInverse *pXInverse= (XInverse*)m_pXInverse;
-		pXInverse->keyReleaseEvent(event);
+        m_pXInverse->keyReleaseEvent(event);
 	}
 }
 
@@ -86,11 +81,9 @@ void InverseViewWidget::keyReleaseEvent(QKeyEvent *event)
 */
 void InverseViewWidget::mousePressEvent(QMouseEvent *event)
 {
-	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
-	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
+    if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		XInverse *pXInverse= (XInverse*)m_pXInverse;
-		pXInverse->mousePressEvent(event);
+        m_pXInverse->mousePressEvent(event);
 	}
 }
 
@@ -101,11 +94,9 @@ void InverseViewWidget::mousePressEvent(QMouseEvent *event)
 */
 void InverseViewWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
-	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
+    if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		XInverse *pXInverse= (XInverse*)m_pXInverse;
-		pXInverse->mouseReleaseEvent(event);
+        m_pXInverse->mouseReleaseEvent(event);
 	}
 }
 
@@ -116,11 +107,9 @@ void InverseViewWidget::mouseReleaseEvent(QMouseEvent *event)
 */
 void InverseViewWidget::mouseMoveEvent(QMouseEvent *event)
 {
-	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
-	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
+    if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		XInverse *pXInverse= (XInverse*)m_pXInverse;
-		pXInverse->mouseMoveEvent(event);
+        m_pXInverse->mouseMoveEvent(event);
 	}
 }
 
@@ -132,12 +121,9 @@ void InverseViewWidget::mouseMoveEvent(QMouseEvent *event)
 */
 void InverseViewWidget::mouseDoubleClickEvent ( QMouseEvent * event )
 {
-	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
-
-	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
+    if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		XInverse *pXInverse= (XInverse*)m_pXInverse;
-		pXInverse->doubleClickEvent(event->pos());
+        m_pXInverse->doubleClickEvent(event->pos());
 	}
 }
 
@@ -148,12 +134,9 @@ void InverseViewWidget::mouseDoubleClickEvent ( QMouseEvent * event )
 */
 void InverseViewWidget::resizeEvent(QResizeEvent *event)
 {
-//	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
-	XInverse *pXInverse = (XInverse*)m_pXInverse;
-
 	if(m_pXInverse)
 	{
-		pXInverse->setXInverseScale(rect());
+        m_pXInverse->setXInverseScale(rect());
 	}
 	event->accept();
 }
@@ -167,7 +150,6 @@ void InverseViewWidget::resizeEvent(QResizeEvent *event)
 */
 void InverseViewWidget::wheelEvent(QWheelEvent *event)
 {
-	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
 	double ZoomFactor=1.0;
 
 	QPoint pt(event->x(), event->y()); //client coordinates
@@ -183,10 +165,9 @@ void InverseViewWidget::wheelEvent(QWheelEvent *event)
 		else                          ZoomFactor = 1./1.06;
 	}
 
-	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
+    if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		XInverse *pXInverse= (XInverse*)m_pXInverse;
-		pXInverse->zoomEvent(pt, ZoomFactor);
+        m_pXInverse->zoomEvent(pt, ZoomFactor);
 	}
 }
 
@@ -197,12 +178,10 @@ void InverseViewWidget::wheelEvent(QWheelEvent *event)
 */
 void InverseViewWidget::paintEvent(QPaintEvent *event)
 {
-	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
-	if(pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
+    if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
 	{
-		XInverse *pXInverse= (XInverse*)m_pXInverse;
 		QPainter painter(this);
-		pXInverse->paintView(painter);
+        m_pXInverse->paintView(painter);
 	}
 	else
 	{
@@ -214,19 +193,18 @@ void InverseViewWidget::paintEvent(QPaintEvent *event)
 
 
 /**
-*Overrides the contextMenuEvent function of the base class.
-*Dispatches the handling to the active child application.
+* Overrides the contextMenuEvent function of the base class.
+* Dispatches the handling to the active child application.
 */
 void InverseViewWidget::contextMenuEvent (QContextMenuEvent * event)
 {
-	MainFrame *pMainFrame = (MainFrame*)m_pMainFrame;
 	QPoint ScreenPt = event->globalPos();
 
-	switch(pMainFrame->m_iApp)
+    switch(m_pMainFrame->m_iApp)
 	{
 		case XFLR5::INVERSEDESIGN:
 		{
-			pMainFrame->m_pInverseContextMenu->exec(ScreenPt);
+            m_pMainFrame->m_pInverseContextMenu->exec(ScreenPt);
 			break;
 		}
 		default:

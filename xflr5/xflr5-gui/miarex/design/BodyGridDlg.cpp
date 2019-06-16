@@ -28,10 +28,12 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include <globals/globals.h>
-#include <misc/options/Units.h>
-#include <misc/line/LinePickerDlg.h>
 #include "BodyGridDlg.h"
+#include <globals/globals.h>
+#include <misc/line/LineBtn.h>
+#include <misc/line/LinePickerDlg.h>
+#include <misc/options/units.h>
+#include <misc/text/DoubleEdit.h>
 
 
 bool BodyGridDlg::s_bScale = false;
@@ -329,63 +331,63 @@ void BodyGridDlg::onMinLine2Style()
 
 
 
-void BodyGridDlg::loadSettings (QSettings *pSettings)
+void BodyGridDlg::loadSettings (QSettings &settings)
 {
-	pSettings->beginGroup("GL3dBodyGrid");
+    settings.beginGroup("GL3dBodyGrid");
 	{
-		s_bGrid      = pSettings->value("Grid").toBool();
-		s_bMinGrid   = pSettings->value("MinGrid").toBool();
-		s_bGrid2     = pSettings->value("Grid2").toBool();
-		s_bMinGrid2  = pSettings->value("MinGrid2").toBool();
-		s_Style      = pSettings->value("Style").toInt();
-		s_MinStyle   = pSettings->value("MinStyle").toInt();
-		s_Style2     = pSettings->value("Style2").toInt();
-		s_MinStyle2  = pSettings->value("MinStyle2").toInt();
-		s_Width      = pSettings->value("Width").toInt();
-		s_MinWidth   = pSettings->value("MinWidth").toInt();
-		s_Width2     = pSettings->value("Width2").toInt();
-		s_MinWidth2  = pSettings->value("MinWidth2").toInt();
-		s_Color      = pSettings->value("Color").value<QColor>();
-		s_MinColor   = pSettings->value("MinColor").value<QColor>();
-		s_Color2     = pSettings->value("Color2").value<QColor>();
-		s_MinColor2  = pSettings->value("MinColor2").value<QColor>();
-		s_Unit       = pSettings->value("Unit").toDouble();
-		s_MinorUnit  = pSettings->value("MinorUnit").toDouble();
-		s_Unit2      = pSettings->value("Unit2").toDouble();
-		s_MinorUnit2 = pSettings->value("MinorUnit2").toDouble();
-		s_bScale     = pSettings->value("bScale").toBool();
+        s_bGrid      = settings.value("Grid").toBool();
+        s_bMinGrid   = settings.value("MinGrid").toBool();
+        s_bGrid2     = settings.value("Grid2").toBool();
+        s_bMinGrid2  = settings.value("MinGrid2").toBool();
+        s_Style      = settings.value("Style").toInt();
+        s_MinStyle   = settings.value("MinStyle").toInt();
+        s_Style2     = settings.value("Style2").toInt();
+        s_MinStyle2  = settings.value("MinStyle2").toInt();
+        s_Width      = settings.value("Width").toInt();
+        s_MinWidth   = settings.value("MinWidth").toInt();
+        s_Width2     = settings.value("Width2").toInt();
+        s_MinWidth2  = settings.value("MinWidth2").toInt();
+        s_Color      = settings.value("Color").value<QColor>();
+        s_MinColor   = settings.value("MinColor").value<QColor>();
+        s_Color2     = settings.value("Color2").value<QColor>();
+        s_MinColor2  = settings.value("MinColor2").value<QColor>();
+        s_Unit       = settings.value("Unit").toDouble();
+        s_MinorUnit  = settings.value("MinorUnit").toDouble();
+        s_Unit2      = settings.value("Unit2").toDouble();
+        s_MinorUnit2 = settings.value("MinorUnit2").toDouble();
+        s_bScale     = settings.value("bScale").toBool();
 	}
-	pSettings->endGroup();
+    settings.endGroup();
 }
 
 
-void BodyGridDlg::saveSettings (QSettings *pSettings)
+void BodyGridDlg::saveSettings (QSettings &settings)
 {
-	pSettings->beginGroup("GL3dBodyGrid");
+    settings.beginGroup("GL3dBodyGrid");
 	{
-		pSettings->setValue("Grid", s_bGrid);
-		pSettings->setValue("MinGrid", s_bMinGrid);
-		pSettings->setValue("Grid2", s_bGrid2);
-		pSettings->setValue("MinGrid2", s_bMinGrid2);
-		pSettings->setValue("Style", s_Style);
-		pSettings->setValue("MinStyle", s_MinStyle);
-		pSettings->setValue("Style2", s_Style2);
-		pSettings->setValue("MinStyle2", s_MinStyle2);
-		pSettings->setValue("Width", s_Width);
-		pSettings->setValue("MinWidth", s_MinWidth);
-		pSettings->setValue("Width2", s_Width2);
-		pSettings->setValue("MinWidth2", s_MinWidth2);
-		pSettings->setValue("Color", s_Color);
-		pSettings->setValue("MinColor", s_MinColor);
-		pSettings->setValue("Color2", s_Color2);
-		pSettings->setValue("MinColor2", s_MinColor2);
-		pSettings->setValue("Unit", s_Unit);
-		pSettings->setValue("MinorUnit", s_MinorUnit);
-		pSettings->setValue("Unit2", s_Unit2);
-		pSettings->setValue("MinorUnit2", s_MinorUnit2);
-		pSettings->setValue("bScale", s_bScale);
+        settings.setValue("Grid", s_bGrid);
+        settings.setValue("MinGrid", s_bMinGrid);
+        settings.setValue("Grid2", s_bGrid2);
+        settings.setValue("MinGrid2", s_bMinGrid2);
+        settings.setValue("Style", s_Style);
+        settings.setValue("MinStyle", s_MinStyle);
+        settings.setValue("Style2", s_Style2);
+        settings.setValue("MinStyle2", s_MinStyle2);
+        settings.setValue("Width", s_Width);
+        settings.setValue("MinWidth", s_MinWidth);
+        settings.setValue("Width2", s_Width2);
+        settings.setValue("MinWidth2", s_MinWidth2);
+        settings.setValue("Color", s_Color);
+        settings.setValue("MinColor", s_MinColor);
+        settings.setValue("Color2", s_Color2);
+        settings.setValue("MinColor2", s_MinColor2);
+        settings.setValue("Unit", s_Unit);
+        settings.setValue("MinorUnit", s_MinorUnit);
+        settings.setValue("Unit2", s_Unit2);
+        settings.setValue("MinorUnit2", s_MinorUnit2);
+        settings.setValue("bScale", s_bScale);
 	}
-	pSettings->endGroup();
+    settings.endGroup();
 }
 
 

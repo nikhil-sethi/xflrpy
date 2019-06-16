@@ -22,6 +22,8 @@
   @file This file implements the Vector3d class
   */
 
+#include <QString>
+
 #include <math.h>
 
 #include <xflr5-engine_global.h>
@@ -138,6 +140,11 @@ public:
 
 	
 	//inline methods
+
+    float xf() {return float(x);}
+    float yf() {return float(y);}
+    float zf() {return float(z);}
+
 	void copy(Vector3d const &V)
 	{	
 		x = V.x;
@@ -168,7 +175,7 @@ public:
 		z/=abs;
 	}
 		
-	double VAbs()
+	double VAbs() const
 	{
 		return sqrt(x*x+y*y+z*z);
 	}
@@ -225,6 +232,6 @@ public:
 	void rotateY(double YTilt);
 //	void rotateZ(double ZRot);
 
- 
+	void displayCoords(QString msg) const;
 };
 

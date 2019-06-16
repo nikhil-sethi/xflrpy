@@ -2,7 +2,7 @@
 
 	XFLR5 Application
 
-	Copyright (C) 2008-2018 Andre Deperrois techwinder@users.sourceforge.net
+    Copyright (C) 2008-2019 Andre Deperrois techwinder@users.sourceforge.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,14 +20,13 @@
 
 *****************************************************************************/
 
+#include <QSurfaceFormat>
+#include <QDebug>
 
 #include "XFLR5Application.h"
 #include <globals/mainframe.h>
-#include <globals/gui_params.h>
-#include <QSplashScreen>
-#include <QtDebug>
-#include <QSurfaceFormat>
-#include <QCommandLineParser>
+
+
 
 /**
 *The app's point of entry !
@@ -69,12 +68,14 @@ int main(int argc, char *argv[])
 	qDebug()<<strange;*/
 #endif
 
-/*	QSurfaceFormat defaultFormat = QSurfaceFormat::defaultFormat();
-	defaultFormat.setVersion(3, 3);
-	defaultFormat.setProfile(QSurfaceFormat::CompatibilityProfile); //only relevant for 3.2+
-	QSurfaceFormat::setDefaultFormat(defaultFormat);
+/*    QSurfaceFormat defaultFormat = QSurfaceFormat::defaultFormat();
+    defaultFormat.setVersion(3, 3);
+//    defaultFormat.setProfile(QSurfaceFormat::CompatibilityProfile); //only relevant for 3.2+
+    QSurfaceFormat::setDefaultFormat(defaultFormat);*/
 
+/*
 #ifdef QT_DEBUG
+    QString strange;
 	strange.sprintf("App default OpengGl format:%d.%d", QSurfaceFormat::defaultFormat().majorVersion(),QSurfaceFormat::defaultFormat().minorVersion());
 	qDebug()<<strange;
 	switch (QSurfaceFormat::defaultFormat().profile()) {
@@ -90,10 +91,8 @@ int main(int argc, char *argv[])
 		default:
 			break;
 	}
-	qDebug()<<"/main";
-	qDebug()<<"";
-#endif
-*/
+#endif*/
+
 	QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 	XFLR5Application app(argc, argv);
 

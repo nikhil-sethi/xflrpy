@@ -37,7 +37,7 @@
 #include <QTextStream>
 #include <objects/objects2d/Spline.h>
 #include <objects/objects3d/vector3d.h>
-#include <globals/gui_params.h>
+
 
 
 class Spline5 : public Spline

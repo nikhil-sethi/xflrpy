@@ -25,9 +25,11 @@
 #include <QDialog>
 #include <QLabel>
 #include <QPushButton>
-#include <objects/objects2d/Foil.h>
-#include <misc/text/IntEdit.h>
+#include <QLineEdit>
 
+class Foil;
+class IntEdit;
+class XFoil;
 
 class NacaFoilDlg : public QDialog
 {
@@ -47,7 +49,7 @@ public:
 	void generateFoil();
 	void keyPressEvent(QKeyEvent *event);
 
-	static void *s_pXFoil;
+    static XFoil *s_pXFoil;
 
 	QWidget *m_pParent;
 

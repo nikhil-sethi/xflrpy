@@ -28,9 +28,10 @@
 #include <QPushButton>
 #include <QTableView>
 #include <QStandardItemModel>
-#include <design/FoilTableDelegate.h>
-#include <objects/objects2d/Foil.h>
 
+
+class FoilTableDelegate;
+class Foil;
 
 class ManageFoilsDlg : public QDialog
 {

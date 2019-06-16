@@ -20,14 +20,6 @@
 *****************************************************************************/
 
 
-#include <globals/globals.h>
-#include <misc/options/displayoptions.h>
-#include <misc/NewNameDlg.h>
-#include <misc/options/Units.h>
-#include <miarex/Miarex.h>
-#include "StabViewDlg.h"
-#include <objects/objects_global.h>
-
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -36,6 +28,21 @@
 #include <QTimer>
 #include <complex>
 
+
+
+#include "StabViewDlg.h"
+#include <globals/globals.h>
+#include <misc/options/displayoptions.h>
+#include <misc/NewNameDlg.h>
+#include <misc/options/units.h>
+#include <miarex/Miarex.h>
+#include <viewwidgets/glWidgets/gl3dmiarexview.h>
+#include <objects/objects_global.h>
+#include <objects/objects3d/WPolar.h>
+
+#include <misc/text/DoubleEdit.h>
+#include <misc/text/FloatEditDelegate.h>
+#include <graph/curve.h>
 
 Miarex *StabViewDlg::s_pMiarex;
 
@@ -49,7 +56,7 @@ StabViewDlg::StabViewDlg(QWidget *parent) : QWidget(parent)
 	m_iCurrentMode = 0;
 	m_ModeAmplitude = 1.0;
 	m_ModeInterval = 200;
-	m_pCurve = NULL;
+    m_pCurve = nullptr;
 	for(int i=0; i<20; i++)
 	{
 		m_Time[i] = (double)i;
@@ -569,7 +576,7 @@ void StabViewDlg::setMode(int iMode)
 		m_phi[0] = m_phi[1] = m_phi[2] = m_phi[3] = 0.0;
 	}
 
-	pMiarex->m_bResetglLegend = true;
+    gl3dMiarexView::s_bResetglLegend = true;
 
 //	if(pMiarex->m_pCurRLStabGraph && pMiarex->m_pCurWPolar) pMiarex->m_pCurRLStabGraph->DeselectPoint();
 
@@ -1188,7 +1195,7 @@ void StabViewDlg::onDeleteCurve()
 	if(!m_pCurve) return;
 	QString CurveTitle = m_pCurve->curveName();
 	for(int ig=0; ig<MAXTIMEGRAPHS; ig++)	pMiarex->m_TimeGraph[ig]->deleteCurve(CurveTitle);
-	m_pCurve = NULL;
+    m_pCurve = nullptr;
 
 	fillCurveList();
 	m_pctrlCurveList->setCurrentIndex(0);
@@ -1198,7 +1205,7 @@ void StabViewDlg::onDeleteCurve()
 	m_pctrlCurveList->setEnabled(    pMiarex->m_pCurPOpp && m_pctrlCurveList->count());
 
 	if(m_pctrlCurveList->count()) m_pCurve = pMiarex->m_TimeGraph[0]->curve(m_pctrlCurveList->itemText(0));
-	else                          m_pCurve = NULL;
+    else                          m_pCurve = nullptr;
 
 	pMiarex->setCurveParams();
 	pMiarex->createStabilityCurves();

@@ -465,7 +465,7 @@ bool Crout_LU_Decomposition_with_Pivoting(double *A, int pivot[], int n, bool *p
 	double *p_k, *p_row, *p_col;
 	double max=0.0;
 
-	p_col = NULL;
+	p_col = nullptr;
 
 	//  For each row and column, k = 0, ..., n-1,
 	for (k=0, p_k=A; k<n; p_k+=n, k++)

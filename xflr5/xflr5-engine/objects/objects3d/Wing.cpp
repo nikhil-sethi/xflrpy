@@ -34,8 +34,8 @@
 #include <objects/objects2d/Polar.h>
 
 double Wing::s_MinPanelSize = 0.0001;
-QList<Foil *> *Wing::s_poaFoil  = NULL;
-QList<Polar*> *Wing::s_poaPolar = NULL;
+QList<Foil *> *Wing::s_poaFoil  = nullptr;
+QList<Polar*> *Wing::s_poaPolar = nullptr;
 
 /**
  * The public constructor.
@@ -48,7 +48,7 @@ Wing::Wing()
 	memset(m_PCd,   0, sizeof(m_PCd));
 	memset(m_ICd,   0, sizeof(m_ICd));
 	memset(m_Cm,    0, sizeof(m_Cm));
-	memset(m_CmAirfoil,  0, sizeof(m_CmAirfoil));
+	memset(m_CmPressure,  0, sizeof(m_CmPressure));
 	memset(m_XCPSpanAbs, 0, sizeof(m_XCPSpanAbs));
 	memset(m_XCPSpanRel, 0, sizeof(m_XCPSpanRel));
 	memset(m_Re,     0, sizeof(m_Re));
@@ -89,7 +89,7 @@ Wing::Wing()
 
 	m_QInf0    = 0.0;
 
-	m_pWingPanel     = NULL;
+	m_pWingPanel     = nullptr;
 
 	m_WingCL            = 0.0;
 	m_CDv               = 0.0;
@@ -518,7 +518,7 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 				if(ElemArea>0.0) ElemVolume[p] = ElemArea * LocalSpan;
 				else
 				{
-qDebug("elemarea  %17.7g   %17.7g", ElemArea, PRECISION);
+//qDebug("elemarea  %17.7g   %17.7g", ElemArea, PRECISION);
 					//no area, means that the foils have not yet been defined for this surface
 					// so just count a unit volume, temporary
 					ElemVolume[p] = 1.0;
@@ -667,7 +667,7 @@ void Wing::createSurfaces(Vector3d const &T, double XTilt, double YTilt)
 {
 	int nSurf;
 	Vector3d PLA, PTA, PLB, PTB, offset, T1;
-	Vector3d Trans(T.x, 0.0, T.z);
+    Vector3d Trans(T.x, 0.0, T.z);
 	Vector3d O(0.0,0.0,0.0);
 	double MinPanelSize;
 
@@ -943,11 +943,16 @@ void Wing::createSurfaces(Vector3d const &T, double XTilt, double YTilt)
 	m_Surface[0]->m_bIsTipLeft              = true;
 	if(NSurfaces>=1) m_Surface[NSurfaces-1]->m_bIsTipRight = true;
 
-	if(NSurfaces>1) m_Surface[(int)(NSurfaces/2)-1]->m_bJoinRight   = true;
-	//check for a center gap greater than 1/10mm
-	if(YPosition(0)>0.0001) 	m_Surface[(int)(NSurfaces/2)-1]->m_bJoinRight   = false;
+	if(NSurfaces>1)
+	{
+		m_Surface[(int)(NSurfaces/2)-1]->m_bJoinRight   = true;
+		//check for a center gap greater than 1/10mm
+		int nada = (int)(NSurfaces/2)-1;
+		Q_ASSERT(nada>=0);
+		if(YPosition(0)>0.0001) 	m_Surface[(int)(NSurfaces/2)-1]->m_bJoinRight   = false;
 
-	if(m_bIsFin && m_bDoubleFin) m_Surface[(int)(NSurfaces/2)-1]->m_bJoinRight   = false;
+		if(m_bIsFin && m_bDoubleFin) m_Surface[(int)(NSurfaces/2)-1]->m_bJoinRight   = false;
+	}
 
 	delete[] VNormal;
 	delete[] VNSide;
@@ -1325,8 +1330,8 @@ void Wing::getFoils(Foil **pFoil0, Foil **pFoil1, double y, double &t)
 		}
 	}
 	t = 0;
-	pFoil0 = NULL;// use linear
-	pFoil1 = NULL;// use linear
+	pFoil0 = nullptr;// use linear
+	pFoil1 = nullptr;// use linear
 }
 
 
@@ -1348,7 +1353,7 @@ double Wing::totalMass()
 
 void Wing::surfacePoint(double xRel, double ypos, enumPanelPosition pos, Vector3d &Point, Vector3d &PtNormal)
 {
-	Surface *pSurface = NULL;
+	Surface *pSurface = nullptr;
 	double fy = qAbs(ypos);
 
 	int iSurf = m_Surface.size()/2;
@@ -1655,7 +1660,7 @@ void Wing::panelComputeOnBody(double QInf, double Alpha, double *Cp, double *Gam
 	int  j, k, l, p, m, nFlap, coef;
 	double CPStrip, tau, NForce, cosa, sina;
 	Vector3d HingeLeverArm,  PtC4Strip, PtLEStrip, ForcePt, SurfaceNormal, LeverArmC4CoG, LeverArmPanelC4, LeverArmPanelCoG;
-	Vector3d Force, PanelForce, StripForce, viscousDragVector, Moment0, HingeMoment, viscousDragMoment, GeomMoment;
+	Vector3d Force, panelforce, StripForce, viscousDragVector, panelmoment, HingeMoment, viscousDragMoment, GeomMoment;
 	Vector3d WindNormal, WindDirection;
 	Vector3d Origin(0.0,0.0,0.0);
 
@@ -1688,26 +1693,27 @@ void Wing::panelComputeOnBody(double QInf, double Alpha, double *Cp, double *Gam
 
 	for (j=0; j<NSurfaces; j++)
 	{
+		Surface *pSurf = m_Surface.at(j);
 		//do not consider left tip patch, if any
-		if(!pWPolar->bThinSurfaces() && m_Surface.at(j)->m_bIsTipLeft) p += m_Surface.at(j)->m_NXPanels;
+		if(!pWPolar->bThinSurfaces() && pSurf->m_bIsTipLeft) p += pSurf->m_NXPanels;
 
-		if(m_Surface.at(j)->m_bTEFlap) m_FlapMoment.append(0.0);
+		if(pSurf->m_bTEFlap) m_FlapMoment.append(0.0);
 
-		SurfaceNormal = m_Surface.at(j)->Normal;
+		SurfaceNormal = pSurf->Normal;
 
 		// consider each strip in turn
-		for (k=0; k<m_Surface.at(j)->m_NYPanels; k++)
+		for (k=0; k<pSurf->m_NYPanels; k++)
 		{
 			//initialize
 			viscousDragVector.set(0.0,0.0,0.0);
 			StripForce.set(0.0,0.0,0.0);
 			GeomMoment.set(0.0,0.0,0.0);
 
-			m_CmAirfoil[m]    = 0.0;
+			m_CmPressure[m]    = 0.0;
 			CPStrip        = 0.0;
 
-			m_Surface.at(j)->getLeadingPt(k, PtLEStrip);
-			m_Surface.at(j)->getC4(k, PtC4Strip, tau);
+			pSurf->getLeadingPt(k, PtLEStrip);
+			pSurf->getC4(k, PtC4Strip, tau);
 			if(fabs(pWPolar->m_BetaSpec)>0.0)
 			{
 				PtC4Strip.rotateZ(Origin, pWPolar->m_BetaSpec);
@@ -1716,55 +1722,54 @@ void Wing::panelComputeOnBody(double QInf, double Alpha, double *Cp, double *Gam
 
 			LeverArmC4CoG = PtC4Strip - CoG;
 
-
-			for (l=0; l<coef*m_Surface.at(j)->m_NXPanels; l++)
+			for (l=0; l<coef*pSurf->m_NXPanels; l++)
 			{
 				// Get the force acting on the panel
 				if(m_pWingPanel[p].m_Pos!=MIDSURFACE)
 				{
 					ForcePt = m_pWingPanel[p].CollPt;
-					PanelForce = m_pWingPanel[p].Normal * (-Cp[p]) * m_pWingPanel[p].Area;      // Newtons/q
+					panelforce = m_pWingPanel[p].Normal * (-Cp[p]) * m_pWingPanel[p].Area;      // Newtons/q
 				}
 				else
 				{
 					// for each panel along the chord, add the lift coef
 					ForcePt = m_pWingPanel[p].VortexPos;
-					PanelForce  = WindDirection * m_pWingPanel[p].Vortex;
-					PanelForce *= 2.0 * Gamma[p] /QInf;                                 //Newtons/q
+					panelforce  = WindDirection * m_pWingPanel[p].Vortex;
+					panelforce *= 2.0 * Gamma[p] /QInf;                                 //Newtons/q
 
 					if(!pWPolar->bVLM1() && !m_pWingPanel[p].m_bIsLeading)
 					{
 						Force       = WindDirection * m_pWingPanel[p].Vortex;
 						Force      *= 2.0 * Gamma[p+1] /QInf;                          //Newtons/q
-						PanelForce -= Force;
+						panelforce -= Force;
 					}
-					Cp[p] = PanelForce.dot(m_pWingPanel[p].Normal)/m_pWingPanel[p].Area;    //
+					Cp[p] = panelforce.dot(m_pWingPanel[p].Normal)/m_pWingPanel[p].Area;    //
 				}
-				StripForce += PanelForce;                                           // Newtons/q
-				NForce = PanelForce.dot(SurfaceNormal);                             // Newtons/q
+				StripForce += panelforce;                                           // Newtons/q
+				NForce = panelforce.dot(SurfaceNormal);                             // Newtons/q
 
 				LeverArmPanelC4    = ForcePt - PtC4Strip;                           // m
 				LeverArmPanelCoG   = ForcePt - CoG;                                 // m
 
 
-				Moment0 = LeverArmPanelC4 * PanelForce;                             // N.m/q
-				m_CmAirfoil[m]  += Moment0.y;                                       // N.m/q
+				panelmoment = LeverArmPanelC4 * panelforce;                             // N.m/q
+				m_CmPressure[m]  += panelmoment.y;                                      // N.m/q, w.r.t. quarter chord point
 
-				GeomMoment += LeverArmPanelCoG * PanelForce;                        // N.m/q
+				GeomMoment += LeverArmPanelCoG * panelforce;                        // N.m/q
 
-				XCP       += ForcePt.x * PanelForce.dot(WindNormal); //global center of pressure
-				YCP       += ForcePt.y * PanelForce.dot(WindNormal);
-				ZCP       += ForcePt.z * PanelForce.dot(WindNormal);
+				XCP       += ForcePt.x * panelforce.dot(WindNormal); //global center of pressure
+				YCP       += ForcePt.y * panelforce.dot(WindNormal);
+				ZCP       += ForcePt.z * panelforce.dot(WindNormal);
 				CPStrip   += ForcePt.x * NForce;
 
-				if(m_Surface.at(j)->m_bTEFlap)
+				if(pSurf->m_bTEFlap)
 				{
-					if(m_Surface.at(j)->isFlapPanel(m_pWingPanel[p].m_iElement))
+					if(pSurf->isFlapPanel(m_pWingPanel[p].m_iElement))
 					{
 						//then p is on the flap, so add its contribution
-						HingeLeverArm = ForcePt - m_Surface.at(j)->m_HingePoint;
-						HingeMoment = HingeLeverArm * PanelForce;                   //N.m/q
-						m_FlapMoment[nFlap] += HingeMoment.dot(m_Surface.at(j)->m_HingeVector)* pWPolar->density() * QInf * QInf/2.0;  //N.m
+						HingeLeverArm = ForcePt - pSurf->m_HingePoint;
+						HingeMoment = HingeLeverArm * panelforce;                   //N.m/q
+						m_FlapMoment[nFlap] += HingeMoment.dot(pSurf->m_HingeVector)* pWPolar->density() * QInf * QInf/2.0;  //N.m
 					}
 				}
 				p++;
@@ -1776,35 +1781,37 @@ void Wing::panelComputeOnBody(double QInf, double Alpha, double *Cp, double *Gam
 			m_XCPSpanAbs[m]    =  CPStrip/NForce ;
 
 			// add viscous properties, if required
-			if(pWPolar->bViscous()) viscousDragVector = WindDirection * (-m_PCd[m]) * m_StripArea[m];   // N/q
+			if(pWPolar->bViscous()) viscousDragVector = WindDirection * (m_PCd[m]) * m_StripArea[m];   // N/q
 			else                    viscousDragVector.set(0.0,0.0,0.0);
 
-			// global moments, in N.m/q
-			viscousDragMoment =  LeverArmC4CoG * viscousDragVector;
+			// global moments
+			viscousDragMoment =  LeverArmC4CoG * viscousDragVector;         // N.m/q, w.r.t. CoG
 
 			m_GRm += GeomMoment.dot(WindDirection);
 
-			m_VYm += viscousDragMoment.dot(WindNormal);
+			m_VYm += viscousDragMoment.dot(WindNormal);                     // N.m/q
 
 //			m_IYm += -m_ICd[m] * m_StripArea[m] * PtC4Strip.y ;
-			m_IYm += GeomMoment.dot(WindNormal);
+			m_IYm += GeomMoment.dot(WindNormal);                            // N.m/q
 
-			m_VCm += viscousDragMoment.y;
-			m_ICm += GeomMoment.y;
+			m_VCm += viscousDragMoment.y;                                   // N.m/q
+			m_ICm += GeomMoment.y;                                          // N.m/q
 
-			m_CmAirfoil[m] *= 1.0                          /m_Chord[m]/m_StripArea[m];
-			m_Cm[m]         = (GeomMoment.y + viscousDragMoment.y)/m_Chord[m]/m_StripArea[m];
+			m_CmPressure[m] *= 1.0 /m_Chord[m]/m_StripArea[m];              // N.m/q, w.r.t. quarter chord point
+			m_Cm[m] = (GeomMoment.y + viscousDragMoment.y)/m_Chord[m]/m_StripArea[m];   // N.m/q, w.r.t. CoG
 			m++;
 		}
 		//do not consider right tip patch
-		if(!pWPolar->bThinSurfaces() && m_Surface.at(j)->m_bIsTipRight) p += m_Surface.at(j)->m_NXPanels;
-		if(m_Surface.at(j)->m_bTEFlap) nFlap++;
+		if(!pWPolar->bThinSurfaces() && pSurf->m_bIsTipRight) p += pSurf->m_NXPanels;
+		if(pSurf->m_bTEFlap) nFlap++;
 	}
 
 
 	//global plane dimensionless coefficients
 	GCm += m_VCm + m_ICm; // Pitching moment, sum of Viscous and Induced parts
 	VCm += m_VCm;
+//qDebug("  VCm=%13.7f   %s", m_VCm, wingName().toStdString().c_str());
+
 	ICm += m_ICm;
 
 	//sign convention for rolling and yawing is opposite to algebric results
@@ -1901,7 +1908,6 @@ void Wing::panelComputeViscous(double QInf, WPolar *pWPolar, double &WingVDrag, 
 
 			// Sum the total viscous drag of this wing
 			WingVDrag  += m_PCd[m] * m_StripArea[m];
-
 			m++;
 		}
 	}
@@ -2145,31 +2151,58 @@ bool Wing::intersectWing(Vector3d O,  Vector3d U, Vector3d &I)
 
 void Wing::getTextureUV(int iSurf, double *leftV, double *rightV, double &leftU, double &rightU, int nPoints)
 {
-	double xRel, xA, xB, yA, yB;
+    double xRelA, xRelB, xA, xB, yA, yB;
 	double xMin=100000, xMax=-100000, yMin, yMax;
 	int iSectionA=0, iSectionB=1;
-	if(m_Surface[iSurf]->isLeftSurf())
+
+    Surface const *pSurf = m_Surface[iSurf];
+
+    if(pSurf->isLeftSurf())
 	{
-		iSectionB = m_Surface[iSurf]->innerSection();
-		iSectionA = m_Surface[iSurf]->outerSection();
+        iSectionB = pSurf->innerSection();
+        iSectionA = pSurf->outerSection();
 	}
 	else
 	{
-		iSectionA = m_Surface[iSurf]->innerSection();
-		iSectionB = m_Surface[iSurf]->outerSection();
+        iSectionA = pSurf->innerSection();
+        iSectionB = pSurf->outerSection();
 	}
 
 	for(int is=0; is<m_WingSection.count(); is++)
 	{
-		xMin = min(xMin, m_WingSection.at(is)->m_Offset);
-		xMax = max(xMax, m_WingSection.at(is)->m_Offset + m_WingSection.at(is)->m_Chord);
+        xMin = std::min(xMin, m_WingSection.at(is)->m_Offset);
+        xMax = std::max(xMax, m_WingSection.at(is)->m_Offset + m_WingSection.at(is)->m_Chord);
 	}
 
 	for(int i=0; i<nPoints; i++)
 	{
-		xRel  = 1.0/2.0*(1.0-cos( (double)i*PI   /(double)(nPoints-1)));
-		xA = m_WingSection.at(iSectionA)->m_Offset + m_WingSection.at(iSectionA)->m_Chord*xRel;
-		xB = m_WingSection.at(iSectionB)->m_Offset + m_WingSection.at(iSectionB)->m_Chord*xRel;
+        if(m_Surface[iSurf]->m_NXFlap>0 && m_Surface[iSurf]->m_pFoilA && m_Surface[iSurf]->m_pFoilB)
+        {
+            int nPtsTr = nPoints/3;
+            int nPtsLe = nPoints-nPtsTr;
+
+            if(i<nPtsTr)
+            {
+                xRelA = 1.0/2.0*(1.0-cos(PI * (double)i/(double)(nPtsTr-1)))* (pSurf->m_pFoilA->m_TEXHinge/100.);
+                xRelB = 1.0/2.0*(1.0-cos(PI * (double)i/(double)(nPtsTr-1)))* (pSurf->m_pFoilB->m_TEXHinge/100.);
+            }
+            else
+            {
+                int j = i-nPtsTr;
+                xRelA = pSurf->m_pFoilA->m_TEXHinge/100. + 1.0/2.0*(1.0-cos(PI* (double)j/(double)(nPtsLe-1))) * (1.-pSurf->m_pFoilA->m_TEXHinge/100.);
+                xRelB = pSurf->m_pFoilB->m_TEXHinge/100. + 1.0/2.0*(1.0-cos(PI* (double)j/(double)(nPtsLe-1))) * (1.-pSurf->m_pFoilB->m_TEXHinge/100.);
+            }
+        }
+        else
+        {
+            xRelA  = 1.0/2.0*(1.0-cos(PI * (double)i/(double)(nPoints-1)));
+            xRelB  = xRelA;
+        }
+
+
+//		xRel  = 1.0/2.0*(1.0-cos( (double)i*PI   /(double)(nPoints-1)));
+        xA = m_WingSection.at(iSectionA)->m_Offset + m_WingSection.at(iSectionA)->m_Chord*xRelA;
+        xB = m_WingSection.at(iSectionB)->m_Offset + m_WingSection.at(iSectionB)->m_Chord*xRelB;
 
 		leftV[i]  = (xA-xMin)/(xMax-xMin);
 		rightV[i] = (xB-xMin)/(xMax-xMin);
@@ -2181,7 +2214,7 @@ void Wing::getTextureUV(int iSurf, double *leftV, double *rightV, double &leftU,
 
 	yA = m_WingSection.at(iSectionA)->m_YPosition;
 	yB = m_WingSection.at(iSectionB)->m_YPosition;
-	if(m_Surface[iSurf]->isLeftSurf())
+    if(pSurf->isLeftSurf())
 	{
 		leftU = 1.0-(yA-yMin)/(yMax-yMin);
 		rightU  = 1.0-(yB-yMin)/(yMax-yMin);
@@ -3298,7 +3331,7 @@ void Wing::exportSTLText(QTextStream &outStream, int CHORDPANELS, int SPANPANELS
  */
 Foil* Wing::foil(QString strFoilName)
 {
-	if(!strFoilName.length()) return NULL;
+	if(!strFoilName.length()) return nullptr;
 	Foil* pFoil;
 	for (int i=0; i<s_poaFoil->size(); i++)
 	{
@@ -3309,7 +3342,7 @@ Foil* Wing::foil(QString strFoilName)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /**
@@ -3385,14 +3418,12 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 	7, 8 = m_HMom, m_Cpmn;
 	9,10 = m_ClCd, m_Cl32Cd;
 */
-	QList <double> *pX;
-	double Clmin, Clmax;
+    double Clmin=0, Clmax=0;
 	Polar *pPolar;
-	double Var1, Var2, u, dist;
+    double Var1=0, Var2=0, u=0, dist=0;
 	Var1 = Var2 = u = dist = 0.0;
-	int pt;
-	int size;
-	int n, i;
+    int pt=0;
+    int n=0;
 
 	bOutRe = false;
 	bError = false;
@@ -3406,7 +3437,7 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 
 		n=0;
 	// Are there any Type 1 polars available for this foil ?
-	for (i = 0; i<s_poaPolar->size(); i++)
+    for (int i = 0; i<s_poaPolar->size(); i++)
 	{
 		pPolar = s_poaPolar->at(i);
 		if((pPolar->polarType()== XFLR5::FIXEDSPEEDPOLAR) && (pPolar->foilName() == pFoil->foilName()))
@@ -3419,33 +3450,31 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 //more than one polar - interpolate between  - tough job
 
 	//First Find the two polars with Reynolds number surrounding wanted Re
-	Polar * pPolar1 = NULL;
-	Polar * pPolar2 = NULL;
+	Polar * pPolar1 = nullptr;
+	Polar * pPolar2 = nullptr;
 	int nPolars = s_poaPolar->size();
 	//Type 1 Polars are sorted by crescending Re Number
 
 	//if Re is less than that of the first polar, use this one
-	for (i=0; i< nPolars; i++)
+    for (int i=0; i<nPolars; i++)
 	{
 		pPolar = s_poaPolar->at(i);
-		if((pPolar->polarType()== XFLR5::FIXEDSPEEDPOLAR) &&
-		   (pPolar->foilName() == pFoil->foilName()) &&
-			pPolar->m_Cl.size()>0)
+        if((pPolar->polarType()==XFLR5::FIXEDSPEEDPOLAR) && (pPolar->foilName()==pFoil->foilName()) && pPolar->m_Cl.size()>0)
 		{
 			// we have found the first type 1 polar for this foil
 			if (Re < pPolar->Reynolds())
 			{
 				bOutRe = true;
 				//interpolate Cl on this polar
-				pX = (QList <double> *) pPolar->getPlrVariable(PlrVar);
-				size = (int)pPolar->m_Cl.size();
+                QVector<double> const &pX = pPolar->getPlrVariable(PlrVar);
+                int size = (int)pPolar->m_Cl.size();
 				if(Cl < pPolar->m_Cl[0])
 				{
-					return (*pX)[0];
+                    return pX.front();
 				}
 				if(Cl > pPolar->m_Cl[size-1])
 				{
-					return (*pX)[size-1];
+                    return pX.back();
 				}
 				for (i=0; i<size-1; i++)
 				{
@@ -3453,11 +3482,10 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 					{
 					//interpolate
 						if(pPolar->m_Cl[i+1]-pPolar->m_Cl[i] < 0.00001)//do not divide by zero
-							return (*pX)[i];
+                            return pX.at(i);
 						else {
-							u = (Cl - pPolar->m_Cl[i])
-									 /(pPolar->m_Cl[i+1]-pPolar->m_Cl[i]);
-							return ((*pX)[i] + u * ((*pX)[i+1]-(*pX)[i]));
+                            u = (Cl - pPolar->m_Cl[i])  /(pPolar->m_Cl[i+1]-pPolar->m_Cl[i]);
+                            return pX.at(i) + u * (pX.at(i+1)-pX.at(i));
 						}
 					}
 				}
@@ -3468,7 +3496,7 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 	}
 
 	// if not Find the two polars
-	for (i=0; i< nPolars; i++)
+    for (int i=0; i< nPolars; i++)
 	{
 		pPolar = s_poaPolar->at(i);
 		if((pPolar->polarType()== XFLR5::FIXEDSPEEDPOLAR) && (pPolar->foilName() == pFoil->foilName())  && pPolar->m_Cl.size()>0)
@@ -3504,7 +3532,7 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 			bError = true;
 			return 0.000;
 		}
-		size = (int)pPolar1->m_Cl.size();
+        int size = pPolar1->m_Cl.size();
 		if(!size)
 		{
 			bOutRe = true;
@@ -3512,28 +3540,28 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 			return 0.000;
 		}
 
-		pX = (QList <double> *) pPolar1->getPlrVariable(PlrVar);
-		if(Cl < pPolar1->m_Cl[0])	   return (*pX)[0];
-		if(Cl > pPolar1->m_Cl[size-1]) return (*pX)[size-1];
-		for (i=0; i<size-1; i++)
+        QVector<double> const &pX = pPolar1->getPlrVariable(PlrVar);
+        if(Cl < pPolar1->m_Cl[0])	   return pX.front();
+        if(Cl > pPolar1->m_Cl[size-1]) return pX.back();
+        for (int i=0; i<size-1; i++)
 		{
 			if(pPolar1->m_Cl[i] <= Cl && Cl < pPolar1->m_Cl[i+1])
 			{
 				//interpolate
 				if(pPolar1->m_Cl[i+1]-pPolar1->m_Cl[i] < 0.00001)
 				{//do not divide by zero
-					return (*pX)[i];
+                    return pX.at(i);
 				}
 				else
 				{
 					u = (Cl - pPolar1->m_Cl[i])
 							 /(pPolar1->m_Cl[i+1]-pPolar1->m_Cl[i]);
-					return ((*pX)[i] + u * ((*pX)[i+1]-(*pX)[i]));
+                    return pX.at(i) + u * (pX.at(i+1)-pX.at(i));
 				}
 			}
 		}
 		//Out in Re, out in Cl...
-		return (*pX)[size-1];
+        return pX.back();
 	}
 	else
 	{
@@ -3545,7 +3573,7 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 			bError = true;
 			return 0.000;
 		}
-		size = (int)pPolar1->m_Cl.size();
+        int size = (int)pPolar1->m_Cl.size();
 		if(!size)
 		{
 			bOutRe = true;
@@ -3553,49 +3581,49 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 			return 0.000;
 		}
 
-		pX = (QList <double> *) pPolar1->getPlrVariable(PlrVar);
+        QVector<double> const &pX = pPolar1->getPlrVariable(PlrVar);
 		pPolar1->getClLimits(Clmin, Clmax);
 		if(Cl < Clmin)
 		{
-			Var1 = (*pX)[0];
+            Var1 = pX.front();
 			bOutRe = true;
 		}
 		else if(Cl > Clmax)
 		{
-			Var1 = (*pX)[size-1];
+            Var1 = pX.back();
 			bOutRe = true;
 		}
 		else
 		{
 			//first Find the point closest to Cl=0
 			pt = 0;
-			dist = qAbs(pPolar1->m_Cl[0]);
-			for (i=1; i<size;i++)
+            dist = fabs(pPolar1->m_Cl[0]);
+            for (int i=1; i<size;i++)
 			{
-				if (qAbs(pPolar1->m_Cl[i])< dist)
+                if (fabs(pPolar1->m_Cl[i])< dist)
 				{
-					dist = qAbs(pPolar1->m_Cl[i]);
+                    dist = fabs(pPolar1->m_Cl[i]);
 					pt = i;
 				}
 			}
 			if(Cl<pPolar1->m_Cl[pt])
 			{
-				for (i=pt; i>0; i--)
+                for (int i=pt; i>0; i--)
 				{
 					if(Cl<= pPolar1->m_Cl[i] && Cl > pPolar1->m_Cl[i-1])
 					{
 						//interpolate
-						if(qAbs(pPolar1->m_Cl[i]-pPolar1->m_Cl[i-1]) < 0.00001)
+                        if(fabs(pPolar1->m_Cl[i]-pPolar1->m_Cl[i-1]) < 0.00001)
 						{
 							//do not divide by zero
-							Var1 = (*pX)[i];
+                            Var1 = pX.at(i);
 							break;
 						}
 						else
 						{
 							u = (Cl - pPolar1->m_Cl[i-1])
 									 /(pPolar1->m_Cl[i]-pPolar1->m_Cl[i-1]);
-							Var1 = (*pX)[i-1] + u * ((*pX)[i]-(*pX)[i-1]);
+                            Var1 = pX.at(i-1) + u * (pX.at(i)-pX.at(i-1));
 							break;
 						}
 					}
@@ -3603,27 +3631,27 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 			}
 			else
 			{
-				for (i=pt; i<size-1; i++)
+                for (int i=pt; i<size-1; i++)
 				{
 					if(pPolar1->m_Cl[i] <=Cl && Cl < pPolar1->m_Cl[i+1])
 					{
 						//interpolate
-						if(qAbs(pPolar1->m_Cl[i+1]-pPolar1->m_Cl[i]) < 0.00001){//do not divide by zero
-							Var1 = (*pX)[i];
+                        if(fabs(pPolar1->m_Cl[i+1]-pPolar1->m_Cl[i]) < 0.00001){//do not divide by zero
+                            Var1 = pX.at(i);
 							break;
 						}
 						else
 						{
 							u = (Cl - pPolar1->m_Cl[i])
 									 /(pPolar1->m_Cl[i+1]-pPolar1->m_Cl[i]);
-							Var1 = (*pX)[i] + u * ((*pX)[i+1]-(*pX)[i]);
+                            Var1 = pX.at(i) + u * (pX.at(i+1)-pX.at(i));
 							break;
 						}
 					}
 				}
 			}
 		}
-		size = (int)pPolar2->m_Cl.size();
+        size = pPolar2->m_Cl.size();
 		if(!size)
 		{
 			bOutRe = true;
@@ -3631,17 +3659,17 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 			return 0.000;
 		}
 
-		pX = (QList <double> *) pPolar2->getPlrVariable(PlrVar);
+        QVector<double> const &pX2 = pPolar2->getPlrVariable(PlrVar);
 		pPolar2->getClLimits(Clmin, Clmax);
 
 		if(Cl < Clmin)
 		{
-			Var2 = (*pX)[0];
+            Var2 = pX2.front();
 			bOutRe = true;
 		}
 		else if(Cl > Clmax)
 		{
-			Var2 = (*pX)[size-1];
+            Var2 = pX2.back();
 			bOutRe = true;
 		}
 		else
@@ -3649,31 +3677,31 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 			//first Find the point closest to Cl=0
 			pt = 0;
 			dist = qAbs(pPolar2->m_Cl[0]);
-			for (i=1; i<size;i++)
+            for (int i=1; i<size;i++)
 			{
-				if (qAbs(pPolar2->m_Cl[i])< dist)
+                if (fabs(pPolar2->m_Cl[i])< dist)
 				{
-					dist = qAbs(pPolar2->m_Cl[i]);
+                    dist =fabs(pPolar2->m_Cl[i]);
 					pt = i;
 				}
 			}
 			if(Cl<pPolar2->m_Cl[pt])
 			{
-				for (i=pt; i>0; i--)
+                for (int i=pt; i>0; i--)
 				{
 					if(Cl<= pPolar2->m_Cl[i] && Cl > pPolar2->m_Cl[i-1])
 					{
 						//interpolate
-						if(qAbs(pPolar2->m_Cl[i]-pPolar2->m_Cl[i-1]) < 0.00001)
+                        if(fabs(pPolar2->m_Cl[i]-pPolar2->m_Cl[i-1]) < 0.00001)
 						{//do not divide by zero
-							Var2 = (*pX)[i];
+                            Var2 = pX2.at(i);
 							break;
 						}
 						else
 						{
 							u = (Cl - pPolar2->m_Cl[i-1])
 									 /(pPolar2->m_Cl[i]-pPolar2->m_Cl[i-1]);
-							Var2 = (*pX)[i-1] + u * ((*pX)[i]-(*pX)[i-1]);
+                            Var2 = pX2.at(i-1) + u * (pX2.at(i)-pX2.at(i-1));
 							break;
 						}
 					}
@@ -3681,22 +3709,22 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
 			}
 			else
 			{
-				for (i=pt; i<size-1; i++)
+                for (int i=pt; i<size-1; i++)
 				{
 					if(pPolar2->m_Cl[i] <=Cl && Cl < pPolar2->m_Cl[i+1])
 					{
 						//interpolate
-						if(qAbs(pPolar2->m_Cl[i+1]-pPolar2->m_Cl[i]) < 0.00001)
+                        if(fabs(pPolar2->m_Cl[i+1]-pPolar2->m_Cl[i]) < 0.00001)
 						{
 							//do not divide by zero
-							Var2 = (*pX)[i];
+                            Var2 = pX2.at(i);
 							break;
 						}
 						else
 						{
 							u = (Cl - pPolar2->m_Cl[i])
 									 /(pPolar2->m_Cl[i+1]-pPolar2->m_Cl[i]);
-							Var2 = (*pX)[i] + u * ((*pX)[i+1]-(*pX)[i]);
+                            Var2 = pX2.at(i) + u * (pX2.at(i+1)-pX2.at(i));
 							break;
 						}
 					}
