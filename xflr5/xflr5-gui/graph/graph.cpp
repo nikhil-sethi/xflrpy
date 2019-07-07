@@ -126,7 +126,7 @@ void Graph::drawGraph(QPainter &painter)
     QColor color;
     painter.save();
 
-    //	Draw Border
+    //    Draw Border
     if(m_bBorder) color = m_BorderColor;
     else          color = m_BkColor;
     QPen BorderPen(color);
@@ -287,7 +287,7 @@ void Graph::drawTitles(QPainter &painter)
 
     if(xo>=xmin && xo<=xmax) xp = xo;
     else if(xo>xmax)         xp = xmax;
-    else					 xp = xmin;
+    else                     xp = xmin;
 
     if(yo>=ymin && yo<=ymax) yp = yo;
     else if(yo>ymax)         yp = ymax;
@@ -628,7 +628,7 @@ void Graph::drawLegend(QPainter &painter, QPoint &Place, QFont &LegendFont, QCol
     QString strong;
 
     LegendSize = 30;
-    //	ypos = 12;
+    //    ypos = 12;
     QFontMetrics fm(LegendFont);
     ypos = fm.height();
 
@@ -1510,7 +1510,7 @@ void Graph::setAutoXMinUnit(bool bAuto)
 
 void Graph::setAutoXUnit()
 {
-    //	xunit = 100.0*m_scalex;
+    //    xunit = 100.0*m_scalex;
     xunit = (xmax-xmin)/3.0;
 
     if (xunit<1.0)
@@ -1541,12 +1541,12 @@ void Graph::setAutoYMinUnit(bool bAuto)
 
 void Graph::setAutoYUnit()
 {
-    //	yunit = 100.0 * m_scaley;
+    //    yunit = 100.0 * m_scaley;
     yunit = (ymax-ymin)/5.0;
     if (yunit<1.0)
     {
         exp_y = (int)log10(yunit*1.00001)-1;
-        //		exp_y = qMax(-4, exp_y);
+        //        exp_y = qMax(-4, exp_y);
     }
     else  exp_y = (int)log10(yunit*1.00001);
 
@@ -1871,7 +1871,7 @@ bool Graph::setXScale()
         //scales are set manually
         if(m_w<=0.0) return false;
 
-        //		m_scalex   =  (xmax-xmin)/m_w;
+        //        m_scalex   =  (xmax-xmin)/m_w;
         if (xunit<1.0)
         {
             exp_x = (int)log10(xunit*1.00001)-1;
@@ -2183,7 +2183,7 @@ bool Graph::selectPoint(QString const &CurveName, int sel)
 
     if(sel<0)
     {
-        //		pCurve->SetSelected(-1);
+        //        pCurve->SetSelected(-1);
         return false;
     }
 
@@ -2205,7 +2205,7 @@ bool Graph::selectPoint(QString const &CurveName, int sel)
             }
         }
     }
-    //	pCurve->SetSelected(-1);
+    //    pCurve->SetSelected(-1);
     return false;
 }
 

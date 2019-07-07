@@ -1,26 +1,27 @@
 /****************************************************************************
 
-	Objects_global Class
-	Copyright (C) 2017 Andre Deperrois 
+    Objects_global Class
+    Copyright (C) 2017 Andre Deperrois 
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
 
 #include "objects_global.h"
-
+#include <objects/objects2d/foil.h>
+#include <objects/objects2d/polar.h>
 /**
 * Reads a sequence of characters from a binary stream and returns a QString. Inherited from the MFC versions of XFLR5.
 *@param ar the binary datastream
@@ -28,18 +29,18 @@
 */
 void readCString(QDataStream &ar, QString &strong)
 {
-	qint8 qi, ch;
-	char c;
+    qint8 qi, ch;
+    char c;
 
-	ar >> qi;
-	strong.clear();
-	for(int j=0; j<qi;j++)
-	{
-		strong += " ";
-		ar >> ch;
-		c = char(ch);
-		strong[j] = c;
-	}
+    ar >> qi;
+    strong.clear();
+    for(int j=0; j<qi;j++)
+    {
+        strong += " ";
+        ar >> ch;
+        c = char(ch);
+        strong[j] = c;
+    }
 }
 
 /**
@@ -49,29 +50,29 @@ void readCString(QDataStream &ar, QString &strong)
 */
 void writeCString(QDataStream &ar, QString const &strong)
 {
-	qint8 qi = strong.length();
+    qint8 qi = strong.length();
 
-	QByteArray textline;
-	char *text;
-	textline = strong.toLatin1();
-	text = textline.data();
-	ar << qi;
-	ar.writeRawData(text, qi);
+    QByteArray textline;
+    char *text;
+    textline = strong.toLatin1();
+    text = textline.data();
+    ar << qi;
+    ar.writeRawData(text, qi);
 }
 
 void readFloat(QDataStream &inStream, float &f)
 {
-	char buffer[4];
-	inStream.readRawData(buffer, 4);
-	memcpy(&f, buffer, sizeof(float));
+    char buffer[4];
+    inStream.readRawData(buffer, 4);
+    memcpy(&f, buffer, sizeof(float));
 }
 
 
 void writeFloat(QDataStream &outStream, float f)
 {
-	char buffer[4];
-	memcpy(buffer, &f, sizeof(float));
-	outStream.writeRawData(buffer, 4);
+    char buffer[4];
+    memcpy(buffer, &f, sizeof(float));
+    outStream.writeRawData(buffer, 4);
 }
 
 
@@ -86,18 +87,18 @@ void writeFloat(QDataStream &outStream, float f)
 */
 void readQColor(QDataStream &ar, int &r, int &g, int &b, int &a)
 {
-	uchar byte=0;
+    uchar byte=0;
 
-	ar>>byte;//probably a format identificator
-	ar>>byte>>byte;
-	a = (int)byte;
-	ar>>byte>>byte;
-	r = (int)byte;
-	ar>>byte>>byte;
-	g = (int)byte;
-	ar>>byte>>byte;
-	b = (int)byte;
-	ar>>byte>>byte; //
+    ar>>byte;//probably a format identificator
+    ar>>byte>>byte;
+    a = (int)byte;
+    ar>>byte>>byte;
+    r = (int)byte;
+    ar>>byte>>byte;
+    g = (int)byte;
+    ar>>byte>>byte;
+    b = (int)byte;
+    ar>>byte>>byte; //
 }
 
 /**
@@ -110,20 +111,20 @@ void readQColor(QDataStream &ar, int &r, int &g, int &b, int &a)
 */
 void writeQColor(QDataStream &ar, int r, int g, int b, int a)
 {
-	uchar byte;
+    uchar byte;
 
-	byte = 1;
-	ar<<byte;
-	byte = a & 0xFF;
-	ar << byte<<byte;
-	byte = r & 0xFF;
-	ar << byte<<byte;
-	byte = g & 0xFF;
-	ar << byte<<byte;
-	byte = b & 0xFF;
-	ar << byte<<byte;
-	byte = 0;
-	ar << byte<<byte;
+    byte = 1;
+    ar<<byte;
+    byte = a & 0xFF;
+    ar << byte<<byte;
+    byte = r & 0xFF;
+    ar << byte<<byte;
+    byte = g & 0xFF;
+    ar << byte<<byte;
+    byte = b & 0xFF;
+    ar << byte<<byte;
+    byte = 0;
+    ar << byte<<byte;
 }
 
 
@@ -135,32 +136,32 @@ void writeQColor(QDataStream &ar, int r, int g, int b, int a)
 */
 bool ReadAVLString(QTextStream &in, int &Line, QString &strong)
 {
-	bool bComment = true;
-	int pos;
+    bool bComment = true;
+    int pos;
 
-	while(bComment && !in.atEnd())
-	{
-		bComment = false;
+    while(bComment && !in.atEnd())
+    {
+        bComment = false;
 
-		strong = in.readLine();
-		if(in.atEnd()) return false;
+        strong = in.readLine();
+        if(in.atEnd()) return false;
 
-		strong = strong.trimmed();
-		pos = strong.indexOf("#",0);
-		if(pos>=0) strong = strong.left(pos);
-		pos = strong.indexOf("!",0);
-		if(pos>=0) strong = strong.left(pos);
+        strong = strong.trimmed();
+        pos = strong.indexOf("#",0);
+        if(pos>=0) strong = strong.left(pos);
+        pos = strong.indexOf("!",0);
+        if(pos>=0) strong = strong.left(pos);
 
-		if(strong.isEmpty()) bComment = true;
+        if(strong.isEmpty()) bComment = true;
 
-		Line++;
-	}
+        Line++;
+    }
 
-	if(in.atEnd())
-	{
-		return false;
-	}
-	return true;
+    if(in.atEnd())
+    {
+        return false;
+    }
+    return true;
 }
 
 
@@ -173,13 +174,13 @@ bool ReadAVLString(QTextStream &in, int &Line, QString &strong)
 */
 void readCOLORREF(QDataStream &ar, int &r, int &g, int &b)
 {
-	qint32 colorref;
+    qint32 colorref;
 
-	ar >> colorref;
-	b = (int)(colorref/256/256);
-	colorref -= b*256*256;
-	g = (int)(colorref/256);
-	r = colorref - g*256;
+    ar >> colorref;
+    b = (int)(colorref/256/256);
+    colorref -= b*256*256;
+    g = (int)(colorref/256);
+    r = colorref - g*256;
 }
 
 
@@ -190,19 +191,19 @@ void modeProperties(std::complex<double> lambda, double &omegaN, double &omega1,
     if(omega1 > PRECISION)
     {
         omegaN = sqrt(lambda.real()*lambda.real()+omega1*omega1);
-		zeta = -lambda.real()/omegaN;
+        zeta = -lambda.real()/omegaN;
     }
     else
     {
         omegaN = 0.0;
-		zeta = 0.0;
+        zeta = 0.0;
     }
 
-/*	double sum, prod, sigma1;
+/*    double sum, prod, sigma1;
     sum  = lambda.real() * 2.0;                         // is a real number
     prod = lambda.real()*lambda.real() + lambda.imag()*lambda.imag();  // is a positive real number
     omegaN = fabs(lambda.imag());
-    if(omegaN>PRECISION)	omega1 = sqrt(prod);
+    if(omegaN>PRECISION)    omega1 = sqrt(prod);
     else                    omega1 = 0.0;
     sigma1 = sum /2.0;
     if(omega1>PRECISION) dsi = -sigma1/omega1;
@@ -216,13 +217,13 @@ void modeProperties(std::complex<double> lambda, double &omegaN, double &omega1,
 /**
 * Returns the intersection of a ray with the object's panels
 * The ray is defined by a mouse click and is perpendicular to the viewport
-*	A is the ray's origin,
-*	U is the ray's direction
-*	LA, LB, TA, TB define a quadrangle in 3D space.
-*	N is the normal to the quadrangle
-*	I is the resulting intersection point of the ray and the quadrangle, if inside the quadrangle
-*	dist = |AI|
-*	The return value is true if the intersection inside the quadrangle, false otherwise
+*    A is the ray's origin,
+*    U is the ray's direction
+*    LA, LB, TA, TB define a quadrangle in 3D space.
+*    N is the normal to the quadrangle
+*    I is the resulting intersection point of the ray and the quadrangle, if inside the quadrangle
+*    dist = |AI|
+*    The return value is true if the intersection inside the quadrangle, false otherwise
 **/
 bool Intersect(Vector3d const &LA, Vector3d const &LB, Vector3d const &TA, Vector3d const &TB, Vector3d const &Normal,
                Vector3d const &A,  Vector3d const &U,  Vector3d &I, double &dist)

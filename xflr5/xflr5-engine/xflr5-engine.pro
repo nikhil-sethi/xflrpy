@@ -25,62 +25,62 @@ DEFINES += XFLR5ENGINE_LIBRARY
 #VERSION = 1.00
 
 SOURCES += \
-    objects/objects3d/vector3d.cpp \
     analysis3d/analysis3d_globals.cpp \
     analysis3d/matrix.cpp \
-    analysis3d/plane_analysis/LLTAnalysis.cpp \
-    analysis3d/plane_analysis/PanelAnalysis.cpp \
+    analysis3d/plane_analysis/lltanalysis.cpp \
+    analysis3d/plane_analysis/panelanalysis.cpp \
     analysis3d/plane_analysis/planeanalysistask.cpp \
-    objects/objects2d/Foil.cpp \
-    objects/objects2d/OpPoint.cpp \
-    objects/objects2d/Polar.cpp \
-    objects/objects2d/Spline.cpp \
     objects/objects2d/blxfoil.cpp \
-    objects/objects3d/Body.cpp \
-    objects/objects3d/Frame.cpp \
-    objects/objects3d/NURBSSurface.cpp \
-    objects/objects3d/Panel.cpp \
-    objects/objects3d/Plane.cpp \
-    objects/objects3d/PlaneOpp.cpp \
-    objects/objects3d/Quaternion.cpp \
-    objects/objects3d/Surface.cpp \
-    objects/objects3d/WPolar.cpp \
-    objects/objects3d/Wing.cpp \
-    objects/objects3d/WingOpp.cpp \
+    objects/objects2d/foil.cpp \
+    objects/objects2d/opppoint.cpp \
+    objects/objects2d/polar.cpp \
+    objects/objects2d/spline.cpp \
+    objects/objects3d/body.cpp \
+    objects/objects3d/frame.cpp \
+    objects/objects3d/nurbssurface.cpp \
+    objects/objects3d/panel.cpp \
+    objects/objects3d/plane.cpp \
+    objects/objects3d/planeopp.cpp \
+    objects/objects3d/quaternion.cpp \
+    objects/objects3d/surface.cpp \
+    objects/objects3d/vector3d.cpp \
+    objects/objects3d/wing.cpp \
+    objects/objects3d/wingopp.cpp \
+    objects/objects3d/wpolar.cpp \
     objects/objects_global.cpp
 
 
 HEADERS += \
-    xflr5-engine_global.h \
     analysis3d/analysis3d_enums.h \
     analysis3d/analysis3d_globals.h \
     analysis3d/analysis3d_params.h \
     analysis3d/matrix.h \
-    analysis3d/plane_analysis/LLTAnalysis.h \
-    analysis3d/plane_analysis/PanelAnalysis.h \
+    analysis3d/plane_analysis/lltanalysis.h \
+    analysis3d/plane_analysis/panelanalysis.h \
     analysis3d/plane_analysis/planeanalysistask.h \
     analysis3d/plane_analysis/planetaskevent.h \
     objects/objectcolor.h \
-    objects/objects2d/Foil.h \
-    objects/objects2d/OpPoint.h \
-    objects/objects2d/Polar.h \
-    objects/objects2d/Spline.h \
     objects/objects2d/blxfoil.h \
-    objects/objects3d/Body.h \
-    objects/objects3d/Frame.h \
-    objects/objects3d/NURBSSurface.h \
-    objects/objects3d/Panel.h \
-    objects/objects3d/Plane.h \
-    objects/objects3d/PlaneOpp.h \
-    objects/objects3d/PointMass.h \
-    objects/objects3d/Quaternion.h \
-    objects/objects3d/Surface.h \
-    objects/objects3d/Wing.h \
-    objects/objects3d/WingOpp.h \
-    objects/objects3d/WPolar.h \
-    objects/objects3d/WingSection.h \
+    objects/objects2d/foil.h \
+    objects/objects2d/oppoint.h \
+    objects/objects2d/polar.h \
+    objects/objects2d/spline.h \
+    objects/objects3d/body.h \
+    objects/objects3d/frame.h \
+    objects/objects3d/nurbssurface.h \
+    objects/objects3d/panel.h \
+    objects/objects3d/plane.h \
+    objects/objects3d/planeopp.h \
+    objects/objects3d/pointmass.h \
+    objects/objects3d/quaternion.h \
+    objects/objects3d/surface.h \
     objects/objects3d/vector3d.h \
-    objects/objects_global.h
+    objects/objects3d/wing.h \
+    objects/objects3d/wingopp.h \
+    objects/objects3d/wingsection.h \
+    objects/objects3d/wpolar.h \
+    objects/objects_global.h \
+    xflr5-engine_global.h \
 
 
 INCLUDEPATH += $$PWD/objects
@@ -104,17 +104,17 @@ win32 {
 
 
 macx{
-#	CONFIG += lib_bundle
-#	CONFIG += i386
-	QMAKE_SONAME_PREFIX = @executable_path/../Frameworks
-	QMAKE_MAC_SDK = macosx
+#    CONFIG += lib_bundle
+#    CONFIG += i386
+    QMAKE_SONAME_PREFIX = @executable_path/../Frameworks
+    QMAKE_MAC_SDK = macosx
 }
 
 
 unix{
     isEmpty(PREFIX){
-		PREFIX = /usr/local
-	}
-	target.path = $$PREFIX/lib
+        PREFIX = /usr/local
+    }
+    target.path = $$PREFIX/lib
     INSTALLS += target
 }

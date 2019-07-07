@@ -1,21 +1,21 @@
 /****************************************************************************
 
-	XFoilTaskEvent Class
-	   Copyright (C) 2016-2016 Andre Deperrois 
+    XFoilTaskEvent Class
+       Copyright (C) 2016-2016 Andre Deperrois 
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
 
@@ -39,13 +39,13 @@ class XFoilTaskEvent : public QEvent
 
 public:
     XFoilTaskEvent(Foil *pFoil, Polar *pPolar): QEvent(XFOIL_END_TASK_EVENT),
-		m_pFoil(pFoil),
-		m_pPolar(pPolar)
-	{
-	}
+        m_pFoil(pFoil),
+        m_pPolar(pPolar)
+    {
+    }
 
-    Foil * foilPtr() const	{return m_pFoil;}
-    Polar * polarPtr() const	{return m_pPolar;}
+    Foil * foilPtr() const    {return m_pFoil;}
+    Polar * polarPtr() const    {return m_pPolar;}
 
 private:
     Foil *m_pFoil=nullptr;
@@ -59,16 +59,16 @@ class XFoilOppEvent : public QEvent
 
 public:
     XFoilOppEvent(Foil * pFoil, Polar *pPolar, OpPoint *pOpPoint): QEvent(XFOIL_END_OPP_EVENT),
-		m_pFoil(pFoil),
-		m_pPolar(pPolar)
-	{
-//		memcpy(&m_XFoil, pXFoilPtr, sizeof(XFoil));
+        m_pFoil(pFoil),
+        m_pPolar(pPolar)
+    {
+//        memcpy(&m_XFoil, pXFoilPtr, sizeof(XFoil));
         m_pOpPoint = pOpPoint; /** use the copy constructor and = operator defined implicitly by the compiler */
-	}
+    }
 
-	~XFoilOppEvent()
-	{
-	}
+    ~XFoilOppEvent()
+    {
+    }
 
     Foil * foilPtr()   const {return m_pFoil;}
     Polar * polarPtr() const {return m_pPolar;}

@@ -167,8 +167,8 @@ void View3dTestDlg::addOptions(QLayout *pLayout)
 
 void View3dTestDlg::keyPressEvent(QKeyEvent *pEvent)
 {
-    //	bool bShift = false;
-    //	if(event->modifiers() & Qt::ShiftModifier)   bShift =true;
+    //    bool bShift = false;
+    //    if(event->modifiers() & Qt::ShiftModifier)   bShift =true;
     bool bCtrl = (pEvent->modifiers() & Qt::ControlModifier);
     switch (pEvent->key())
     {

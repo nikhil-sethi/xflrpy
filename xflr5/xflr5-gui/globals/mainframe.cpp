@@ -36,42 +36,42 @@
 #include <QSysInfo>
 
 
-#include <design/AFoil.h>
+#include <design/afoil.h>
 #include <glcontextinfo/view3dtestdlg.h>
 #include <globals/globals.h>
 #include <globals/mainframe.h>
 #include <graph/graphdlg.h>
-#include <gui_objects/SplineFoil.h>
-#include <miarex/Miarex.h>
-#include <miarex/analysis/PanelAnalysisDlg.h>
-#include <miarex/analysis/StabPolarDlg.h>
-#include <miarex/analysis/WPolarDlg.h>
-#include <miarex/design/BodyTransDlg.h>
-#include <miarex/design/EditObjectDelegate.h>
-#include <miarex/design/GL3dBodyDlg.h>
-#include <miarex/design/GL3dWingDlg.h>
-#include <miarex/design/InertiaDlg.h>
-#include <miarex/design/PlaneDlg.h>
-#include <miarex/mgt/PlaneTableDelegate.h>
+#include <gui_objects/splinefoil.h>
+#include <miarex/miarex.h>
+#include <miarex/analysis/panelanalysisdlg.h>
+#include <miarex/analysis/stabpolardlg.h>
+#include <miarex/analysis/wpolardlg.h>
+#include <miarex/design/bodytransdlg.h>
+#include <miarex/design/editobjectdelegate.h>
+#include <miarex/design/gl3dbodydlg.h>
+#include <miarex/design/gl3dwingdlg.h>
+#include <miarex/design/inertiadlg.h>
+#include <miarex/design/planedlg.h>
+#include <miarex/mgt/planetabledelegate.h>
 #include <miarex/objects3d.h>
-#include <miarex/view/GL3DScales.h>
-#include <miarex/view/StabViewDlg.h>
-#include <miarex/view/W3dPrefsDlg.h>
-#include <misc/AboutQ5.h>
-#include <misc/EditPlrDlg.h>
-#include <misc/ObjectPropsDlg.h>
-#include <misc/RenameDlg.h>
-#include <misc/line/LinePickerDlg.h>
-#include <misc/options/displayoptions.h>
+#include <miarex/view/gl3dscales.h>
+#include <miarex/view/stabviewdlg.h>
+#include <miarex/view/w3drefsdlg.h>
+#include <misc/aboutq5.h>
+#include <misc/editplrdlg.h>
+#include <misc/objectpropsdlg.h>
+#include <misc/renamedlg.h>
+#include <misc/line/linepickerdlg.h>
+#include <misc/options/settings.h>
 #include <misc/options/languagewt.h>
 #include <misc/options/preferencesdlg.h>
 #include <misc/options/saveoptions.h>
 #include <misc/options/units.h>
 #include <misc/popup.h>
 #include <misc/updater.h>
-#include <objects/objects2d/Foil.h>
-#include <objects/objects2d/Polar.h>
-#include <objects/objects3d/Wing.h>
+#include <objects/objects2d/foil.h>
+#include <objects/objects2d/polar.h>
+#include <objects/objects3d/wing.h>
 #include <script/xflscriptexec.h>
 #include <script/xflscriptreader.h>
 #include <viewwidgets/foildesignwt.h>
@@ -82,22 +82,22 @@
 #include <viewwidgets/miarextilewidget.h>
 #include <viewwidgets/wingwidget.h>
 #include <viewwidgets/xdirecttilewidget.h>
-#include <xdirect/ManageFoilsDlg.h>
-#include <xdirect/XDirect.h>
-#include <xdirect/analysis/BatchDlg.h>
-#include <xdirect/analysis/BatchThreadDlg.h>
-#include <xdirect/analysis/FoilPolarDlg.h>
-#include <xdirect/analysis/XFoilAnalysisDlg.h>
-#include <xdirect/geometry/CAddDlg.h>
-#include <xdirect/geometry/FoilCoordDlg.h>
-#include <xdirect/geometry/FoilGeomDlg.h>
-#include <xdirect/geometry/InterpolateFoilsDlg.h>
-#include <xdirect/geometry/LEDlg.h>
-#include <xdirect/geometry/NacaFoilDlg.h>
-#include <xdirect/geometry/TEGapDlg.h>
-#include <xdirect/geometry/TwoDPanelDlg.h>
+#include <xdirect/mgt/managefoilsdlg.h>
+#include <xdirect/xdirect.h>
+#include <xdirect/analysis/batchdlg.h>
+#include <xdirect/analysis/batchthreaddlg.h>
+#include <xdirect/analysis/foilpolardlg.h>
+#include <xdirect/analysis/xfoilanalysisdlg.h>
+#include <xdirect/geometry/cadddlg.h>
+#include <xdirect/geometry/foilcoorddlg.h>
+#include <xdirect/geometry/foilgeomdlg.h>
+#include <xdirect/geometry/interpolatefoilsdlg.h>
+#include <xdirect/geometry/ledlg.h>
+#include <xdirect/geometry/nacafoildlg.h>
+#include <xdirect/geometry/tegapdlg.h>
+#include <xdirect/geometry/twodpaneldlg.h>
 #include <xdirect/objects2d.h>
-#include <xinverse/XInverse.h>
+#include <xinverse/xinverse.h>
 
 
 #ifdef Q_OS_MAC
@@ -105,7 +105,7 @@
 #endif
 
 
-QPointer<MainFrame> MainFrame::_self = 0L;
+QPointer<MainFrame> MainFrame::_self = nullptr;
 
 QString MainFrame::s_ProjectName = "";
 QString MainFrame::s_LanguageFilePath = "";
@@ -125,7 +125,7 @@ bool MainFrame::s_bTrace = false;
 QFile *MainFrame::s_pTraceFile = nullptr;
 
 QLabel *MainFrame::m_pctrlProjectName = nullptr;
-QList <QColor> MainFrame::s_ColorList;
+QVector <QColor> MainFrame::s_ColorList;
 
 
 
@@ -135,14 +135,15 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
     setWindowTitle(VERSIONNAME);
     setWindowIcon(QIcon(":/images/xflr5_64.png"));
 
-//    if(s_bTrace) testConfiguration();
+//    if(s_bTrace)
+    testConfiguration();
 
     m_bManualUpdateCheck = false;
 
 
-    //	Settings sets(this);//to initialize the static variables
+    //    Settings sets(this);//to initialize the static variables
     //"Qt does not support style hints on X11 since this information is not provided by the window system."
-    /*	Settings::s_TextFont.setStyleHint(QFont::TypeWriter, QFont::OpenGLCompatible);
+    /*    Settings::s_TextFont.setStyleHint(QFont::TypeWriter, QFont::OpenGLCompatible);
     Settings::s_TextFont.setStyleStrategy(QFont::OpenGLCompatible);
     Settings::s_TextFont.setFamily(Settings::s_TextFont.defaultFamily());
     Settings::s_TextFont.setPointSize(9);
@@ -157,7 +158,7 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
     Settings::s_RefGraph.setTitleFont(Settings::s_TextFont);
     Settings::s_RefGraph.setLabelFont(Settings::s_TextFont);
 
-    //	Settings::s_StyleSheetName = "xflr5_style";
+    //    Settings::s_StyleSheetName = "xflr5_style";
     Settings::s_StyleSheetName = "";
 
     m_iApp = XFLR5::NOAPP;
@@ -277,9 +278,7 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
         readStyleSheet(Settings::s_StyleSheetName, styleSheet);
     }
 
-    Objects3d::setStaticPointers();
-
-    /*	if(m_bAutoLoadLast)
+    /*    if(m_bAutoLoadLast)
     {
         onLoadLastProject();
     }*/
@@ -294,23 +293,7 @@ MainFrame::~MainFrame()
 {
     if(s_pTraceFile) s_pTraceFile->close();
 
-    for(int ioa=Objects2d::s_oaFoil.size()-1; ioa>=0; ioa--)
-    {
-        delete Objects2d::s_oaFoil.at(ioa);
-        Objects2d::s_oaFoil.removeAt(ioa);
-    }
-
-    for(int ioa=Objects2d::s_oaPolar.size()-1; ioa>=0; ioa--)
-    {
-        delete Objects2d::s_oaPolar.at(ioa);
-        Objects2d::s_oaPolar.removeAt(ioa);
-    }
-
-    for(int ioa=Objects2d::s_oaOpp.size()-1; ioa>=0; ioa--)
-    {
-        delete Objects2d::s_oaOpp.at(ioa);
-        Objects2d::s_oaOpp.removeAt(ioa);
-    }
+    Objects2d::deleteAllFoils();
 
     if(m_pSaveTimer)
     {
@@ -336,64 +319,12 @@ void MainFrame::testConfiguration()
     s_pTraceFile->reset();
 
 #if QT_VERSION >= 0x050500
+    QString strange;
+    QOperatingSystemVersion const &sys = QOperatingSystemVersion::current();
+    strange = sys.name();
+    Trace(strange);
+
     QSysInfo sysInfo;
-    switch(sysInfo.windowsVersion())
-    {
-        case QSysInfo::WV_CE:          Trace("Windows CE"); break;
-        case QSysInfo::WV_CENET:       Trace("Windows CE .NET"); break;
-        case QSysInfo::WV_CE_5:        Trace("Windows CE 5.x"); break;
-        case QSysInfo::WV_CE_6:        Trace("Windows CE 6.x"); break;
-        case QSysInfo::WV_DOS_based:   Trace("MS-DOS-based version of Windows"); break;
-        case QSysInfo::WV_NT_based:    Trace("NT-based version of Windows"); break;
-        case QSysInfo::WV_CE_based:    Trace("CE-based version of Windows"); break;
-        case QSysInfo::WV_None:        Trace("Operating system other than Windows."); break;
-        case QSysInfo::WV_32s:         Trace("Windows 3.1 with Win 32s"); break;
-        case QSysInfo::WV_95:          Trace("Windows 95"); break;
-        case QSysInfo::WV_98:          Trace("Windows 98"); break;
-        case QSysInfo::WV_Me:          Trace("Windows Me"); break;
-        case QSysInfo::WV_NT:	       Trace("Windows NT (operating system version 4.0)"); break;
-        case QSysInfo::WV_2000:	       Trace("Windows 2000 (operating system version 5.0)"); break;
-        case QSysInfo::WV_XP:	       Trace("Windows XP (operating system version 5.1)"); break;
-        case QSysInfo::WV_2003:	       Trace("Windows Server 2003, Windows Server 2003 R2, Windows Home Server, Windows XP Professional x64 Edition (operating system version 5.2)"); break;
-        case QSysInfo::WV_VISTA:	   Trace("Windows Vista, Windows Server 2008 (operating system version 6.0)"); break;
-        case QSysInfo::WV_WINDOWS7:    Trace("Windows 7, Windows Server 2008 R2 (operating system version 6.1)"); break;
-        case QSysInfo::WV_WINDOWS8:    Trace("Windows 8 (operating system version 6.2)"); break;
-        case QSysInfo::WV_WINDOWS8_1:  Trace("Windows 8.1 (operating system version 6.3), introduced in Qt 5.2"); break;
-        case QSysInfo::WV_WINDOWS10:   Trace("Windows 10 (operating system version 10.0), introduced in Qt 5.5"); break;
-    }
-    switch(sysInfo.macVersion())
-    {
-        case QSysInfo::MV_9:        Trace("Mac OS 9 (unsupported)"); break;
-        case QSysInfo::MV_Unknown:  Trace("An unknown and currently unsupported platform"); break;
-        case QSysInfo::MV_CHEETAH:  Trace("CHEETAH MV_10_0"); break;
-        case QSysInfo::MV_PUMA:     Trace("PUMA MV_10_1"); break;
-        case QSysInfo::MV_JAGUAR:   Trace("JAGUAR MV_10_2"); break;
-        case QSysInfo::MV_PANTHER:  Trace("PANTHER MV_10_3"); break;
-        case QSysInfo::MV_TIGER:    Trace("TIGER MV_10_4"); break;
-        case QSysInfo::MV_LEOPARD:  Trace("LEOPARD MV_10_5"); break;
-        case QSysInfo::MV_SNOWLEOPARD:  Trace("SNOWLEOPARD MV_10_6"); break;
-        case QSysInfo::MV_LION:         Trace("LION MV_10_7"); break;
-        case QSysInfo::MV_MOUNTAINLION: Trace("MOUNTAINLION MV_10_8"); break;
-        case QSysInfo::MV_MAVERICKS:    Trace("MAVERICKS MV_10_9"); break;
-        case QSysInfo::MV_YOSEMITE:     Trace("YOSEMITE MV_10_10"); break;
-        case QSysInfo::MV_ELCAPITAN:    Trace("ELCAPITAN MV_10_11"); break;
-        case QSysInfo::MV_IOS:          Trace("iOS (any)"); break;
-        case QSysInfo::MV_IOS_4_3:  Trace("iOS 4.3"); break;
-        case QSysInfo::MV_IOS_5_0:  Trace("iOS 5.0"); break;
-        case QSysInfo::MV_IOS_5_1:  Trace("iOS 5.1"); break;
-        case QSysInfo::MV_IOS_6_0:  Trace("iOS 6.0"); break;
-        case QSysInfo::MV_IOS_6_1:  Trace("iOS 6.1"); break;
-        case QSysInfo::MV_IOS_7_0:  Trace("iOS 7.0"); break;
-        case QSysInfo::MV_IOS_7_1:  Trace("iOS 7.1"); break;
-        case QSysInfo::MV_IOS_8_0:  Trace("iOS 8.0"); break;
-        case QSysInfo::MV_IOS_8_1:  Trace("iOS 8.1"); break;
-        case QSysInfo::MV_IOS_8_2:  Trace("iOS 8.2"); break;
-        case QSysInfo::MV_IOS_8_3:  Trace("iOS 8.3"); break;
-        case QSysInfo::MV_IOS_8_4:  Trace("iOS 8.4"); break;
-        case QSysInfo::MV_IOS_9_0:  Trace("iOS 9.0"); break;
-        case QSysInfo::MV_None:  Trace("Not a Darwin operating system"); break;
-        default: Trace("Other"); break;
-    }
 
     Trace("build ABI: "       + sysInfo.buildAbi());
     Trace("build CPU: "       + sysInfo.buildCpuArchitecture());
@@ -409,7 +340,7 @@ void MainFrame::testConfiguration()
     Trace("    OpenGL ES      ", qApp->testAttribute(Qt::AA_UseOpenGLES));
     Trace("    Software OpenGL", qApp->testAttribute(Qt::AA_UseSoftwareOpenGL));
 
-    QString strange;
+
     strange.sprintf("   Default OpengGl format:%d.%d", QSurfaceFormat::defaultFormat().majorVersion(),QSurfaceFormat::defaultFormat().minorVersion());
     Trace(strange);
 
@@ -579,7 +510,7 @@ void MainFrame::createActions()
     m_pPreferencesAct = new QAction(tr("Preferences"), this);
     connect(m_pPreferencesAct, SIGNAL(triggered()), this, SLOT(onPreferences()));
 
-    m_pRestoreToolbarsAct	 = new QAction(tr("Restore toolbars"), this);
+    m_pRestoreToolbarsAct     = new QAction(tr("Restore toolbars"), this);
     m_pRestoreToolbarsAct->setStatusTip(tr("Restores the toolbars to their original state"));
     connect(m_pRestoreToolbarsAct, SIGNAL(triggered()), this, SLOT(onRestoreToolbars()));
 
@@ -605,7 +536,7 @@ void MainFrame::createActions()
     connect(m_pExportCurGraphAct, SIGNAL(triggered()), this, SLOT(onExportCurGraph()));
 
     m_pResetCurGraphScales = new QAction(QIcon(":/images/OnResetGraphScale.png"), tr("Reset Graph Scales")+"\tR", this);
-    //	m_pResetCurGraphScales->setShortcut(Qt::Key_R);
+    //    m_pResetCurGraphScales->setShortcut(Qt::Key_R);
     m_pResetCurGraphScales->setStatusTip(tr("Restores the graph's x and y scales"));
     connect(m_pResetCurGraphScales, SIGNAL(triggered()), this, SLOT(onResetCurGraphScales()));
 
@@ -838,7 +769,7 @@ void MainFrame::createAFoilMenus()
 
     m_pAFoilSplineMenu = menuBar()->addMenu(tr("Splines"));
     {
-        /*		m_pAFoilSplineMenu->addAction(m_pInsertSplinePt);
+        /*        m_pAFoilSplineMenu->addAction(m_pInsertSplinePt);
         m_pAFoilSplineMenu->addAction(m_pRemoveSplinePt);
         m_pAFoilSplineMenu->addSeparator();*/
         m_pAFoilSplineMenu->addAction(m_pUndoAFoilAct);
@@ -1028,7 +959,7 @@ void MainFrame::createDockWindows()
 
     StabViewDlg::s_pMiarex = m_pMiarex;
     m_pStabView = new StabViewDlg(this);
-    StabViewDlg * pStabView = (StabViewDlg*)m_pStabView;
+    StabViewDlg * pStabView = m_pStabView;
     m_pctrlStabViewWidget = new QDockWidget(tr("Stability"), this);
     m_pctrlStabViewWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
     addDockWidget(Qt::LeftDockWidgetArea, m_pctrlStabViewWidget);
@@ -1060,19 +991,18 @@ void MainFrame::createDockWindows()
 
     m_pMiarex->m_pgl3dMiarexView = m_pgl3dMiarexView;
 
-    m_pXDirect->m_poaFoil  = &Objects2d::s_oaFoil;
-    m_pXDirect->m_poaPolar = &Objects2d::s_oaPolar;
-    m_pXDirect->m_poaOpp   = &Objects2d::s_oaOpp;
+    m_pXDirect->m_poaFoil  = Objects2d::pOAFoil();
+    m_pXDirect->m_poaPolar = Objects2d::pOAPolar();
+    m_pXDirect->m_poaOpp   = Objects2d::pOAOpp();
     m_pXDirect->m_pOpPointWidget = m_pXDirectTileWidget->opPointWidget();
 
-    m_pAFoil->initDialog(m_pDirect2dWidget, &Objects2d::s_oaFoil, &m_pXDirect->m_XFoil);
+    m_pAFoil->initDialog(m_pDirect2dWidget, Objects2d::pOAFoil(), &m_pXDirect->m_XFoil);
 
     XInverse::s_p2dWidget        = m_p2dWidget;
     m_pXInverse->s_pMainFrame       = this;
     m_pXInverse->m_pXFoil           = &m_pXDirect->m_XFoil;
 
-    GL3dWingDlg::s_poaFoil = &Objects2d::s_oaFoil;
-    EditObjectDelegate::s_poaFoil = &Objects2d::s_oaFoil;
+    EditObjectDelegate::s_poaFoil = Objects2d::pOAFoil();
 
     gl3dMiarexView::s_pMiarex = m_pMiarex;
 
@@ -1184,7 +1114,7 @@ void MainFrame::createGraphActions()
         connect(m_pSingleGraph[ig], SIGNAL(triggered()), m_pXDirectTileWidget, SLOT(onSingleGraph()));
         connect(m_pSingleGraph[ig], SIGNAL(triggered()), m_pMiarexTileWidget, SLOT(onSingleGraph()));
     }
-    //	m_pTwoGraphs = new QAction(tr("Two Graphs")+"\t(T)", this);
+    //    m_pTwoGraphs = new QAction(tr("Two Graphs")+"\t(T)", this);
     m_pTwoGraphs = new QAction(tr("Two Graphs"), this);
     m_pTwoGraphs->setShortcut(Qt::Key_T);
     m_pTwoGraphs->setStatusTip(tr("Display the first two graphs"));
@@ -1192,7 +1122,7 @@ void MainFrame::createGraphActions()
     connect(m_pTwoGraphs, SIGNAL(triggered()), m_pXDirectTileWidget, SLOT(onTwoGraphs()));
     connect(m_pTwoGraphs, SIGNAL(triggered()), m_pMiarexTileWidget, SLOT(onTwoGraphs()));
 
-    //	m_pFourGraphs = new QAction(tr("Four Graphs")+"\t(F)", this);
+    //    m_pFourGraphs = new QAction(tr("Four Graphs")+"\t(F)", this);
     m_pFourGraphs = new QAction(tr("Four Graphs"), this);
     m_pFourGraphs->setShortcut(Qt::Key_F);
     m_pFourGraphs->setStatusTip(tr("Display four graphs"));
@@ -1223,7 +1153,7 @@ void MainFrame::createGraphActions()
     connect(m_pAllGraphsSettings, SIGNAL(triggered()), m_pXDirectTileWidget, SLOT(onAllGraphSettings()));
     connect(m_pAllGraphsSettings, SIGNAL(triggered()), m_pMiarexTileWidget, SLOT(onAllGraphSettings()));
 
-    m_pShowMousePosAct	 = new QAction(tr("Display mouse coordinates"), this);
+    m_pShowMousePosAct     = new QAction(tr("Display mouse coordinates"), this);
     m_pShowMousePosAct->setCheckable(true);
     m_pShowMousePosAct->setChecked(s_bShowMousePos);
     m_pShowMousePosAct->setStatusTip(tr("Display the coordinates of the mouse on the top right corner of the graph"));
@@ -1241,21 +1171,21 @@ void MainFrame::createMiarexActions()
         m_pWOppAct->setCheckable(true);
         m_pWOppAct->setStatusTip(tr("Switch to the Operating point view"));
         m_pWOppAct->setActionGroup(m_pMiarexViewActGroup);
-        //	WOppAct->setShortcut(Qt::Key_F5);
+        //    WOppAct->setShortcut(Qt::Key_F5);
         connect(m_pWOppAct, SIGNAL(triggered()), m_pMiarex, SLOT(onWOppView()));
 
         m_pWPolarAct = new QAction(QIcon(":/images/OnPolarView.png"), tr("Polar View")+"\tF8", this);
         m_pWPolarAct->setCheckable(true);
         m_pWPolarAct->setStatusTip(tr("Switch to the Polar view"));
         m_pWPolarAct->setActionGroup(m_pMiarexViewActGroup);
-        //	WPolarAct->setShortcut(Qt::Key_F8);
+        //    WPolarAct->setShortcut(Qt::Key_F8);
         connect(m_pWPolarAct, SIGNAL(triggered()), m_pMiarex, SLOT(onWPolarView()));
 
         m_pStabTimeAct = new QAction(QIcon(":/images/OnStabView.png"),tr("Time Response View")+"\tShift+F8", this);
         m_pStabTimeAct->setCheckable(true);
         m_pStabTimeAct->setStatusTip(tr("Switch to stability analysis post-processing"));
         m_pStabTimeAct->setActionGroup(m_pMiarexViewActGroup);
-        //	StabTimeAct->setShortcut(tr("Shift+F8"));
+        //    StabTimeAct->setShortcut(tr("Shift+F8"));
         connect(m_pStabTimeAct, SIGNAL(triggered()), m_pMiarex, SLOT(onStabTimeView()));
 
         m_pRootLocusAct = new QAction(QIcon(":/images/OnRootLocus.png"),tr("Root Locus View")+"\tCtrl+F8", this);
@@ -1327,7 +1257,7 @@ void MainFrame::createMiarexActions()
 
     m_pEditWingAct = new QAction(tr("Edit wing"), this);
     m_pEditWingAct->setStatusTip(tr("Shows a form to edit the wing of the currently selected plane"));
-    m_pEditWingAct->setShortcut(QKeySequence::Close);
+    m_pEditWingAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_W));
     m_pEditWingAct->setData(0);
     connect(m_pEditWingAct, SIGNAL(triggered()), m_pMiarex, SLOT(onEditCurWing()));
 
@@ -1953,7 +1883,7 @@ void MainFrame::createMiarexMenus()
             pCurGraphTimeCtxMenu->addAction(m_pExportCurGraphAct);
         }
         m_pWTimeCtxMenu->addSeparator();
-        /*		m_pWTimeCtxMenu->addAction(m_pShowCurWOppOnly);
+        /*        m_pWTimeCtxMenu->addAction(m_pShowCurWOppOnly);
         m_pWTimeCtxMenu->addAction(m_pShowAllWOpps);
         m_pWTimeCtxMenu->addAction(m_pHideAllWOpps);
         m_pWTimeCtxMenu->addAction(m_pDeleteAllWOpps);
@@ -2344,7 +2274,7 @@ void MainFrame::createXDirectActions()
     m_pXDirectPolarFilter = new QAction(tr("Polar Filter"), this);
     connect(m_pXDirectPolarFilter, SIGNAL(triggered()), m_pXDirect, SLOT(onPolarFilter()));
 
-    m_pHighlightOppAct	 = new QAction(tr("Highlight Current OpPoint")+"\tCtrl+H", this);
+    m_pHighlightOppAct     = new QAction(tr("Highlight Current OpPoint")+"\tCtrl+H", this);
     m_pHighlightOppAct->setCheckable(true);
     m_pHighlightOppAct->setStatusTip(tr("Highlights on the polar curve the currently selected operating point"));
     connect(m_pHighlightOppAct, SIGNAL(triggered()), this, SLOT(onHighlightOperatingPoint()));
@@ -2379,8 +2309,8 @@ void MainFrame::createXDirectActions()
     m_pHideFoilPolars = new QAction(tr("Hide associated polars"), this);
     connect(m_pHideFoilPolars, SIGNAL(triggered()), m_pXDirect, SLOT(onHideFoilPolars()));
 
-    m_pSaveFoilPolars = new QAction(tr("Save associated polars"), this);
-    connect(m_pSaveFoilPolars, SIGNAL(triggered()), m_pXDirect, SLOT(onSavePolars()));
+    m_pSaveFoilPolars = new QAction(tr("Export polars to .plr file"), this);
+    connect(m_pSaveFoilPolars, SIGNAL(triggered()), m_pXDirect, SLOT(onSaveFoilPolars()));
 
     m_pHidePolarOpps = new QAction(tr("Hide associated OpPoints"), this);
     connect(m_pHidePolarOpps, SIGNAL(triggered()), m_pXDirect, SLOT(onHidePolarOpps()));
@@ -2433,8 +2363,11 @@ void MainFrame::createXDirectActions()
     m_pExportCurPolar = new QAction(tr("Export"), this);
     connect(m_pExportCurPolar, SIGNAL(triggered()), m_pXDirect, SLOT(onExportCurPolar()));
 
-    m_pExportAllPolars = new QAction(tr("Export all polars"), this);
-    connect(m_pExportAllPolars, SIGNAL(triggered()), m_pXDirect, SLOT(onExportAllPolars()));
+    m_pExportPolarsTxt = new QAction(tr("to text format"), this);
+    connect(m_pExportPolarsTxt, SIGNAL(triggered()), m_pXDirect, SLOT(onExportAllPolarsTxt()));
+
+    m_pExportFoilPlrs = new QAction(tr("to .plr format"), this);
+    connect(m_pExportFoilPlrs, SIGNAL(triggered()), m_pXDirect, SLOT(onExportAllFoilPolars()));
 
     m_pXDirectStyleAct = new QAction(tr("Define Styles"), this);
     m_pXDirectStyleAct->setStatusTip(tr("Define the style for the boundary layer and the pressure arrows"));
@@ -2442,7 +2375,7 @@ void MainFrame::createXDirectActions()
     m_pShowNeutralLine = new QAction(tr("Neutral Line"), this);
     m_pShowNeutralLine->setCheckable(true);
 
-    /*	m_pShowPanels = new QAction(tr("Show Panels"), this);
+    /*    m_pShowPanels = new QAction(tr("Show Panels"), this);
     m_pShowPanels->setCheckable(true);
     m_pShowPanels->setStatusTip(tr("Show the foil's panels"));*/
 
@@ -2551,8 +2484,8 @@ void MainFrame::createXDirectActions()
     m_pExportBLData->setStatusTip(tr("Sets Speed vs. chord graph"));
     connect(m_pExportBLData, SIGNAL(triggered()), m_pXDirect, SLOT(onExportBLData()));
 
-    //	m_pImportJavaFoilPolar = new QAction(tr("Import JavaFoil Polar"), this);
-    //	connect(m_pImportJavaFoilPolar, SIGNAL(triggered()), m_pXDirect, SLOT(onImportJavaFoilPolar()));
+    //    m_pImportJavaFoilPolar = new QAction(tr("Import JavaFoil Polar"), this);
+    //    connect(m_pImportJavaFoilPolar, SIGNAL(triggered()), m_pXDirect, SLOT(onImportJavaFoilPolar()));
 
     m_pImportXFoilPolar = new QAction(tr("Import XFoil Polar(s)"), this);
     connect(m_pImportXFoilPolar, SIGNAL(triggered()), m_pXDirect, SLOT(onImportXFoilPolars()));
@@ -2594,6 +2527,7 @@ void MainFrame::createXDirectMenus()
             m_pCurrentFoilMenu->addAction(m_pShowFoilPolars);
             m_pCurrentFoilMenu->addAction(m_pHideFoilPolars);
             m_pCurrentFoilMenu->addAction(m_pDeleteFoilPolars);
+            m_pCurrentFoilMenu->addSeparator();
             m_pCurrentFoilMenu->addAction(m_pSaveFoilPolars);
             m_pCurrentFoilMenu->addSeparator();
             m_pCurrentFoilMenu->addAction(m_pShowFoilOpps);
@@ -2602,7 +2536,7 @@ void MainFrame::createXDirectMenus()
         }
         m_pXDirectFoilMenu->addSeparator();
         m_pXDirectFoilMenu->addAction(m_pResetFoilScale);
-        //		m_pXDirectFoilMenu->addAction(m_pShowPanels);
+        //        m_pXDirectFoilMenu->addAction(m_pShowPanels);
         m_pXDirectFoilMenu->addAction(m_pShowNeutralLine);
         m_pXDirectFoilMenu->addAction(m_pXDirectStyleAct);
     }
@@ -2656,7 +2590,11 @@ void MainFrame::createXDirectMenus()
         m_pPolarMenu->addSeparator();
         m_pPolarMenu->addAction(m_pImportXFoilPolar);
         m_pPolarMenu->addSeparator();
-        m_pPolarMenu->addAction(m_pExportAllPolars);
+        QMenu *pExportMenu = m_pPolarMenu->addMenu(tr("Export all"));
+        {
+            pExportMenu->addAction(m_pExportFoilPlrs);
+            pExportMenu->addAction(m_pExportPolarsTxt);
+        }
         m_pPolarMenu->addSeparator();
         m_pPolarMenu->addAction(m_pXDirectPolarFilter);
         m_pPolarMenu->addSeparator();
@@ -2709,6 +2647,7 @@ void MainFrame::createXDirectMenus()
             m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pShowFoilPolars);
             m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pHideFoilPolars);
             m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pDeleteFoilPolars);
+            m_pCurrentFoilMenu_OperFoilCtxMenu->addSeparator();
             m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pSaveFoilPolars);
             m_pCurrentFoilMenu_OperFoilCtxMenu->addSeparator();
             m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pShowFoilOpps);
@@ -2761,7 +2700,7 @@ void MainFrame::createXDirectMenus()
         m_pOperFoilCtxMenu->addAction(m_pShowMousePosAct);
 
         m_pOperFoilCtxMenu->addSeparator();//_______________
-        //	CurGraphCtxMenu = OperFoilCtxMenu->addMenu(tr("Cp graph"));
+        //    CurGraphCtxMenu = OperFoilCtxMenu->addMenu(tr("Cp graph"));
         m_pXDirectCpGraphMenu_OperPolarCtxMenu = m_pOperFoilCtxMenu->addMenu(tr("Cp Graph"));
         {
             m_pXDirectCpGraphMenu_OperPolarCtxMenu->addAction(m_psetCpVarGraph);
@@ -2787,7 +2726,7 @@ void MainFrame::createXDirectMenus()
         m_pOperFoilCtxMenu->addAction(m_pHideAllOpPoints);
         m_pOperFoilCtxMenu->addSeparator();//_______________
         m_pOperFoilCtxMenu->addAction(m_pResetFoilScale);
-        //		m_pOperFoilCtxMenu->addAction(m_pShowPanels);
+        //        m_pOperFoilCtxMenu->addAction(m_pShowPanels);
         m_pOperFoilCtxMenu->addAction(m_pShowNeutralLine);
         m_pOperFoilCtxMenu->addAction(m_pXDirectStyleAct);
         m_pOperFoilCtxMenu->addSeparator();//_______________
@@ -2812,6 +2751,7 @@ void MainFrame::createXDirectMenus()
             m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pShowFoilPolars);
             m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pHideFoilPolars);
             m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pDeleteFoilPolars);
+            m_pCurrentFoilMenu_OperPolarCtxMenu->addSeparator();
             m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pSaveFoilPolars);
             m_pCurrentFoilMenu_OperPolarCtxMenu->addSeparator();
             m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pShowFoilOpps);
@@ -3016,24 +2956,7 @@ void MainFrame::deleteProject(bool bClosing)
     // clear everything
     Objects3d::deleteObjects();
 
-    for (int i=Objects2d::s_oaFoil.size()-1; i>=0; i--)
-    {
-        Foil *pObj = Objects2d::s_oaFoil.at(i);
-        Objects2d::s_oaFoil.removeAt(i);
-        delete pObj;
-    }
-    for (int i=Objects2d::s_oaPolar.size()-1; i>=0; i--)
-    {
-        Polar *pObj = Objects2d::s_oaPolar.at(i);
-        Objects2d::s_oaPolar.removeAt(i);
-        delete pObj;
-    }
-    for (int i=Objects2d::s_oaOpp.size()-1; i>=0; i--)
-    {
-        OpPoint *pObj = Objects2d::s_oaOpp.at(i);
-        Objects2d::s_oaOpp.removeAt(i);
-        delete pObj;
-    }
+    Objects2d::deleteAllFoils();
 
     m_pMiarex->m_pCurPlane  = nullptr;
     m_pMiarex->m_pCurPOpp   = nullptr;
@@ -3103,9 +3026,9 @@ QColor MainFrame::getColor(int type)
             Foil *pFoil;
             for (j=0; j<s_ColorList.size(); j++)
             {
-                for (i=0; i<Objects2d::s_oaFoil.size(); i++)
+                for (i=0; i<Objects2d::foilCount(); i++)
                 {
-                    pFoil = Objects2d::s_oaFoil.at(i);
+                    pFoil = Objects2d::foilAt(i);
                     bFound = false;
                     if(colour(pFoil) == s_ColorList.at(j))
                     {
@@ -3122,9 +3045,9 @@ QColor MainFrame::getColor(int type)
             Polar *pPolar;
             for (j=0; j<s_ColorList.size(); j++)
             {
-                for (i=0; i<Objects2d::s_oaPolar.size(); i++)
+                for (i=0; i<Objects2d::polarCount(); i++)
                 {
-                    pPolar = Objects2d::s_oaPolar.at(i);
+                    pPolar = Objects2d::polarAt(i);
                     bFound = false;
                     if(colour(pPolar) == s_ColorList.at(j))
                     {
@@ -3141,11 +3064,11 @@ QColor MainFrame::getColor(int type)
         {
             OpPoint *pOpPoint;
             for (j=0; j<s_ColorList.size(); j++){
-                for (i=0; i<Objects2d::s_oaOpp.size(); i++)
+                for (i=0; i<Objects2d::oppCount(); i++)
                 {
-                    pOpPoint = Objects2d::s_oaOpp.at(i);
+                    pOpPoint = Objects2d::oppAt(i);
                     bFound = false;
-                    int r,g,b,a;
+                    int r=0,g=0,b=0,a=0;
                     pOpPoint->getColor(r,g,b,a);
                     QColor clr(r,g,b,a);
                     if(clr == s_ColorList.at(j))
@@ -3258,7 +3181,7 @@ void MainFrame::keyPressEvent(QKeyEvent *pEvent)
                 if(bCtrl) onMiarex();
                 break;
             }
-                /*			case Qt::Key_7:
+                /*            case Qt::Key_7:
             {
                 if(bCtrl)
                 {
@@ -3319,7 +3242,7 @@ bool MainFrame::loadPolarFileV3(QDataStream &ar, bool bIsStoring, int ArchiveFor
     //first read all available foils
     int i,l,n;
     ar >> n;
-    //	if(n<100003) return false;
+    //    if(n<100003) return false;
 
     ar>>n;
 
@@ -3348,15 +3271,14 @@ bool MainFrame::loadPolarFileV3(QDataStream &ar, bool bIsStoring, int ArchiveFor
             delete pPolar;
             return false;
         }
-        for (l=0; l<Objects2d::s_oaPolar.size(); l++)
+        for (l=0; l<Objects2d::polarCount(); l++)
         {
-            pOldPlr = Objects2d::s_oaPolar[l];
+            pOldPlr = Objects2d::polarAt(l);
             if (pOldPlr->foilName() == pPolar->foilName() &&
                     pOldPlr->polarName()  == pPolar->polarName())
             {
                 //just overwrite...
-                Objects2d::s_oaPolar.removeAt(l);
-                delete pOldPlr;
+                Objects2d::deletePolarAt(l);
                 //... and continue to add
             }
         }
@@ -3374,7 +3296,7 @@ bool MainFrame::loadPolarFileV3(QDataStream &ar, bool bIsStoring, int ArchiveFor
             return false;
         }
 
-        QColor clr = s_ColorList[Objects2d::s_oaOpp.size()%24];
+        QColor clr = s_ColorList[Objects2d::oppCount()%24];
         pOpp->setColor(clr.red(), clr.green(), clr.blue(), clr.alpha());
         if(ArchiveFormat>=100002)
         {
@@ -3388,8 +3310,8 @@ bool MainFrame::loadPolarFileV3(QDataStream &ar, bool bIsStoring, int ArchiveFor
                 pFoil = Objects2d::foil(pOpp->foilName());
                 if(pFoil)
                 {
-                    //					memcpy(pOpp->x, pFoil->x, sizeof(pOpp->x));
-                    //					memcpy(pOpp->y, pFoil->y, sizeof(pOpp->y));
+                    //                    memcpy(pOpp->x, pFoil->x, sizeof(pOpp->x));
+                    //                    memcpy(pOpp->y, pFoil->y, sizeof(pOpp->y));
                 }
                 else
                 {
@@ -3409,8 +3331,8 @@ bool MainFrame::loadPolarFileV3(QDataStream &ar, bool bIsStoring, int ArchiveFor
                 pFoil = Objects2d::foil(pOpp->foilName());
                 if(pFoil)
                 {
-                    //					memcpy(pOpp->x, pFoil->x, sizeof(pOpp->x));
-                    //					memcpy(pOpp->y, pFoil->y, sizeof(pOpp->y));
+                    //                    memcpy(pOpp->x, pFoil->x, sizeof(pOpp->x));
+                    //                    memcpy(pOpp->y, pFoil->y, sizeof(pOpp->y));
                 }
                 else
                 {
@@ -3420,16 +3342,15 @@ bool MainFrame::loadPolarFileV3(QDataStream &ar, bool bIsStoring, int ArchiveFor
         }
         if(pOpp)
         {
-            for (int l=Objects2d::s_oaOpp.size()-1;l>=0; l--)
+            for (int l=Objects2d::oppCount()-1;l>=0; l--)
             {
-                pOldOpp = Objects2d::s_oaOpp.at(l);
+                pOldOpp = Objects2d::oppAt(l);
                 if (pOldOpp->foilName() == pOpp->foilName() &&
                         pOldOpp->polarName()  == pOpp->polarName() &&
                         qAbs(pOldOpp->aoa()-pOpp->aoa())<0.001)
                 {
                     //just overwrite...
-                    Objects2d::s_oaOpp.removeAt(l);
-                    delete pOldOpp;
+                    Objects2d::deleteOppAt(l);
                     //... and continue to add
                 }
             }
@@ -3549,7 +3470,7 @@ bool MainFrame::loadSettings()
 
         m_SaveInterval = settings.value("AutoSaveInterval", 10).toInt();
 
-        //		a = settings.value("RecentFileSize").toInt();
+        //        a = settings.value("RecentFileSize").toInt();
         QString RecentF,strange;
         m_RecentFiles.clear();
         int n=0;
@@ -3579,7 +3500,7 @@ bool MainFrame::loadSettings()
 
 MainFrame* MainFrame::self() {
     if (!_self) {
-        _self = new MainFrame(0L, 0L);
+        _self = new MainFrame;
     }
     return _self;
 }
@@ -3600,7 +3521,7 @@ XFLR5::enumApp MainFrame::loadXFLR5File(QString pathname)
     pathname.replace(QDir::separator(), "/"); // Qt sometimes uses the windows \ separator
 
     int pos = pathname.lastIndexOf("/");
-    if(pos>0) 	Settings::s_LastDirName = pathname.left(pos);
+    if(pos>0) Settings::setLastDirName(pathname.left(pos));
 
     if(end==".plr")
     {
@@ -3790,6 +3711,11 @@ void MainFrame::onCurFoilStyle()
         XDirect::curFoil()->foilLineWidth() = dlg.lineWidth();
         XDirect::curFoil()->foilPointStyle() = dlg.pointStyle();
 
+        if(Settings::isAlignedChildrenStyle())
+            Objects2d::setFoilChildrenStyle(XDirect::curFoil());
+
+        m_pXDirect->setControls();
+        m_pXDirect->m_bResetCurves = true;
         setSaveState(false);
     }
 
@@ -3802,11 +3728,11 @@ void MainFrame::onInsertProject()
     QString PathName;
 
     PathName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                            Settings::s_LastDirName,
+                                            Settings::lastDirName(),
                                             "Project file (*.wpa *.xfl)");
     if(!PathName.length()) return;
     int pos = PathName.lastIndexOf("/");
-    if(pos>0) Settings::s_LastDirName = PathName.left(pos);
+    if(pos>0) Settings::setLastDirName(PathName.left(pos));
 
     QFile XFile(PathName);
     if (!XFile.open(QIODevice::ReadOnly))
@@ -3888,7 +3814,7 @@ void MainFrame::onLoadFile()
     bool warn_non_airfoil_multiload = false;
 
     PathNames = QFileDialog::getOpenFileNames(this, tr("Open File"),
-                                              Settings::s_LastDirName,
+                                              Settings::lastDirName(),
                                               "XFLR5 file (*.dat *.plr *.wpa *.xfl)");
     if(!PathNames.size()) return;
     if(PathNames.size() > 1)
@@ -3904,7 +3830,7 @@ void MainFrame::onLoadFile()
             }
         }
         if (warn_non_airfoil_multiload) {
-            QMessageBox::warning(0, QObject::tr("Warning"), QObject::tr("Multiple file loading only available for airfoil files.\nNon *.dat files will be ignored."));
+            QMessageBox::warning(this, QObject::tr("Warning"), QObject::tr("Multiple file loading only available for airfoil files.\nNon *.dat files will be ignored."));
         }
     }
     else
@@ -3915,7 +3841,7 @@ void MainFrame::onLoadFile()
         PathName.replace(QDir::separator(), "/"); // Qt sometimes uses the windows \ separator
 
         int pos = PathName.lastIndexOf("/");
-        if(pos>0) Settings::s_LastDirName = PathName.left(pos);
+        if(pos>0) Settings::setLastDirName(PathName.left(pos));
 
         App = loadXFLR5File(PathName);
     }
@@ -3933,7 +3859,7 @@ void MainFrame::onLoadFile()
     }
     else if(m_iApp==XFLR5::XFOILANALYSIS)
     {
-        if(Objects2d::s_oaPolar.size())
+        if(Objects2d::polarCount())
         {
             if(m_pXDirect->m_bPolarView) m_pXDirect->createPolarCurves();
             else                         m_pXDirect->createOppCurves();
@@ -4004,7 +3930,7 @@ void MainFrame::onNewProject()
         deleteProject();
     }
 
-    m_pMiarex->	m_PixText.fill(Qt::transparent);
+    m_pMiarex->    m_PixText.fill(Qt::transparent);
     m_pgl3dMiarexView->m_bArcball = false;
 
     updateView();
@@ -4017,8 +3943,6 @@ void MainFrame::onOpenGLInfo()
     w.resize(900, 800);
     w.exec();
 }
-
-
 
 
 void MainFrame::onResetSettings()
@@ -4038,7 +3962,9 @@ void MainFrame::onResetSettings()
 #endif
 
         settings.clear();
-        Settings::s_LastDirName = QDir::homePath();
+        Settings::setLastDirName(QDir::homePath());
+        Settings::setXmlDirName(QDir::homePath());
+        Settings::setPlrDirName(QDir::homePath());
         // do not save on exit
         m_bSaveSettings = false;
     }
@@ -4104,8 +4030,8 @@ void MainFrame::onRestoreToolbars()
         m_pctrlXInverseWidget->hide();
         m_pctrlMiarexWidget->show();
         m_pctrlMiarexToolBar->show();
-        //		if(pMiarex->m_iView==WSTABVIEW) m_pctrlStabViewWidget->show();
-        //		else                            m_pctrlStabViewWidget->hide();
+        //        if(pMiarex->m_iView==WSTABVIEW) m_pctrlStabViewWidget->show();
+        //        else                            m_pctrlStabViewWidget->hide();
     }
 }
 
@@ -4123,7 +4049,7 @@ void MainFrame::onSaveTimer()
 
 void MainFrame::onSaveProject()
 {
-    /*	QString Filter = "XFLR5 v6 Project File (*.xfl)";
+    /*    QString Filter = "XFLR5 v6 Project File (*.xfl)";
 
     QString saveFileName = "/home/techwinder/download/save.bin";
     QFile fp(saveFileName);
@@ -4285,7 +4211,7 @@ void MainFrame::onSelChangePlane(int sel)
     // or the first one in the list, if any
     m_pMiarex->stopAnimate();
     QString strong;
-    //	int sel = m_pctrlPlane->currentIndex();
+    //    int sel = m_pctrlPlane->currentIndex();
     if (sel >=0) strong = m_pctrlPlane->itemText(sel);
     m_pMiarex->setPlane(strong);
     m_pMiarex->updateView();
@@ -4297,7 +4223,7 @@ void MainFrame::onSelChangeWPolar(int sel)
     m_pMiarex->stopAnimate();
 
     QString strong;
-    //	int sel = m_pctrlPlanePolar->currentIndex();
+    //    int sel = m_pctrlPlanePolar->currentIndex();
     if (sel>=0) strong = m_pctrlPlanePolar->itemText(sel);
     m_iApp = XFLR5::MIAREX;
     m_pMiarex->setWPolar(false, strong);
@@ -4353,7 +4279,7 @@ void MainFrame::onSelChangeFoil(int sel)
     m_pXDirect->m_bAnimate = false;
 
     QString strong;
-    //	int sel = m_pctrlFoil->currentIndex();
+    //    int sel = m_pctrlFoil->currentIndex();
     if (sel >=0) strong = m_pctrlFoil->itemText(sel);
 
     m_pXDirect->setCurFoil(Objects2d::foil(strong));
@@ -4372,7 +4298,7 @@ void MainFrame::onSelChangePolar(int sel)
 
     // Gets the new selected polar name and notifies XDirect
     QString strong;
-    //	int selNew = m_pctrlPolar->currentIndex();
+    //    int selNew = m_pctrlPolar->currentIndex();
     if (sel>=0) strong = m_pctrlPolar->itemText(sel);
     m_iApp = XFLR5::XFOILANALYSIS;
 
@@ -4486,7 +4412,7 @@ void MainFrame::onXInverse()
     m_pXDirect->stopAnimate();
     m_pMiarex->stopAnimate();
 
-    //	pXInverse->SetScale();
+    //    pXInverse->SetScale();
     m_iApp = XFLR5::INVERSEDESIGN;
 
     m_pctrlMiarexToolBar->hide();
@@ -4513,7 +4439,7 @@ void MainFrame::onXInverseMixed()
     m_pXDirect->stopAnimate();
     m_pMiarex->stopAnimate();
 
-    //	pXInverse->SetScale();
+    //    pXInverse->SetScale();
     m_iApp = XFLR5::INVERSEDESIGN;
     m_pctrlMiarexToolBar->hide();
     m_pctrlStabViewWidget->hide();
@@ -4552,7 +4478,7 @@ void MainFrame::onOpenRecentFile()
 
     else if(m_iApp==XFLR5::XFOILANALYSIS)
     {
-        if(Objects2d::s_oaPolar.size())
+        if(Objects2d::polarCount())
         {
             if(m_pXDirect->bPolarView()) m_pXDirect->createPolarCurves();
             else                         m_pXDirect->createOppCurves();
@@ -4627,15 +4553,14 @@ void MainFrame::readPolarFile(QDataStream &ar)
                 delete pPolar;
                 return;
             }
-            for (l=0; l<Objects2d::s_oaPolar.size(); l++)
+            for (l=0; l<Objects2d::polarCount(); l++)
             {
-                pOldPolar = Objects2d::s_oaPolar[l];
+                pOldPolar = Objects2d::polarAt(l);
                 if (pOldPolar->foilName() == pPolar->foilName() &&
                         pOldPolar->polarName()  == pPolar->polarName())
                 {
                     //just overwrite...
-                    Objects2d::s_oaPolar.removeAt(l);
-                    delete pOldPolar;
+                    Objects2d::deletePolarAt(l);
                     //... and continue to add
                 }
             }
@@ -4643,7 +4568,6 @@ void MainFrame::readPolarFile(QDataStream &ar)
         }
     }
 }
-
 
 
 bool MainFrame::saveProject(QString PathName)
@@ -4654,7 +4578,7 @@ bool MainFrame::saveProject(QString PathName)
     if(!PathName.length())
     {
         PathName = QFileDialog::getSaveFileName(this, tr("Save the Project File"),
-                                                Settings::s_LastDirName+"/"+FileName,
+                                                Settings::lastDirName()+"/"+FileName,
                                                 "XFLR5 v6 Project File (*.xfl)",
                                                 &Filter);
 
@@ -4666,7 +4590,7 @@ bool MainFrame::saveProject(QString PathName)
         PathName.replace(QDir::separator(), "/"); // Qt sometimes uses the windows \ separator
 
         pos = PathName.lastIndexOf("/");
-        if(pos>0) Settings::s_LastDirName = PathName.left(pos);
+        if(pos>0) Settings::setLastDirName(PathName.left(pos));
     }
 
 
@@ -4726,7 +4650,7 @@ void MainFrame::onSavePlaneAsProject()
     QString FileName = strong;
 
     PathName = QFileDialog::getSaveFileName(this, tr("Save the Project File"),
-                                            Settings::s_LastDirName+"/"+FileName,
+                                            Settings::lastDirName()+"/"+FileName,
                                             "XFLR5 v6 Project File (*.xfl)",
                                             &Filter);
 
@@ -4735,7 +4659,7 @@ void MainFrame::onSavePlaneAsProject()
     if(pos<0) PathName += ".xfl";
     PathName.replace(QDir::separator(), "/"); // Qt sometimes uses the windows \ separator
     pos = PathName.lastIndexOf("/");
-    if(pos>0) Settings::s_LastDirName = PathName.left(pos);
+    if(pos>0) Settings::setLastDirName(PathName.left(pos));
 
 
     QFile fp(PathName);
@@ -4835,10 +4759,10 @@ bool MainFrame::serializePlaneProject(QDataStream &ar)
 
     // then the foils
     // list the foils associated to this Plane's wings
-    QList<Foil*> foilList;
-    for(i=0; i<Objects2d::s_oaFoil.size(); i++)
+    QVector<Foil*> foilList;
+    for(i=0; i<Objects2d::foilCount(); i++)
     {
-        Foil *pFoil = Objects2d::s_oaFoil.at(i);
+        Foil *pFoil = Objects2d::foilAt(i);
         for(int iw=0; iw<MAXWINGS; iw++)
         {
             if(m_pMiarex->m_pCurPlane->m_Wing[iw].isWingFoil(pFoil))
@@ -4849,7 +4773,6 @@ bool MainFrame::serializePlaneProject(QDataStream &ar)
         }
     }
 
-
     ar << foilList.count();
     for(int iFoil=0; iFoil<foilList.size(); iFoil++)
     {
@@ -4857,10 +4780,10 @@ bool MainFrame::serializePlaneProject(QDataStream &ar)
     }
     // the foil polars
     // list the foil polars associated to this Plane's wings
-    QList<Polar*> polarList;
-    for(i=0; i<Objects2d::s_oaPolar.size(); i++)
+    QVector<Polar*> polarList;
+    for(i=0; i<Objects2d::polarCount(); i++)
     {
-        pPolar = Objects2d::s_oaPolar.at(i);
+        pPolar = Objects2d::polarAt(i);
         for(int iFoil=0; iFoil<foilList.count(); iFoil++)
         {
             if(pPolar->foilName() == foilList.at(iFoil)->foilName())
@@ -5181,13 +5104,19 @@ void MainFrame::selectPlaneOpp(PlaneOpp *pPlaneOpp)
         else if(pPlaneOpp->polarType()==XFLR5::STABILITYPOLAR) x = pPlaneOpp->m_Ctrl;
     }
     //Selects a pOpp in the combobox
-    WPolar *pCurWPlr    = m_pMiarex->m_pCurWPolar;
-    double val;
-    bool bOK;
+    WPolar *pCurWPlr = m_pMiarex->m_pCurWPolar;
+    if(!pCurWPlr)
+    {
+        m_pctrlPlaneOpp->clear();
+        m_pctrlPlaneOpp->setEnabled(false);
+        return;
+    }
+    double val=0;
+    bool bOK=false;
     QString strange;
 
     m_pctrlPlaneOpp->blockSignals(true);
-    //	x = (double)qRound(x*100.0)/100.0;
+    //    x = (double)qRound(x*100.0)/100.0;
 
     for(int i=0; i<m_pctrlPlaneOpp->count(); i++)
     {
@@ -5231,9 +5160,6 @@ void MainFrame::selectPlaneOpp(PlaneOpp *pPlaneOpp)
 }
 
 
-
-
-
 bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
 {
     WPolar *pWPolar = nullptr;
@@ -5243,6 +5169,8 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
     OpPoint *pOpp    = nullptr;
 
     int i=0, n=0;
+    float f=0;
+    double dble=0;
 
     if (bIsStoring)
     {
@@ -5261,7 +5189,7 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
 
 
         //Save default Polar data. Not in the Settings, since this is Project dependant
-        /*		if(WPolarDlg::s_WPolar.isFixedSpeedPolar())       ar<<1;
+        /*        if(WPolarDlg::s_WPolar.isFixedSpeedPolar())       ar<<1;
         else if(WPolarDlg::s_WPolar.isFixedLiftPolar())   ar<<2;
         else if(WPolarDlg::s_WPolar.isFixedaoaPolar())    ar<<4;
         else if(WPolarDlg::s_WPolar.isBetaPolar())        ar<<5;
@@ -5297,7 +5225,7 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
         ar << Objects3d::s_oaPlane.size();
         for (i=0; i<Objects3d::s_oaPlane.size();i++)
         {
-            pPlane = (Plane*)Objects3d::s_oaPlane.at(i);
+            pPlane = Objects3d::s_oaPlane.at(i);
             pPlane->serializePlaneXFL(ar, bIsStoring);
         }
 
@@ -5315,35 +5243,35 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
             ar << Objects3d::s_oaPOpp.size();
             for (i=0; i<Objects3d::s_oaPOpp.size();i++)
             {
-                pPOpp = (PlaneOpp*)Objects3d::s_oaPOpp.at(i);
+                pPOpp = Objects3d::s_oaPOpp.at(i);
                 pPOpp->serializePOppXFL(ar, bIsStoring);
             }
         }
         else ar << 0;
 
         // then the foils
-        ar << Objects2d::s_oaFoil.size();
-        for(int i=0; i<Objects2d::s_oaFoil.size(); i++)
+        ar << Objects2d::foilCount();
+        for(int i=0; i<Objects2d::foilCount(); i++)
         {
-            Foil *pFoil = Objects2d::s_oaFoil.at(i);
+            Foil *pFoil = Objects2d::foilAt(i);
             serializeFoilXFL(pFoil, ar, bIsStoring);
         }
 
         //the foil polars
-        ar << Objects2d::s_oaPolar.size();
-        for (int i=0; i<Objects2d::s_oaPolar.size();i++)
+        ar << Objects2d::polarCount();
+        for (int i=0; i<Objects2d::polarCount();i++)
         {
-            pPolar = Objects2d::s_oaPolar.at(i);
+            pPolar = Objects2d::polarAt(i);
             serializePolarXFL(pPolar, ar, bIsStoring);
         }
 
         //the oppoints
         if(m_bSaveOpps)
         {
-            ar << Objects2d::s_oaOpp.size();
-            for (int i=0; i<Objects2d::s_oaOpp.size();i++)
+            ar << Objects2d::oppCount();
+            for (int i=0; i<Objects2d::oppCount();i++)
             {
-                pOpp = Objects2d::s_oaOpp.at(i);
+                pOpp = Objects2d::oppAt(i);
                 pOpp->serializeOppXFL(ar, bIsStoring);
             }
         }
@@ -5357,7 +5285,8 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
         //add provisions
         // space allocation for the future storage of more data, without need to change the format
         for (int i=2; i<20; i++) ar << 0;
-        for (int i=0; i<50; i++) ar << (double)0.0;
+        dble=0;
+        for (int i=0; i<50; i++) ar << dble;
     }
     else
     {
@@ -5382,27 +5311,27 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
         {
             //Load the default Polar data. Not in the Settings, since this is Project dependant
             ar >> n;
-            if(n==1)      WPolarDlg::s_WPolar.polarType()=XFLR5::FIXEDSPEEDPOLAR;
-            else if(n==2) WPolarDlg::s_WPolar.polarType()=XFLR5::FIXEDLIFTPOLAR;
-            else if(n==4) WPolarDlg::s_WPolar.polarType()=XFLR5::FIXEDAOAPOLAR;
-            else if(n==5) WPolarDlg::s_WPolar.polarType()=XFLR5::BETAPOLAR;
-            else if(n==7) WPolarDlg::s_WPolar.polarType()=XFLR5::STABILITYPOLAR;
+            if     (n==1) WPolarDlg::s_WPolar.setPolarType(XFLR5::FIXEDSPEEDPOLAR);
+            else if(n==2) WPolarDlg::s_WPolar.setPolarType(XFLR5::FIXEDLIFTPOLAR);
+            else if(n==4) WPolarDlg::s_WPolar.setPolarType(XFLR5::FIXEDAOAPOLAR);
+            else if(n==5) WPolarDlg::s_WPolar.setPolarType(XFLR5::BETAPOLAR);
+            else if(n==7) WPolarDlg::s_WPolar.setPolarType(XFLR5::STABILITYPOLAR);
 
             ar >> n;
-            if(n==1)      WPolarDlg::s_WPolar.analysisMethod()=XFLR5::LLTMETHOD;
-            else if(n==2) WPolarDlg::s_WPolar.analysisMethod()=XFLR5::VLMMETHOD;
-            else if(n==3) WPolarDlg::s_WPolar.analysisMethod()=XFLR5::PANEL4METHOD;
-            else if(n==4) WPolarDlg::s_WPolar.analysisMethod()=XFLR5::TRICSTMETHOD;
-            else if(n==5) WPolarDlg::s_WPolar.analysisMethod()=XFLR5::TRILINMETHOD;
+            if(n==1)      WPolarDlg::s_WPolar.setAnalysisMethod(XFLR5::LLTMETHOD);
+            else if(n==2) WPolarDlg::s_WPolar.setAnalysisMethod(XFLR5::VLMMETHOD);
+            else if(n==3) WPolarDlg::s_WPolar.setAnalysisMethod(XFLR5::PANEL4METHOD);
+            else if(n==4) WPolarDlg::s_WPolar.setAnalysisMethod(XFLR5::TRICSTMETHOD);
+            else if(n==5) WPolarDlg::s_WPolar.setAnalysisMethod(XFLR5::TRILINMETHOD);
 
-            ar >> WPolarDlg::s_WPolar.mass();
+            ar >> dble;    WPolarDlg::s_WPolar.setMass(dble);
             ar >> WPolarDlg::s_WPolar.m_QInfSpec;
-            ar >> WPolarDlg::s_WPolar.CoG().x;
-            ar >> WPolarDlg::s_WPolar.CoG().y;
-            ar >> WPolarDlg::s_WPolar.CoG().z;
+            double x=0, y=0, z=0;
+            ar >> x >> y >> z;
+            WPolarDlg::s_WPolar.setCoG({x,y,z});
 
-            ar >> WPolarDlg::s_WPolar.density();
-            ar >> WPolarDlg::s_WPolar.viscosity();
+            ar >> f; WPolarDlg::s_WPolar.setDensity(double(f));
+            ar >> f; WPolarDlg::s_WPolar.setViscosity(double(f));
             ar >> WPolarDlg::s_WPolar.m_AlphaSpec;
             ar >> WPolarDlg::s_WPolar.m_BetaSpec;
 
@@ -5420,6 +5349,7 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
             if(pPlane->serializePlaneXFL(ar, bIsStoring)) Objects3d::s_oaPlane.append(pPlane);
             else
             {
+                delete pPlane;
                 QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
@@ -5439,18 +5369,19 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
                     Objects3d::s_oaWPolar.append(pWPolar);
                     if(pWPolar->referenceDim()==XFLR5::PLANFORMREFDIM)
                     {
-                        pWPolar->referenceArea()       = pPlane->planformArea();
-                        pWPolar->referenceSpanLength() = pPlane->planformSpan();
-                        if(pPlane->BiPlane()) pWPolar->referenceArea() += pPlane->wing2()->m_PlanformArea;
-                        pWPolar->referenceChordLength() = pPlane->mac();
+                        pWPolar->setReferenceSpanLength(pPlane->planformSpan());
+                        double area  = pPlane->planformArea();
+                        if(pPlane->biPlane()) area += pPlane->wing2()->m_PlanformArea;
+                        pWPolar->setReferenceArea(area);
                     }
                     else if(pWPolar->referenceDim()==XFLR5::PROJECTEDREFDIM)
                     {
-                        pWPolar->referenceArea()       = pPlane->projectedArea();
-                        pWPolar->referenceSpanLength() = pPlane->projectedSpan();
-                        if(pPlane->BiPlane()) pWPolar->referenceArea() += pPlane->wing2()->m_ProjectedArea;
-                        pWPolar->referenceChordLength() = pPlane->mac();
+                        pWPolar->setReferenceSpanLength(pPlane->projectedSpan());
+                        double area = pPlane->projectedArea();
+                        if(pPlane->biPlane()) area += pPlane->wing2()->m_ProjectedArea;
+                        pWPolar->setReferenceArea(area);
                     }
+                    pWPolar->setReferenceChordLength(pPlane->mac());
                 }
                 else
                 {
@@ -5458,6 +5389,7 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
             }
             else
             {
+                delete pWPolar;
                 QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
@@ -5482,6 +5414,7 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
             }
             else
             {
+                delete pPOpp;
                 QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
@@ -5498,10 +5431,11 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
                 // there is a risk that old plane results are not consisent with the new foil, but difficult to avoid that
                 Foil *pOldFoil = Objects2d::foil(pFoil->foilName());
                 if(pOldFoil) Objects2d::deleteFoil(pOldFoil);
-                Objects2d::s_oaFoil.append(pFoil);
+                Objects2d::appendFoil(pFoil);
             }
             else
             {
+                delete pFoil;
                 QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
@@ -5509,12 +5443,14 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
 
         // load the Polars
         ar >> n;
+
         for(i=0; i<n; i++)
         {
             pPolar = new Polar();
-            if(serializePolarXFL(pPolar, ar, bIsStoring)) Objects2d::s_oaPolar.append(pPolar);
+            if(serializePolarXFL(pPolar, ar, bIsStoring)) Objects2d::appendPolar(pPolar);
             else
             {
+                delete pPolar;
                 QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
@@ -5525,9 +5461,10 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
         for(i=0; i<n; i++)
         {
             pOpp = new OpPoint();
-            if(pOpp->serializeOppXFL(ar, bIsStoring))  Objects2d::s_oaOpp.append(pOpp);
+            if(pOpp->serializeOppXFL(ar, bIsStoring))  Objects2d::appendOpp(pOpp);
             else
             {
+                delete pOpp;
                 QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
@@ -5540,15 +5477,13 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
         ar >> n; Units::setInertiaUnitIndex(n);
 
         // space allocation
-        int k ;
-        double dble;
+        int k=0;
+        double dble=0;
         for (int i=2; i<20; i++) ar >> k;
         for (int i=0; i<50; i++) ar >> dble;
     }
-
     return true;
 }
-
 
 
 bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
@@ -5564,7 +5499,7 @@ bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
 
     QString str;
     int i=0, n=0, j=0, k=0;
-    float f=0;
+    float f=0, g=0, h=0;
 
     if (bIsStoring)
     {
@@ -5604,39 +5539,38 @@ bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
             if(ArchiveFormat>=100004)
             {
                 ar >>k;
-                if(k==1)      WPolarDlg::s_WPolar.polarType() = XFLR5::FIXEDSPEEDPOLAR;
-                else if(k==2) WPolarDlg::s_WPolar.polarType() = XFLR5::FIXEDLIFTPOLAR;
-                else if(k==4) WPolarDlg::s_WPolar.polarType() = XFLR5::FIXEDAOAPOLAR;
-                else if(k==5) WPolarDlg::s_WPolar.polarType() = XFLR5::BETAPOLAR;
-                else if(k==7) WPolarDlg::s_WPolar.polarType() = XFLR5::STABILITYPOLAR;
+                if     (k==1) WPolarDlg::s_WPolar.setPolarType(XFLR5::FIXEDSPEEDPOLAR);
+                else if(k==2) WPolarDlg::s_WPolar.setPolarType(XFLR5::FIXEDLIFTPOLAR);
+                else if(k==4) WPolarDlg::s_WPolar.setPolarType(XFLR5::FIXEDAOAPOLAR);
+                else if(k==5) WPolarDlg::s_WPolar.setPolarType(XFLR5::BETAPOLAR);
+                else if(k==7) WPolarDlg::s_WPolar.setPolarType(XFLR5::STABILITYPOLAR);
 
-                ar >> f; WPolarDlg::s_WPolar.mass()=f;
-                ar >> f; WPolarDlg::s_WPolar.m_QInfSpec=f;
+                ar >> f; WPolarDlg::s_WPolar.setMass(double(f));
+                ar >> f; WPolarDlg::s_WPolar.m_QInfSpec=double(f);
                 if(ArchiveFormat>=100013)
                 {
-                    ar >> f; WPolarDlg::s_WPolar.CoG().x=f;
-                    ar >> f; WPolarDlg::s_WPolar.CoG().y=f;
-                    ar >> f; WPolarDlg::s_WPolar.CoG().z=f;
+                    ar >> f >> g >> h;
+                    WPolarDlg::s_WPolar.setCoG({double(f), double(g), double(h)});
                 }
                 else
                 {
-                    ar >> f; WPolarDlg::s_WPolar.CoG().x=f;
-                    WPolarDlg::s_WPolar.CoG().y=0;
-                    WPolarDlg::s_WPolar.CoG().z=0;
+                    ar >> f; WPolarDlg::s_WPolar.setCoGx(double(f));
+                    WPolarDlg::s_WPolar.setCoGy(0);
+                    WPolarDlg::s_WPolar.setCoGz(0);
                 }
-                if(ArchiveFormat<100010) WPolarDlg::s_WPolar.CoG().x=f/1000.0;
-                ar >> f; WPolarDlg::s_WPolar.density()   = f;
-                ar >> f; WPolarDlg::s_WPolar.viscosity() = f;
-                ar >> f; WPolarDlg::s_WPolar.m_AlphaSpec     = f;
+                if(ArchiveFormat<100010) WPolarDlg::s_WPolar.setCoGx(double(f)/1000.0);
+                ar >> f; WPolarDlg::s_WPolar.setDensity(double(f));
+                ar >> f; WPolarDlg::s_WPolar.setViscosity(double(f));
+                ar >> f; WPolarDlg::s_WPolar.m_AlphaSpec     = double(f);
                 if(ArchiveFormat>=100012)
                 {
-                    ar >>f; WPolarDlg::s_WPolar.m_BetaSpec=f;
+                    ar >>f; WPolarDlg::s_WPolar.m_BetaSpec=double(f);
                 }
 
                 ar >> k;
-                if(k==1)      WPolarDlg::s_WPolar.analysisMethod()=XFLR5::LLTMETHOD;
-                else if(k==2) WPolarDlg::s_WPolar.analysisMethod()=XFLR5::VLMMETHOD;
-                else if(k==3) WPolarDlg::s_WPolar.analysisMethod()=XFLR5::PANEL4METHOD;
+                if     (k==1) WPolarDlg::s_WPolar.setAnalysisMethod(XFLR5::LLTMETHOD);
+                else if(k==2) WPolarDlg::s_WPolar.setAnalysisMethod(XFLR5::VLMMETHOD);
+                else if(k==3) WPolarDlg::s_WPolar.setAnalysisMethod(XFLR5::PANEL4METHOD);
             }
             if(ArchiveFormat>=100006)
             {
@@ -5689,7 +5623,7 @@ bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
         ar >> n;// number of WPolars to load
         bool bWPolarOK;
 
-        for (i=0;i<n; i++)
+        for (i=0; i<n; i++)
         {
             pWPolar = new WPolar;
             bWPolarOK = pWPolar->serializeWPlrWPA(ar, bIsStoring);
@@ -5701,8 +5635,8 @@ bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
                 if(pWPolar) delete pWPolar;
                 return false;
             }
-            if(pWPolar->analysisMethod()!=XFLR5::LLTMETHOD && ArchiveFormat <100003)	pWPolar->clearData();//former VLM version was flawed
-            //			if(pWPolar->polarType()==STABILITYPOLAR)	pWPolar->bThinSurfaces() = true;
+            if(pWPolar->analysisMethod()!=XFLR5::LLTMETHOD && ArchiveFormat <100003)    pWPolar->clearData();//former VLM version was flawed
+            //            if(pWPolar->polarType()==STABILITYPOLAR)    pWPolar->bThinSurfaces() = true;
 
             if(pWPolar->polarFormat()!=1020 || pWPolar->polarType()!=XFLR5::STABILITYPOLAR)
                 Objects3d::addWPolar(pWPolar);
@@ -5732,7 +5666,7 @@ bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
             delete pWOpp;
         }
 
-        //		ar >> n;
+        //        ar >> n;
         //=100000 ... unused
         //THEN FOILS, POLARS and OPPS
         if(ArchiveFormat>=100009)
@@ -5758,17 +5692,17 @@ bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
         }
         if(n==100000)
         {
-            for (j=0; j<Objects2d::s_oaPolar.size(); j++)
+            for (j=0; j<Objects2d::polarCount(); j++)
             {
-                pPolar = Objects2d::s_oaPolar.at(j);
-                for (k=0; k<Objects2d::s_oaFoil.size(); k++)
+                pPolar = Objects2d::polarAt(j);
+                for (k=0; k<Objects2d::foilCount(); k++)
                 {
-                    pFoil = Objects2d::s_oaFoil.at(k);
+                    pFoil = Objects2d::foilAt(k);
                     if(pFoil->foilName()==pPolar->foilName())
                     {
-                        pPolar->NCrit()      = 9.0;
-                        pPolar->XtrTop()     = 1.0;
-                        pPolar->XtrBot()     = 1.0;
+                        pPolar->setNCrit(9.0);
+                        pPolar->setXtrTop(1.0);
+                        pPolar->setXtrBot(1.0);
                         str = QString("_N%1").arg(9.0,4,'f',1);
                         QString name = pPolar->polarName();
                         pPolar->setPolarName(name + str);
@@ -5821,7 +5755,7 @@ bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
             // attach the body pointers to the Plane objects
             for (int ib=0; ib<Objects3d::s_oaBody.size(); ib++)
             {
-                Body *pBody = (Body*)Objects3d::s_oaBody.at(ib);
+                Body *pBody = Objects3d::s_oaBody.at(ib);
                 Objects3d::addBody(pBody);
             }
 
@@ -5856,7 +5790,7 @@ bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
                     return false;
                 }
                 Objects3d::insertPOpp(pPOpp);
-                //				Objects3D::s_oaPOpp.append(pPOpp);
+                //                Objects3D::s_oaPOpp.append(pPOpp);
             }
         }
         m_pMiarex->m_pCurPOpp = nullptr;
@@ -5874,7 +5808,6 @@ bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
         return true;
     }
 }
-
 
 
 void MainFrame::setMenus()
@@ -5975,7 +5908,6 @@ void MainFrame::setGraphSettings(Graph *pGraph)
     for(int ig=0; ig<m_pMiarex->m_WPlrGraph.count(); ig++) m_pMiarex->m_WPlrGraph[ig]->copySettings(pGraph, false);
     for(int ig=0; ig<m_pMiarex->m_TimeGraph.count(); ig++) m_pMiarex->m_TimeGraph[ig]->copySettings(pGraph, false);
     for(int ig=0; ig<m_pMiarex->m_StabPlrGraph.count(); ig++) m_pMiarex->m_StabPlrGraph[ig]->copySettings(pGraph, false);
-
 }
 
 
@@ -6021,7 +5953,7 @@ void MainFrame::updatePlaneListBox()
     QStringList PlaneNames;
     for (i=0; i<Objects3d::s_oaPlane.size(); i++)
     {
-        pPlane = (Plane*)Objects3d::s_oaPlane[i];
+        pPlane = Objects3d::s_oaPlane[i];
         PlaneNames.append(pPlane->planeName());
     }
 
@@ -6046,9 +5978,9 @@ void MainFrame::updatePlaneListBox()
 
 void MainFrame::updateWPolarListBox()
 {
-    //	fills the combobox with WPolar names associated to Miarex's current wing
-    //	then selects Miarex current WPolar if any, else selects the first, if any
-    //	else disables the combobox
+    //    fills the combobox with WPolar names associated to Miarex's current wing
+    //    then selects Miarex current WPolar if any, else selects the first, if any
+    //    else disables the combobox
     WPolar *pWPolar=nullptr;
     QString PlaneName;
     int i=0;
@@ -6097,7 +6029,6 @@ void MainFrame::updatePOppListBox()
 {
     m_pctrlPlaneOpp->blockSignals(true);
 
-    PlaneOpp *pPOpp;
     Plane  *pCurPlane   = m_pMiarex->m_pCurPlane;
     WPolar *pCurWPlr    = m_pMiarex->m_pCurWPolar;
 
@@ -6113,7 +6044,7 @@ void MainFrame::updatePOppListBox()
 
     for (int iPOpp=0; iPOpp<Objects3d::s_oaPOpp.size(); iPOpp++)
     {
-        pPOpp = (PlaneOpp*)Objects3d::s_oaPOpp.at(iPOpp);
+        PlaneOpp *pPOpp = Objects3d::s_oaPOpp.at(iPOpp);
         if (pPOpp->planeName()==pCurPlane->planeName() && pPOpp->polarName()==pCurWPlr->polarName())
         {
             if(pCurWPlr->polarType()<XFLR5::FIXEDAOAPOLAR)        str = QString("%L1").arg(pPOpp->m_Alpha,8,'f',3);
@@ -6145,9 +6076,9 @@ void MainFrame::updateFoilListBox()
     m_pctrlFoil->clear();
 
     QStringList foilList;
-    for (int iFoil=0; iFoil<Objects2d::s_oaFoil.size(); iFoil++)
+    for (int iFoil=0; iFoil<Objects2d::foilCount(); iFoil++)
     {
-        Foil *pFoil = Objects2d::s_oaFoil[iFoil];
+        Foil *pFoil = Objects2d::foilAt(iFoil);
         foilList.append(pFoil->foilName());
     }
 
@@ -6183,9 +6114,9 @@ void MainFrame::updatePolarListBox()
     else
     {
         QStringList polarList;
-        for (int i=0; i<Objects2d::s_oaPolar.size(); i++)
+        for (int i=0; i<Objects2d::polarCount(); i++)
         {
-            Polar *pPolar = Objects2d::s_oaPolar[i];
+            Polar *pPolar = Objects2d::polarAt(i);
             if(pPolar->foilName() == XDirect::curFoil()->foilName())
             {
                 polarList.append(pPolar->polarName());
@@ -6232,9 +6163,9 @@ void MainFrame::updateOppListBox()
     {
         QStringList oppList;
         QString str;
-        for (int iOpp=0; iOpp<Objects2d::s_oaOpp.size(); iOpp++)
+        for (int iOpp=0; iOpp<Objects2d::oppCount(); iOpp++)
         {
-            OpPoint *pOpp = Objects2d::s_oaOpp[iOpp];
+            OpPoint *pOpp = Objects2d::oppAt(iOpp);
             if (pOpp->foilName()==XDirect::curFoil()->foilName() && pOpp->polarName()==pCurPlr->polarName())
             {
                 if (pCurPlr->polarType() != XFLR5::FIXEDAOAPOLAR)
@@ -6312,63 +6243,66 @@ void MainFrame::updateView()
 }
 
 
-
-void MainFrame::writePolars(QDataStream &ar, Foil *pFoil)
+void MainFrame::saveFoilPolars(QDataStream &ar, QVector<Foil*> const &FoilList)
 {
-    int i=0;
-    if(!pFoil)
+    QVector<Foil*> ExportList;
+    if(FoilList.isEmpty())
     {
-        int ArchiveFormat = 100003;
-        ar << ArchiveFormat;
-        //100003 : added foil comment
-        //100002 : means we are serializings opps in the new numbered format
-        //100001 : transferred NCrit, XTopTr, XBotTr to polar file
-        //first write foils
-        ar << Objects2d::s_oaFoil.size();
-
-        for (i=0; i<Objects2d::s_oaFoil.size(); i++)
+        // Save them all, the user will sort them out
+        for(int iFoil=0; iFoil<Objects2d::foilCount(); iFoil++)
         {
-            pFoil = Objects2d::s_oaFoil.at(i);
-            serializeFoil(pFoil, ar, true);
-        }
-
-        //then write polars
-        ar << Objects2d::s_oaPolar.size();
-        Polar * pPolar ;
-        for (i=0; i<Objects2d::s_oaPolar.size();i++)
-        {
-            pPolar = Objects2d::s_oaPolar.at(i);
-            serializePolar(pPolar, ar, true);
+            ExportList.append(Objects2d::foilAt(iFoil));
         }
     }
     else
     {
-        ar << 100003;
-        //100003 : added foil comment
-        //100002 : means we are serializings opps in the new numbered format
-        //100001 : transferred NCrit, XTopTr, XBotTr to polar file
-        //first write foil
-        ar << 1;//only one this time
-        serializeFoil(pFoil, ar,true);
-        //count polars associated to the foil
-        Polar * pPolar ;
-        int n=0;
-        for (i=0; i<Objects2d::s_oaPolar.size();i++)
+        for(int iFoil=0; iFoil<FoilList.size(); iFoil++)
         {
-            pPolar = Objects2d::s_oaPolar.at(i);
-            if (pPolar->foilName() == pFoil->foilName()) n++;
+            ExportList.append(FoilList.at(iFoil));
         }
-        //then write polars
-        ar << n;
-        for (i=0; i<Objects2d::s_oaPolar.size();i++)
+    }
+
+    // count the number of polars to export
+    int nPolars = 0;
+    for (int i=0; i<ExportList.size(); i++)
+    {
+        Foil const *pFoil = ExportList.at(i);
+        for (int j=0; j<Objects2d::polarCount(); j++)
         {
-            pPolar = Objects2d::s_oaPolar.at(i);
-            if (pPolar->foilName() == pFoil->foilName()) serializePolar(pPolar, ar, true);
+            Polar *pPolar = Objects2d::polarAt(j);
+            if(pPolar->foilName().compare(pFoil->foilName())==0) nPolars++;
+        }
+    }
+
+    int ArchiveFormat = 100003;
+    ar << ArchiveFormat;
+    //100003 : added foil comment
+    //100002 : means we are serializings opps in the new numbered format
+    //100001 : transferred NCrit, XTopTr, XBotTr to polar file
+    //first write foils
+    ar << ExportList.size();
+
+    for (int i=0; i<ExportList.size(); i++)
+    {
+        Foil *pFoil = ExportList.at(i);
+        serializeFoil(pFoil, ar, true);
+    }
+
+    //then write the polars associated to the selected foils
+    ar << nPolars;
+
+    for (int i=0; i<ExportList.size(); i++)
+    {
+        Foil const *pFoil = ExportList.at(i);
+        for (int j=0; j<Objects2d::polarCount(); j++)
+        {
+            Polar *pPolar = Objects2d::polarAt(j);
+            if(pPolar->foilName().compare(pFoil->foilName())==0)
+                serializePolar(pPolar, ar, true);
         }
     }
 
     ar << 0; // don't save opps
-
 }
 
 
@@ -6431,6 +6365,11 @@ void MainFrame::onManageFoils()
     mfDlg.initDialog(FoilName);
     mfDlg.exec();
 
+    // set null ptrs in case the current objects have been deleted
+    XDirect::setCurFoil(nullptr);
+    XDirect::setCurPolar(nullptr);
+    XDirect::setCurOpp(nullptr);
+
     if(mfDlg.m_bChanged) setSaveState(false);
 
     if(m_iApp==XFLR5::XFOILANALYSIS)
@@ -6452,7 +6391,7 @@ void MainFrame::onManageFoils()
 
 void MainFrame::checkGraphActions()
 {
-    for(int ig=0; ig<MAXGRAPHS; ig++)	m_pSingleGraph[ig]->setChecked(false);
+    for(int ig=0; ig<MAXGRAPHS; ig++)    m_pSingleGraph[ig]->setChecked(false);
     m_pTwoGraphs->setChecked(false);
     m_pFourGraphs->setChecked(false);
     m_pAllGraphs->setChecked(false);
@@ -6687,7 +6626,7 @@ void MainFrame::onExecuteScript()
     scriptExecutor.makePlanes();
     scriptExecutor.makePlaneAnalysisList();
 
-    //	scriptExecutor.runScript();
+    //    scriptExecutor.runScript();
 }
 
 
@@ -6723,9 +6662,9 @@ bool MainFrame::serializeFoilXFL(Foil *pFoil, QDataStream &ar, bool bIsStoring)
         writeColor(ar, pFoil->m_red, pFoil->m_green, pFoil->m_blue, pFoil->m_alphaChannel);
 
         ar << pFoil->m_bIsFoilVisible;
-        //		ar << m_bShowFoilPoints;
+        //        ar << m_bShowFoilPoints;
 
-        ar << (qint8)pFoil->m_PointStyle;
+        ar << qint8(pFoil->m_PointStyle);
         ar << pFoil->m_bCenterLine << pFoil->m_bLEFlap << pFoil->m_bTEFlap;
         ar << pFoil->m_LEFlapAngle << pFoil->m_LEXHinge << pFoil->m_LEYHinge;
         ar << pFoil->m_TEFlapAngle << pFoil->m_TEXHinge << pFoil->m_TEYHinge;
@@ -6751,8 +6690,8 @@ bool MainFrame::serializeFoilXFL(Foil *pFoil, QDataStream &ar, bool bIsStoring)
         readColor(ar, pFoil->m_red, pFoil->m_green, pFoil->m_blue, pFoil->m_alphaChannel);
 
         ar >> pFoil->m_bIsFoilVisible;
-        //		ar >> m_bShowFoilPoints;
-        ar >> b; pFoil->m_PointStyle = (int)b;
+        //        ar >> m_bShowFoilPoints;
+        ar >> b; pFoil->m_PointStyle = int(b);
         ar >> pFoil->m_bCenterLine >> pFoil->m_bLEFlap >> pFoil->m_bTEFlap;
         ar >> pFoil->m_LEFlapAngle >> pFoil->m_LEXHinge >> pFoil->m_LEYHinge;
         ar >> pFoil->m_TEFlapAngle >> pFoil->m_TEXHinge >> pFoil->m_TEYHinge;
@@ -6799,11 +6738,11 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
         ar << pPolar->m_bIsVisible << false;
 
 
-        if(pPolar->m_PolarType==XFLR5::FIXEDSPEEDPOLAR)       ar<<1;
+        if      (pPolar->m_PolarType==XFLR5::FIXEDSPEEDPOLAR) ar<<1;
         else if(pPolar->m_PolarType==XFLR5::FIXEDLIFTPOLAR)   ar<<2;
         else if(pPolar->m_PolarType==XFLR5::RUBBERCHORDPOLAR) ar<<3;
         else if(pPolar->m_PolarType==XFLR5::FIXEDAOAPOLAR)    ar<<4;
-        else                                          ar<<1;
+        else                                                  ar<<1;
 
         ar << pPolar->m_MaType << pPolar->m_ReType;
         ar << pPolar->m_Reynolds << pPolar->m_Mach;
@@ -6814,12 +6753,12 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
         ar << pPolar->m_Alpha.size();
         for (i=0; i< pPolar->m_Alpha.size(); i++)
         {
-            ar << (float)pPolar->m_Alpha[i] << (float)pPolar->m_Cd[i] ;
-            ar << (float)pPolar->m_Cdp[i]   << (float)pPolar->m_Cl[i] << (float)pPolar->m_Cm[i];
-            ar << (float)pPolar->m_XTr1[i]  << (float)pPolar->m_XTr2[i];
-            ar << (float)pPolar->m_HMom[i]  << (float)pPolar->m_Cpmn[i];
-            ar << (float)pPolar->m_Re[i];
-            ar << (float)pPolar->m_XCp[i];
+            ar << float(pPolar->m_Alpha[i]) << float(pPolar->m_Cd[i]) ;
+            ar << float(pPolar->m_Cdp[i])   << float(pPolar->m_Cl[i]) << float(pPolar->m_Cm[i]);
+            ar << float(pPolar->m_XTr1[i])  << float(pPolar->m_XTr2[i]);
+            ar << float(pPolar->m_HMom[i])  << float(pPolar->m_Cpmn[i]);
+            ar << float(pPolar->m_Re[i]);
+            ar << float(pPolar->m_XCp[i]);
         }
 
         ar << pPolar->m_PointStyle;
@@ -6832,7 +6771,7 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
     else
     {
         //read variables
-        float Alpha, Cd, Cdp, Cl, Cm, XTr1, XTr2, HMom, Cpmn, Re, XCp;
+        float Alpha=0, Cd=0, Cdp=0, Cl=0, Cm=0, XTr1=0, XTr2=0, HMom=0, Cpmn=0, Re=0, XCp=0;
 
         ar >> ArchiveFormat;
         if (ArchiveFormat <100000 || ArchiveFormat>110000) return false;
@@ -6840,7 +6779,8 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
         ar >> pPolar->m_FoilName;
         ar >> pPolar->m_PlrName;
 
-        ar >> pPolar->polarStyle() >> pPolar->polarWidth();
+        ar >> n; pPolar->setPolarStyle(n);
+        ar >> n; pPolar->setPolarWidth(n);
         readColor(ar, pPolar->m_red, pPolar->m_green, pPolar->m_blue, pPolar->m_alphaChannel);
         ar >> pPolar->m_bIsVisible >> boolean;
 
@@ -6861,7 +6801,8 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
         for (i=0; i< n; i++)
         {
             ar >> Alpha >> Cd >> Cdp >> Cl >> Cm >> XTr1 >> XTr2 >> HMom >> Cpmn >> Re >> XCp;
-            pPolar->addPoint(Alpha, Cd, Cdp, Cl, Cm, XTr1, XTr2, HMom, Cpmn, Re, XCp);
+            pPolar->addPoint(double(Alpha), double(Cd), double(Cdp), double(Cl), double(Cm),
+                             double(XTr1), double(XTr2), double(HMom), double(Cpmn), double(Re), double(XCp));
         }
 
         ar >> pPolar->m_PointStyle;
@@ -6909,15 +6850,16 @@ bool MainFrame::serializeOppXFL(OpPoint *pOpp, QDataStream &ar, bool bIsStoring,
         ar << pOpp->Xtr1 << pOpp->Xtr2 << pOpp->m_XCP;
         ar << pOpp->ACrit << pOpp->m_TEHMom << pOpp->Cpmn;
 
-        for (k=0; k<pOpp->n; k++)     ar << (float)pOpp->Cpv[k] << (float)pOpp->Cpi[k];
-        for (k=0; k<pOpp->n; k++)     ar << (float)pOpp->Qv[k]  << (float)pOpp->Qi[k];
-        for (k=0; k<=pOpp->blx.nd1; k++)  ar << (float)pOpp->blx.xd1[k] << (float)pOpp->blx.yd1[k];
-        for (k=0; k<pOpp->blx.nd2; k++)   ar << (float)pOpp->blx.xd2[k] << (float)pOpp->blx.yd2[k];
-        for (k=0; k<pOpp->blx.nd3; k++)	  ar << (float)pOpp->blx.xd3[k] << (float)pOpp->blx.yd3[k];
+        for (k=0; k<pOpp->n; k++)     ar << float(pOpp->Cpv[k]) << float(pOpp->Cpi[k]);
+        for (k=0; k<pOpp->n; k++)     ar << float(pOpp->Qv[k] ) << float(pOpp->Qi[k]);
+        for (k=0; k<=pOpp->blx.nd1; k++)  ar << float(pOpp->blx.xd1[k]) << float(pOpp->blx.yd1[k]);
+        for (k=0; k<pOpp->blx.nd2; k++)   ar << float(pOpp->blx.xd2[k]) << float(pOpp->blx.yd2[k]);
+        for (k=0; k<pOpp->blx.nd3; k++)      ar << float(pOpp->blx.xd3[k]) << float(pOpp->blx.yd3[k]);
 
         // space allocation for the future storage of more data, without need to change the format
         for (int i=0; i<20; i++) ar << 0;
-        for (int i=0; i<50; i++) ar << (double)0.0;
+        dble = 0;
+        for (int i=0; i<50; i++) ar << dble;
     }
     else
     {
@@ -6944,32 +6886,32 @@ bool MainFrame::serializeOppXFL(OpPoint *pOpp, QDataStream &ar, bool bIsStoring,
         for (k=0; k<pOpp->n; k++)
         {
             ar >> f0 >> f1;
-            pOpp->Cpv[k] = f0;
-            pOpp->Cpi[k] = f1;
+            pOpp->Cpv[k] = double(f0);
+            pOpp->Cpi[k] = double(f1);
         }
         for (k=0; k<pOpp->n; k++)
         {
             ar >> f0 >> f1;
-            pOpp->Qv[k] = f0;
-            pOpp->Qi[k] = f1;
+            pOpp->Qv[k] = double(f0);
+            pOpp->Qi[k] = double(f1);
         }
         for (k=0; k<=pOpp->blx.nd1; k++)
         {
             ar >> f0 >> f1;
-            pOpp->blx.xd1[k] = f0;
-            pOpp->blx.yd1[k] = f1;
+            pOpp->blx.xd1[k] = double(f0);
+            pOpp->blx.yd1[k] = double(f1);
         }
         for (k=0; k<pOpp->blx.nd2; k++)
         {
             ar >> f0 >> f1;
-            pOpp->blx.xd2[k] = f0;
-            pOpp->blx.yd2[k] = f1;
+            pOpp->blx.xd2[k] = double(f0);
+            pOpp->blx.yd2[k] = double(f1);
         }
         for (k=0; k<pOpp->blx.nd3; k++)
         {
             ar >> f0 >> f1;
-            pOpp->blx.xd3[k] = f0;
-            pOpp->blx.yd3[k] = f1;
+            pOpp->blx.xd3[k] = double(f0);
+            pOpp->blx.yd3[k] = double(f1);
         }
 
         // space allocation
@@ -7042,7 +6984,7 @@ void MainFrame::onPreferences()
             m_pSaveTimer = new QTimer(this);
             m_pSaveTimer->setInterval(m_SaveInterval*60*1000);
             m_pSaveTimer->start();
-            connect(m_pSaveTimer, SIGNAL(timeout()), this, SLOT(onSaveTimer()));
+            connect(m_pSaveTimer, SIGNAL(timeout()), SLOT(onSaveTimer()));
         }
 
         saveSettings();
@@ -7069,6 +7011,7 @@ void MainFrame::onPreferences()
 
     m_pMiarex->m_CpGraph.setInverted(true);
     m_pMiarex->m_bResetTextLegend = true;
+    m_pMiarex->setControls();
 
     m_pXDirect->CpGraph()->setInverted(true);
 
@@ -7077,7 +7020,7 @@ void MainFrame::onPreferences()
     setMainFrameCentralWidget();
 
     saveSettings();
-    //	setSaveState(false);
+    //    setSaveState(false);
 
     updateView();
 }
@@ -7146,7 +7089,7 @@ void MainFrame::onFinishedUpdater()
         pPopup->appendTextMessage("Release date: " + m_pUpdater->releaseDate());
         strange.sprintf("%d.%d", MAJOR_VERSION, MINOR_VERSION);
         pPopup->appendTextMessage("Your version: " + strange);
-        //		aPopup->appendTextMessage(m_pUpdater->releaseDescription()+"\n");
+        //        aPopup->appendTextMessage(m_pUpdater->releaseDescription()+"\n");
 
         QSize sz = pPopup->size();
         QRect rr = centralWidget()->frameGeometry();

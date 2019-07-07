@@ -25,27 +25,27 @@
 #include <QMouseEvent>
 
 #include "gl3dview.h"
-#include <analysis3d/plane_analysis/LLTAnalysis.h>
+#include <analysis3d/plane_analysis/lltanalysis.h>
 #include <globals/globals.h>
 
 #include <globals/mainframe.h>
-#include <miarex/Miarex.h>
-#include <miarex/design/EditBodyDlg.h>
-#include <miarex/design/EditPlaneDlg.h>
-#include <miarex/design/GL3dBodyDlg.h>
-#include <miarex/design/GL3dWingDlg.h>
+#include <miarex/miarex.h>
+#include <miarex/design/editbodydlg.h>
+#include <miarex/design/editplanedlg.h>
+#include <miarex/design/gl3dbodydlg.h>
+#include <miarex/design/gl3dwingdlg.h>
 #include <miarex/objects3d.h>
-#include <miarex/view/GL3DScales.h>
-#include <miarex/view/GLLightDlg.h>
-#include <miarex/view/W3dPrefsDlg.h>
+#include <miarex/view/gl3dscales.h>
+#include <miarex/view/gllightdlg.h>
+#include <miarex/view/w3drefsdlg.h>
 #include <misc/options/units.h>
-#include <misc/options/displayoptions.h>
-#include <objects/objects3d/Body.h>
-#include <objects/objects3d/Plane.h>
-#include <objects/objects3d/PointMass.h>
-#include <objects/objects3d/Surface.h>
-#include <objects/objects3d/WPolar.h>
-#include <objects/objects3d/Wing.h>
+#include <misc/options/settings.h>
+#include <objects/objects3d/body.h>
+#include <objects/objects3d/plane.h>
+#include <objects/objects3d/pointmass.h>
+#include <objects/objects3d/surface.h>
+#include <objects/objects3d/wpolar.h>
+#include <objects/objects3d/wing.h>
 #include <objects/objects3d/vector3d.h>
 
 Miarex *gl3dView::s_pMiarex;
@@ -60,8 +60,6 @@ gl3dView::gl3dView(QWidget *pParent) : QOpenGLWidget(pParent)
     setMouseTracking(true);
     setCursor(Qt::CrossCursor);
 
-    m_pParent = pParent;
-
     m_pTransitionTimer = nullptr;
     memset(ab_new, 0, 16*sizeof(float));
     memset(ab_old, 0, 16*sizeof(float));
@@ -71,11 +69,6 @@ gl3dView::gl3dView(QWidget *pParent) : QOpenGLWidget(pParent)
 
     m_bUse120StyleShaders = true;
 
-    for(int iw=0; iw<MAXWINGS; iw++)
-    {
-        m_WingIndicesArray[iw] = nullptr;
-    }
-    m_BodyIndicesArray = nullptr;
     m_SphereIndicesArray = nullptr;
     m_WingMeshIndicesArray = nullptr;
 
@@ -136,8 +129,6 @@ void gl3dView::printFormat(const QSurfaceFormat &format)
         case QSurfaceFormat::CompatibilityProfile:
             Trace("Compatibility Profile");
             break;
-        default:
-            break;
     }
     switch (format.renderableType())
     {
@@ -153,8 +144,6 @@ void gl3dView::printFormat(const QSurfaceFormat &format)
         case QSurfaceFormat::OpenVG:
             Trace("OpenVG: Open Vector Graphics rendering");
             break;
-        default:
-            break;
     }
 }
 
@@ -163,11 +152,9 @@ gl3dView::~gl3dView()
 {
     for(int iWing=0; iWing<MAXWINGS; iWing++)
     {
-        if(m_WingIndicesArray[iWing]) delete [] m_WingIndicesArray[iWing];
         m_vboEditWingMesh[iWing].destroy();
     }
 
-    if(m_BodyIndicesArray)     delete[] m_BodyIndicesArray;
     if(m_SphereIndicesArray)   delete[] m_SphereIndicesArray;
     if(m_WingMeshIndicesArray) delete[] m_WingMeshIndicesArray;
 
@@ -222,9 +209,9 @@ QSize gl3dView::minimumSizeHint() const
 */
 void gl3dView::onClipPlane(int pos)
 {
-    double coef = 4.0;
-    double planepos =  (double)pos/100.0;
-    m_ClipPlanePos = 5.0*sinh(planepos*coef)/sinh(coef);
+    float coef = 4.0;
+    float planepos =  pos/100.0f;
+    m_ClipPlanePos = 5.0f*sinh(planepos*coef)/sinh(coef);
     update();
 }
 
@@ -353,7 +340,7 @@ void gl3dView::mousePressEvent(QMouseEvent *event)
     bool bCtrl = false;
     if(event->modifiers() & Qt::ControlModifier) bCtrl =true;
 
-    //	setFocus();
+    //    setFocus();
 
     if (event->buttons() & Qt::MidButton)
     {
@@ -394,16 +381,16 @@ void gl3dView::mousePressEvent(QMouseEvent *event)
 
 QPoint gl3dView::worldToScreen(Vector3d v)
 {
-    QVector4D v4(v.x, v.y, v.z, 1.0);
+    QVector4D v4(v.xf(), v.yf(), v.zf(), 1.0);
     QVector4D vS = m_pvmMatrix * v4;
-    return QPoint((int)((vS.x()+1.0)*width()/2), (int)((1.0-vS.y())*height()/2));
+    return QPoint(int((vS.x()+1.0f)*width()/2), int((1.0f-vS.y())*height()/2));
 }
 
 
 QPoint gl3dView::worldToScreen(QVector4D v4)
 {
     QVector4D vS = m_pvmMatrix * v4;
-    return QPoint((int)((vS.x()+1.0)*width()/2), (int)((1.0-vS.y())*height()/2));
+    return QPoint(int((vS.x()+1.0f)*width()/2), int((1.0f-vS.y())*height()/2));
 }
 
 
@@ -426,7 +413,7 @@ void gl3dView::mouseMoveEvent(QMouseEvent *event)
     QPoint Delta(point.x()-m_LastPoint.x(), point.y()-m_LastPoint.y());
     screenToViewport(point, Real);
 
-    //	if(!hasFocus()) setFocus();
+    //    if(!hasFocus()) setFocus();
 
     bool bCtrl = false;
 
@@ -445,8 +432,8 @@ void gl3dView::mouseMoveEvent(QMouseEvent *event)
 
             int side = qMax(geometry().width(), geometry().height());
 
-            m_glViewportTrans.x += (GLfloat)(Delta.x()*2.0/m_glScaled/side);
-            m_glViewportTrans.y += (GLfloat)(Delta.y()*2.0/m_glScaled/side);
+            m_glViewportTrans.x += Delta.x()*2.0/m_glScaled/side;
+            m_glViewportTrans.y += Delta.y()*2.0/m_glScaled/side;
 
             m_glRotCenter.x = MatOut[0][0]*(m_glViewportTrans.x) + MatOut[0][1]*(-m_glViewportTrans.y) + MatOut[0][2]*m_glViewportTrans.z;
             m_glRotCenter.y = MatOut[1][0]*(m_glViewportTrans.x) + MatOut[1][1]*(-m_glViewportTrans.y) + MatOut[1][2]*m_glViewportTrans.z;
@@ -506,11 +493,11 @@ void gl3dView::mouseReleaseEvent(QMouseEvent * event )
     m_bArcball    = false;
     m_bCrossPoint = false;
 
-    //	We need to re-calculate the translation vector
+    //    We need to re-calculate the translation vector
     int i,j;
     for(i=0; i<4; i++)
         for(j=0; j<4; j++)
-            MatIn[i][j] =  m_ArcBall.ab_quat[i*4+j];
+            MatIn[i][j] = double(m_ArcBall.ab_quat[i*4+j]);
 
     glInverseMatrix();
     m_glViewportTrans.x =  (MatOut[0][0]*m_glRotCenter.x + MatOut[0][1]*m_glRotCenter.y + MatOut[0][2]*m_glRotCenter.z);
@@ -582,7 +569,7 @@ void gl3dView::reset3DRotationCenter()
 
     for(i=0; i<4; i++)
         for(j=0; j<4; j++)
-            MatOut[i][j] =  m_ArcBall.ab_quat[i*4+j];
+            MatOut[i][j] =  double(m_ArcBall.ab_quat[i*4+j]);
 
     m_glRotCenter.x = MatOut[0][0]*(m_glViewportTrans.x) + MatOut[0][1]*(-m_glViewportTrans.y) + MatOut[0][2]*m_glViewportTrans.z;
     m_glRotCenter.y = MatOut[1][0]*(m_glViewportTrans.x) + MatOut[1][1]*(-m_glViewportTrans.y) + MatOut[1][2]*m_glViewportTrans.z;
@@ -613,18 +600,18 @@ void gl3dView::glInverseMatrix()
 void gl3dView::screenToViewport(QPoint const &point, Vector3d &real)
 {
     double h2, w2;
-    h2 = (double)geometry().height() /2.0;
-    w2 = (double)geometry().width()  /2.0;
+    h2 = double(geometry().height()) /2.0;
+    w2 = double(geometry().width())  /2.0;
 
     if(w2>h2)
     {
-        real.x =  ((double)point.x() - w2) / w2;
-        real.y = -((double)point.y() - h2) / w2;
+        real.x =  (double(point.x()) - w2) / w2;
+        real.y = -(double(point.y()) - h2) / w2;
     }
     else
     {
-        real.x =  ((double)point.x() - w2) / h2;
-        real.y = -((double)point.y() - h2) / h2;
+        real.x =  (double(point.x()) - w2) / h2;
+        real.y = -(double(point.y()) - h2) / h2;
     }
 }
 
@@ -646,20 +633,20 @@ void gl3dView::viewportToScreen(Vector3d const &real, QPoint &point)
 
     if(w2>h2)
     {
-        point.setX((int)(dx * (double)geometry().width()));
-        point.setY((int)(dy * (double)geometry().width()));
+        point.setX(int(dx * double(geometry().width())));
+        point.setY(int(dy * double(geometry().width())));
     }
     else
     {
-        point.setX((int)(dx * (double)geometry().height()));
-        point.setY((int)(dy * (double)geometry().height()));
+        point.setX(int(dx * double(geometry().height())));
+        point.setY(int(dy * double(geometry().height())));
     }
 }
 
 
 QVector4D gl3dView::worldToViewport(Vector3d v)
 {
-    QVector4D v4(v.x, v.y, v.z, 1.0);
+    QVector4D v4(v.xf(), v.yf(), v.zf(), 1.0f);
     return m_pvmMatrix * v4;
 }
 
@@ -677,9 +664,9 @@ void gl3dView::viewportToWorld(Vector3d vp, Vector3d &w)
 
 
     //un-rotate
-    w.x = m_ArcBall.ab_quat[0]*vp.x + m_ArcBall.ab_quat[1]*vp.y + m_ArcBall.ab_quat[2]*vp.z;
-    w.y = m_ArcBall.ab_quat[4]*vp.x + m_ArcBall.ab_quat[5]*vp.y + m_ArcBall.ab_quat[6]*vp.z;
-    w.z = m_ArcBall.ab_quat[8]*vp.x + m_ArcBall.ab_quat[9]*vp.y + m_ArcBall.ab_quat[10]*vp.z;
+    w.x = double(m_ArcBall.ab_quat[0]*vp.xf() + m_ArcBall.ab_quat[1]*vp.yf() + m_ArcBall.ab_quat[2] *vp.zf());
+    w.y = double(m_ArcBall.ab_quat[4]*vp.xf() + m_ArcBall.ab_quat[5]*vp.yf() + m_ArcBall.ab_quat[6] *vp.zf());
+    w.z = double(m_ArcBall.ab_quat[8]*vp.xf() + m_ArcBall.ab_quat[9]*vp.yf() + m_ArcBall.ab_quat[10]*vp.zf());
 }
 
 
@@ -688,7 +675,7 @@ void gl3dView::glRenderText(double x, double y, double z, const QString & str, Q
 {
     QPoint point;
 
-    if(z>m_ClipPlanePos) return;
+    if(z>double(m_ClipPlanePos)) return;
 
     point = worldToScreen(Vector3d(x,y,z));
     point *= devicePixelRatio();
@@ -735,16 +722,16 @@ void gl3dView::resizeGL(int width, int height)
 
 
     double w, h, s;
-    w = (double)width;
-    h = (double)height;
+    w = double(width);
+    h = double(height);
     s = 1.0;
 
 
-    if(w>h)	m_GLViewRect.setRect(-s, s*h/w, s, -s*h/w);
+    if(w>h)    m_GLViewRect.setRect(-s, s*h/w, s, -s*h/w);
     else    m_GLViewRect.setRect(-s*w/h, s, s*w/h, -s);
 
-    if(!m_PixTextOverlay.isNull())	m_PixTextOverlay = m_PixTextOverlay.scaled(rect().size()*devicePixelRatio());
-    if(!m_PixTextOverlay.isNull())	m_PixTextOverlay.fill(Qt::transparent);
+    if(!m_PixTextOverlay.isNull())    m_PixTextOverlay = m_PixTextOverlay.scaled(rect().size()*devicePixelRatio());
+    if(!m_PixTextOverlay.isNull())    m_PixTextOverlay.fill(Qt::transparent);
 }
 
 
@@ -840,18 +827,18 @@ static GLfloat const z_axis[] = {
 void gl3dView::glMakeArcPoint()
 {
     float GLScale = 1.0f;
-    int row, col;
-    double Radius=0.1, lat_incr, phi, theta;
+    int row=0, col=0;
+    float Radius=0.1f, lat_incr=0, phi=0, theta=0;
     Vector3d eye(0.0, 0.0, 1.0);
     Vector3d up(0.0, 1.0, 0.0);
     m_ArcBall.setZoom(0.45, eye, up);
 
-    Radius = m_ArcBall.ab_sphere;
+    Radius = float(m_ArcBall.ab_sphere);
 
     int iv=0;
 
     int bufferSize = NUMARCPOINTS*2*2*3;
-    float *arcPointVertexArray = new float[bufferSize];
+    QVector<float> arcPointVertexArray (bufferSize);
 
     //ARCPOINT
     lat_incr = 30.0 / NUMARCPOINTS;
@@ -859,7 +846,7 @@ void gl3dView::glMakeArcPoint()
     phi = 0.0* PI/180.0;//longitude
     for (row = -NUMARCPOINTS; row < NUMARCPOINTS; row++)
     {
-        theta = (0.0+ row * lat_incr) * PI/180.0;
+        theta = float(0.0f + row * lat_incr) * PIf/180.0f;
         arcPointVertexArray[iv++] = Radius*cos(phi)*cos(theta)*GLScale;
         arcPointVertexArray[iv++] = Radius*sin(theta)*GLScale;
         arcPointVertexArray[iv++] = Radius*sin(phi)*cos(theta)*GLScale;
@@ -868,7 +855,7 @@ void gl3dView::glMakeArcPoint()
     theta = 0.0* PI/180.0;
     for(col=-NUMARCPOINTS; col<NUMARCPOINTS; col++)
     {
-        phi = (0.0 + (double)col*30.0/NUMARCPOINTS) * PI/180.0;
+        phi = (0.0f + float(col)*30.0f/NUMARCPOINTS) * PIf/180.0f;
         arcPointVertexArray[iv++] = Radius * cos(phi) * cos(theta)*GLScale;
         arcPointVertexArray[iv++] = Radius * sin(theta)*GLScale;
         arcPointVertexArray[iv++] = Radius * sin(phi) * cos(theta)*GLScale;
@@ -879,10 +866,8 @@ void gl3dView::glMakeArcPoint()
     m_vboArcPoint.destroy();
     m_vboArcPoint.create();
     m_vboArcPoint.bind();
-    m_vboArcPoint.allocate(arcPointVertexArray, bufferSize * sizeof(GLfloat));
+    m_vboArcPoint.allocate(arcPointVertexArray.data(), bufferSize * int(sizeof(GLfloat)));
     m_vboArcPoint.release();
-
-    delete [] arcPointVertexArray;
 }
 
 
@@ -895,10 +880,9 @@ void gl3dView::glMakeBody3DFlatPanels(Body *pBody)
 
     QString projectPath = Settings::s_LastDirName + QDir::separator() + MainFrame::s_ProjectName+ "_textures";
     QString planeName;
-    Miarex *pMiarex = (Miarex*)s_pMiarex;
-    if(pMiarex && pMiarex->m_pCurPlane)
+    if(s_pMiarex && s_pMiarex->m_pCurPlane)
     {
-        planeName = pMiarex->m_pCurPlane->planeName();
+        planeName = s_pMiarex->m_pCurPlane->planeName();
     }
     QString texturePath = projectPath+QDir::separator()+planeName+QDir::separator();
 
@@ -914,7 +898,7 @@ void gl3dView::glMakeBody3DFlatPanels(Body *pBody)
     bufferSize *= 2;  // two sides
     bufferSize *= 4;  // four vertices per quad
     bufferSize *= 8;  // 8 components per vertex
-    float *pBodyVertexArray = new float[bufferSize];
+    QVector<float>pBodyVertexArray(bufferSize);
 
     //Create triangles
     //  indices array size:
@@ -927,17 +911,17 @@ void gl3dView::glMakeBody3DFlatPanels(Body *pBody)
     m_iBodyElems *= 2;    //two triangles per quad
     m_iBodyElems *= 3;    //three vertex per triangle
 
-    if(m_BodyIndicesArray) delete[] m_BodyIndicesArray;
-    m_BodyIndicesArray = new unsigned short[m_iBodyElems];
+    m_BodyIndicesArray.resize(m_iBodyElems);
+    m_BodyIndicesArray.fill(0);
 
     int iv=0;
-    unsigned int ii=0;
+    int ii=0;
 
     float fnh = pBody->sideLineCount();
-    float fLength = pBody->length();
+    float fLength = float(pBody->length());
 
     float tip = 0.0;
-    if(pBody->frameCount()) tip = pBody->frame(0)->m_Position.x;
+    if(pBody->frameCount()) tip = pBody->frame(0)->m_Position.xf();
 
     //surfaces
     for (int k=0; k<pBody->sideLineCount()-1;k++)
@@ -962,48 +946,48 @@ void gl3dView::glMakeBody3DFlatPanels(Body *pBody)
             int i3 = i2+1;
             int i4 = i3+1;
 
-            pBodyVertexArray[iv++] = P1.x;
-            pBodyVertexArray[iv++] = P1.y;
-            pBodyVertexArray[iv++] = P1.z;
-            pBodyVertexArray[iv++] = N.x;
-            pBodyVertexArray[iv++] = N.y;
-            pBodyVertexArray[iv++] = N.z;
-            pBodyVertexArray[iv++] = 1.0-(P1.x-tip)/fLength;
-            pBodyVertexArray[iv++] = (float)k/fnh;
-            pBodyVertexArray[iv++] = P2.x;
-            pBodyVertexArray[iv++] = P2.y;
-            pBodyVertexArray[iv++] = P2.z;
-            pBodyVertexArray[iv++] = N.x;
-            pBodyVertexArray[iv++] = N.y;
-            pBodyVertexArray[iv++] = N.z;
-            pBodyVertexArray[iv++] = 1.0-(P2.x-tip)/fLength;
-            pBodyVertexArray[iv++] = (float)k/fnh;
-            pBodyVertexArray[iv++] = P3.x;
-            pBodyVertexArray[iv++] = P3.y;
-            pBodyVertexArray[iv++] = P3.z;
-            pBodyVertexArray[iv++] = N.x;
-            pBodyVertexArray[iv++] = N.y;
-            pBodyVertexArray[iv++] = N.z;
-            pBodyVertexArray[iv++] = 1.0-(P3.x-tip)/fLength;
-            pBodyVertexArray[iv++] = (float)(k+1)/fnh;
-            pBodyVertexArray[iv++] = P4.x;
-            pBodyVertexArray[iv++] = P4.y;
-            pBodyVertexArray[iv++] = P4.z;
-            pBodyVertexArray[iv++] = N.x;
-            pBodyVertexArray[iv++] = N.y;
-            pBodyVertexArray[iv++] = N.z;
-            pBodyVertexArray[iv++] = 1.0-(P4.x-tip)/fLength;
-            pBodyVertexArray[iv++] = (float)(k+1)/fnh;
+            pBodyVertexArray[iv++] = P1.xf();
+            pBodyVertexArray[iv++] = P1.yf();
+            pBodyVertexArray[iv++] = P1.zf();
+            pBodyVertexArray[iv++] = N.xf();
+            pBodyVertexArray[iv++] = N.yf();
+            pBodyVertexArray[iv++] = N.zf();
+            pBodyVertexArray[iv++] = 1.0f-(P1.xf()-tip)/fLength;
+            pBodyVertexArray[iv++] = float(k)/fnh;
+            pBodyVertexArray[iv++] = P2.xf();
+            pBodyVertexArray[iv++] = P2.yf();
+            pBodyVertexArray[iv++] = P2.zf();
+            pBodyVertexArray[iv++] = N.xf();
+            pBodyVertexArray[iv++] = N.yf();
+            pBodyVertexArray[iv++] = N.zf();
+            pBodyVertexArray[iv++] = 1.0f-(P2.xf()-tip)/fLength;
+            pBodyVertexArray[iv++] = float(k)/fnh;
+            pBodyVertexArray[iv++] = P3.xf();
+            pBodyVertexArray[iv++] = P3.yf();
+            pBodyVertexArray[iv++] = P3.zf();
+            pBodyVertexArray[iv++] = N.xf();
+            pBodyVertexArray[iv++] = N.yf();
+            pBodyVertexArray[iv++] = N.zf();
+            pBodyVertexArray[iv++] = 1.0f-(P3.xf()-tip)/fLength;
+            pBodyVertexArray[iv++] = float(k)/fnh;
+            pBodyVertexArray[iv++] = P4.xf();
+            pBodyVertexArray[iv++] = P4.yf();
+            pBodyVertexArray[iv++] = P4.zf();
+            pBodyVertexArray[iv++] = N.xf();
+            pBodyVertexArray[iv++] = N.yf();
+            pBodyVertexArray[iv++] = N.zf();
+            pBodyVertexArray[iv++] = 1.0f-(P4.xf()-tip)/fLength;
+            pBodyVertexArray[iv++] = float(k)/fnh;
 
             //first triangle
-            m_BodyIndicesArray[ii]   = i1;
-            m_BodyIndicesArray[ii+1] = i2;
-            m_BodyIndicesArray[ii+2] = i3;
+            m_BodyIndicesArray[ii]   = ushort(i1);
+            m_BodyIndicesArray[ii+1] = ushort(i2);
+            m_BodyIndicesArray[ii+2] = ushort(i3);
 
             //second triangle
-            m_BodyIndicesArray[ii+3] = i3;
-            m_BodyIndicesArray[ii+4] = i4;
-            m_BodyIndicesArray[ii+5] = i1;
+            m_BodyIndicesArray[ii+3] = ushort(i3);
+            m_BodyIndicesArray[ii+4] = ushort(i4);
+            m_BodyIndicesArray[ii+5] = ushort(i1);
             ii += 6;
         }
     }
@@ -1035,48 +1019,48 @@ void gl3dView::glMakeBody3DFlatPanels(Body *pBody)
             int i3 = i2+1;
             int i4 = i3+1;
 
-            pBodyVertexArray[iv++] = P1.x;
-            pBodyVertexArray[iv++] = P1.y;
-            pBodyVertexArray[iv++] = P1.z;
-            pBodyVertexArray[iv++] = N.x;
-            pBodyVertexArray[iv++] = N.y;
-            pBodyVertexArray[iv++] = N.z;
-            pBodyVertexArray[iv++] = (P1.x-tip)/fLength;
-            pBodyVertexArray[iv++] = (float)k/fnh;
-            pBodyVertexArray[iv++] = P2.x;
-            pBodyVertexArray[iv++] = P2.y;
-            pBodyVertexArray[iv++] = P2.z;
-            pBodyVertexArray[iv++] = N.x;
-            pBodyVertexArray[iv++] = N.y;
-            pBodyVertexArray[iv++] = N.z;
-            pBodyVertexArray[iv++] = (P2.x-tip)/fLength;
-            pBodyVertexArray[iv++] = (float)k/fnh;
-            pBodyVertexArray[iv++] = P3.x;
-            pBodyVertexArray[iv++] = P3.y;
-            pBodyVertexArray[iv++] = P3.z;
-            pBodyVertexArray[iv++] = N.x;
-            pBodyVertexArray[iv++] = N.y;
-            pBodyVertexArray[iv++] = N.z;
-            pBodyVertexArray[iv++] = (P3.x-tip)/fLength;
-            pBodyVertexArray[iv++] = (float)(k+1)/fnh;
-            pBodyVertexArray[iv++] = P4.x;
-            pBodyVertexArray[iv++] = P4.y;
-            pBodyVertexArray[iv++] = P4.z;
-            pBodyVertexArray[iv++] = N.x;
-            pBodyVertexArray[iv++] = N.y;
-            pBodyVertexArray[iv++] = N.z;
-            pBodyVertexArray[iv++] = (P4.x-tip)/fLength;
-            pBodyVertexArray[iv++] = (float)(k+1)/fnh;
+            pBodyVertexArray[iv++] = P1.xf();
+            pBodyVertexArray[iv++] = P1.yf();
+            pBodyVertexArray[iv++] = P1.zf();
+            pBodyVertexArray[iv++] = N.xf();
+            pBodyVertexArray[iv++] = N.yf();
+            pBodyVertexArray[iv++] = N.zf();
+            pBodyVertexArray[iv++] = (P1.xf()-tip)/fLength;
+            pBodyVertexArray[iv++] = float(k)/fnh;
+            pBodyVertexArray[iv++] = P2.xf();
+            pBodyVertexArray[iv++] = P2.yf();
+            pBodyVertexArray[iv++] = P2.zf();
+            pBodyVertexArray[iv++] = N.xf();
+            pBodyVertexArray[iv++] = N.yf();
+            pBodyVertexArray[iv++] = N.zf();
+            pBodyVertexArray[iv++] = (P2.xf()-tip)/fLength;
+            pBodyVertexArray[iv++] = float(k)/fnh;
+            pBodyVertexArray[iv++] = P3.xf();
+            pBodyVertexArray[iv++] = P3.yf();
+            pBodyVertexArray[iv++] = P3.zf();
+            pBodyVertexArray[iv++] = N.xf();
+            pBodyVertexArray[iv++] = N.yf();
+            pBodyVertexArray[iv++] = N.zf();
+            pBodyVertexArray[iv++] = (P3.xf()-tip)/fLength;
+            pBodyVertexArray[iv++] = float(k+1)/fnh;
+            pBodyVertexArray[iv++] = P4.xf();
+            pBodyVertexArray[iv++] = P4.yf();
+            pBodyVertexArray[iv++] = P4.zf();
+            pBodyVertexArray[iv++] = N.xf();
+            pBodyVertexArray[iv++] = N.yf();
+            pBodyVertexArray[iv++] = N.zf();
+            pBodyVertexArray[iv++] = (P4.xf()-tip)/fLength;
+            pBodyVertexArray[iv++] = float(k+1)/fnh;
 
             //first triangle
-            m_BodyIndicesArray[ii]   = i1;
-            m_BodyIndicesArray[ii+1] = i2;
-            m_BodyIndicesArray[ii+2] = i3;
+            m_BodyIndicesArray[ii]   = ushort(i1);
+            m_BodyIndicesArray[ii+1] = ushort(i2);
+            m_BodyIndicesArray[ii+2] = ushort(i3);
 
             //second triangle
-            m_BodyIndicesArray[ii+3] = i3;
-            m_BodyIndicesArray[ii+4] = i4;
-            m_BodyIndicesArray[ii+5] = i1;
+            m_BodyIndicesArray[ii+3] = ushort(i3);
+            m_BodyIndicesArray[ii+4] = ushort(i4);
+            m_BodyIndicesArray[ii+5] = ushort(i1);
             ii += 6;
         }
     }
@@ -1086,10 +1070,8 @@ void gl3dView::glMakeBody3DFlatPanels(Body *pBody)
     m_vboBody.destroy();
     m_vboBody.create();
     m_vboBody.bind();
-    m_vboBody.allocate(pBodyVertexArray, bufferSize * sizeof(GLfloat));
+    m_vboBody.allocate(pBodyVertexArray.data(), bufferSize * int(sizeof(GLfloat)));
     m_vboBody.release();
-
-    delete [] pBodyVertexArray;
 }
 
 
@@ -1097,19 +1079,17 @@ void gl3dView::glMakeBodySplines(Body *pBody)
 {
     int NXXXX = W3dPrefsDlg::bodyAxialRes();
     int NHOOOP = W3dPrefsDlg::bodyHoopRes();
-    Vector3d *m_T = new Vector3d[(NXXXX+1)*(NHOOOP+1)]; //temporary points to save calculation times for body NURBS surfaces
+    QVector<Vector3d> m_T((NXXXX+1)*(NHOOOP+1));
     Vector3d TALB, LATB;
-    int j, k, l, p;
-    double v;
+    int j=0, k=0, l=0, p=0;
 
     if(!pBody)
     {
-        delete [] m_T;
         return;
     }
 
     Vector3d Point;
-    double hinc, u;
+
     Vector3d N;
 
     if(m_pLeftBodyTexture)  delete m_pLeftBodyTexture;
@@ -1117,10 +1097,9 @@ void gl3dView::glMakeBodySplines(Body *pBody)
 
     QString projectPath = Settings::s_LastDirName + QDir::separator() + MainFrame::s_ProjectName+ "_textures";
     QString planeName;
-    Miarex *pMiarex = (Miarex*)s_pMiarex;
-    if(pMiarex && pMiarex->m_pCurPlane)
+    if(s_pMiarex && s_pMiarex->m_pCurPlane)
     {
-        planeName = pMiarex->m_pCurPlane->planeName();
+        planeName = s_pMiarex->m_pCurPlane->planeName();
     }
     QString texturePath = projectPath+QDir::separator()+planeName+QDir::separator();
 
@@ -1148,16 +1127,17 @@ void gl3dView::glMakeBodySplines(Body *pBody)
 
     bodyVertexSize *= 8; // 3 vertex components, 3 normal components, 2 uv components
 
-    float *pBodyVertexArray = new float[bodyVertexSize];
+    QVector<float> pBodyVertexArray(bodyVertexSize);
 
     p = 0;
+    double ud=0, vd=0;
     for (k=0; k<=NXXXX; k++)
     {
-        u = (double)k / (double)NXXXX;
+        ud = double(k) / double(NXXXX);
         for (l=0; l<=NHOOOP; l++)
         {
-            v = (double)l / (double)NHOOOP;
-            pBody->getPoint(u,  v, true, m_T[p]);
+            vd = double(l) / double(NHOOOP);
+            pBody->getPoint(ud,  vd, true, m_T[p]);
             p++;
         }
     }
@@ -1170,28 +1150,28 @@ void gl3dView::glMakeBodySplines(Body *pBody)
     {
         for (l=0; l<=NHOOOP; l++)
         {
-            pBodyVertexArray[iv++] = m_T[p].x;
-            pBodyVertexArray[iv++] = m_T[p].y;
-            pBodyVertexArray[iv++] = m_T[p].z;
+            pBodyVertexArray[iv++] = m_T[p].xf();
+            pBodyVertexArray[iv++] = m_T[p].yf();
+            pBodyVertexArray[iv++] = m_T[p].zf();
 
             if(k==0)       N.set(-1.0, 0.0, 0.0);
             else if(k==NXXXX) N.set(1.0, 0.0, 0.0);
-            else if(l==0)				N.set(0.0, 0.0, 1.0);
-            else if(l==NHOOOP)				N.set(0.0,0.0, -1.0);
+            else if(l==0)                N.set(0.0, 0.0, 1.0);
+            else if(l==NHOOOP)                N.set(0.0,0.0, -1.0);
             else
             {
-                LATB = m_T[p+NHOOOP+1] - m_T[p+1];     //	LATB = TB - LA;
-                TALB = m_T[p]  - m_T[p+NHOOOP+2];      //	TALB = LB - TA;
+                LATB = m_T[p+NHOOOP+1] - m_T[p+1];     //    LATB = TB - LA;
+                TALB = m_T[p]  - m_T[p+NHOOOP+2];      //    TALB = LB - TA;
                 N = TALB * LATB;
                 N.normalize();
             }
 
-            pBodyVertexArray[iv++] =  N.x;
-            pBodyVertexArray[iv++] =  N.y;
-            pBodyVertexArray[iv++] =  N.z;
+            pBodyVertexArray[iv++] =  N.xf();
+            pBodyVertexArray[iv++] =  N.yf();
+            pBodyVertexArray[iv++] =  N.zf();
 
-            pBodyVertexArray[iv++] = (float)(NXXXX-k)/(float)NXXXX;
-            pBodyVertexArray[iv++] = (float)l/(float)NHOOOP;
+            pBodyVertexArray[iv++] = float(NXXXX-k)/float(NXXXX);
+            pBodyVertexArray[iv++] = float(l)/float(NHOOOP);
             p++;
         }
     }
@@ -1203,9 +1183,9 @@ void gl3dView::glMakeBodySplines(Body *pBody)
     {
         for (l=0; l<=NHOOOP; l++)
         {
-            pBodyVertexArray[iv++] =  m_T[p].x;
-            pBodyVertexArray[iv++] = -m_T[p].y;
-            pBodyVertexArray[iv++] =  m_T[p].z;
+            pBodyVertexArray[iv++] =  m_T[p].xf();
+            pBodyVertexArray[iv++] = -m_T[p].yf();
+            pBodyVertexArray[iv++] =  m_T[p].zf();
 
             if(k==0) N.set(-1.0, 0.0, 0.0);
             else if(k==NXXXX) N.set(1.0, 0.0, 0.0);
@@ -1213,23 +1193,24 @@ void gl3dView::glMakeBodySplines(Body *pBody)
             else if(l==NHOOOP) N.set(0.0,0.0, -1.0);
             else
             {
-                LATB = m_T[p+NHOOOP+1] - m_T[p+1];     //	LATB = TB - LA;
-                TALB = m_T[p]  - m_T[p+NHOOOP+2];      //	TALB = LB - TA;
+                LATB = m_T[p+NHOOOP+1] - m_T[p+1];     //    LATB = TB - LA;
+                TALB = m_T[p]  - m_T[p+NHOOOP+2];      //    TALB = LB - TA;
                 N = TALB * LATB;
                 N.normalize();
             }
-            pBodyVertexArray[iv++] =  N.x;
-            pBodyVertexArray[iv++] = -N.y;
-            pBodyVertexArray[iv++] =  N.z;
+            pBodyVertexArray[iv++] =  N.xf();
+            pBodyVertexArray[iv++] = -N.yf();
+            pBodyVertexArray[iv++] =  N.zf();
 
-            pBodyVertexArray[iv++] = (float)k/(float)NXXXX;
-            pBodyVertexArray[iv++] = (float)l/(float)NHOOOP;
+            pBodyVertexArray[iv++] = float(k)/float(NXXXX);
+            pBodyVertexArray[iv++] = float(l)/float(NHOOOP);
             p++;
         }
     }
 
     //OUTLINE
-    hinc=1./(double)NHOOOP;
+    double hinc=1./double(NHOOOP);
+    double u=0, v=0;
     u=0.0; v = 0.0;
 
     // frames : frameCount() x (NH+1)
@@ -1238,37 +1219,37 @@ void gl3dView::glMakeBodySplines(Body *pBody)
         u = pBody->getu(pBody->frame(iFr)->m_Position.x);
         for (j=0; j<=NHOOOP; j++)
         {
-            v = (double)j*hinc;
+            v = double(j)*hinc;
             pBody->getPoint(u,v,true, Point);
-            pBodyVertexArray[iv++] = Point.x;
-            pBodyVertexArray[iv++] = Point.y;
-            pBodyVertexArray[iv++] = Point.z;
+            pBodyVertexArray[iv++] = Point.xf();
+            pBodyVertexArray[iv++] = Point.yf();
+            pBodyVertexArray[iv++] = Point.zf();
 
             N = Vector3d(0.0, Point.y, Point.z);
             N.normalize();
-            pBodyVertexArray[iv++] =  N.x;
-            pBodyVertexArray[iv++] =  N.y;
-            pBodyVertexArray[iv++] =  N.z;
+            pBodyVertexArray[iv++] =  N.xf();
+            pBodyVertexArray[iv++] =  N.yf();
+            pBodyVertexArray[iv++] =  N.zf();
 
-            pBodyVertexArray[iv++] = u;
-            pBodyVertexArray[iv++] = v;
+            pBodyVertexArray[iv++] = float(u);
+            pBodyVertexArray[iv++] = float(v);
         }
 
         for (j=NHOOOP; j>=0; j--)
         {
-            v = (double)j*hinc;
+            v = double(j)*hinc;
             pBody->getPoint(u,v,false, Point);
-            pBodyVertexArray[iv++] = Point.x;
-            pBodyVertexArray[iv++] = Point.y;
-            pBodyVertexArray[iv++] = Point.z;
+            pBodyVertexArray[iv++] = Point.xf();
+            pBodyVertexArray[iv++] = Point.yf();
+            pBodyVertexArray[iv++] = Point.zf();
             N = Vector3d(0.0, Point.y, Point.z);
             N.normalize();
-            pBodyVertexArray[iv++] =  N.x;
-            pBodyVertexArray[iv++] =  N.y;
-            pBodyVertexArray[iv++] =  N.z;
+            pBodyVertexArray[iv++] =  N.xf();
+            pBodyVertexArray[iv++] =  N.yf();
+            pBodyVertexArray[iv++] =  N.zf();
 
-            pBodyVertexArray[iv++] = u;
-            pBodyVertexArray[iv++] = v;
+            pBodyVertexArray[iv++] = float(u);
+            pBodyVertexArray[iv++] = float(v);
         }
     }
 
@@ -1276,33 +1257,33 @@ void gl3dView::glMakeBodySplines(Body *pBody)
     v = 0.0;
     for (int iu=0; iu<=NXXXX; iu++)
     {
-        pBody->getPoint((double)iu/(double)NXXXX,v, true, Point);
-        pBodyVertexArray[iv++] = Point.x;
-        pBodyVertexArray[iv++] = Point.y;
-        pBodyVertexArray[iv++] = Point.z;
+        pBody->getPoint(double(iu)/double(NXXXX),v, true, Point);
+        pBodyVertexArray[iv++] = Point.xf();
+        pBodyVertexArray[iv++] = Point.yf();
+        pBodyVertexArray[iv++] = Point.zf();
 
-        pBodyVertexArray[iv++] = N.x;
-        pBodyVertexArray[iv++] = N.y;
-        pBodyVertexArray[iv++] = N.z;
+        pBodyVertexArray[iv++] = N.xf();
+        pBodyVertexArray[iv++] = N.yf();
+        pBodyVertexArray[iv++] = N.zf();
 
-        pBodyVertexArray[iv++] = (float)iu/(float)NXXXX;
-        pBodyVertexArray[iv++] = v;
+        pBodyVertexArray[iv++] = float(iu)/float(NXXXX);
+        pBodyVertexArray[iv++] = float(v);
     }
 
     //bottom line: NX+1
     v = 1.0;
     for (int iu=0; iu<=NXXXX; iu++)
     {
-        pBody->getPoint((double)iu/(double)NXXXX,v, true, Point);
-        pBodyVertexArray[iv++] = Point.x;
-        pBodyVertexArray[iv++] = Point.y;
-        pBodyVertexArray[iv++] = Point.z;
-        pBodyVertexArray[iv++] = N.x;
-        pBodyVertexArray[iv++] = N.y;
-        pBodyVertexArray[iv++] = N.z;
+        pBody->getPoint(double(iu)/double(NXXXX),v, true, Point);
+        pBodyVertexArray[iv++] = Point.xf();
+        pBodyVertexArray[iv++] = Point.yf();
+        pBodyVertexArray[iv++] = Point.zf();
+        pBodyVertexArray[iv++] = N.xf();
+        pBodyVertexArray[iv++] = N.yf();
+        pBodyVertexArray[iv++] = N.zf();
 
-        pBodyVertexArray[iv++] = (float)iu/(float)NXXXX;
-        pBodyVertexArray[iv++] = v;
+        pBodyVertexArray[iv++] = float(iu)/float(NXXXX);
+        pBodyVertexArray[iv++] = float(v);
     }
     Q_ASSERT(iv==bodyVertexSize);
 
@@ -1313,27 +1294,26 @@ void gl3dView::glMakeBodySplines(Body *pBody)
     //    2 triangles per/quad
     //    3 indices/triangle
     //    2 sides
-    if(m_BodyIndicesArray) delete[] m_BodyIndicesArray;
-    m_BodyIndicesArray = new unsigned short[NXXXX*NHOOOP*2*3*2];
+    m_BodyIndicesArray.resize(NXXXX*NHOOOP*2*3*2);
 
     int ii=0;
-    int nV;
+    int nV=0;
 
     //left side;
-    for (k=0; k<NXXXX; k++)
+    for (int k=0; k<NXXXX; k++)
     {
-        for (l=0; l<NHOOOP; l++)
+        for (int l=0; l<NHOOOP; l++)
         {
             nV = k*(NHOOOP+1)+l; // id of the vertex at the bottom left of the quad
             //first triangle
-            m_BodyIndicesArray[ii]   = nV;
-            m_BodyIndicesArray[ii+1] = nV+NHOOOP+1;
-            m_BodyIndicesArray[ii+2] = nV+1;
+            m_BodyIndicesArray[ii]   = ushort(nV);
+            m_BodyIndicesArray[ii+1] = ushort(nV+NHOOOP+1);
+            m_BodyIndicesArray[ii+2] = ushort(nV+1);
 
             //second triangle
-            m_BodyIndicesArray[ii+3] = nV+NHOOOP+1;
-            m_BodyIndicesArray[ii+4] = nV+1;
-            m_BodyIndicesArray[ii+5] = nV+NHOOOP+1+1;
+            m_BodyIndicesArray[ii+3] = ushort(nV+NHOOOP+1);
+            m_BodyIndicesArray[ii+4] = ushort(nV+1);
+            m_BodyIndicesArray[ii+5] = ushort(nV+NHOOOP+1+1);
             ii += 6;
         }
     }
@@ -1345,14 +1325,14 @@ void gl3dView::glMakeBodySplines(Body *pBody)
         {
             nV = (NXXXX+1)*(NHOOOP+1) + k*(NHOOOP+1)+l; // id of the vertex at the bottom left of the quad
             //first triangle
-            m_BodyIndicesArray[ii]   = nV;
-            m_BodyIndicesArray[ii+1] = nV+NHOOOP+1;
-            m_BodyIndicesArray[ii+2] = nV+1;
+            m_BodyIndicesArray[ii]   = ushort(nV);
+            m_BodyIndicesArray[ii+1] = ushort(nV+NHOOOP+1);
+            m_BodyIndicesArray[ii+2] = ushort(nV+1);
 
             //second triangle
-            m_BodyIndicesArray[ii+3] = nV+NHOOOP+1;
-            m_BodyIndicesArray[ii+4] = nV+1;
-            m_BodyIndicesArray[ii+5] = nV+NHOOOP+1+1;
+            m_BodyIndicesArray[ii+3] = ushort(nV+NHOOOP+1);
+            m_BodyIndicesArray[ii+4] = ushort(nV+1);
+            m_BodyIndicesArray[ii+5] = ushort(nV+NHOOOP+1+1);
             ii += 6;
         }
     }
@@ -1363,11 +1343,8 @@ void gl3dView::glMakeBodySplines(Body *pBody)
     m_vboBody.destroy();
     m_vboBody.create();
     m_vboBody.bind();
-    m_vboBody.allocate(pBodyVertexArray, bodyVertexSize * sizeof(GLfloat));
+    m_vboBody.allocate(pBodyVertexArray.data(), bodyVertexSize * int(sizeof(GLfloat)));
     m_vboBody.release();
-
-    delete [] pBodyVertexArray;
-    delete [] m_T;
 }
 
 
@@ -1491,18 +1468,18 @@ void gl3dView::initializeGL()
 void gl3dView::glSetupLight()
 {
     QColor LightColor;
-    LightColor.setRedF(  GLLightDlg::s_Light.m_Red);
-    LightColor.setGreenF(GLLightDlg::s_Light.m_Green);
-    LightColor.setBlueF( GLLightDlg::s_Light.m_Blue);
+    LightColor.setRedF(  double(GLLightDlg::s_Light.m_Red));
+    LightColor.setGreenF(double(GLLightDlg::s_Light.m_Green));
+    LightColor.setBlueF( double(GLLightDlg::s_Light.m_Blue));
 
     m_ShaderProgramSurface.bind();
     if(GLLightDlg::s_Light.m_bIsLightOn) m_ShaderProgramSurface.setUniformValue(m_LightLocationSurface, 1);
     else                                 m_ShaderProgramSurface.setUniformValue(m_LightLocationSurface, 0);
-    m_ShaderProgramSurface.setUniformValue(m_LightPosLocationSurface,      (GLfloat)(GLLightDlg::s_Light.m_X), (GLfloat)(GLLightDlg::s_Light.m_Y), (GLfloat)(GLLightDlg::s_Light.m_Z));
+    m_ShaderProgramSurface.setUniformValue(m_LightPosLocationSurface,      GLfloat(GLLightDlg::s_Light.m_X), GLfloat(GLLightDlg::s_Light.m_Y), GLfloat(GLLightDlg::s_Light.m_Z));
     m_ShaderProgramSurface.setUniformValue(m_LightColorLocationSurface,    LightColor);
-    m_ShaderProgramSurface.setUniformValue(m_LightAmbientLocationSurface,  GLLightDlg::s_Light.m_Ambient);
-    m_ShaderProgramSurface.setUniformValue(m_LightDiffuseLocationSurface,  GLLightDlg::s_Light.m_Diffuse);
-    m_ShaderProgramSurface.setUniformValue(m_LightSpecularLocationSurface, GLLightDlg::s_Light.m_Specular);
+    m_ShaderProgramSurface.setUniformValue(m_LightAmbientLocationSurface,  GLfloat(GLLightDlg::s_Light.m_Ambient));
+    m_ShaderProgramSurface.setUniformValue(m_LightDiffuseLocationSurface,  GLfloat(GLLightDlg::s_Light.m_Diffuse));
+    m_ShaderProgramSurface.setUniformValue(m_LightSpecularLocationSurface, GLfloat(GLLightDlg::s_Light.m_Specular));
     m_ShaderProgramSurface.setUniformValue(m_MaterialShininessSurface,     GLLightDlg::s_iShininess);
     m_ShaderProgramSurface.setUniformValue(m_AttenuationConstantSurface,   GLLightDlg::s_Attenuation.m_Constant);
     m_ShaderProgramSurface.setUniformValue(m_AttenuationLinearSurface,     GLLightDlg::s_Attenuation.m_Linear);
@@ -1512,11 +1489,11 @@ void gl3dView::glSetupLight()
     m_ShaderProgramTexture.bind();
     if(GLLightDlg::s_Light.m_bIsLightOn) m_ShaderProgramTexture.setUniformValue(m_LightLocationTexture, 1);
     else                                 m_ShaderProgramTexture.setUniformValue(m_LightLocationTexture, 0);
-    m_ShaderProgramTexture.setUniformValue(m_LightPosLocationTexture,      (GLfloat)(GLLightDlg::s_Light.m_X), (GLfloat)(GLLightDlg::s_Light.m_Y), (GLfloat)(GLLightDlg::s_Light.m_Z));
+    m_ShaderProgramTexture.setUniformValue(m_LightPosLocationTexture,      GLfloat(GLLightDlg::s_Light.m_X), GLfloat(GLLightDlg::s_Light.m_Y), GLfloat(GLLightDlg::s_Light.m_Z));
     m_ShaderProgramTexture.setUniformValue(m_LightColorLocationTexture,    LightColor);
-    m_ShaderProgramTexture.setUniformValue(m_LightAmbientLocationTexture,  GLLightDlg::s_Light.m_Ambient);
-    m_ShaderProgramTexture.setUniformValue(m_LightDiffuseLocationTexture,  GLLightDlg::s_Light.m_Diffuse);
-    m_ShaderProgramTexture.setUniformValue(m_LightSpecularLocationTexture, GLLightDlg::s_Light.m_Specular);
+    m_ShaderProgramTexture.setUniformValue(m_LightAmbientLocationTexture,  GLfloat(GLLightDlg::s_Light.m_Ambient));
+    m_ShaderProgramTexture.setUniformValue(m_LightDiffuseLocationTexture,  GLfloat(GLLightDlg::s_Light.m_Diffuse));
+    m_ShaderProgramTexture.setUniformValue(m_LightSpecularLocationTexture, GLfloat(GLLightDlg::s_Light.m_Specular));
     m_ShaderProgramTexture.setUniformValue(m_MaterialShininessTexture,     GLLightDlg::s_iShininess);
     m_ShaderProgramTexture.setUniformValue(m_AttenuationConstantTexture,   GLLightDlg::s_Attenuation.m_Constant);
     m_ShaderProgramTexture.setUniformValue(m_AttenuationLinearTexture,     GLLightDlg::s_Attenuation.m_Linear);
@@ -1534,13 +1511,13 @@ void gl3dView::paintGL()
 
 void gl3dView::paintGL3()
 {
-    //	makeCurrent();
+    //    makeCurrent();
     int width, height;
 
-    double s = 1.0;
+    float s = 1.0f;
     double pixelRatio = devicePixelRatio();
 
-    glClearColor(Settings::backgroundColor().redF(), Settings::backgroundColor().greenF(), Settings::backgroundColor().blueF(), 1.0f);
+    glClearColor(float(Settings::backgroundColor().redF()), float(Settings::backgroundColor().greenF()), float(Settings::backgroundColor().blueF()), 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // Enable blending
     glEnable(GL_BLEND);
@@ -1548,10 +1525,10 @@ void gl3dView::paintGL3()
     glEnable(GL_DEPTH_TEST);
 
     m_ShaderProgramSurface.bind();
-    m_ShaderProgramSurface.setUniformValue(m_EyePosLocationSurface, QVector3D(0.0,0.0,500.0*s));
+    m_ShaderProgramSurface.setUniformValue(m_EyePosLocationSurface, QVector3D(0.0,0.0,500.0f*s));
     m_ShaderProgramSurface.release();
     m_ShaderProgramTexture.bind();
-    m_ShaderProgramTexture.setUniformValue(m_EyePosLocationTexture, QVector3D(0.0,0.0,500.0*s));
+    m_ShaderProgramTexture.setUniformValue(m_EyePosLocationTexture, QVector3D(0.0,0.0,500.0f*s));
     m_ShaderProgramTexture.release();
 
     QVector4D clipplane(0.0,0.0,-1,m_ClipPlanePos);
@@ -1568,11 +1545,11 @@ void gl3dView::paintGL3()
     m_ShaderProgramTexture.setUniformValue(m_ClipPlaneLocationTexture, clipplane);
     m_ShaderProgramTexture.release();
 
-    width  = geometry().width() * pixelRatio;
-    height = geometry().height() * pixelRatio;
+    width  = int(geometry().width() * pixelRatio);
+    height = int(geometry().height() * pixelRatio);
 
     m_orthoMatrix.setToIdentity();
-    m_orthoMatrix.ortho(-s,s,-(height*s)/width,(height*s)/width,-500.0*s,500.0*s);
+    m_orthoMatrix.ortho(-s,s,-(height*s)/width,(height*s)/width,-500.0f*s,500.0f*s);
 
     QMatrix4x4 matQuat(m_ArcBall.ab_quat);
 
@@ -1607,7 +1584,7 @@ void gl3dView::paintGL3()
     if(m_bAxes)
     {
         // fixed scale axis for the axis
-    //	m_viewMatrix.scale(0.5, 0.5, 0.5);
+    //    m_viewMatrix.scale(0.5, 0.5, 0.5);
 
         m_viewMatrix.scale(glScalef, glScalef, glScalef);
         m_viewMatrix.translate(m_glRotCenter.xf(), m_glRotCenter.yf(), m_glRotCenter.zf());
@@ -1635,11 +1612,10 @@ void gl3dView::setScale(double refLength)
 }
 
 
-void gl3dView::paintFoilNames(void *pWingPtr)
+void gl3dView::paintFoilNames(Wing *pWing)
 {
     int j=0;
-    Foil *pFoil;
-    Wing *pWing = (Wing*)pWingPtr;
+    Foil *pFoil=nullptr;
 
     for(j=0; j<pWing->m_Surface.size(); j++)
     {
@@ -1699,7 +1675,7 @@ void gl3dView::glDrawMasses(Plane *pPlane)
 }
 
 
-void gl3dView::paintMasses(double volumeMass, Vector3d pos, QString tag, const QList<PointMass*> &ptMasses)
+void gl3dView::paintMasses(double volumeMass, Vector3d pos, QString tag, const QVector<PointMass*> &ptMasses)
 {
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
@@ -1724,9 +1700,10 @@ void gl3dView::paintMasses(double volumeMass, Vector3d pos, QString tag, const Q
 }
 
 
-/** used only in GL3DWingDlg*/
+
+/** used in GL3DWingDlg and gl3dBodyView*/
 void gl3dView::paintSectionHighlight()
-{    
+{
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
     m_ShaderProgramLine.bind();
@@ -1749,10 +1726,10 @@ void gl3dView::paintSectionHighlight()
 }
 
 
+
 /** Default mesh, if no polar has been defined */
 void gl3dView::paintEditWingMesh(QOpenGLBuffer &vbo)
 {
-
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
@@ -1766,7 +1743,7 @@ void gl3dView::paintEditWingMesh(QOpenGLBuffer &vbo)
     m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3);
     m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, W3dPrefsDlg::s_VLMColor);
 
-    int nTriangles = vbo.size()/3.0/3.0/sizeof(float); // three vertices and three components
+    int nTriangles = vbo.size()/3/3/int(sizeof(float)); // three vertices and three components
 
     f->glLineWidth(W3dPrefsDlg::s_VLMWidth);
     int pos = 0;
@@ -1818,7 +1795,7 @@ void gl3dView::paintArcBall()
     {
         QMatrix4x4 pvmCP(m_orthoMatrix);
         m_ArcBall.rotateCrossPoint();
-        pvmCP.rotate(m_ArcBall.angle, m_ArcBall.p.x, m_ArcBall.p.y, m_ArcBall.p.z);
+        pvmCP.rotate(float(m_ArcBall.angle), m_ArcBall.p.xf(), m_ArcBall.p.yf(), m_ArcBall.p.zf());
         m_ShaderProgramLine.setUniformValue(m_pvmMatrixLocationLine, pvmCP);
 
         m_vboArcPoint.bind();
@@ -1853,7 +1830,7 @@ void gl3dView::paintAxes()
     m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3);
     m_ShaderProgramLine.enableAttributeArray(m_VertexLocationLine);
 
-    int nvertices = m_vboAxis.size()/sizeof(float)/3; // three components
+    int nvertices = m_vboAxis.size()/int(sizeof(float))/3; // three components
     glDrawArrays(GL_LINES, 0, nvertices);
 
     m_vboAxis.release();
@@ -1955,10 +1932,10 @@ void gl3dView::paintBody(Body *pBody)
         glPolygonOffset(1.0, 1.0);
 
         if(bTextures) m_pRightBodyTexture->bind();
-        glDrawElements(GL_TRIANGLES, m_iBodyElems/2, GL_UNSIGNED_SHORT, m_BodyIndicesArray);
+        glDrawElements(GL_TRIANGLES, m_iBodyElems/2, GL_UNSIGNED_SHORT, m_BodyIndicesArray.data());
         if(bTextures) m_pRightBodyTexture->release();
         if(bTextures) m_pLeftBodyTexture->bind();
-        glDrawElements(GL_TRIANGLES, m_iBodyElems/2, GL_UNSIGNED_SHORT, m_BodyIndicesArray+m_iBodyElems/2);
+        glDrawElements(GL_TRIANGLES, m_iBodyElems/2, GL_UNSIGNED_SHORT, m_BodyIndicesArray.data()+m_iBodyElems/2);
         if(bTextures) m_pLeftBodyTexture->release();
 
         glDisable(GL_POLYGON_OFFSET_FILL);
@@ -2009,7 +1986,7 @@ void gl3dView::paintBody(Body *pBody)
         else if(pBody->isFlatPanelType())
         {
             int pos=0;
-            for(uint i=0; i<m_iBodyElems/2; i++)
+            for(int i=0; i<m_iBodyElems/2; i++)
             {
                 glDrawArrays(GL_LINE_STRIP, pos, 4);
                 pos +=4;
@@ -2040,13 +2017,13 @@ void gl3dView::paintEditBodyMesh(Body *pBody)
     m_vboEditBodyMesh.bind();
     m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3, 3*sizeof(GLfloat));
     m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, W3dPrefsDlg::s_VLMColor);
-    //	m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, Qt::red);
+    //    m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, Qt::red);
 
     if(pBody->isFlatPanelType())
     {
         f->glLineWidth(W3dPrefsDlg::s_VLMWidth);
 
-        //		f->glPolygonOffset(1.0, 1.0);
+        //        f->glPolygonOffset(1.0, 1.0);
         f->glDrawArrays(GL_LINES, 0, m_iBodyMeshLines*2);
     }
     else if(pBody->isSplineType())
@@ -2090,8 +2067,8 @@ void gl3dView::paintEditBodyMesh(Body *pBody)
 
     f->glEnable(GL_POLYGON_OFFSET_FILL);
     f->glPolygonOffset(1.0, 1.0);
-    f->glDrawElements(GL_TRIANGLES, m_iBodyElems/2, GL_UNSIGNED_SHORT, m_BodyIndicesArray);
-    f->glDrawElements(GL_TRIANGLES, m_iBodyElems/2, GL_UNSIGNED_SHORT, m_BodyIndicesArray+m_iBodyElems/2);
+    f->glDrawElements(GL_TRIANGLES, m_iBodyElems/2, GL_UNSIGNED_SHORT, m_BodyIndicesArray.data());
+    f->glDrawElements(GL_TRIANGLES, m_iBodyElems/2, GL_UNSIGNED_SHORT, m_BodyIndicesArray.data()+m_iBodyElems/2);
     f->glDisable(GL_POLYGON_OFFSET_FILL);
 
     m_ShaderProgramSurface.disableAttributeArray(m_VertexLocationSurface);
@@ -2115,7 +2092,7 @@ void gl3dView::paintWing(int iWing, Wing *pWing)
 
     if(m_bSurfaces)
     {
-        unsigned short *wingIndicesArray = m_WingIndicesArray[iWing];
+        QVector<ushort> const &wingIndicesArray = m_WingIndicesArray[iWing];
 
         int pos = 0;
 
@@ -2178,7 +2155,7 @@ void gl3dView::paintWing(int iWing, Wing *pWing)
                 if(pWing->m_Surface.at(j)->isLeftSurf()) m_pWingTopLeftTexture[iWing]->bind();
                 else                                     m_pWingTopRightTexture[iWing]->bind();
             }
-            glDrawElements(GL_TRIANGLES, (CHORDPOINTS-1)*2*3, GL_UNSIGNED_SHORT, wingIndicesArray+pos);
+            glDrawElements(GL_TRIANGLES, (CHORDPOINTS-1)*2*3, GL_UNSIGNED_SHORT, wingIndicesArray.data()+pos);
             if(bTextures)
             {
                 if(pWing->m_Surface.at(j)->isLeftSurf()) m_pWingTopLeftTexture[iWing]->release();
@@ -2191,7 +2168,7 @@ void gl3dView::paintWing(int iWing, Wing *pWing)
                 if(pWing->m_Surface.at(j)->isLeftSurf()) m_pWingBotLeftTexture[iWing]->bind();
                 else                                     m_pWingBotRightTexture[iWing]->bind();
             }
-            glDrawElements(GL_TRIANGLES, (CHORDPOINTS-1)*2*3, GL_UNSIGNED_SHORT, wingIndicesArray+pos);
+            glDrawElements(GL_TRIANGLES, (CHORDPOINTS-1)*2*3, GL_UNSIGNED_SHORT, wingIndicesArray.data()+pos);
             if(bTextures)
             {
                 if(pWing->m_Surface.at(j)->isLeftSurf()) m_pWingBotLeftTexture[iWing]->release();
@@ -2205,13 +2182,13 @@ void gl3dView::paintWing(int iWing, Wing *pWing)
             //tip ssurface
             if(pWing->m_Surface.at(j)->isTipLeft())
             {
-                glDrawElements(GL_TRIANGLES, (CHORDPOINTS-1)*2*3, GL_UNSIGNED_SHORT, wingIndicesArray+pos);
+                glDrawElements(GL_TRIANGLES, (CHORDPOINTS-1)*2*3, GL_UNSIGNED_SHORT, wingIndicesArray.data()+pos);
                 pos += (CHORDPOINTS-1)*2*3;
             }
 
             if(pWing->m_Surface.at(j)->isTipRight())
             {
-                glDrawElements(GL_TRIANGLES, (CHORDPOINTS-1)*2*3, GL_UNSIGNED_SHORT, wingIndicesArray+pos);
+                glDrawElements(GL_TRIANGLES, (CHORDPOINTS-1)*2*3, GL_UNSIGNED_SHORT, wingIndicesArray.data()+pos);
                 pos += (CHORDPOINTS-1)*2*3;
             }
         }
@@ -2268,74 +2245,72 @@ void gl3dView::paintWing(int iWing, Wing *pWing)
 void gl3dView::glMakeArcBall()
 {
     float GLScale = 1.0f;
-    int row, col;
-    double Radius=0.1, lat_incr, lon_incr, phi, theta;
+
+    float Radius=0.1f, lat_incr, lon_incr, phi, theta;
     Vector3d eye(0.0, 0.0, 1.0);
     Vector3d up(0.0, 1.0, 0.0);
     m_ArcBall.setZoom(0.45, eye, up);
 
-    Radius = m_ArcBall.ab_sphere;
-    lat_incr =  90.0 / (double)NUMANGLES;
-    lon_incr = 360.0 / (double)NUMCIRCLES;
+    Radius = float(m_ArcBall.ab_sphere);
+    lat_incr =  90.0f / NUMANGLES;
+    lon_incr = 360.0f / NUMCIRCLES;
 
     int iv=0;
 
     int bufferSize = ((NUMCIRCLES*2)*(NUMANGLES-2) + (NUMPERIM-1)*2)*3;
-    float *arcBallVertexArray  = new float[bufferSize];
+    QVector<float>arcBallVertexArray(bufferSize, 0);
 
     //ARCBALL
-    for (col=0; col<NUMCIRCLES; col++)
+    for (int col=0; col<NUMCIRCLES; col++)
     {
         //first
-        phi = (col * lon_incr) * PI/180.0;
-        for (row=1; row<NUMANGLES-1; row++)
+        phi = (col * lon_incr) * PIf/180.0f;
+        for (int row=1; row<NUMANGLES-1; row++)
         {
-            theta = (row * lat_incr) * PI/180.0;
-            arcBallVertexArray[iv++] = Radius*cos(phi)*cos(theta)*GLScale;
-            arcBallVertexArray[iv++] = Radius*sin(theta)*GLScale;
-            arcBallVertexArray[iv++] = Radius*sin(phi)*cos(theta)*GLScale;
+            theta = (row * lat_incr) * PIf/180.0f;
+            arcBallVertexArray[iv++] = Radius*cosf(phi)*cosf(theta)*GLScale;
+            arcBallVertexArray[iv++] = Radius*sinf(theta)*GLScale;
+            arcBallVertexArray[iv++] = Radius*sinf(phi)*cosf(theta)*GLScale;
         }
     }
 
-    for (col=0; col<NUMCIRCLES; col++)
+    for (int col=0; col<NUMCIRCLES; col++)
     {
         //Second
-        phi = (col * lon_incr ) * PI/180.0;
-        for (row=1; row<NUMANGLES-1; row++)
+        phi = (col * lon_incr ) * PIf/180.0f;
+        for (int row=1; row<NUMANGLES-1; row++)
         {
-            theta = -(row * lat_incr) * PI/180.0;
-            arcBallVertexArray[iv++] = Radius*cos(phi)*cos(theta)*GLScale;
-            arcBallVertexArray[iv++] = Radius*sin(theta)*GLScale;
-            arcBallVertexArray[iv++] = Radius*sin(phi)*cos(theta)*GLScale;
+            theta = -(row * lat_incr) * PIf/180.0f;
+            arcBallVertexArray[iv++] = Radius*cosf(phi)*cosf(theta)*GLScale;
+            arcBallVertexArray[iv++] = Radius*sinf(theta)*GLScale;
+            arcBallVertexArray[iv++] = Radius*sinf(phi)*cosf(theta)*GLScale;
         }
     }
 
     theta = 0.;
-    for(col=1; col<NUMPERIM; col++)
+    for(int col=1; col<NUMPERIM; col++)
     {
-        phi = (0.0 + (double)col*360.0/72.0) * PI/180.0;
-        arcBallVertexArray[iv++] = Radius * cos(phi) * cos(theta)*GLScale;
-        arcBallVertexArray[iv++] = Radius * sin(theta)*GLScale;
-        arcBallVertexArray[iv++] = Radius * sin(phi) * cos(theta)*GLScale;
+        phi = (0.0f + col*360.0f/72.0f) * PIf/180.0f;
+        arcBallVertexArray[iv++] = Radius * cosf(phi) * cosf(theta)*GLScale;
+        arcBallVertexArray[iv++] = Radius * sinf(theta)*GLScale;
+        arcBallVertexArray[iv++] = Radius * sinf(phi) * cosf(theta)*GLScale;
     }
 
     theta = 0.;
-    for(col=1; col<NUMPERIM; col++)
+    for(int col=1; col<NUMPERIM; col++)
     {
-        phi = (0.0 + (double)col*360.0/72.0) * PI/180.0;
-        arcBallVertexArray[iv++] = Radius * cos(-phi) * cos(theta)*GLScale;
-        arcBallVertexArray[iv++] = Radius * sin(theta)*GLScale;
-        arcBallVertexArray[iv++] = Radius * sin(-phi) * cos(theta)*GLScale;
+        phi = (0.0f + col*360.0f/72.0f) * PIf/180.0f;
+        arcBallVertexArray[iv++] = Radius * cosf(-phi) * cosf(theta)*GLScale;
+        arcBallVertexArray[iv++] = Radius * sinf(theta)*GLScale;
+        arcBallVertexArray[iv++] = Radius * sinf(-phi) * cosf(theta)*GLScale;
     }
     Q_ASSERT(iv==bufferSize);
 
     m_vboArcBall.destroy();
     m_vboArcBall.create();
     m_vboArcBall.bind();
-    m_vboArcBall.allocate(arcBallVertexArray, iv * sizeof(GLfloat));
+    m_vboArcBall.allocate(arcBallVertexArray.data(), iv * int(sizeof(GLfloat)));
     m_vboArcBall.release();
-
-    delete [] arcBallVertexArray;
 }
 
 #define NUMLONG  43
@@ -2346,32 +2321,28 @@ Creates a list for a sphere with unit radius
 */
 void gl3dView::glMakeUnitSphere()
 {
-    double start_lat, start_lon,lat_incr, lon_incr;
-    double phi, theta;
-    int iLat, iLong;
+    float start_lat = -90.0f * PIf/180.0f;
+    float start_lon = 0.0f * PIf/180.0f;
 
-    start_lat = -90 * PI/180.0;
-    start_lon = 0.0 * PI/180.0;
-
-    lat_incr = 180.0 / (NUMLAT-1) * PI/180.0;
-    lon_incr = 360.0 / (NUMLONG-1) * PI/180.0;
+    float lat_incr = 180.0f / (NUMLAT-1) * PIf/180.0f;
+    float lon_incr = 360.0f / (NUMLONG-1) * PIf/180.0f;
 
     int bufferSize = NUMLONG * NUMLAT * 2 *3;
-    GLfloat *sphereVertexArray = new GLfloat[bufferSize];
+    QVector<GLfloat>sphereVertexArray(bufferSize);
     m_SphereIndicesArray  = new unsigned short[(NUMLONG-1) * NUMLAT * 2];
 
     int iv = 0;
 
-    for (iLong=0; iLong<NUMLONG; iLong++)
+    for (int iLong=0; iLong<NUMLONG; iLong++)
     {
-        phi = (start_lon + iLong * lon_incr) ;
-        for (iLat=0; iLat<NUMLAT; iLat++)
+        float phi = (start_lon + iLong * lon_incr) ;
+        for (int iLat=0; iLat<NUMLAT; iLat++)
         {
-            theta = (start_lat + iLat * lat_incr);
+            float theta = (start_lat + iLat * lat_incr);
             // the point
-            sphereVertexArray[iv++] = cos(phi) * cos(theta);//x
-            sphereVertexArray[iv++] = sin(phi) * cos(theta);//z
-            sphereVertexArray[iv++] = sin(theta);//y
+            sphereVertexArray[iv++] = cosf(phi) * cosf(theta);//x
+            sphereVertexArray[iv++] = sinf(phi) * cosf(theta);//z
+            sphereVertexArray[iv++] = sinf(theta);//y
             //the normal
             sphereVertexArray[iv++] = cos(phi) * cos(theta);//x
             sphereVertexArray[iv++] = sin(phi) * cos(theta);//z
@@ -2382,21 +2353,20 @@ void gl3dView::glMakeUnitSphere()
     Q_ASSERT(iv==bufferSize);
 
     int in=0;
-    for (iLong=0; iLong<NUMLONG-1; iLong++)
+    for (int iLong=0; iLong<NUMLONG-1; iLong++)
     {
-        for (iLat=0; iLat<NUMLAT; iLat++)
+        for (int iLat=0; iLat<NUMLAT; iLat++)
         {
-            m_SphereIndicesArray[in++] =   iLong   *NUMLAT  + iLat;
-            m_SphereIndicesArray[in++] =  (iLong+1)*NUMLAT  + iLat;
+            m_SphereIndicesArray[in++] =  ushort( iLong   *NUMLAT  + iLat);
+            m_SphereIndicesArray[in++] =  ushort((iLong+1)*NUMLAT  + iLat);
         }
     }
     Q_ASSERT(in==(NUMLONG-1) * NUMLAT * 2);
 
     m_vboSphere.create();
     m_vboSphere.bind();
-    m_vboSphere.allocate(sphereVertexArray, iv * sizeof(GLfloat));
+    m_vboSphere.allocate(sphereVertexArray.data(), iv * int(sizeof(GLfloat)));
     m_vboSphere.release();
-    delete [] sphereVertexArray;
 }
 
 
@@ -2405,8 +2375,8 @@ void gl3dView::paintSphere(Vector3d place, double radius, QColor sphereColor, bo
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
     QMatrix4x4 mSphere; //is identity
-    mSphere.translate(place.x, place.y, place.z);
-    mSphere.scale(radius);
+    mSphere.translate(place.xf(), place.yf(), place.zf());
+    mSphere.scale(float(radius));
 
     m_ShaderProgramSurface.bind();
     m_ShaderProgramSurface.setUniformValue(m_mMatrixLocationSurface, mSphere);
@@ -2437,23 +2407,21 @@ void gl3dView::paintSphere(Vector3d place, double radius, QColor sphereColor, bo
 
 void gl3dView::glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody)
 {
-    int CHORDPOINTS = W3dPrefsDlg::chordwiseRes();
+    ushort CHORDPOINTS = ushort(W3dPrefsDlg::chordwiseRes());
 
-    int j, l ;
     Vector3d N, Pt;
-    Vector3d *NormalA = new Vector3d[CHORDPOINTS];
-    Vector3d *NormalB = new Vector3d[CHORDPOINTS];
-    Vector3d *PtBotLeft, *PtBotRight, *PtTopLeft, *PtTopRight;
-    PtBotLeft  = new Vector3d[pWing->m_Surface.count() * CHORDPOINTS];
-    PtBotRight = new Vector3d[pWing->m_Surface.count() * CHORDPOINTS];
-    PtTopLeft  = new Vector3d[pWing->m_Surface.count() * CHORDPOINTS];
-    PtTopRight = new Vector3d[pWing->m_Surface.count() * CHORDPOINTS];
+    QVector<Vector3d>NormalA(CHORDPOINTS);
+    QVector<Vector3d>NormalB(CHORDPOINTS);
+    QVector<Vector3d>PtBotLeft(pWing->m_Surface.count() * CHORDPOINTS);
+    QVector<Vector3d>PtBotRight(pWing->m_Surface.count() * CHORDPOINTS);
+    QVector<Vector3d>PtTopLeft(pWing->m_Surface.count() * CHORDPOINTS);
+    QVector<Vector3d>PtTopRight(pWing->m_Surface.count() * CHORDPOINTS);
 
-    double *leftV= new double[CHORDPOINTS];
-    double *rightV = new double[CHORDPOINTS];
+    QVector<double>leftV(CHORDPOINTS);
+    QVector<double>rightV(CHORDPOINTS);
     double leftU=0.0, rightU=1.0;
-    memset(NormalA, 0, sizeof(CHORDPOINTS*sizeof(Vector3d)));
-    memset(NormalB, 0, sizeof(CHORDPOINTS*sizeof(Vector3d)));
+    memset(NormalA.data(), 0, sizeof(CHORDPOINTS*sizeof(Vector3d)));
+    memset(NormalB.data(), 0, sizeof(CHORDPOINTS*sizeof(Vector3d)));
     //vertices array size:
     // surface:
     //     pWing->NSurfaces
@@ -2469,73 +2437,73 @@ void gl3dView::glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody)
     int bufferSize = pWing->m_Surface.count()*CHORDPOINTS*2*2 ;
     bufferSize *= 8;
 
-    float *wingVertexArray = new float[bufferSize];
+    QVector<float>wingVertexArray(bufferSize);
 
     N.set(0.0, 0.0, 0.0);
     int iv=0; //index of vertex components
 
     //SURFACE
-    for (j=0; j<pWing->m_Surface.size(); j++)
+    for (int j=0; j<pWing->m_Surface.size(); j++)
     {
         //top surface
-        pWing->m_Surface.at(j)->getSidePoints(TOPSURFACE, pBody, PtTopLeft+j*CHORDPOINTS, PtTopRight+j*CHORDPOINTS,
-                                              NormalA, NormalB, CHORDPOINTS);
-        pWing->getTextureUV(j, leftV, rightV, leftU, rightU, CHORDPOINTS);
+        pWing->m_Surface.at(j)->getSidePoints(TOPSURFACE, pBody, PtTopLeft.data()+j*CHORDPOINTS, PtTopRight.data()+j*CHORDPOINTS,
+                                              NormalA.data(), NormalB.data(), CHORDPOINTS);
+        pWing->getTextureUV(j, leftV.data(), rightV.data(), leftU, rightU, CHORDPOINTS);
 
         //left side vertices
-        for (l=0; l<CHORDPOINTS; l++)
+        for (int l=0; l<CHORDPOINTS; l++)
         {
-            wingVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].x;
-            wingVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].y;
-            wingVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].z;
-            wingVertexArray[iv++] = NormalA[l].x;
-            wingVertexArray[iv++] = NormalA[l].y;
-            wingVertexArray[iv++] = NormalA[l].z;
-            wingVertexArray[iv++] = leftU;
-            wingVertexArray[iv++] = leftV[l];
+            wingVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].xf();
+            wingVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].yf();
+            wingVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].zf();
+            wingVertexArray[iv++] = NormalA[l].xf();
+            wingVertexArray[iv++] = NormalA[l].yf();
+            wingVertexArray[iv++] = NormalA[l].zf();
+            wingVertexArray[iv++] = float(leftU);
+            wingVertexArray[iv++] = float(leftV[l]);
         }
         //right side vertices
-        for (l=0; l<CHORDPOINTS; l++)
+        for (int l=0; l<CHORDPOINTS; l++)
         {
-            wingVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].x;
-            wingVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].y;
-            wingVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].z;
-            wingVertexArray[iv++] = NormalB[l].x;
-            wingVertexArray[iv++] = NormalB[l].y;
-            wingVertexArray[iv++] = NormalB[l].z;
-            wingVertexArray[iv++] = rightU;
-            wingVertexArray[iv++] = rightV[l];
+            wingVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].xf();
+            wingVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].yf();
+            wingVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].zf();
+            wingVertexArray[iv++] = NormalB[l].xf();
+            wingVertexArray[iv++] = NormalB[l].yf();
+            wingVertexArray[iv++] = NormalB[l].zf();
+            wingVertexArray[iv++] = float(rightU);
+            wingVertexArray[iv++] = float(rightV[l]);
         }
 
 
         //bottom surface
-        pWing->m_Surface.at(j)->getSidePoints(BOTSURFACE, pBody, PtBotLeft+j*CHORDPOINTS, PtBotRight+j*CHORDPOINTS,
-                                              NormalA, NormalB, CHORDPOINTS);
+        pWing->m_Surface.at(j)->getSidePoints(BOTSURFACE, pBody, PtBotLeft.data()+j*CHORDPOINTS, PtBotRight.data()+j*CHORDPOINTS,
+                                              NormalA.data(), NormalB.data(), CHORDPOINTS);
 
         //left side vertices
-        for (l=0; l<CHORDPOINTS; l++)
+        for (int l=0; l<CHORDPOINTS; l++)
         {
-            wingVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].x;
-            wingVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].y;
-            wingVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].z;
-            wingVertexArray[iv++] = NormalA[l].x;
-            wingVertexArray[iv++] = NormalA[l].y;
-            wingVertexArray[iv++] = NormalA[l].z;
-            wingVertexArray[iv++] = 1.0f-leftU;
-            wingVertexArray[iv++] = leftV[l];
+            wingVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].xf();
+            wingVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].yf();
+            wingVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].zf();
+            wingVertexArray[iv++] = NormalA[l].xf();
+            wingVertexArray[iv++] = NormalA[l].yf();
+            wingVertexArray[iv++] = NormalA[l].zf();
+            wingVertexArray[iv++] = float(1.0-leftU);
+            wingVertexArray[iv++] = float(leftV[l]);
         }
 
         //right side vertices
-        for (l=0; l<CHORDPOINTS; l++)
+        for (int l=0; l<CHORDPOINTS; l++)
         {
-            wingVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].x;
-            wingVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].y;
-            wingVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].z;
-            wingVertexArray[iv++] = NormalB[l].x;
-            wingVertexArray[iv++] = NormalB[l].y;
-            wingVertexArray[iv++] = NormalB[l].z;
-            wingVertexArray[iv++] = 1.0f-rightU;
-            wingVertexArray[iv++] = rightV[l];
+            wingVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].xf();
+            wingVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].yf();
+            wingVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].zf();
+            wingVertexArray[iv++] = NormalB[l].xf();
+            wingVertexArray[iv++] = NormalB[l].yf();
+            wingVertexArray[iv++] = NormalB[l].zf();
+            wingVertexArray[iv++] = float(1.0-rightU);
+            wingVertexArray[iv++] = float(rightV[l]);
         }
     }
 
@@ -2556,16 +2524,16 @@ void gl3dView::glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody)
     //      x3 indices/triangle
 
     m_iWingElems[iWing] =  pWing->m_Surface.count()* (CHORDPOINTS-1) *2 *2 *3
-            + (CHORDPOINTS-1) *2 *2 *3;
-    if(m_WingIndicesArray[iWing]) delete[] m_WingIndicesArray[iWing];
-    m_WingIndicesArray[iWing] = new unsigned short[m_iWingElems[iWing]];
-    unsigned short *wingIndicesArray = m_WingIndicesArray[iWing];
-    uint ii = 0;
-    int nV=0;
-    for (j=0; j<pWing->m_Surface.count(); j++)
+                           + (CHORDPOINTS-1) *2 *2 *3;
+
+    m_WingIndicesArray[iWing].resize(m_iWingElems[iWing]);
+    QVector<ushort> &wingIndicesArray = m_WingIndicesArray[iWing];
+    int ii = 0;
+    ushort nV=0;
+    for (int j=0; j<pWing->m_Surface.count(); j++)
     {
         //topsurface
-        for (l=0; l<CHORDPOINTS-1; l++)
+        for (int l=0; l<CHORDPOINTS-1; l++)
         {
             Q_ASSERT(ii < m_iWingElems[iWing]);
             //first triangle
@@ -2582,7 +2550,7 @@ void gl3dView::glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody)
         nV +=CHORDPOINTS+1;
 
         //botsurface
-        for (l=0; l<CHORDPOINTS-1; l++)
+        for (int l=0; l<CHORDPOINTS-1; l++)
         {
             Q_ASSERT(ii < m_iWingElems[iWing]);
             //first triangle
@@ -2601,12 +2569,12 @@ void gl3dView::glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody)
 
     //TIP PATCHES
     nV=0;
-    for (j=0; j<pWing->m_Surface.count(); j++)
+    for (int j=0; j<pWing->m_Surface.count(); j++)
     {
         if(pWing->m_Surface.at(j)->isTipLeft())
         {
             Q_ASSERT(ii+5 < m_iWingElems[iWing]);
-            for (l=0; l<CHORDPOINTS-1; l++)
+            for (int l=0; l<CHORDPOINTS-1; l++)
             {
                 //first triangle
                 wingIndicesArray[ii]   = nV;
@@ -2627,7 +2595,7 @@ void gl3dView::glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody)
             if(!pWing->m_Surface.at(j)->isTipLeft()) nV += CHORDPOINTS;
 
             Q_ASSERT(ii+5 < m_iWingElems[iWing]);
-            for (l=0; l<CHORDPOINTS-1; l++)
+            for (int l=0; l<CHORDPOINTS-1; l++)
             {
                 //first triangle
                 wingIndicesArray[ii]   = nV;
@@ -2714,7 +2682,7 @@ void gl3dView::glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody)
     m_vboWingSurface[iWing].destroy();
     m_vboWingSurface[iWing].create();
     m_vboWingSurface[iWing].bind();
-    m_vboWingSurface[iWing].allocate(wingVertexArray, bufferSize * sizeof(GLfloat));
+    m_vboWingSurface[iWing].allocate(wingVertexArray.data(), bufferSize * int(sizeof(GLfloat)));
     m_vboWingSurface[iWing].release();
 
 
@@ -2735,20 +2703,20 @@ void gl3dView::glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody)
     m_iWingOutlinePoints[iWing] += pWing->m_Surface.size()*2*2;
 
     //TE flap outline....
-    for (j=0; j<pWing->m_Surface.size(); j++)
+    for (int j=0; j<pWing->m_Surface.size(); j++)
     {
-        Foil *pFoilA = pWing->m_Surface[j]->m_pFoilA;
-        Foil *pFoilB = pWing->m_Surface[j]->m_pFoilB;
+        Foil const *pFoilA = pWing->m_Surface[j]->m_pFoilA;
+        Foil const *pFoilB = pWing->m_Surface[j]->m_pFoilB;
         if(pFoilA && pFoilB && pFoilA->m_bTEFlap && pFoilB->m_bTEFlap)
         {
             m_iWingOutlinePoints[iWing] += 4;//two vertices for the top line and two for the bottom line
         }
     }
     //LE flap outline....
-    for (j=0; j<pWing->m_Surface.size(); j++)
+    for (int j=0; j<pWing->m_Surface.size(); j++)
     {
-        Foil *pFoilA = pWing->m_Surface[j]->m_pFoilA;
-        Foil *pFoilB = pWing->m_Surface[j]->m_pFoilB;
+        Foil const *pFoilA = pWing->m_Surface[j]->m_pFoilA;
+        Foil const *pFoilB = pWing->m_Surface[j]->m_pFoilB;
         if(pFoilA && pFoilB && pFoilA->m_bLEFlap && pFoilB->m_bLEFlap)
         {
             m_iWingOutlinePoints[iWing] += 4;//two vertices for the top line and two for the bottom line
@@ -2756,149 +2724,151 @@ void gl3dView::glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody)
     }
 
     // x3  : for 3 vertex components
-    float *wingOutlineVertexArray = new float[m_iWingOutlinePoints[iWing] * 3];
+    QVector<float> wingOutlineVertexArray(m_iWingOutlinePoints[iWing]*3, 0);
 
     iv=0; //index of vertex components
 
     //SECTIONS OUTLINE
-    for (j=0; j<pWing->m_Surface.size(); j++)
+    for (int j=0; j<pWing->m_Surface.size(); j++)
     {
         //top surface
         //left side vertices
-        for (l=0; l<CHORDPOINTS-1; l++)
+        for (int l=0; l<CHORDPOINTS-1; l++)
         {
-            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].x;
-            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].y;
-            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].z;
-            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l+1].x;
-            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l+1].y;
-            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l+1].z;
+            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].xf();
+            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].yf();
+            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l].zf();
+            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l+1].xf();
+            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l+1].yf();
+            wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+l+1].zf();
         }
         //right side vertices
-        for (l=0; l<CHORDPOINTS-1; l++)
+        for (int l=0; l<CHORDPOINTS-1; l++)
         {
-            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].x;
-            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].y;
-            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].z;
-            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l+1].x;
-            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l+1].y;
-            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l+1].z;
+            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].xf();
+            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].yf();
+            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l].zf();
+            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l+1].xf();
+            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l+1].yf();
+            wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+l+1].zf();
         }
 
 
         //bottom surface
 
         //left side vertices
-        for (l=0; l<CHORDPOINTS-1; l++)
+        for (int l=0; l<CHORDPOINTS-1; l++)
         {
-            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].x;
-            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].y;
-            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].z;
-            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l+1].x;
-            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l+1].y;
-            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l+1].z;
+            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].xf();
+            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].yf();
+            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l].zf();
+            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l+1].xf();
+            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l+1].yf();
+            wingOutlineVertexArray[iv++] = PtBotLeft[j*CHORDPOINTS+l+1].zf();
         }
 
         //right side vertices
-        for (l=0; l<CHORDPOINTS-1; l++)
+        for (int l=0; l<CHORDPOINTS-1; l++)
         {
-            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].x;
-            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].y;
-            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].z;
-            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l+1].x;
-            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l+1].y;
-            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l+1].z;
+            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].xf();
+            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].yf();
+            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l].zf();
+            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l+1].xf();
+            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l+1].yf();
+            wingOutlineVertexArray[iv++] = PtBotRight[j*CHORDPOINTS+l+1].zf();
         }
 
         //Leading edge
-        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+0].x;
-        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+0].y;
-        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+0].z;
-        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+0].x;
-        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+0].y;
-        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+0].z;
+        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+0].xf();
+        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+0].yf();
+        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS+0].zf();
+        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+0].xf();
+        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+0].yf();
+        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS+0].zf();
 
         //trailing edge
-        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS + CHORDPOINTS-1].x;
-        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS + CHORDPOINTS-1].y;
-        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS + CHORDPOINTS-1].z;
-        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS + CHORDPOINTS-1].x;
-        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS + CHORDPOINTS-1].y;
-        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS + CHORDPOINTS-1].z;
+        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS + CHORDPOINTS-1].xf();
+        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS + CHORDPOINTS-1].yf();
+        wingOutlineVertexArray[iv++] = PtTopLeft[j*CHORDPOINTS + CHORDPOINTS-1].zf();
+        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS + CHORDPOINTS-1].xf();
+        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS + CHORDPOINTS-1].yf();
+        wingOutlineVertexArray[iv++] = PtTopRight[j*CHORDPOINTS + CHORDPOINTS-1].zf();
     }
 
     //TE flap outline....
-    for (j=0; j<pWing->m_Surface.size(); j++)
+    for (int j=0; j<pWing->m_Surface.size(); j++)
     {
-        Foil *pFoilA = pWing->m_Surface[j]->m_pFoilA;
-        Foil *pFoilB = pWing->m_Surface[j]->m_pFoilB;
+        Surface const *pSurf =  pWing->m_Surface[j];
+        Foil const *pFoilA =pSurf->m_pFoilA;
+        Foil const *pFoilB =pSurf->m_pFoilB;
         if(pFoilA && pFoilB && pFoilA->m_bTEFlap && pFoilB->m_bTEFlap)
         {
-            pWing->m_Surface[j]->getSurfacePoint(pWing->m_Surface[j]->m_pFoilA->m_TEXHinge/100.0,
-                                                 pWing->m_Surface[j]->m_pFoilA->m_TEXHinge/100.0,
-                                                 0.0, TOPSURFACE, Pt, N);
-            wingOutlineVertexArray[iv++] = Pt.x;
-            wingOutlineVertexArray[iv++] = Pt.y;
-            wingOutlineVertexArray[iv++] = Pt.z;
+           pSurf->getSurfacePoint(pSurf->m_pFoilA->m_TEXHinge/100.0,
+                                  pFoilA->m_TEXHinge/100.0,
+                                  0.0, TOPSURFACE, Pt, N);
+            wingOutlineVertexArray[iv++] = Pt.xf();
+            wingOutlineVertexArray[iv++] = Pt.yf();
+            wingOutlineVertexArray[iv++] = Pt.zf();
 
-            pWing->m_Surface[j]->getSurfacePoint(pWing->m_Surface[j]->m_pFoilB->m_TEXHinge/100.0,
-                                                 pWing->m_Surface[j]->m_pFoilB->m_TEXHinge/100.0,
-                                                 1.0, TOPSURFACE, Pt, N);
-            wingOutlineVertexArray[iv++] = Pt.x;
-            wingOutlineVertexArray[iv++] = Pt.y;
-            wingOutlineVertexArray[iv++] = Pt.z;
-
-
-            pWing->m_Surface[j]->getSurfacePoint(pWing->m_Surface[j]->m_pFoilA->m_TEXHinge/100.0,
-                                                 pWing->m_Surface[j]->m_pFoilA->m_TEXHinge/100.0,
-                                                 0.0, BOTSURFACE, Pt, N);
-            wingOutlineVertexArray[iv++] = Pt.x;
-            wingOutlineVertexArray[iv++] = Pt.y;
-            wingOutlineVertexArray[iv++] = Pt.z;
+           pSurf->getSurfacePoint(pSurf->m_pFoilB->m_TEXHinge/100.0,
+                                  pFoilB->m_TEXHinge/100.0,
+                                  1.0, TOPSURFACE, Pt, N);
+            wingOutlineVertexArray[iv++] = Pt.xf();
+            wingOutlineVertexArray[iv++] = Pt.yf();
+            wingOutlineVertexArray[iv++] = Pt.zf();
 
 
-            pWing->m_Surface[j]->getSurfacePoint(pWing->m_Surface[j]->m_pFoilB->m_TEXHinge/100.0,
-                                                 pWing->m_Surface[j]->m_pFoilB->m_TEXHinge/100.0,
-                                                 1.0, BOTSURFACE, Pt, N);
-            wingOutlineVertexArray[iv++] = Pt.x;
-            wingOutlineVertexArray[iv++] = Pt.y;
-            wingOutlineVertexArray[iv++] = Pt.z;
+           pSurf->getSurfacePoint(pSurf->m_pFoilA->m_TEXHinge/100.0,
+                                  pFoilA->m_TEXHinge/100.0,
+                                  0.0, BOTSURFACE, Pt, N);
+            wingOutlineVertexArray[iv++] = Pt.xf();
+            wingOutlineVertexArray[iv++] = Pt.yf();
+            wingOutlineVertexArray[iv++] = Pt.zf();
+
+
+           pSurf->getSurfacePoint(pSurf->m_pFoilB->m_TEXHinge/100.0,
+                                  pFoilB->m_TEXHinge/100.0,
+                                  1.0, BOTSURFACE, Pt, N);
+            wingOutlineVertexArray[iv++] = Pt.xf();
+            wingOutlineVertexArray[iv++] = Pt.yf();
+            wingOutlineVertexArray[iv++] = Pt.zf();
         }
     }
     //LE flap outline....
-    for (j=0; j<pWing->m_Surface.size(); j++)
+    for (int j=0; j<pWing->m_Surface.size(); j++)
     {
-        Foil *pFoilA = pWing->m_Surface[j]->m_pFoilA;
-        Foil *pFoilB = pWing->m_Surface[j]->m_pFoilB;
+        Surface const *pSurf =  pWing->m_Surface[j];
+        Foil const *pFoilA = pSurf->m_pFoilA;
+        Foil const *pFoilB = pSurf->m_pFoilB;
         if(pFoilA && pFoilB && pFoilA->m_bLEFlap && pFoilB->m_bLEFlap)
         {
-            pWing->m_Surface[j]->getSurfacePoint(pWing->m_Surface[j]->m_pFoilA->m_LEXHinge/100.0,
-                                                 pWing->m_Surface[j]->m_pFoilA->m_LEXHinge/100.0,
-                                                 0.0, TOPSURFACE, Pt, N);
-            wingOutlineVertexArray[iv++] = Pt.x;
-            wingOutlineVertexArray[iv++] = Pt.y;
-            wingOutlineVertexArray[iv++] = Pt.z;
+            pSurf->getSurfacePoint(pFoilA->m_LEXHinge/100.0,
+                                   pFoilA->m_LEXHinge/100.0,
+                                   0.0, TOPSURFACE, Pt, N);
+            wingOutlineVertexArray[iv++] = Pt.xf();
+            wingOutlineVertexArray[iv++] = Pt.yf();
+            wingOutlineVertexArray[iv++] = Pt.zf();
 
-            pWing->m_Surface[j]->getSurfacePoint(pWing->m_Surface[j]->m_pFoilB->m_LEXHinge/100.0,
-                                                 pWing->m_Surface[j]->m_pFoilB->m_LEXHinge/100.0,
-                                                 1.0, TOPSURFACE, Pt, N);
-            wingOutlineVertexArray[iv++] = Pt.x;
-            wingOutlineVertexArray[iv++] = Pt.y;
-            wingOutlineVertexArray[iv++] = Pt.z;
+            pSurf->getSurfacePoint(pFoilB->m_LEXHinge/100.0,
+                                   pFoilB->m_LEXHinge/100.0,
+                                   1.0, TOPSURFACE, Pt, N);
+            wingOutlineVertexArray[iv++] = Pt.xf();
+            wingOutlineVertexArray[iv++] = Pt.yf();
+            wingOutlineVertexArray[iv++] = Pt.zf();
 
-            pWing->m_Surface[j]->getSurfacePoint(pWing->m_Surface[j]->m_pFoilA->m_LEXHinge/100.0,
-                                                 pWing->m_Surface[j]->m_pFoilA->m_LEXHinge/100.0,
-                                                 0.0, BOTSURFACE, Pt, N);
-            wingOutlineVertexArray[iv++] = Pt.x;
-            wingOutlineVertexArray[iv++] = Pt.y;
-            wingOutlineVertexArray[iv++] = Pt.z;
+            pSurf->getSurfacePoint(pFoilA->m_LEXHinge/100.0,
+                                   pFoilA->m_LEXHinge/100.0,
+                                   0.0, BOTSURFACE, Pt, N);
+            wingOutlineVertexArray[iv++] = Pt.xf();
+            wingOutlineVertexArray[iv++] = Pt.yf();
+            wingOutlineVertexArray[iv++] = Pt.zf();
 
-            pWing->m_Surface[j]->getSurfacePoint(pWing->m_Surface[j]->m_pFoilB->m_LEXHinge/100.0,
-                                                 pWing->m_Surface[j]->m_pFoilB->m_LEXHinge/100.0,
-                                                 1.0, BOTSURFACE, Pt, N);
-            wingOutlineVertexArray[iv++] = Pt.x;
-            wingOutlineVertexArray[iv++] = Pt.y;
-            wingOutlineVertexArray[iv++] = Pt.z;
+            pSurf->getSurfacePoint(pFoilB->m_LEXHinge/100.0,
+                                   pFoilB->m_LEXHinge/100.0,
+                                   1.0, BOTSURFACE, Pt, N);
+            wingOutlineVertexArray[iv++] = Pt.xf();
+            wingOutlineVertexArray[iv++] = Pt.yf();
+            wingOutlineVertexArray[iv++] = Pt.zf();
         }
     }
 
@@ -2907,20 +2877,8 @@ void gl3dView::glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody)
     m_vboWingOutline[iWing].destroy();
     m_vboWingOutline[iWing].create();
     m_vboWingOutline[iWing].bind();
-    m_vboWingOutline[iWing].allocate(wingOutlineVertexArray, m_iWingOutlinePoints[iWing] * 3 * sizeof(GLfloat));
+    m_vboWingOutline[iWing].allocate(wingOutlineVertexArray.data(), m_iWingOutlinePoints[iWing] * 3 * int(sizeof(GLfloat)));
     m_vboWingOutline[iWing].release();
-
-    delete[] wingOutlineVertexArray;
-
-    delete[] wingVertexArray;
-    delete[] PtTopLeft;
-    delete[] PtTopRight;
-    delete[] PtBotLeft;
-    delete[] PtBotRight;
-    delete[] NormalA;
-    delete[] NormalB;
-    delete[] leftV;
-    delete[] rightV;
 }
 
 
@@ -2965,7 +2923,7 @@ void gl3dView::glMakeWingEditMesh(QOpenGLBuffer &vbo, Wing *pWing)
     bufferSize *=3;    // 3 vertex for each triangle
     bufferSize *=3;    // 3 components for each node
 
-    std::vector<float> meshVertexArray(bufferSize);
+    QVector<float> meshVertexArray(bufferSize);
 
     int iv=0;
 
@@ -2987,26 +2945,26 @@ void gl3dView::glMakeWingEditMesh(QOpenGLBuffer &vbo, Wing *pWing)
                 D = pSurf->TA;
 
                 //first triangle
-                meshVertexArray[iv++] = A.x;
-                meshVertexArray[iv++] = A.y;
-                meshVertexArray[iv++] = A.z;
-                meshVertexArray[iv++] = B.x;
-                meshVertexArray[iv++] = B.y;
-                meshVertexArray[iv++] = B.z;
-                meshVertexArray[iv++] = C.x;
-                meshVertexArray[iv++] = C.y;
-                meshVertexArray[iv++] = C.z;
+                meshVertexArray[iv++] = A.xf();
+                meshVertexArray[iv++] = A.yf();
+                meshVertexArray[iv++] = A.zf();
+                meshVertexArray[iv++] = B.xf();
+                meshVertexArray[iv++] = B.yf();
+                meshVertexArray[iv++] = B.zf();
+                meshVertexArray[iv++] = C.xf();
+                meshVertexArray[iv++] = C.yf();
+                meshVertexArray[iv++] = C.zf();
 
                 //second triangle
-                meshVertexArray[iv++] = C.x;
-                meshVertexArray[iv++] = C.y;
-                meshVertexArray[iv++] = C.z;
-                meshVertexArray[iv++] = D.x;
-                meshVertexArray[iv++] = D.y;
-                meshVertexArray[iv++] = D.z;
-                meshVertexArray[iv++] = A.x;
-                meshVertexArray[iv++] = A.y;
-                meshVertexArray[iv++] = A.z;
+                meshVertexArray[iv++] = C.xf();
+                meshVertexArray[iv++] = C.yf();
+                meshVertexArray[iv++] = C.zf();
+                meshVertexArray[iv++] = D.xf();
+                meshVertexArray[iv++] = D.yf();
+                meshVertexArray[iv++] = D.zf();
+                meshVertexArray[iv++] = A.xf();
+                meshVertexArray[iv++] = A.yf();
+                meshVertexArray[iv++] = A.zf();
             }
         }
         if(pSurf->isTipRight())
@@ -3021,26 +2979,26 @@ void gl3dView::glMakeWingEditMesh(QOpenGLBuffer &vbo, Wing *pWing)
                 D = pSurf->TB;
 
                 //first triangle
-                meshVertexArray[iv++] = C.x;
-                meshVertexArray[iv++] = C.y;
-                meshVertexArray[iv++] = C.z;
-                meshVertexArray[iv++] = B.x;
-                meshVertexArray[iv++] = B.y;
-                meshVertexArray[iv++] = B.z;
-                meshVertexArray[iv++] = A.x;
-                meshVertexArray[iv++] = A.y;
-                meshVertexArray[iv++] = A.z;
+                meshVertexArray[iv++] = C.xf();
+                meshVertexArray[iv++] = C.yf();
+                meshVertexArray[iv++] = C.zf();
+                meshVertexArray[iv++] = B.xf();
+                meshVertexArray[iv++] = B.yf();
+                meshVertexArray[iv++] = B.zf();
+                meshVertexArray[iv++] = A.xf();
+                meshVertexArray[iv++] = A.yf();
+                meshVertexArray[iv++] = A.zf();
 
                 //second triangle
-                meshVertexArray[iv++] = A.x;
-                meshVertexArray[iv++] = A.y;
-                meshVertexArray[iv++] = A.z;
-                meshVertexArray[iv++] = D.x;
-                meshVertexArray[iv++] = D.y;
-                meshVertexArray[iv++] = D.z;
-                meshVertexArray[iv++] = C.x;
-                meshVertexArray[iv++] = C.y;
-                meshVertexArray[iv++] = C.z;
+                meshVertexArray[iv++] = A.xf();
+                meshVertexArray[iv++] = A.yf();
+                meshVertexArray[iv++] = A.zf();
+                meshVertexArray[iv++] = D.xf();
+                meshVertexArray[iv++] = D.yf();
+                meshVertexArray[iv++] = D.zf();
+                meshVertexArray[iv++] = C.xf();
+                meshVertexArray[iv++] = C.yf();
+                meshVertexArray[iv++] = C.zf();
             }
         }
     }
@@ -3056,52 +3014,52 @@ void gl3dView::glMakeWingEditMesh(QOpenGLBuffer &vbo, Wing *pWing)
                 pSurf->getPanel(k,l,TOPSURFACE);
 
                 // first triangle
-                meshVertexArray[iv++] = pSurf->LA.x;
-                meshVertexArray[iv++] = pSurf->LA.y;
-                meshVertexArray[iv++] = pSurf->LA.z;
-                meshVertexArray[iv++] = pSurf->TA.x;
-                meshVertexArray[iv++] = pSurf->TA.y;
-                meshVertexArray[iv++] = pSurf->TA.z;
-                meshVertexArray[iv++] = pSurf->TB.x;
-                meshVertexArray[iv++] = pSurf->TB.y;
-                meshVertexArray[iv++] = pSurf->TB.z;
+                meshVertexArray[iv++] = pSurf->LA.xf();
+                meshVertexArray[iv++] = pSurf->LA.yf();
+                meshVertexArray[iv++] = pSurf->LA.zf();
+                meshVertexArray[iv++] = pSurf->TA.xf();
+                meshVertexArray[iv++] = pSurf->TA.yf();
+                meshVertexArray[iv++] = pSurf->TA.zf();
+                meshVertexArray[iv++] = pSurf->TB.xf();
+                meshVertexArray[iv++] = pSurf->TB.yf();
+                meshVertexArray[iv++] = pSurf->TB.zf();
 
                 //second triangle
-                meshVertexArray[iv++] = pSurf->TB.x;
-                meshVertexArray[iv++] = pSurf->TB.y;
-                meshVertexArray[iv++] = pSurf->TB.z;
-                meshVertexArray[iv++] = pSurf->LB.x;
-                meshVertexArray[iv++] = pSurf->LB.y;
-                meshVertexArray[iv++] = pSurf->LB.z;
-                meshVertexArray[iv++] = pSurf->LA.x;
-                meshVertexArray[iv++] = pSurf->LA.y;
-                meshVertexArray[iv++] = pSurf->LA.z;
+                meshVertexArray[iv++] = pSurf->TB.xf();
+                meshVertexArray[iv++] = pSurf->TB.yf();
+                meshVertexArray[iv++] = pSurf->TB.zf();
+                meshVertexArray[iv++] = pSurf->LB.xf();
+                meshVertexArray[iv++] = pSurf->LB.yf();
+                meshVertexArray[iv++] = pSurf->LB.zf();
+                meshVertexArray[iv++] = pSurf->LA.xf();
+                meshVertexArray[iv++] = pSurf->LA.yf();
+                meshVertexArray[iv++] = pSurf->LA.zf();
             }
 
             for (l=0; l<pSurf->NXPanels(); l++)
             {
                 pSurf->getPanel(k,l,BOTSURFACE);
                 //first triangle
-                meshVertexArray[iv++] = pSurf->TB.x;
-                meshVertexArray[iv++] = pSurf->TB.y;
-                meshVertexArray[iv++] = pSurf->TB.z;
-                meshVertexArray[iv++] = pSurf->TA.x;
-                meshVertexArray[iv++] = pSurf->TA.y;
-                meshVertexArray[iv++] = pSurf->TA.z;
-                meshVertexArray[iv++] = pSurf->LA.x;
-                meshVertexArray[iv++] = pSurf->LA.y;
-                meshVertexArray[iv++] = pSurf->LA.z;
+                meshVertexArray[iv++] = pSurf->TB.xf();
+                meshVertexArray[iv++] = pSurf->TB.yf();
+                meshVertexArray[iv++] = pSurf->TB.zf();
+                meshVertexArray[iv++] = pSurf->TA.xf();
+                meshVertexArray[iv++] = pSurf->TA.yf();
+                meshVertexArray[iv++] = pSurf->TA.zf();
+                meshVertexArray[iv++] = pSurf->LA.xf();
+                meshVertexArray[iv++] = pSurf->LA.yf();
+                meshVertexArray[iv++] = pSurf->LA.zf();
 
                 //second triangle
-                meshVertexArray[iv++] = pSurf->LA.x;
-                meshVertexArray[iv++] = pSurf->LA.y;
-                meshVertexArray[iv++] = pSurf->LA.z;
-                meshVertexArray[iv++] = pSurf->LB.x;
-                meshVertexArray[iv++] = pSurf->LB.y;
-                meshVertexArray[iv++] = pSurf->LB.z;
-                meshVertexArray[iv++] = pSurf->TB.x;
-                meshVertexArray[iv++] = pSurf->TB.y;
-                meshVertexArray[iv++] = pSurf->TB.z;
+                meshVertexArray[iv++] = pSurf->LA.xf();
+                meshVertexArray[iv++] = pSurf->LA.yf();
+                meshVertexArray[iv++] = pSurf->LA.zf();
+                meshVertexArray[iv++] = pSurf->LB.xf();
+                meshVertexArray[iv++] = pSurf->LB.yf();
+                meshVertexArray[iv++] = pSurf->LB.zf();
+                meshVertexArray[iv++] = pSurf->TB.xf();
+                meshVertexArray[iv++] = pSurf->TB.yf();
+                meshVertexArray[iv++] = pSurf->TB.zf();
             }
         }
     }
@@ -3112,123 +3070,18 @@ void gl3dView::glMakeWingEditMesh(QOpenGLBuffer &vbo, Wing *pWing)
 
     Q_ASSERT(iv==bufferSize);
 
-    //	m_iWingMeshElems = ii/3;
+    //    m_iWingMeshElems = ii/3;
     vbo.destroy();
     vbo.create();
     vbo.bind();
-    vbo.allocate(meshVertexArray.data(), bufferSize * sizeof(GLfloat));
+    vbo.allocate(meshVertexArray.data(), bufferSize * int(sizeof(GLfloat)));
     vbo.release();
-}
-
-
-void gl3dView::glMakeWingSectionHighlight(Wing *pWing, int iSectionHighLight, bool bRightSide)
-{
-    Vector3d Point, Normal;
-
-    int CHORDPOINTS = W3dPrefsDlg::chordwiseRes();
-    int iSection = 0;
-    int jSurf = 0;
-    for(int jSection=0; jSection<pWing->NWingSection(); jSection++)
-    {
-        if(jSection==iSectionHighLight) break;
-        if(jSection<pWing->NWingSection()-1 &&	fabs(pWing->YPosition(jSection+1)-pWing->YPosition(jSection)) > Wing::s_MinPanelSize)
-            iSection++;
-    }
-
-    m_HighlightLineSize = CHORDPOINTS * 2;
-    int bufferSize = m_HighlightLineSize *2 *3 ;
-    float *pHighlightVertexArray = new float[bufferSize];
-
-    m_nHighlightLines = 0;
-    int iv=0;
-    if(iSection==0)
-    {
-        m_nHighlightLines++;
-        //define the inner left side surface
-        if(!pWing->isFin())  jSurf = pWing->m_Surface.size()/2 - 1;
-        else                 jSurf = pWing->m_Surface.size()   - 1;
-
-        for (int lx=0; lx<CHORDPOINTS; lx++)
-        {
-            double xRel = (double)lx/(double)(CHORDPOINTS-1);
-            pWing->m_Surface.at(jSurf)->getSidePoint(xRel, true, TOPSURFACE, Point, Normal);
-            pHighlightVertexArray[iv++] = Point.x;
-            pHighlightVertexArray[iv++] = Point.y;
-            pHighlightVertexArray[iv++] = Point.z;
-        }
-        for (int lx=CHORDPOINTS-1; lx>=0; lx--)
-        {
-            double xRel = (double)lx/(double)(CHORDPOINTS-1);
-            pWing->m_Surface.at(jSurf)->getSidePoint(xRel, true, BOTSURFACE, Point, Normal);
-            pHighlightVertexArray[iv++] = Point.x;
-            pHighlightVertexArray[iv++] = Point.y;
-            pHighlightVertexArray[iv++] = Point.z;
-        }
-    }
-    else
-    {
-        if((pWing->m_bSymetric || bRightSide) && !pWing->m_bIsFin)
-        {
-            m_nHighlightLines++;
-            jSurf = pWing->m_Surface.size()/2 + iSection -1;
-
-            for (int lx=0; lx<CHORDPOINTS; lx++)
-            {
-                double xRel = (double)lx/(double)(CHORDPOINTS-1);
-                pWing->m_Surface.at(jSurf)->getSidePoint(xRel, true, TOPSURFACE, Point, Normal);
-                pHighlightVertexArray[iv++] = Point.x;
-                pHighlightVertexArray[iv++] = Point.y;
-                pHighlightVertexArray[iv++] = Point.z;
-            }
-            for (int lx=CHORDPOINTS-1; lx>=0; lx--)
-            {
-                double xRel = (double)lx/(double)(CHORDPOINTS-1);
-                pWing->m_Surface.at(jSurf)->getSidePoint(xRel, true, BOTSURFACE, Point, Normal);
-                pHighlightVertexArray[iv++] = Point.x;
-                pHighlightVertexArray[iv++] = Point.y;
-                pHighlightVertexArray[iv++] = Point.z;
-            }
-        }
-
-        if(pWing->m_bSymetric || !bRightSide)
-        {
-            m_nHighlightLines++;
-            if(!pWing->m_bIsFin) jSurf = pWing->m_Surface.size()/2 - iSection;
-            else                 jSurf = pWing->m_Surface.size()   - iSection;
-
-            //plot A side outline
-            for (int lx=0; lx<CHORDPOINTS; lx++)
-            {
-                double xRel = (double)lx/(double)(CHORDPOINTS-1);
-                pWing->m_Surface.at(jSurf)->getSidePoint(xRel, false, TOPSURFACE, Point, Normal);
-                pHighlightVertexArray[iv++] = Point.x;
-                pHighlightVertexArray[iv++] = Point.y;
-                pHighlightVertexArray[iv++] = Point.z;
-            }
-
-            for (int lx=CHORDPOINTS-1; lx>=0; lx--)
-            {
-                double xRel = (double)lx/(double)(CHORDPOINTS-1);
-                pWing->m_Surface.at(jSurf)->getSidePoint(xRel, false, BOTSURFACE, Point, Normal);
-                pHighlightVertexArray[iv++] = Point.x;
-                pHighlightVertexArray[iv++] = Point.y;
-                pHighlightVertexArray[iv++] = Point.z;
-            }
-        }
-    }
-
-    m_vboHighlight.destroy();
-    m_vboHighlight.create();
-    m_vboHighlight.bind();
-    m_vboHighlight.allocate(pHighlightVertexArray, bufferSize*sizeof(float));
-    m_vboHighlight.release();
-    delete [] pHighlightVertexArray;
 }
 
 
 void gl3dView::glMakeBodyFrameHighlight(Body *pBody, Vector3d bodyPos, int iFrame)
 {
-    //	int NXXXX = W3dPrefsDlg::bodyAxialRes();
+    //    int NXXXX = W3dPrefsDlg::bodyAxialRes();
     int NHOOOP = W3dPrefsDlg::bodyHoopRes();
     int k;
     Vector3d Point;
@@ -3236,11 +3089,11 @@ void gl3dView::glMakeBodyFrameHighlight(Body *pBody, Vector3d bodyPos, int iFram
     if(iFrame<0) return;
 
     Frame *pFrame = pBody->frame(iFrame);
-    //	xinc = 0.1;
-    hinc = 1.0/(double)(NHOOOP-1);
+    //    xinc = 0.1;
+    hinc = 1.0/double(NHOOOP-1);
 
     int bufferSize = 0;
-    float *pHighlightVertexArray = nullptr;
+    QVector<float>pHighlightVertexArray;
 
     m_nHighlightLines = 2; // left and right - could make one instead
 
@@ -3251,26 +3104,26 @@ void gl3dView::glMakeBodyFrameHighlight(Body *pBody, Vector3d bodyPos, int iFram
     {
         m_HighlightLineSize = pFrame->pointCount();
         bufferSize = m_nHighlightLines * m_HighlightLineSize *3 ;
-        pHighlightVertexArray = new float[bufferSize];
+        pHighlightVertexArray.resize(bufferSize);
         for (k=0; k<pFrame->pointCount();k++)
         {
-            pHighlightVertexArray[iv++] = pFrame->m_Position.x+bodyPos.x;
-            pHighlightVertexArray[iv++] = pFrame->m_CtrlPoint[k].y;
-            pHighlightVertexArray[iv++] = pFrame->m_CtrlPoint[k].z+bodyPos.z;
+            pHighlightVertexArray[iv++] = pFrame->m_Position.xf()+bodyPos.xf();
+            pHighlightVertexArray[iv++] = pFrame->m_CtrlPoint[k].yf();
+            pHighlightVertexArray[iv++] = pFrame->m_CtrlPoint[k].zf()+bodyPos.zf();
         }
 
         for (k=0; k<pFrame->pointCount();k++)
         {
-            pHighlightVertexArray[iv++] =  pFrame->m_Position.x+bodyPos.x;
-            pHighlightVertexArray[iv++] = -pFrame->m_CtrlPoint[k].y;
-            pHighlightVertexArray[iv++] =  pFrame->m_CtrlPoint[k].z+bodyPos.z;
+            pHighlightVertexArray[iv++] =  pFrame->m_Position.xf()+bodyPos.xf();
+            pHighlightVertexArray[iv++] = -pFrame->m_CtrlPoint[k].yf();
+            pHighlightVertexArray[iv++] =  pFrame->m_CtrlPoint[k].zf()+bodyPos.zf();
         }
     }
     else if(pBody->isSplineType())
     {
         m_HighlightLineSize = NHOOOP;
         bufferSize = m_nHighlightLines * m_HighlightLineSize *3 ;
-        pHighlightVertexArray = new float[bufferSize];
+        pHighlightVertexArray.resize(bufferSize);
 
         if(pBody->activeFrame())
         {
@@ -3279,9 +3132,9 @@ void gl3dView::glMakeBodyFrameHighlight(Body *pBody, Vector3d bodyPos, int iFram
             for (k=0; k<NHOOOP; k++)
             {
                 pBody->getPoint(u,v,true, Point);
-                pHighlightVertexArray[iv++] = Point.x+bodyPos.x;
-                pHighlightVertexArray[iv++] = Point.y;
-                pHighlightVertexArray[iv++] = Point.z+bodyPos.z;
+                pHighlightVertexArray[iv++] = Point.xf()+bodyPos.xf();
+                pHighlightVertexArray[iv++] = Point.yf();
+                pHighlightVertexArray[iv++] = Point.zf()+bodyPos.zf();
                 v += hinc;
             }
 
@@ -3289,9 +3142,9 @@ void gl3dView::glMakeBodyFrameHighlight(Body *pBody, Vector3d bodyPos, int iFram
             for (k=0; k<NHOOOP; k++)
             {
                 pBody->getPoint(u,v,false, Point);
-                pHighlightVertexArray[iv++] = Point.x+bodyPos.x;
-                pHighlightVertexArray[iv++] = Point.y;
-                pHighlightVertexArray[iv++] = Point.z+bodyPos.z;
+                pHighlightVertexArray[iv++] = Point.xf()+bodyPos.xf();
+                pHighlightVertexArray[iv++] = Point.yf();
+                pHighlightVertexArray[iv++] = Point.zf()+bodyPos.zf();
                 v -= hinc;
             }
         }
@@ -3301,9 +3154,8 @@ void gl3dView::glMakeBodyFrameHighlight(Body *pBody, Vector3d bodyPos, int iFram
     m_vboHighlight.destroy();
     m_vboHighlight.create();
     m_vboHighlight.bind();
-    m_vboHighlight.allocate(pHighlightVertexArray, bufferSize*sizeof(float));
+    m_vboHighlight.allocate(pHighlightVertexArray.data(), bufferSize*int(sizeof(float)));
     m_vboHighlight.release();
-    delete [] pHighlightVertexArray;
 }
 
 
@@ -3416,7 +3268,7 @@ void gl3dView::onResetIncrement()
  */
 void gl3dView::set3DScale(double length)
 {
-    if(length>0.0) m_glScaledRef = (GLfloat)(4./5.*2.0/length);
+    if(length>0.0) m_glScaledRef = (4./5.*2.0/length);
     m_glScaled = m_glScaledRef;
     m_glViewportTrans.set(0.0, 0.0, 0.0);
     reset3DRotationCenter();
@@ -3430,7 +3282,7 @@ void gl3dView::startResetTimer(double length)
     {
         m_iTransitionInc = 0;
 
-        m_glScaleIncrement = (m_glScaledRef-m_glScaled)/30.0f;
+        m_glScaleIncrement = (m_glScaledRef-m_glScaled)/30.0;
         m_transIncrement = (Vector3d(0.0,0.0,0.0)-m_glViewportTrans)/30.0;
 
         if(m_pTransitionTimer) delete m_pTransitionTimer;
@@ -3452,16 +3304,16 @@ void gl3dView::glMakeEditBodyMesh(Body *pBody, Vector3d BodyPosition)
     if(!pBody) return;
     int NXXXX = W3dPrefsDlg::bodyAxialRes();
     int NHOOOP = W3dPrefsDlg::bodyHoopRes();
-    int nx, nh;
+    int nx=0, nh=0;
     Vector3d Pt;
     Vector3d P1, P2, P3, P4, PStart, PEnd;
-    float *meshVertexArray = nullptr;
+    QVector<float>meshVertexArray;
     int bufferSize = 0;
     m_iBodyMeshLines = 0;
 
-    double dx = BodyPosition.x;
-    double dy = BodyPosition.y;
-    double dz = BodyPosition.z;
+    float dx = BodyPosition.xf();
+    float dy = BodyPosition.yf();
+    float dz = BodyPosition.zf();
 
     int iv=0;
 
@@ -3484,7 +3336,7 @@ void gl3dView::glMakeEditBodyMesh(Body *pBody, Vector3d BodyPosition)
         }
         bufferSize *=2;
 
-        meshVertexArray = new float[bufferSize];
+        meshVertexArray.resize(bufferSize);
 
         for (int j=0; j<pBody->frameCount()-1;j++)
         {
@@ -3495,59 +3347,59 @@ void gl3dView::glMakeEditBodyMesh(Body *pBody, Vector3d BodyPosition)
                 P3 = pBody->frame(j+1)->m_CtrlPoint[k+1];   P3.x = pBody->frame(j+1)->m_Position.x;
                 P4 = pBody->frame(j)->m_CtrlPoint[k+1];     P4.x = pBody->frame(j)->m_Position.x;
 
-                P1.x+=dx; P2.x+=dx; P3.x+=dx; P4.x+=dx;
-                P1.y+=dy; P2.y+=dy; P3.y+=dy; P4.y+=dy;
-                P1.z+=dz; P2.z+=dz; P3.z+=dz; P4.z+=dz;
+                P1.x+=double(dx);   P2.x+=double(dx);   P3.x+=double(dx);   P4.x+=double(dx);
+                P1.y+=double(dy);   P2.y+=double(dy);   P3.y+=double(dy);   P4.y+=double(dy);
+                P1.z+=double(dz);   P2.z+=double(dz);   P3.z+=double(dz);   P4.z+=double(dz);
 
                 //left side panels
                 for(int jp=0; jp<=pBody->m_xPanels[j]; jp++)
                 {
-                    PStart = P1 + (P2-P1) * (float)jp/(float)pBody->m_xPanels[j];
-                    PEnd   = P4 + (P3-P4) * (float)jp/(float)pBody->m_xPanels[j];
-                    meshVertexArray[iv++] = PStart.x;
-                    meshVertexArray[iv++] = PStart.y;
-                    meshVertexArray[iv++] = PStart.z;
-                    meshVertexArray[iv++] = PEnd.x;
-                    meshVertexArray[iv++] = PEnd.y;
-                    meshVertexArray[iv++] = PEnd.z;
+                    PStart = P1 + (P2-P1) * double(jp)/double(pBody->m_xPanels[j]);
+                    PEnd   = P4 + (P3-P4) * double(jp)/double(pBody->m_xPanels[j]);
+                    meshVertexArray[iv++] = PStart.xf();
+                    meshVertexArray[iv++] = PStart.yf();
+                    meshVertexArray[iv++] = PStart.zf();
+                    meshVertexArray[iv++] = PEnd.xf();
+                    meshVertexArray[iv++] = PEnd.yf();
+                    meshVertexArray[iv++] = PEnd.zf();
                     m_iBodyMeshLines++;
                 }
                 for(int kp=0; kp<=pBody->m_hPanels[k]; kp++)
                 {
-                    PStart = P1 + (P4-P1) * (float)kp/(float)pBody->m_hPanels[k];
-                    PEnd   = P2 + (P3-P2) * (float)kp/(float)pBody->m_hPanels[k];
-                    meshVertexArray[iv++] = PStart.x;
-                    meshVertexArray[iv++] = PStart.y;
-                    meshVertexArray[iv++] = PStart.z;
-                    meshVertexArray[iv++] = PEnd.x;
-                    meshVertexArray[iv++] = PEnd.y;
-                    meshVertexArray[iv++] = PEnd.z;
+                    PStart = P1 + (P4-P1) * double(kp)/double(pBody->m_hPanels[k]);
+                    PEnd   = P2 + (P3-P2) * double(kp)/double(pBody->m_hPanels[k]);
+                    meshVertexArray[iv++] = PStart.xf();
+                    meshVertexArray[iv++] = PStart.yf();
+                    meshVertexArray[iv++] = PStart.zf();
+                    meshVertexArray[iv++] = PEnd.xf();
+                    meshVertexArray[iv++] = PEnd.yf();
+                    meshVertexArray[iv++] = PEnd.zf();
                     m_iBodyMeshLines++;
                 }
 
                 //right side panels
                 for(int jp=0; jp<=pBody->m_xPanels[j]; jp++)
                 {
-                    PStart = P1 + (P2-P1) * (float)jp/(float)pBody->m_xPanels[j];
-                    PEnd   = P4 + (P3-P4) * (float)jp/(float)pBody->m_xPanels[j];
-                    meshVertexArray[iv++] =  PStart.x;
-                    meshVertexArray[iv++] = -PStart.y;
-                    meshVertexArray[iv++] =  PStart.z;
-                    meshVertexArray[iv++] =  PEnd.x;
-                    meshVertexArray[iv++] = -PEnd.y;
-                    meshVertexArray[iv++] =  PEnd.z;
+                    PStart = P1 + (P2-P1) * double(jp)/double(pBody->m_xPanels[j]);
+                    PEnd   = P4 + (P3-P4) * double(jp)/double(pBody->m_xPanels[j]);
+                    meshVertexArray[iv++] =  PStart.xf();
+                    meshVertexArray[iv++] = -PStart.yf();
+                    meshVertexArray[iv++] =  PStart.zf();
+                    meshVertexArray[iv++] =  PEnd.xf();
+                    meshVertexArray[iv++] = -PEnd.yf();
+                    meshVertexArray[iv++] =  PEnd.zf();
                     m_iBodyMeshLines++;
                 }
                 for(int kp=0; kp<=pBody->m_hPanels[k]; kp++)
                 {
-                    PStart = P1 + (P4-P1) * (float)kp/(float)pBody->m_hPanels[k];
-                    PEnd   = P2 + (P3-P2) * (float)kp/(float)pBody->m_hPanels[k];
-                    meshVertexArray[iv++] =  PStart.x;
-                    meshVertexArray[iv++] = -PStart.y;
-                    meshVertexArray[iv++] =  PStart.z;
-                    meshVertexArray[iv++] =  PEnd.x;
-                    meshVertexArray[iv++] = -PEnd.y;
-                    meshVertexArray[iv++] =  PEnd.z;
+                    PStart = P1 + (P4-P1) * double(kp)/double(pBody->m_hPanels[k]);
+                    PEnd   = P2 + (P3-P2) * double(kp)/double(pBody->m_hPanels[k]);
+                    meshVertexArray[iv++] =  PStart.xf();
+                    meshVertexArray[iv++] = -PStart.yf();
+                    meshVertexArray[iv++] =  PStart.zf();
+                    meshVertexArray[iv++] =  PEnd.xf();
+                    meshVertexArray[iv++] = -PEnd.yf();
+                    meshVertexArray[iv++] =  PEnd.zf();
                     m_iBodyMeshLines++;
                 }
             }
@@ -3566,32 +3418,32 @@ void gl3dView::glMakeEditBodyMesh(Body *pBody, Vector3d BodyPosition)
         bufferSize *= 2;       // two sides
         bufferSize *= 3;       // 3 components/vertex;
 
-        meshVertexArray = new float[bufferSize];
+        meshVertexArray.resize(bufferSize);
 
         pBody->setPanelPos();
         //x-lines;
         for (int l=0; l<nh; l++)
         {
-            double v = (double)l/(double)(nh-1);
+            double v = double(l)/double(nh-1);
             for (int k=0; k<NXXXX; k++)
             {
-                double u = (double)k/(double)(NXXXX-1);
+                double u = double(k)/double(NXXXX-1);
                 pBody->getPoint(u,  v, true, Pt);
-                meshVertexArray[iv++] = Pt.x + dx;
-                meshVertexArray[iv++] = Pt.y + dy;
-                meshVertexArray[iv++] = Pt.z + dz;
+                meshVertexArray[iv++] = Pt.xf() + dx;
+                meshVertexArray[iv++] = Pt.yf() + dy;
+                meshVertexArray[iv++] = Pt.zf() + dz;
             }
         }
         for (int l=0; l<nh; l++)
         {
-            double v = (double)l/(double)(nh-1);
+            double v = double(l)/double(nh-1);
             for (int k=0; k<NXXXX; k++)
             {
-                double u = (double)k/(double)(NXXXX-1);
+                double u = double(k)/double(NXXXX-1);
                 pBody->getPoint(u,  v, false, Pt);
-                meshVertexArray[iv++] = Pt.x + dx;
-                meshVertexArray[iv++] = Pt.y + dy;
-                meshVertexArray[iv++] = Pt.z + dz;
+                meshVertexArray[iv++] = Pt.xf() + dx;
+                meshVertexArray[iv++] = Pt.yf() + dy;
+                meshVertexArray[iv++] = Pt.zf() + dz;
             }
         }
 
@@ -3601,11 +3453,11 @@ void gl3dView::glMakeEditBodyMesh(Body *pBody, Vector3d BodyPosition)
             double uk = pBody->m_XPanelPos[k];
             for (int l=0; l<NHOOOP; l++)
             {
-                double v = (double)l/(double)(NHOOOP-1);
+                double v = double(l)/double(NHOOOP-1);
                 pBody->getPoint(uk,  v, true, Pt);
-                meshVertexArray[iv++] = Pt.x + dx;
-                meshVertexArray[iv++] = Pt.y + dy;
-                meshVertexArray[iv++] = Pt.z + dz;
+                meshVertexArray[iv++] = Pt.xf() + dx;
+                meshVertexArray[iv++] = Pt.yf() + dy;
+                meshVertexArray[iv++] = Pt.zf() + dz;
             }
         }
         for (int k=0; k<nx; k++)
@@ -3613,11 +3465,11 @@ void gl3dView::glMakeEditBodyMesh(Body *pBody, Vector3d BodyPosition)
             double uk = pBody->m_XPanelPos[k];
             for (int l=0; l<NHOOOP; l++)
             {
-                double v = (double)l/(double)(NHOOOP-1);
+                double v = double(l)/double(NHOOOP-1);
                 pBody->getPoint(uk,  v, false, Pt);
-                meshVertexArray[iv++] = Pt.x + dx;
-                meshVertexArray[iv++] = Pt.y + dy;
-                meshVertexArray[iv++] = Pt.z + dz;
+                meshVertexArray[iv++] = Pt.xf() + dx;
+                meshVertexArray[iv++] = Pt.yf() + dy;
+                meshVertexArray[iv++] = Pt.zf() + dz;
             }
         }
     }
@@ -3626,10 +3478,8 @@ void gl3dView::glMakeEditBodyMesh(Body *pBody, Vector3d BodyPosition)
     m_vboEditBodyMesh.destroy();
     m_vboEditBodyMesh.create();
     m_vboEditBodyMesh.bind();
-    m_vboEditBodyMesh.allocate(meshVertexArray, bufferSize * sizeof(GLfloat));
+    m_vboEditBodyMesh.allocate(meshVertexArray.data(), bufferSize * int(sizeof(GLfloat)));
     m_vboEditBodyMesh.release();
-
-    delete[] meshVertexArray;
 }
 
 
@@ -3649,11 +3499,11 @@ void GLLineStipple(int style)
  */
 void gl3dView::glMakeAxis()
 {
-    std::vector<GLfloat>axisVertexArray;
+    QVector<GLfloat>axisVertexArray;
 
     int iv = 0;
 
-    double axisLength = fabs(double(x_axis[3]-x_axis[0]));
+    float axisLength = fabsf(x_axis[3]-x_axis[0]);
 
     int lineStyle = 3;
     switch(lineStyle)
@@ -3663,8 +3513,8 @@ void gl3dView::glMakeAxis()
             // dash
             iv = 0;
             int nVertices = 75;
-            double incLine  = axisLength/double(nVertices-1) * 0.7 * 2.0;
-            double incSpace = axisLength/double(nVertices-1) * 0.3 * 2.0;
+            float incLine  = axisLength/float(nVertices-1) * 0.7f * 2.0f;
+            float incSpace = axisLength/float(nVertices-1) * 0.3f * 2.0f;
             float s = 0.0f;
             for(int jv=0; jv<nVertices/2; jv++)
             {
@@ -3713,8 +3563,8 @@ void gl3dView::glMakeAxis()
             //dot
             iv = 0;
             int nVertices = 300;
-            double incLine  = axisLength/double(nVertices-1) * 0.1 * 2.0;
-            double incSpace = axisLength/double(nVertices-1) * 0.9 * 2.0;
+            float incLine  = axisLength/float(nVertices-1) * 0.1f * 2.0f;
+            float incSpace = axisLength/float(nVertices-1) * 0.9f * 2.0f;
             float s = 0.0;
             for(int jv=0; jv<nVertices/2; jv++)
             {
@@ -3763,9 +3613,9 @@ void gl3dView::glMakeAxis()
             //dash-dot
             iv = 0;
             int nVertices = 50;
-            double incLine1 = axisLength/double(nVertices-1) * 0.5 * 2.0;
-            double incLine2 = axisLength/double(nVertices-1) * 0.1 * 2.0;
-            double incSpace = axisLength/double(nVertices-1) * 0.2 * 2.0;
+            float incLine1 = axisLength/float(nVertices-1) * 0.5f * 2.0f;
+            float incLine2 = axisLength/float(nVertices-1) * 0.1f * 2.0f;
+            float incSpace = axisLength/float(nVertices-1) * 0.2f * 2.0f;
             float s = 0.0;
             for(int jv=0; jv<nVertices/2; jv++)
             {
@@ -3833,7 +3683,7 @@ void gl3dView::glMakeAxis()
 
             break;
         }
-/*		case 4:
+/*        case 4:
         {
             //dash-dot-dot
             break;
@@ -3843,9 +3693,9 @@ void gl3dView::glMakeAxis()
             // solid
             // 3 axis x 3 solid lines x 2 vertices * 3 coordinates
             iv = 0;
-            for(; iv<18; iv++)	axisVertexArray.push_back(x_axis[iv]);
-            for(; iv<36; iv++)	axisVertexArray.push_back(y_axis[iv]);
-            for(; iv<54; iv++)	axisVertexArray.push_back(z_axis[iv]);
+            for(; iv<18; iv++)    axisVertexArray.push_back(x_axis[iv]);
+            for(; iv<36; iv++)    axisVertexArray.push_back(y_axis[iv]);
+            for(; iv<54; iv++)    axisVertexArray.push_back(z_axis[iv]);
             break;
         }
     }
@@ -3858,6 +3708,6 @@ void gl3dView::glMakeAxis()
     m_vboAxis.destroy();
     m_vboAxis.create();
     m_vboAxis.bind();
-    m_vboAxis.allocate(axisVertexArray.data(), int(axisVertexArray.size() * sizeof(GLfloat)));
+    m_vboAxis.allocate(axisVertexArray.data(), axisVertexArray.size() * int(sizeof(GLfloat)));
     m_vboAxis.release();
 }

@@ -39,15 +39,15 @@ public:
     WingWidget(QWidget *pParent = nullptr);
     ~WingWidget();
 
-    void contextMenuEvent (QContextMenuEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void mouseDoubleClickEvent (QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void paintEvent(QPaintEvent *event);
-    void resizeEvent (QResizeEvent *event);
-    void wheelEvent (QWheelEvent *event);
+    void contextMenuEvent (QContextMenuEvent *pEvent);
+    void keyPressEvent(QKeyEvent *pEvent);
+    void mouseDoubleClickEvent (QMouseEvent *pEvent);
+    void mouseMoveEvent(QMouseEvent *pEvent);
+    void mousePressEvent(QMouseEvent *pEvent);
+    void mouseReleaseEvent(QMouseEvent *pEvent);
+    void paintEvent(QPaintEvent *pEvent);
+    void resizeEvent (QResizeEvent *pEvent);
+    void wheelEvent (QWheelEvent *pEvent);
 
     void setWingScale();
     void setWingGraph(Graph *pGraph);

@@ -36,81 +36,81 @@
 
 LanguageWt::LanguageWt(QWidget *pParent): QWidget(pParent)
 {
-	setWindowTitle(tr("Language settings"));
-	QString LanguageName = tr("English");// will be translated in the ts & qm files and this will be used to fill the QListWidget
-	m_bChanged = false;
-	setupLayout();
+    setWindowTitle(tr("Language settings"));
+    QString LanguageName = tr("English");// will be translated in the ts & qm files and this will be used to fill the QListWidget
+    m_bChanged = false;
+    setupLayout();
 }
 
 
 void LanguageWt::setupLayout()
 {
-	QLabel *lab = new QLabel(tr("Select the application's default language:"));
-	m_pctrlLanguageList = new QListWidget;
+    QLabel *lab = new QLabel(tr("Select the application's default language:"));
+    m_pctrlLanguageList = new QListWidget;
     connect(m_pctrlLanguageList, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(readLanguage()));
 
-	QVBoxLayout *pMainLayout = new QVBoxLayout;
-	{
-		pMainLayout->addWidget(lab);
-		pMainLayout->addWidget(m_pctrlLanguageList);
-	}
+    QVBoxLayout *pMainLayout = new QVBoxLayout;
+    {
+        pMainLayout->addWidget(lab);
+        pMainLayout->addWidget(m_pctrlLanguageList);
+    }
 
-	setLayout(pMainLayout);
+    setLayout(pMainLayout);
 }
 
 
 void LanguageWt::initWidget()
 {
-	QStringList qmFiles = findQmFiles();
-	qmFiles.sort();
+    QStringList qmFiles = findQmFiles();
+    qmFiles.sort();
 
-	qmFileForLanguage.insert("English", "English");
-	m_pctrlLanguageList->clear();
+    qmFileForLanguage.insert("English", "English");
+    m_pctrlLanguageList->clear();
 
-	for (int i=0; i<qmFiles.count(); ++i)
-	{
+    for (int i=0; i<qmFiles.count(); ++i)
+    {
         QString language = languageName(qmFiles[i]);
         qmFileForLanguage.insert(language, qmFiles[i]);
         m_pctrlLanguageList->addItem(language);
-	}
+    }
 
-	m_pctrlLanguageList->setCurrentRow(0);
-	for (int i=0; i<qmFiles.count(); ++i)
-	{
-		if(qmFiles[i]==MainFrame::s_LanguageFilePath)
-		{
+    m_pctrlLanguageList->setCurrentRow(0);
+    for (int i=0; i<qmFiles.count(); ++i)
+    {
+        if(qmFiles[i]==MainFrame::s_LanguageFilePath)
+        {
             m_pctrlLanguageList->setCurrentRow(i);
-			break;
-		}
-	}
+            break;
+        }
+    }
 }
 
 
 QStringList LanguageWt::findQmFiles()
 {
-	if(!MainFrame::s_TranslationDir.exists())
-	{
-//		QMessageBox::warning(this, tr("Warning"), tr("The directory ")+MainFrame::s_TranslationDir.path()+tr(" does not exist"));
-	}
+    if(!MainFrame::s_TranslationDir.exists())
+    {
+//        QMessageBox::warning(this, tr("Warning"), tr("The directory ")+MainFrame::s_TranslationDir.path()+tr(" does not exist"));
+    }
 
-	QStringList fileNames = MainFrame::s_TranslationDir.entryList(QStringList("*.qm"), QDir::Files, QDir::Name);
-//	for(int i=0; i<fileNames.size(); i++)	qDebug()<<fileNames.at(i);
+    QStringList fileNames = MainFrame::s_TranslationDir.entryList(QStringList("*.qm"), QDir::Files, QDir::Name);
+//    for(int i=0; i<fileNames.size(); i++)    qDebug()<<fileNames.at(i);
 
-	QMutableStringListIterator i(fileNames);
-	while (i.hasNext())
-	{
-		i.next();
-		i.setValue(MainFrame::s_TranslationDir.filePath(i.value()));
-	}
+    QMutableStringListIterator i(fileNames);
+    while (i.hasNext())
+    {
+        i.next();
+        i.setValue(MainFrame::s_TranslationDir.filePath(i.value()));
+    }
 
-	return fileNames;
+    return fileNames;
 }
 
 
 QString LanguageWt::languageName(const QString &qmFile)
 {
-	QTranslator translator;
-	translator.load(qmFile);
+    QTranslator translator;
+    translator.load(qmFile);
 
     return translator.translate("Language", "English");
 }

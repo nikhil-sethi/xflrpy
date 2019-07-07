@@ -156,12 +156,12 @@ public:
 
 
 public:
-    //	Curve Data
+    //    Curve Data
     QVarLengthArray<double,  1024> x;          /**< the array of the points x-coordinates */
     QVarLengthArray<double,  1024> y;          /**< the array of the points y-coordinates */
 
 
-private:	
+private:    
     QString m_CurveName;                       /**< the curves's name */
     int m_iSelected;                           /**< the index of the curve's currently selected point, or -1 if none is selected */
     Graph *m_pParentGraph;                      /**< a pointer to the parent graph to which this curve belongs */

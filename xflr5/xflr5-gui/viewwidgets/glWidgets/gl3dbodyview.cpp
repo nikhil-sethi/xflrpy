@@ -23,16 +23,16 @@
 #include <QPainter>
 
 #include "gl3dbodyview.h"
-#include <misc/options/displayoptions.h>
-#include <miarex/view/W3dPrefsDlg.h>
-#include <miarex/design/GL3dBodyDlg.h>
+#include <misc/options/settings.h>
+#include <miarex/view/w3drefsdlg.h>
+#include <miarex/design/gl3dbodydlg.h>
 #include <globals/mainframe.h>
-#include <objects/objects3d/Body.h>
+#include <objects/objects3d/body.h>
 
 
 gl3dBodyView::gl3dBodyView(QWidget *pParent) : gl3dView(pParent)
 {
-    m_pParent = pParent;
+//    m_pglBodyDlg = dynamic_cast<GL3dBodyDlg*>(pParent);
     m_pBody = nullptr;
     m_bResetglFrameHighlight   = true;
     m_bResetglBody        = true;//otherwise endless repaint if no body present
@@ -62,8 +62,8 @@ void gl3dBodyView::contextMenuEvent (QContextMenuEvent * event)
     m_bArcball = false;
     update();
 
-    //	GL3dBodyDlg *pDlg = (GL3dBodyDlg*)m_pParent;
-    //	pDlg->showContextMenu(event);
+    //    GL3dBodyDlg *pDlg = (GL3dBodyDlg*)m_pParent;
+    //    pDlg->showContextMenu(event);
 }
 
 
@@ -142,10 +142,10 @@ void gl3dBodyView::set3DRotationCenter(QPoint point)
 
 void gl3dBodyView::paintOverlay()
 {
-    //	QOpenGLPaintDevice device(size() * devicePixelRatio());
-    //	QPainter painter(&device);
+    //    QOpenGLPaintDevice device(size() * devicePixelRatio());
+    //    QPainter painter(&device);
 
-    /*	EditBodyDlg *pDlg = (EditBodyDlg*)m_pParent;
+    /*    EditBodyDlg *pDlg = (EditBodyDlg*)m_pParent;
         painter.drawPixmap(0,0, pDlg->m_PixText);
         painter.drawPixmap(0,0, m_PixTextOverlay);
         m_PixTextOverlay.fill(Qt::transparent);

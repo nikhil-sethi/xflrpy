@@ -39,7 +39,7 @@ public:
 public:
     void connectSignals();
     void adjustLayout();
-    void setMiarexGraphList(XFLR5::enumMiarexViews miarexView, QList<Graph *> pGraphList, int nGraphs, int iGraphWidget=-1, Qt::Orientation orientation =Qt::Horizontal);
+    void setMiarexGraphList(XFLR5::enumMiarexViews miarexView, QVector<Graph *> pGraphList, int nGraphs, int iGraphWidget=-1, Qt::Orientation orientation =Qt::Horizontal);
     WingWidget *pWingWidget(){return m_pWingWidget;}
 
 private:

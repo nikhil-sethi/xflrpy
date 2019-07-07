@@ -497,6 +497,10 @@
         <source>Iterations control</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Foils to analyze:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>BatchThreadDlg</name>
@@ -1747,14 +1751,14 @@ _____Analysis completed_____
     </message>
     <message>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>キャンセル</translation>
+        <translation type="vanished">キャンセル</translation>
     </message>
     <message>
-        <source>Select All</source>
+        <source>Select all</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3975,7 +3979,7 @@ _____Analysis completed_____
     </message>
     <message>
         <source>Save associated polars</source>
-        <translation>関連極座標の保存</translation>
+        <translation type="vanished">関連極座標の保存</translation>
     </message>
     <message>
         <source>Hide associated OpPoints</source>
@@ -4694,6 +4698,22 @@ XFLR5は正常に動作しません.</translation>
     </message>
     <message>
         <source>Foil 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export polars to .plr file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>to text format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>to .plr format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export all</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5437,6 +5457,16 @@ Continue ?</source>
         <source>XNP = d(XCp.Cl)/dCl =</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Flow down style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If activated:
+all changes made to the style of the polar objects will flow down to the operating points
+all changes made to the style of the foil objects will flow down to the polars and to the operating points</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ModDlg</name>
@@ -5626,7 +5656,7 @@ Continue ?</source>
     </message>
     <message>
         <source>Panel Analysis completed ... Errors encountered</source>
-        <translation>パネル解析が完了しました&#x3000;解析中にいくつかのエラーが発生しました</translation>
+        <translation>パネル解析が完了しました　解析中にいくつかのエラーが発生しました</translation>
     </message>
     <message>
         <source>Close</source>
@@ -6717,6 +6747,22 @@ Non *.dat files will be ignored.</source>
 <context>
     <name>STLExportDialog</name>
     <message>
+        <source>Second Wing</source>
+        <translation type="obsolete">
+            </translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">キャンセル</translation>
+    </message>
+</context>
+<context>
+    <name>STLExportDlg</name>
+    <message>
+        <source>STL exporter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File format</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6758,19 +6804,11 @@ Non *.dat files will be ignored.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">キャンセル</translation>
-    </message>
-    <message>
         <source>Number of x-panels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Number of hoop panels</source>
+        <source>Number of hoop/y panels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6917,6 +6955,16 @@ Non *.dat files will be ignored.</source>
     </message>
     <message>
         <source>Background Colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flow down changes made to the style of objects to their children</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If activated:
+all changes made to the style of the polar objects will flow down to the operating points
+all changes made to the style of the foil objects will flow down to the polars and to the operating points</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7801,15 +7849,15 @@ of the surfaces.This may reduce the display speed.
     </message>
     <message>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>キャンセル</translation>
+        <translation type="vanished">キャンセル</translation>
     </message>
     <message>
         <source>Reset Defaults</source>
-        <translation>初期値に戻す</translation>
+        <translation type="vanished">初期値に戻す</translation>
     </message>
     <message>
         <source>Ignore wing panels with span width &lt;</source>
@@ -8461,6 +8509,16 @@ could be found. The polar(s) will not be stored</source>
     </message>
     <message>
         <source>Export analysis definition to xml file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flow down style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If activated:
+all changes made to the style of the polar objects will flow down to the operating points
+all changes made to the style of the foil objects will flow down to the polars and to the operating points</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -25,23 +25,28 @@
 #include <gl3dview.h>
 
 class Wing;
+class GL3dWingDlg;
 
 class gl3dWingView : public gl3dView
 {
 public:
     gl3dWingView(QWidget *pParent = nullptr);
     void setWing(Wing *pWing){m_pWing = pWing;}
+    void glMakeWingSectionHighlight(Wing *pWing, int iSectionHighLight, bool bRightSide);
+
 private:
     void glRenderView();
     void paintGL();
     void paintOverlay();
     void set3DRotationCenter(QPoint point);
 
+
 public slots:
     void on3DReset();
 
 private:
     Wing *m_pWing;
+    GL3dWingDlg *m_pGL3dWingDlg;
 };
 
 #endif // GL3DWINGVIEW_H

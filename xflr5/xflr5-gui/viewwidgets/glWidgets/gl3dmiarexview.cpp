@@ -23,18 +23,20 @@
 #include <QApplication>
 #include <QProgressDialog>
 #include <QOpenGLPaintDevice>
+#include <QContextMenuEvent>
 
 #include "gl3dmiarexview.h"
-#include <miarex/Miarex.h>
+#include <miarex/miarex.h>
 #include <globals/mainframe.h>
 
-#include <misc/options/displayoptions.h>
+#include <misc/options/settings.h>
 #include <globals/globals.h>
-#include <miarex/view/GL3DScales.h>
-#include <objects/objects3d/Surface.h>
-#include <objects/objects3d/WPolar.h>
-#include <miarex/view/W3dPrefsDlg.h>
+#include <miarex/view/gl3dscales.h>
+#include <objects/objects3d/surface.h>
+#include <objects/objects3d/wpolar.h>
+#include <miarex/view/w3drefsdlg.h>
 #include <misc/waitdlg.h>
+
 
 
 bool gl3dMiarexView::s_bResetglGeom = true;
@@ -97,38 +99,41 @@ void gl3dMiarexView::glRenderView()
     if(s_pMainFrame->m_iApp!=XFLR5::MIAREX) return;
     if(s_pMiarex->m_iView!=XFLR5::W3DVIEW) return;
 
+    WPolar const*pWPolar = s_pMiarex->curWPolar();
+    PlaneOpp const *pPOpp = s_pMiarex->curPOpp();
+
     QMatrix4x4 modeMatrix;
 
-    if(s_pMiarex->m_pCurWPolar && s_pMiarex->m_pCurWPolar->isStabilityPolar())
+    if(pWPolar && pWPolar->isStabilityPolar())
     {
-        if(s_pMiarex->m_pCurPOpp && s_pMiarex->m_pCurPOpp->polarType()==XFLR5::STABILITYPOLAR)
+        if(pPOpp && pPOpp->polarType()==XFLR5::STABILITYPOLAR)
         {
             QString strong = QString(tr("Time =")+"%1s").arg(s_pMiarex->m_ModeTime,6,'f',3);
             glRenderText(10, 15, strong, Settings::s_TextColor);
         }
 
-        modeMatrix.translate(s_pMiarex->m_ModeState[0], s_pMiarex->m_ModeState[1], s_pMiarex->m_ModeState[2]);
-        modeMatrix.rotate(s_pMiarex->m_ModeState[3]*180.0/PI, 1.0, 0.0 ,0.0);
-        modeMatrix.rotate(s_pMiarex->m_ModeState[4]*180.0/PI, 0.0, 1.0 ,0.0);
-        modeMatrix.rotate(s_pMiarex->m_ModeState[5]*180.0/PI, 0.0, 0.0 ,1.0);
+        modeMatrix.translate(float(s_pMiarex->m_ModeState[0]), float(s_pMiarex->m_ModeState[1]), float(s_pMiarex->m_ModeState[2]));
+        modeMatrix.rotate(float(s_pMiarex->m_ModeState[3])*180.0f/PIf, 1.0, 0.0 ,0.0);
+        modeMatrix.rotate(float(s_pMiarex->m_ModeState[4])*180.0f/PIf, 0.0, 1.0 ,0.0);
+        modeMatrix.rotate(float(s_pMiarex->m_ModeState[5])*180.0f/PIf, 0.0, 0.0 ,1.0);
     }
     m_modelMatrix = modeMatrix;
 
-    if(s_pMiarex->m_pCurPOpp)	m_modelMatrix.rotate(s_pMiarex->m_pCurPOpp->alpha(),0.0,1.0,0.0);
+    if(pPOpp)    m_modelMatrix.rotate(float(pPOpp->alpha()),0.0,1.0,0.0);
     m_pvmMatrix = m_orthoMatrix * m_viewMatrix * m_modelMatrix;
 
 
-    //	if(W3dPrefsDlg::s_bEnableClipPlane) glEnable(GL_CLIP_PLANE0);
+    //    if(W3dPrefsDlg::s_bEnableClipPlane) glEnable(GL_CLIP_PLANE0);
 
     if(s_pMiarex->m_pCurPlane)
     {
         m_modelMatrix = modeMatrix;
 
         // We use the model matrix to apply alpha and beta rotations to the geometry.
-        if(s_pMiarex->m_pCurPOpp)
+        if(pPOpp)
         {
             //apply aoa rotation
-            m_modelMatrix.rotate(s_pMiarex->m_pCurPOpp->alpha(),0.0,1.0,0.0);
+            m_modelMatrix.rotate(float(pPOpp->alpha()),0.0,1.0,0.0);
 
             /* CP position alredy includes the sideslip geometry, shond't be rotated by sideslip*/
             if(s_pMiarex->m_bXCP)
@@ -141,20 +146,20 @@ void gl3dMiarexView::glRenderView()
             }
 
             // apply sideslip
-            if(fabs(s_pMiarex->m_pCurPOpp->beta())>PRECISION)
-                m_modelMatrix.rotate(s_pMiarex->m_pCurPOpp->beta(), 0.0, 0.0, 1.0);
+            if(fabs(pPOpp->beta())>PRECISION)
+                m_modelMatrix.rotate(float(pPOpp->beta()), 0.0, 0.0, 1.0);
         }
         else
         {
-            if(s_pMiarex->m_pCurWPolar && fabs(s_pMiarex->m_pCurWPolar->Beta())>0.001)
-                m_modelMatrix.rotate(s_pMiarex->m_pCurWPolar->Beta(), 0.0, 0.0, 1.0);
+            if(pWPolar && fabs(pWPolar->Beta())>0.001)
+                m_modelMatrix.rotate(float(pWPolar->Beta()), 0.0, 0.0, 1.0);
         }
 
         m_pvmMatrix = m_orthoMatrix * m_viewMatrix * m_modelMatrix;
 
         if(m_bVLMPanels)
         {
-            if(!s_pMiarex->m_pCurWPolar || s_pMiarex->m_pCurWPolar->isLLTMethod())
+            if(!pWPolar || s_pMiarex->m_pCurWPolar->isLLTMethod())
             {
                 for(int iw=0; iw<MAXWINGS; iw++)
                 {
@@ -167,13 +172,13 @@ void gl3dMiarexView::glRenderView()
             else paintMesh(s_pMiarex->matSize());
         }
 
-        if(s_pMiarex->m_pCurPOpp)
+        if(pPOpp)
         {
-            if(s_pMiarex->m_b3DCp && s_pMiarex->m_pCurPOpp->analysisMethod()>=XFLR5::VLMMETHOD)
+            if(s_pMiarex->m_b3DCp && pPOpp->analysisMethod()>=XFLR5::VLMMETHOD)
             {
                 paintPanelCp(s_pMiarex->matSize());
             }
-            if(s_pMiarex->m_bPanelForce && s_pMiarex->m_pCurPOpp->analysisMethod()>=XFLR5::VLMMETHOD)
+            if(s_pMiarex->m_bPanelForce && pPOpp->analysisMethod()>=XFLR5::VLMMETHOD)
             {
                 paintPanelForces(s_pMiarex->matSize());
             }
@@ -181,10 +186,10 @@ void gl3dMiarexView::glRenderView()
 
 
         //streamlines and velocities are rotated by aoa when constructed
-        if(s_pMiarex->m_pCurPOpp && m_bStream && s_pMiarex->m_pCurPOpp && !s_pMiarex->m_pCurPOpp->isLLTMethod() && !s_bResetglStream)
+        if(pPOpp && m_bStream && pPOpp && !pPOpp->isLLTMethod() && !s_bResetglStream)
             paintStreamLines();
 
-        if(s_pMiarex->m_pCurPOpp && m_bSurfVelocities && !s_pMiarex->m_pCurPOpp->isLLTMethod())
+        if(pPOpp && m_bSurfVelocities && !pPOpp->isLLTMethod())
             paintSurfaceVelocities(s_pMiarex->matSize());
 
         m_ShaderProgramLine.bind();
@@ -207,7 +212,7 @@ void gl3dMiarexView::glRenderView()
         }
         paintBody(s_pMiarex->m_pCurPlane->body());
 
-        if(s_pMiarex->m_pCurPOpp)
+        if(pPOpp)
         {
             if(s_pMiarex->m_bMoments)
             {
@@ -235,17 +240,17 @@ void gl3dMiarexView::glRenderView()
                 }
             }
 
-            if (s_pMiarex->m_b3DCp && s_pMiarex->m_pCurPOpp && s_pMiarex->m_pCurPOpp->analysisMethod()>=XFLR5::VLMMETHOD)
+            if (s_pMiarex->m_b3DCp && pPOpp && pPOpp->analysisMethod()>=XFLR5::VLMMETHOD)
             {
-                //				paintCpLegendClr();
+                //                paintCpLegendClr();
             }
-            else if (s_pMiarex->m_bPanelForce && s_pMiarex->m_pCurPOpp && s_pMiarex->m_pCurPOpp->analysisMethod()>=XFLR5::VLMMETHOD)
+            else if (s_pMiarex->m_bPanelForce && pPOpp && pPOpp->analysisMethod()>=XFLR5::VLMMETHOD)
             {
-                //				paintCpLegendClr();
+                //                paintCpLegendClr();
             }
         }
     }
-    //	if(W3dPrefsDlg::s_bEnableClipPlane) glDisable(GL_CLIP_PLANE0);
+    //    if(W3dPrefsDlg::s_bEnableClipPlane) glDisable(GL_CLIP_PLANE0);
 }
 
 
@@ -262,9 +267,9 @@ void gl3dMiarexView::paintGL()
 *Overrides the contextMenuEvent method of the base class.
 *Dispatches the handling to the active child application.
 */
-void gl3dMiarexView::contextMenuEvent (QContextMenuEvent * event)
+void gl3dMiarexView::contextMenuEvent(QContextMenuEvent * pEvent)
 {
-    QPoint ScreenPt = event->globalPos();
+    QPoint ScreenPt = pEvent->globalPos();
     m_bArcball = false;
     update();
 
@@ -274,13 +279,12 @@ void gl3dMiarexView::contextMenuEvent (QContextMenuEvent * event)
             s_pMainFrame->m_pW3DStabCtxMenu->exec(ScreenPt);
         else s_pMainFrame->m_pW3DCtxMenu->exec(ScreenPt);
     }
-
 }
 
 
 void gl3dMiarexView::on3DReset()
 {
-    //	pMiarex->setScale();
+    //    pMiarex->setScale();
     if(s_pMiarex->m_pCurPlane) startResetTimer(s_pMiarex->m_pCurPlane->span());
 }
 
@@ -302,7 +306,7 @@ void gl3dMiarexView::resizeGL(int width, int height)
     h = double(height);
     s = 1.0;
 
-    if(w>h)	m_GLViewRect.setRect(-s, s*h/w, s, -s*h/w);
+    if(w>h)    m_GLViewRect.setRect(-s, s*h/w, s, -s*h/w);
     else    m_GLViewRect.setRect(-s*w/h, s, s*w/h, -s);
 
     if(!m_PixTextOverlay.isNull()) m_PixTextOverlay = m_PixTextOverlay.scaled(rect().size()*devicePixelRatio());
@@ -310,7 +314,7 @@ void gl3dMiarexView::resizeGL(int width, int height)
 
 
     s_pMiarex->m_bResetTextLegend = true;
-    //	set3DScale();
+    //    set3DScale();
 
 }
 
@@ -361,10 +365,10 @@ void gl3dMiarexView::glMakeCpLegendClr()
 
     int colorLegendSize = MAXCPCOLORS*2*6;
 
-    uint bufferSize = MAXCPCOLORS*2*6;
-    float *pColorVertexArray = new float[bufferSize];
+    int bufferSize = MAXCPCOLORS*2*6;
+    QVector<float> pColorVertexArray(bufferSize);
 
-    uint iv = 0;
+    int iv = 0;
     for (int i=0; i<MAXCPCOLORS; i++)
     {
         fi = float(i)*dz;
@@ -389,9 +393,8 @@ void gl3dMiarexView::glMakeCpLegendClr()
     m_vboLegendColor.destroy();
     m_vboLegendColor.create();
     m_vboLegendColor.bind();
-    m_vboLegendColor.allocate(pColorVertexArray, colorLegendSize * int(sizeof(GLfloat)));
+    m_vboLegendColor.allocate(pColorVertexArray.data(), colorLegendSize * int(sizeof(GLfloat)));
     m_vboLegendColor.release();
-    delete [] pColorVertexArray;
 }
 
 
@@ -433,14 +436,14 @@ bool gl3dMiarexView::glMakeStreamLines(Wing *PlaneWing[MAXWINGS], Vector3d *pNod
     m_NStreamLines = 0;
     for(int iw=0; iw<MAXWINGS; iw++)
     {
-        if(PlaneWing[iw]) m_NStreamLines += uint(m_Ny[iw])+20; //in case there is a body in the middle, other wise Ny+1
+        if(PlaneWing[iw]) m_NStreamLines += m_Ny[iw]+20; //in case there is a body in the middle, other wise Ny+1
     }
 
-    uint streamArraySize = 	m_NStreamLines * uint(GL3DScales::s_NX) * 3;
-    std::vector<float> StreamVertexArray(streamArraySize);
+    int streamArraySize =     m_NStreamLines * int(GL3DScales::s_NX) * 3;
+    QVector<float> StreamVertexArray(streamArraySize);
 
     int p0=0;
-    uint iv = 0;
+    int iv = 0;
     for (int iWing=0; iWing<MAXWINGS; iWing++)
     {
         if(PlaneWing[iWing])
@@ -508,8 +511,8 @@ bool gl3dMiarexView::glMakeStreamLines(Wing *PlaneWing[MAXWINGS], Vector3d *pNod
                         }
 
                         //Tilt the geometry w.r.t. sideslip and aoa
-                        //						VA.rotateZ(pPOpp->beta());
-                        //						VB.rotateZ(pPOpp->beta());
+                        //                        VA.rotateZ(pPOpp->beta());
+                        //                        VB.rotateZ(pPOpp->beta());
                         VA.rotateY(pPOpp->alpha());
                         VB.rotateY(pPOpp->alpha());
                     }
@@ -525,7 +528,7 @@ bool gl3dMiarexView::glMakeStreamLines(Wing *PlaneWing[MAXWINGS], Vector3d *pNod
 
                         // One very special case is where we initiate the streamlines exactly at the T.E.
                         // without offset either in X ou Z directions
-                        //							V1.Set(0.0,0.0,0.0);
+                        //                            V1.Set(0.0,0.0,0.0);
 
                         StreamVertexArray[iv++] = C.xf()+TC.xf();
                         StreamVertexArray[iv++] = C.yf()+TC.yf();
@@ -559,7 +562,7 @@ bool gl3dMiarexView::glMakeStreamLines(Wing *PlaneWing[MAXWINGS], Vector3d *pNod
 
                     ds = GL3DScales::s_DeltaL;
 
-                    //					V1.Set(0.0,0.0,0.0);
+                    //                    V1.Set(0.0,0.0,0.0);
 
                     StreamVertexArray[iv++] = D.xf()+TD.xf();
                     StreamVertexArray[iv++] = D.yf()+TD.yf();
@@ -597,17 +600,17 @@ bool gl3dMiarexView::glMakeStreamLines(Wing *PlaneWing[MAXWINGS], Vector3d *pNod
                     qApp->processEvents();
                 }
 
-                //				dlg.setValue(m);
+                //                dlg.setValue(m);
                 m++;
             }
-            //			if(dlg.wasCanceled()) break;
+            //            if(dlg.wasCanceled()) break;
             p0+=pWing->m_MatSize;
         }
-        //		if(dlg.wasCanceled()) break;
+        //        if(dlg.wasCanceled()) break;
     }
-    //	if(!dlg.wasCanceled()) Q_ASSERT(iv==streamArraySize);
+    //    if(!dlg.wasCanceled()) Q_ASSERT(iv==streamArraySize);
 
-    m_NStreamLines = iv / uint(GL3DScales::s_NX) / 3;
+    m_NStreamLines = iv / GL3DScales::s_NX / 3;
 
     //qDebug() << iv << streamArraySize;
 
@@ -618,11 +621,11 @@ bool gl3dMiarexView::glMakeStreamLines(Wing *PlaneWing[MAXWINGS], Vector3d *pNod
     m_vboStreamLines.destroy();
     m_vboStreamLines.create();
     m_vboStreamLines.bind();
-    m_vboStreamLines.allocate(StreamVertexArray.data(), int(streamArraySize*sizeof(float)));
+    m_vboStreamLines.allocate(StreamVertexArray.data(), streamArraySize*int(sizeof(float)));
     m_vboStreamLines.release();
     m_bStreamlinesDone = true;
 
-    //	if(dlg.wasCanceled()) return false;
+    //    if(dlg.wasCanceled()) return false;
     return true;
 }
 
@@ -630,16 +633,14 @@ bool gl3dMiarexView::glMakeStreamLines(Wing *PlaneWing[MAXWINGS], Vector3d *pNod
 void gl3dMiarexView::glMakeTransitions(int iWing, Wing *pWing, WPolar *pWPolar, WingOpp *pWOpp)
 {
     if(!pWing || !pWPolar || !pWOpp) return;
-    int i,j,k,m;
-    double yrel;
     Vector3d Pt, N;
 
-    uint bufferSize = uint(m_Ny[iWing]*6);
-    std::vector<float> pTransVertexArray(bufferSize);
-    uint iv=0;
+    int bufferSize = int(m_Ny[iWing]*6);
+    QVector<float> pTransVertexArray(bufferSize);
+    int iv=0;
     if(pWPolar->isLLTMethod())
     {
-        for (i=1; i<pWOpp->m_NStation; i++)
+        for (int i=1; i<pWOpp->m_NStation; i++)
         {
             pWing->surfacePoint(pWOpp->m_XTrTop[i], pWOpp->m_SpanPos[i], TOPSURFACE, Pt, N);
 
@@ -653,12 +654,12 @@ void gl3dMiarexView::glMakeTransitions(int iWing, Wing *pWing, WPolar *pWPolar, 
     {
         if(!pWing->isFin())
         {
-            m = 0;
-            for(j=0; j<pWing->m_Surface.size(); j++)
+            int m = 0;
+            for(int j=0; j<pWing->m_Surface.size(); j++)
             {
-                for(k=0; k<pWing->m_Surface[j]->NYPanels(); k++)
+                for(int k=0; k<pWing->m_Surface[j]->NYPanels(); k++)
                 {
-                    yrel = pWing->yrel(pWOpp->m_SpanPos[m]);
+                    double yrel = pWing->yrel(pWOpp->m_SpanPos[m]);
                     pWing->m_Surface[j]->getSurfacePoint(pWOpp->m_XTrTop[m],pWOpp->m_XTrTop[m],yrel,TOPSURFACE,Pt,N);
 
                     pTransVertexArray[iv++] = Pt.xf();
@@ -670,12 +671,12 @@ void gl3dMiarexView::glMakeTransitions(int iWing, Wing *pWing, WPolar *pWPolar, 
         }
         else
         {
-            m = 0;
-            for(j=0; j<pWing->m_Surface.size(); j++)
+            int m = 0;
+            for(int j=0; j<pWing->m_Surface.size(); j++)
             {
-                for(k=0; k<pWing->m_Surface[j]->NYPanels(); k++)
+                for(int k=0; k<pWing->m_Surface[j]->NYPanels(); k++)
                 {
-                    yrel = pWing->yrel(pWOpp->m_SpanPos[m]);
+                    double yrel = pWing->yrel(pWOpp->m_SpanPos[m]);
                     pWing->m_Surface[j]->getSurfacePoint(pWOpp->m_XTrTop[m],pWOpp->m_XTrTop[m],yrel,TOPSURFACE,Pt,N);
                     pTransVertexArray[iv++] = Pt.xf();
                     pTransVertexArray[iv++] = Pt.yf();
@@ -689,7 +690,7 @@ void gl3dMiarexView::glMakeTransitions(int iWing, Wing *pWing, WPolar *pWPolar, 
 
     if(pWPolar->isLLTMethod())
     {
-        for (i=1; i<pWOpp->m_NStation; i++)
+        for (int i=1; i<pWOpp->m_NStation; i++)
         {
             pWing->surfacePoint(pWOpp->m_XTrBot[i], pWOpp->m_SpanPos[i], BOTSURFACE, Pt, N);
             pTransVertexArray[iv++] = Pt.xf();
@@ -702,11 +703,11 @@ void gl3dMiarexView::glMakeTransitions(int iWing, Wing *pWing, WPolar *pWPolar, 
         if(!pWing->isFin())
         {
             int m = 0;
-            for(j=0; j<pWing->m_Surface.size(); j++)
+            for(int j=0; j<pWing->m_Surface.size(); j++)
             {
-                for(k=0; k<pWing->m_Surface[j]->NYPanels(); k++)
+                for(int k=0; k<pWing->m_Surface[j]->NYPanels(); k++)
                 {
-                    yrel = pWing->yrel(pWOpp->m_SpanPos[m]);
+                    double yrel = pWing->yrel(pWOpp->m_SpanPos[m]);
                     pWing->m_Surface[j]->getSurfacePoint(pWOpp->m_XTrBot[m],pWOpp->m_XTrBot[m],yrel,BOTSURFACE,Pt,N);
                     pTransVertexArray[iv++] = Pt.xf();
                     pTransVertexArray[iv++] = Pt.yf();
@@ -718,11 +719,11 @@ void gl3dMiarexView::glMakeTransitions(int iWing, Wing *pWing, WPolar *pWPolar, 
         else
         {
             int m = 0;
-            for(j=0; j<pWing->m_Surface.size(); j++)
+            for(int j=0; j<pWing->m_Surface.size(); j++)
             {
-                for(k=0; k<pWing->m_Surface[j]->NYPanels(); k++)
+                for(int k=0; k<pWing->m_Surface[j]->NYPanels(); k++)
                 {
-                    yrel = pWing->yrel(pWOpp->m_SpanPos[m]);
+                    double yrel = pWing->yrel(pWOpp->m_SpanPos[m]);
                     pWing->m_Surface[j]->getSurfacePoint(pWOpp->m_XTrBot[m],pWOpp->m_XTrBot[m],yrel,BOTSURFACE,Pt,N);
                     pTransVertexArray[iv++] = Pt.xf();
                     pTransVertexArray[iv++] = Pt.yf();
@@ -739,7 +740,7 @@ void gl3dMiarexView::glMakeTransitions(int iWing, Wing *pWing, WPolar *pWPolar, 
     m_vboTransitions[iWing].destroy();
     m_vboTransitions[iWing].create();
     m_vboTransitions[iWing].bind();
-    m_vboTransitions[iWing].allocate(pTransVertexArray.data(), bufferSize * sizeof(GLfloat));
+    m_vboTransitions[iWing].allocate(pTransVertexArray.data(), bufferSize * int(sizeof(GLfloat)));
     m_vboTransitions[iWing].release();
 }
 
@@ -770,15 +771,15 @@ void gl3dMiarexView::glMakeSurfVelocities(Panel *pPanel, WPolar *pWPolar, PlaneO
     Sigma = pPOpp->m_dSigma;
 
     // vertices array size:
-    //		nPanels x 1 arrow
+    //        nPanels x 1 arrow
     //      x3 lines per arrow
     //      x2 vertices per line
-    //		x3 = 3 vertex components
+    //        x3 = 3 vertex components
 
-    uint velocityVertexSize = uint(nPanels) * 3 * 2 * 3;
-    std::vector<float> velocityVertexArray(velocityVertexSize);
+    int velocityVertexSize = nPanels * 3 * 2 * 3;
+    QVector<float> velocityVertexArray(velocityVertexSize);
 
-    uint iv=0;
+    int iv=0;
     for (int p=0; p<nPanels; p++)
     {
         VT.set(pPOpp->m_QInf,0.0,0.0);
@@ -851,7 +852,7 @@ void gl3dMiarexView::glMakeSurfVelocities(Panel *pPanel, WPolar *pWPolar, PlaneO
 
     if(dlg.wasCanceled())
     {
-        memset(velocityVertexArray.data(), 0, velocityVertexSize*sizeof(float));
+        memset(velocityVertexArray.data(), 0, size_t(velocityVertexSize) * sizeof(float));
     }
     else
     {
@@ -860,7 +861,7 @@ void gl3dMiarexView::glMakeSurfVelocities(Panel *pPanel, WPolar *pWPolar, PlaneO
     m_vboSurfaceVelocities.destroy();
     m_vboSurfaceVelocities.create();
     m_vboSurfaceVelocities.bind();
-    m_vboSurfaceVelocities.allocate(velocityVertexArray.data(), int(velocityVertexSize * sizeof(GLfloat)));
+    m_vboSurfaceVelocities.allocate(velocityVertexArray.data(), velocityVertexSize * int(sizeof(GLfloat)));
     m_vboSurfaceVelocities.release();
     m_bSurfVelocitiesDone = true; // vbo is ready for rendering
 }
@@ -904,7 +905,7 @@ void gl3dMiarexView::glMakeLiftForce(WPolar *pWPolar, PlaneOpp *pPOpp)
 
     float force = 0.5f*float(pWPolar->density() * pWPolar->referenceArea() *pPOpp->m_QInf*pPOpp->QInf() *pPOpp->m_CL);
 
-    force *= s_LiftScale/500.0;
+    force *= float(s_LiftScale/500.0);
 
     forcez =  force * cosf(float(pPOpp->alpha()* PI/180.0));
     forcex = -force * sinf(float(pPOpp->alpha()* PI/180.0));
@@ -950,11 +951,11 @@ void gl3dMiarexView::glMakeLiftForce(WPolar *pWPolar, PlaneOpp *pPOpp)
 
 void gl3dMiarexView::glMakeMoments(Wing *pWing, WPolar *pWPolar, PlaneOpp *pPOpp)
 {
-    //	The most common aeronautical convention defines
-    //	- the roll as acting about the longitudinal axis, positive with the starboard wing down.
-    //	- The yaw is about the vertical body axis, positive with the nose to starboard.
-    //	- Pitch is about an axis perpendicular to the longitudinal plane of symmetry, positive nose up.
-    //	-- Wikipedia flight dynamics --
+    //    The most common aeronautical convention defines
+    //    - the roll as acting about the longitudinal axis, positive with the starboard wing down.
+    //    - The yaw is about the vertical body axis, positive with the nose to starboard.
+    //    - Pitch is about an axis perpendicular to the longitudinal plane of symmetry, positive nose up.
+    //    -- Wikipedia flight dynamics --
     if(!pWing || !pWPolar) return;
 
     int i=0;
@@ -991,8 +992,8 @@ void gl3dMiarexView::glMakeMoments(Wing *pWing, WPolar *pWPolar, PlaneOpp *pPOpp
         m_iMomentPoints += 4;
     }
 
-    std::vector<float> momentVertexArray(uint(m_iMomentPoints*3));
-    uint iv = 0;
+    QVector<float> momentVertexArray(m_iMomentPoints*3);
+    int iv = 0;
 
     //ROLLING MOMENT
     if(fabs(ampL)>0.000001f)
@@ -1119,7 +1120,7 @@ void gl3dMiarexView::glMakeMoments(Wing *pWing, WPolar *pWPolar, PlaneOpp *pPOpp
     }
 
 
-    Q_ASSERT(iv==uint(m_iMomentPoints*3));
+    Q_ASSERT(iv==m_iMomentPoints*3);
     m_vboMoments.destroy();
     m_vboMoments.create();
     m_vboMoments.bind();
@@ -1135,47 +1136,47 @@ void gl3dMiarexView::glMakeLiftStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
     int i=0,j=0,k=0;
     Vector3d C, CL, Pt, PtNormal;
 
-    double amp=0, yob=0, dih=0;
-    double cosa =  cos(pWOpp->m_Alpha * PI/180.0);
-    double sina = -sin(pWOpp->m_Alpha * PI/180.0);
+    float amp=0, dih=0;
+    float cosa =  cosf(float(pWOpp->m_Alpha) * PIf/180.0f);
+    float sina = -sinf(float(pWOpp->m_Alpha) * PIf/180.0f);
 
     //LIFTLINE
     //dynamic pressure x area
-    double q0 = 0.5 * pWPolar->density() * pWOpp->m_QInf * pWOpp->m_QInf;
+    float q0 = 0.5f * float(pWPolar->density() * pWOpp->m_QInf * pWOpp->m_QInf);
 
-    std::vector<float> pLiftVertexArray(m_Ny[iWing]*9);
+    QVector<float> pLiftVertexArray(m_Ny[iWing]*9);
 
-    uint iv;
+    int iv=0;
     if(pWPolar->isLLTMethod())
     {
         iv=0;
         for (i=1; i<pWOpp->m_NStation; i++)
         {
-            yob = 2.0*pWOpp->m_SpanPos[i]/pWOpp->m_Span;
+            double yob = 2.0*pWOpp->m_SpanPos[i]/pWOpp->m_Span;
             pWing->surfacePoint(pWOpp->m_XCPSpanRel[i], pWOpp->m_SpanPos[i], MIDSURFACE, Pt, PtNormal);
 
-            dih = -pWing->getDihedral(yob)*PI/180.0;
-            amp = q0*pWOpp->m_Cl[i]*pWing->getChord(yob)/pWOpp->m_MAChord;
-            amp *= s_LiftScale/1000.0;
+            dih = -float(pWing->getDihedral(yob))*PIf/180.0f;
+            amp = q0*float(pWOpp->m_Cl[i]*pWing->getChord(yob)/pWOpp->m_MAChord);
+            amp *= float(s_LiftScale)/1000.0f;
 
             pLiftVertexArray[iv++] = Pt.xf();
             pLiftVertexArray[iv++] = Pt.yf();
             pLiftVertexArray[iv++] = Pt.zf();
-            pLiftVertexArray[iv++] = Pt.xf()+ amp * cos(dih)*sina;
+            pLiftVertexArray[iv++] = Pt.xf() + amp * cos(dih)*sina;
             pLiftVertexArray[iv++] = Pt.yf() + amp * sin(dih);
             pLiftVertexArray[iv++] = Pt.zf() + amp * cos(dih)*cosa;
         }
 
         for (i=1; i<pWOpp->m_NStation; i++)
         {
-            yob = 2.0*pWOpp->m_SpanPos[i]/pWOpp->m_Span;
+            double yob = 2.0*pWOpp->m_SpanPos[i]/pWOpp->m_Span;
             pWing->surfacePoint(pWOpp->m_XCPSpanRel[i], pWOpp->m_SpanPos[i], MIDSURFACE, Pt, PtNormal);
 
-            dih = -pWing->getDihedral(yob)*PI/180.0;
-            amp = q0*pWOpp->m_Cl[i]*pWing->getChord(yob)/pWOpp->m_MAChord;
-            amp *= s_LiftScale/1000.0;
+            dih = -float(pWing->getDihedral(yob)*PI/180.0);
+            amp = q0*float(pWOpp->m_Cl[i]*pWing->getChord(yob)/pWOpp->m_MAChord);
+            amp *= float(s_LiftScale)/1000.0f;
 
-            pLiftVertexArray[iv++] = Pt.xf()+ amp * cos(dih)*sina;
+            pLiftVertexArray[iv++] = Pt.xf() + amp * cos(dih)*sina;
             pLiftVertexArray[iv++] = Pt.yf() + amp * sin(dih);
             pLiftVertexArray[iv++] = Pt.zf() + amp * cos(dih)*cosa;
         }
@@ -1190,7 +1191,8 @@ void gl3dMiarexView::glMakeLiftStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
             for (k=0; k< pWing->m_Surface[j]->NYPanels(); k++)
             {
                 pWing->m_Surface[j]->getLeadingPt(k, C);
-                amp = pWing->m_Surface[j]->chord(k) / pWOpp->m_StripArea[i] / pWing->m_MAChord * s_LiftScale/1000.0;
+                amp = float(pWing->m_Surface[j]->chord(k) / pWOpp->m_StripArea[i] / pWing->m_MAChord);
+                amp *= float(s_LiftScale)/1000.0f;
                 C.x += pWOpp->m_XCPSpanRel[i] * pWing->m_Surface[j]->chord(k);
 
                 pLiftVertexArray[iv++] = C.xf();
@@ -1207,7 +1209,7 @@ void gl3dMiarexView::glMakeLiftStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
         i = 0;
         for (j=0; j<pWing->m_Surface.size(); j++)
         {
-            /*			if(j>0 && pWing->m_Surface[j-1]->m_bJoinRight)
+            /*            if(j>0 && pWing->m_Surface[j-1]->m_bJoinRight)
             {
                 //then connect strip to previous surface's last point
                 pLiftVertexArray[iv++] = CL.xf();
@@ -1227,11 +1229,12 @@ void gl3dMiarexView::glMakeLiftStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
             for (k=0; k< pWing->m_Surface[j]->NYPanels(); k++)
             {
                 pWing->m_Surface[j]->getLeadingPt(k, C);
-                amp = pWing->m_Surface[j]->chord(k) / pWOpp->m_StripArea[i] / pWing->m_MAChord * s_LiftScale/1000.0;
+                amp = float(pWing->m_Surface[j]->chord(k) / pWOpp->m_StripArea[i] / pWing->m_MAChord);
+                amp *= float(s_LiftScale)/1000.0f;
                 C.x += pWOpp->m_XCPSpanRel[i] * pWing->m_Surface[j]->chord(k);
-                CL.x = C.xf()+ pWOpp->m_F[i].xf()*amp;
-                CL.y = C.yf() + pWOpp->m_F[i].yf()*amp;
-                CL.z = C.zf() + pWOpp->m_F[i].zf()*amp;
+                CL.x = C.x + pWOpp->m_F[i].x * double(amp);
+                CL.y = C.y + pWOpp->m_F[i].y * double(amp);
+                CL.z = C.z + pWOpp->m_F[i].z * double(amp);
 
                 pLiftVertexArray[iv++] = CL.xf();
                 pLiftVertexArray[iv++] = CL.yf();
@@ -1245,7 +1248,7 @@ void gl3dMiarexView::glMakeLiftStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
     m_vboLiftStrips[iWing].destroy();
     m_vboLiftStrips[iWing].create();
     m_vboLiftStrips[iWing].bind();
-    m_vboLiftStrips[iWing].allocate(pLiftVertexArray.data(), m_Ny[iWing]*9 * sizeof(GLfloat));
+    m_vboLiftStrips[iWing].allocate(pLiftVertexArray.data(), m_Ny[iWing]*9 * int(sizeof(GLfloat)));
     m_vboLiftStrips[iWing].release();
 }
 
@@ -1266,7 +1269,7 @@ void gl3dMiarexView::paintLift(int iWing)
 
     GLLineStipple(W3dPrefsDlg::s_XCPStyle);
 
-    glLineWidth((GLfloat)W3dPrefsDlg::s_XCPWidth);
+    glLineWidth(GLfloat(W3dPrefsDlg::s_XCPWidth));
 
     m_vboLiftStrips[iWing].bind();
     m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3);
@@ -1275,7 +1278,7 @@ void gl3dMiarexView::paintLift(int iWing)
     m_vboLiftStrips[iWing].release();
 
     m_vboLiftForce.bind();
-    glLineWidth((GLfloat)W3dPrefsDlg::s_XCPWidth*2.0);
+    glLineWidth(GLfloat(W3dPrefsDlg::s_XCPWidth)*2.0f);
     m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3);
     glDrawArrays(GL_LINES, 0, 6);
     m_vboLiftForce.release();
@@ -1302,7 +1305,7 @@ void gl3dMiarexView::paintMoments()
 
     GLLineStipple(W3dPrefsDlg::s_MomentStyle);
 
-    glLineWidth((GLfloat)W3dPrefsDlg::s_MomentWidth);
+    glLineWidth(GLfloat(W3dPrefsDlg::s_MomentWidth));
 
     m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3);
 
@@ -1325,9 +1328,9 @@ void gl3dMiarexView::glMakeDownwash(int iWing, Wing *pWing, WPolar *pWPolar, Win
     Vector3d C, Pt, PtNormal;
     float amp=0.0f;
 
-    float sina = -sin(pWOpp->m_Alpha*PI/180.0);
-    float cosa =  cos(pWOpp->m_Alpha*PI/180.0);
-    float factor = s_VelocityScale/5.0;
+    float sina = -sinf(float(pWOpp->m_Alpha)*PIf/180.0f);
+    float cosa =  cosf(float(pWOpp->m_Alpha)*PIf/180.0f);
+    float factor = float(s_VelocityScale)/5.0f;
 
     int bufferSize = m_Ny[iWing]*18;
     QVector<float> pDownWashVertexArray(bufferSize);
@@ -1336,11 +1339,11 @@ void gl3dMiarexView::glMakeDownwash(int iWing, Wing *pWing, WPolar *pWPolar, Win
     {
         for (i=1; i<pWOpp->m_NStation; i++)
         {
-            yob = 2.0*pWOpp->m_SpanPos[i]/pWOpp->m_Span;
+            yob = 2.0f*float(pWOpp->m_SpanPos[i]/pWOpp->m_Span);
             pWing->surfacePoint(1.0, pWOpp->m_SpanPos[i], MIDSURFACE, Pt, PtNormal);
 
-            dih = -pWing->getDihedral(yob)*PI/180.0;
-            amp = pWOpp->m_QInf*sin(pWOpp->m_Ai[i]*PI/180.0);
+            dih = -float(pWing->getDihedral(double(yob)))*PIf/180.0f;
+            amp = float(pWOpp->m_QInf*sin(pWOpp->m_Ai[i]*PI/180.0));
             amp *= factor;
             pDownWashVertexArray[iv++] = Pt.xf();
             pDownWashVertexArray[iv++] = Pt.yf();
@@ -1353,10 +1356,10 @@ void gl3dMiarexView::glMakeDownwash(int iWing, Wing *pWing, WPolar *pWPolar, Win
             xs = Pt.xf() + amp * cos(dih) * sina;
             ys = Pt.yf() + amp * sin(dih);
             zs = Pt.zf() + amp * cos(dih) * cosa;
-            y1 = ys - 0.085*amp * sin(dih)        + 0.05*amp * cos(dih) * cosa;
-            z1 = zs - 0.085*amp * cos(dih) * cosa - 0.05*amp * sin(dih);
-            y2 = ys - 0.085*amp * sin(dih)        - 0.05*amp * cos(dih) * cosa;
-            z2 = zs - 0.085*amp * cos(dih) * cosa + 0.05*amp * sin(dih);
+            y1 = ys - 0.085f*amp * sin(dih)        + 0.05f*amp * cos(dih) * cosa;
+            z1 = zs - 0.085f*amp * cos(dih) * cosa - 0.05f*amp * sin(dih);
+            y2 = ys - 0.085f*amp * sin(dih)        - 0.05f*amp * cos(dih) * cosa;
+            z2 = zs - 0.085f*amp * cos(dih) * cosa + 0.05f*amp * sin(dih);
 
             pDownWashVertexArray[iv++] = xs;
             pDownWashVertexArray[iv++] = ys;
@@ -1382,23 +1385,23 @@ void gl3dMiarexView::glMakeDownwash(int iWing, Wing *pWing, WPolar *pWPolar, Win
         {
             for (k=0; k< pWing->m_Surface[j]->NYPanels(); k++)
             {
-                //				m_pSurface[j+surf0]->GetTrailingPt(k, C);
+                //                m_pSurface[j+surf0]->GetTrailingPt(k, C);
                 pWing->m_Surface[j]->getTrailingPt(k, C);
-                //				if (pWOpp->m_Vd[i].z>0) sign = 1.0; else sign = -1.0;
+                //                if (pWOpp->m_Vd[i].z>0) sign = 1.0; else sign = -1.0;
                 pDownWashVertexArray[iv++] = C.xf();
                 pDownWashVertexArray[iv++] = C.yf();
                 pDownWashVertexArray[iv++] = C.zf();
-                pDownWashVertexArray[iv++] = C.x+factor*pWOpp->m_Vd[i].zf() * sina;
-                pDownWashVertexArray[iv++] = C.y+factor*pWOpp->m_Vd[i].yf();
-                pDownWashVertexArray[iv++] = C.z+factor*pWOpp->m_Vd[i].zf() * cosa;
+                pDownWashVertexArray[iv++] = C.xf()+factor*pWOpp->m_Vd[i].zf() * sina;
+                pDownWashVertexArray[iv++] = C.yf()+factor*pWOpp->m_Vd[i].yf();
+                pDownWashVertexArray[iv++] = C.zf()+factor*pWOpp->m_Vd[i].zf() * cosa;
 
                 xs = C.xf()+factor*pWOpp->m_Vd[i].zf()*sina;
                 ys = C.yf()+factor*pWOpp->m_Vd[i].yf();
                 zs = C.zf()+factor*pWOpp->m_Vd[i].zf()*cosa;
-                y1 = ys - 0.085*factor*pWOpp->m_Vd[i].yf()      + 0.05*factor*pWOpp->m_Vd[i].zf()*cosa;
-                z1 = zs - 0.085*factor*pWOpp->m_Vd[i].zf()*cosa - 0.05*factor*pWOpp->m_Vd[i].yf();
-                y2 = ys - 0.085*factor*pWOpp->m_Vd[i].yf()      - 0.05*factor*pWOpp->m_Vd[i].zf()*cosa;
-                z2 = zs - 0.085*factor*pWOpp->m_Vd[i].zf()*cosa + 0.05*factor*pWOpp->m_Vd[i].yf();
+                y1 = ys - 0.085f*factor*pWOpp->m_Vd[i].yf()      + 0.05f*factor*pWOpp->m_Vd[i].zf()*cosa;
+                z1 = zs - 0.085f*factor*pWOpp->m_Vd[i].zf()*cosa - 0.05f*factor*pWOpp->m_Vd[i].yf();
+                y2 = ys - 0.085f*factor*pWOpp->m_Vd[i].yf()      - 0.05f*factor*pWOpp->m_Vd[i].zf()*cosa;
+                z2 = zs - 0.085f*factor*pWOpp->m_Vd[i].zf()*cosa + 0.05f*factor*pWOpp->m_Vd[i].yf();
 
                 pDownWashVertexArray[iv++] = xs;
                 pDownWashVertexArray[iv++] = ys;
@@ -1425,7 +1428,7 @@ void gl3dMiarexView::glMakeDownwash(int iWing, Wing *pWing, WPolar *pWPolar, Win
     m_vboDownwash[iWing].destroy();
     m_vboDownwash[iWing].create();
     m_vboDownwash[iWing].bind();
-    m_vboDownwash[iWing].allocate(pDownWashVertexArray.constData(), bufferSize * sizeof(GLfloat));
+    m_vboDownwash[iWing].allocate(pDownWashVertexArray.constData(), bufferSize * int(sizeof(GLfloat)));
     m_vboDownwash[iWing].release();
 }
 
@@ -1435,21 +1438,20 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
     if(!pWing || !pWPolar || !pWOpp) return;
     Vector3d C, Pt, PtNormal;
     int i=0,j=0,k=0;
-    float *pICdVertexArray=nullptr, *pVCdVertexArray=nullptr;
 
     float coef = 5.0;
     float amp=0, amp1=0, amp2=0, yob=0, dih=0;
-    float cosa =  cos(pWOpp->m_Alpha * PI/180.0);
-    float sina = -sin(pWOpp->m_Alpha * PI/180.0);
-    float cosb =  cos(-beta*PI/180.0);
-    float sinb =  sin(-beta*PI/180.0);
+    float cosa =  float(cos(pWOpp->m_Alpha * PI/180.0));
+    float sina = -float(sin(pWOpp->m_Alpha * PI/180.0));
+    float cosb =  float(cos(-beta*PI/180.0));
+    float sinb =  float(sin(-beta*PI/180.0));
 
     int bufferSize = m_Ny[iWing]*9;
-    pICdVertexArray = new float[bufferSize];
-    pVCdVertexArray = new float[bufferSize];
+    QVector<float> pICdVertexArray(bufferSize);
+    QVector<float> pVCdVertexArray(bufferSize);
 
     //DRAGLINE
-    float q0 = 0.5 * pWPolar->density() * pWPolar->referenceArea() * pWOpp->m_QInf * pWOpp->m_QInf;
+    float q0 = float(0.5 * pWPolar->density() * pWPolar->referenceArea() * pWOpp->m_QInf * pWOpp->m_QInf);
 
     int ii=0, iv=0;
     if(pWPolar->isLLTMethod())
@@ -1458,12 +1460,12 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
         iv=0;
         for (i=1; i<pWOpp->m_NStation; i++)
         {
-            yob = 2.0*pWOpp->m_SpanPos[i]/pWOpp->m_Span;
+            yob = float(2.0*pWOpp->m_SpanPos[i]/pWOpp->m_Span);
 
             pWing->surfacePoint(1.0, pWOpp->m_SpanPos[i], MIDSURFACE, Pt, PtNormal);
-            dih = pWing->getDihedral(yob)*PI/180.0;
-            amp1 = q0*pWOpp->m_ICd[i]*pWing->getChord(yob)/pWOpp->m_MAChord*s_DragScale/coef;
-            amp2 = q0*pWOpp->m_PCd[i]*pWing->getChord(yob)/pWOpp->m_MAChord*s_DragScale/coef;
+            dih = float(pWing->getDihedral(double(yob)))*PIf/180.0f;
+            amp1 = q0*float(pWOpp->m_ICd[i]*pWing->getChord(double(yob))/pWOpp->m_MAChord*s_DragScale)/coef;
+            amp2 = q0*float(pWOpp->m_PCd[i]*pWing->getChord(double(yob))/pWOpp->m_MAChord*s_DragScale)/coef;
             if(s_pMiarex->m_bICd)
             {
                 pICdVertexArray[ii++] = Pt.xf();
@@ -1500,12 +1502,12 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
         {
             for (i=1; i<pWOpp->m_NStation; i++)
             {
-                yob = 2.0*pWOpp->m_SpanPos[i]/pWOpp->m_Span;
+                yob = 2.0f*float(pWOpp->m_SpanPos[i]/pWOpp->m_Span);
                 pWing->surfacePoint(1.0, pWOpp->m_SpanPos[i], MIDSURFACE, Pt, PtNormal);
 
-                dih = pWing->getDihedral(yob)*PI/180.0;
-                amp  = q0*pWOpp->m_ICd[i]*pWing->getChord(yob)/pWOpp->m_MAChord;
-                amp *= s_DragScale/coef;
+                dih = float(pWing->getDihedral(double(yob))*PI/180.0);
+                amp  = q0*float(pWOpp->m_ICd[i]*pWing->getChord(double(yob))/pWOpp->m_MAChord);
+                amp *= float(s_DragScale)/coef;
 
                 pICdVertexArray[ii++] = Pt.xf()+ amp * cos(dih)*cosa;
                 pICdVertexArray[ii++] = Pt.yf();
@@ -1516,15 +1518,15 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
         {
             for (i=1; i<pWOpp->m_NStation; i++)
             {
-                yob = 2.0*pWOpp->m_SpanPos[i]/pWOpp->m_Span;
+                yob = float(2.0*pWOpp->m_SpanPos[i]/pWOpp->m_Span);
                 pWing->surfacePoint(1.0, pWOpp->m_SpanPos[i], MIDSURFACE, Pt, PtNormal);
 
-                dih = pWing->getDihedral(yob)*PI/180.0;
+                dih = float(pWing->getDihedral(double(yob))*PI/180.0);
                 amp=0.0;
-                if(s_pMiarex->m_bICd) amp+=pWOpp->m_ICd[i];
-                amp +=pWOpp->m_PCd[i];
-                amp *= q0*pWing->getChord(yob)/pWOpp->m_MAChord;
-                amp *= s_DragScale/coef;
+                if(s_pMiarex->m_bICd) amp += float(pWOpp->m_ICd[i]);
+                amp += float(pWOpp->m_PCd[i]);
+                amp *= q0*float(pWing->getChord(double(yob))/pWOpp->m_MAChord);
+                amp *= float(s_DragScale)/coef;
 
                 pVCdVertexArray[iv++] = Pt.xf()+ amp * cos(dih)*cosa;
                 pVCdVertexArray[iv++] = Pt.yf();
@@ -1544,8 +1546,8 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
             for (k=0; k< pWing->m_Surface[j]->NYPanels(); k++)
             {
                 pWing->m_Surface[j]->getTrailingPt(k, C);
-                amp1 = q0*pWOpp->m_ICd[i]*pWOpp->m_Chord[i]/pWing->m_MAChord*s_DragScale/coef;
-                amp2 = q0*pWOpp->m_PCd[i]*pWOpp->m_Chord[i]/pWing->m_MAChord*s_DragScale/coef;
+                amp1 = q0*float(pWOpp->m_ICd[i]*pWOpp->m_Chord[i]/pWing->m_MAChord*s_DragScale)/coef;
+                amp2 = q0*float(pWOpp->m_PCd[i]*pWOpp->m_Chord[i]/pWing->m_MAChord*s_DragScale)/coef;
                 if(s_pMiarex->m_bICd)
                 {
                     pICdVertexArray[ii++] = C.xf();
@@ -1590,8 +1592,8 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
                     for (k=0; k< pWing->m_Surface[j]->NYPanels(); k++)
                     {
                         pWing->m_Surface[j]->getTrailingPt(k, C);
-                        amp = q0*(pWOpp->m_ICd[i]*pWOpp->m_Chord[i])/pWing->m_MAChord;
-                        amp *= s_DragScale/coef;
+                        amp = q0*float(pWOpp->m_ICd[i]*pWOpp->m_Chord[i]/pWing->m_MAChord);
+                        amp *= float(s_DragScale)/coef;
                         pICdVertexArray[ii++] = C.xf()+ amp*cosa * cosb;
                         pICdVertexArray[ii++] = C.yf() + amp*cosa * sinb;
                         pICdVertexArray[ii++] = C.zf() - amp*sina;
@@ -1608,10 +1610,10 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
                     {
                         pWing->m_Surface[j]->getTrailingPt(k, C);
                         amp=0.0;
-                        if(s_pMiarex->m_bICd) amp+=pWOpp->m_ICd[i];
-                        amp +=pWOpp->m_PCd[i];
-                        amp *= q0*pWOpp->m_Chord[i]/pWing->m_MAChord;
-                        amp *= s_DragScale/coef;
+                        if(s_pMiarex->m_bICd) amp += float(pWOpp->m_ICd[i]);
+                        amp += float(pWOpp->m_PCd[i]);
+                        amp *= q0*float(pWOpp->m_Chord[i]/pWing->m_MAChord);
+                        amp *= float(s_DragScale)/coef;
 
                         pVCdVertexArray[iv++] = C.xf()+ amp*cosa*cosb;
                         pVCdVertexArray[iv++] = C.yf() + amp*cosa*sinb;
@@ -1632,8 +1634,8 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
                     for (k=0; k< pWing->m_Surface[j]->NYPanels(); k++)
                     {
                         pWing->m_Surface[j]->getTrailingPt(k, C);
-                        amp = q0*(pWOpp->m_ICd[i]*pWOpp->m_Chord[i])/pWing->m_MAChord;
-                        amp *= s_DragScale/coef;
+                        amp = q0*float(pWOpp->m_ICd[i]*pWOpp->m_Chord[i]/pWing->m_MAChord);
+                        amp *= float(s_DragScale)/coef;
                         pICdVertexArray[ii++] = C.xf()+ amp*cosa * cosb;
                         pICdVertexArray[ii++] = C.yf() + amp*cosa * sinb;
                         pICdVertexArray[ii++] = C.zf() - amp*sina;
@@ -1650,10 +1652,10 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
                     {
                         pWing->m_Surface[j]->getTrailingPt(k, C);
                         amp=0.0;
-                        if(s_pMiarex->m_bICd) amp+=pWOpp->m_ICd[i];
-                        amp +=pWOpp->m_PCd[i];
-                        amp *= q0*pWOpp->m_Chord[i]/pWing->m_MAChord;
-                        amp *= s_DragScale/coef;
+                        if(s_pMiarex->m_bICd) amp+=float(pWOpp->m_ICd[i]);
+                        amp += float(pWOpp->m_PCd[i]);
+                        amp *= q0*float(pWOpp->m_Chord[i]/pWing->m_MAChord);
+                        amp *= float(s_DragScale)/coef;
 
                         pVCdVertexArray[iv++] = C.xf()+ amp*cosa*cosb;
                         pVCdVertexArray[iv++] = C.yf() + amp*cosa*sinb;
@@ -1671,16 +1673,14 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, Wi
     m_vboICd[iWing].destroy();
     m_vboICd[iWing].create();
     m_vboICd[iWing].bind();
-    m_vboICd[iWing].allocate(pICdVertexArray, bufferSize * sizeof(GLfloat));
+    m_vboICd[iWing].allocate(pICdVertexArray.data(), bufferSize * int(sizeof(GLfloat)));
     m_vboICd[iWing].release();
-    delete [] pICdVertexArray;
 
     m_vboVCd[iWing].destroy();
     m_vboVCd[iWing].create();
     m_vboVCd[iWing].bind();
-    m_vboVCd[iWing].allocate(pVCdVertexArray, bufferSize * sizeof(GLfloat));
+    m_vboVCd[iWing].allocate(pVCdVertexArray.data(), bufferSize * int(sizeof(GLfloat)));
     m_vboVCd[iWing].release();
-    delete [] pVCdVertexArray;
 }
 
 
@@ -1703,7 +1703,7 @@ void gl3dMiarexView::paintDrag(int iWing)
         m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, W3dPrefsDlg::s_IDragColor);
         GLLineStipple(W3dPrefsDlg::s_IDragStyle);
 
-        glLineWidth((GLfloat)W3dPrefsDlg::s_IDragWidth);
+        glLineWidth(GLfloat(W3dPrefsDlg::s_IDragWidth));
         m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3);
 
 
@@ -1720,7 +1720,7 @@ void gl3dMiarexView::paintDrag(int iWing)
         m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, W3dPrefsDlg::s_VDragColor);
         GLLineStipple(W3dPrefsDlg::s_VDragStyle);
 
-        glLineWidth((GLfloat)W3dPrefsDlg::s_VDragWidth);
+        glLineWidth(GLfloat(W3dPrefsDlg::s_VDragWidth));
 
         m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3);
 
@@ -1757,11 +1757,11 @@ void gl3dMiarexView::paintStreamLines()
 
     GLLineStipple(W3dPrefsDlg::s_StreamLinesStyle);
 
-    glLineWidth((GLfloat)W3dPrefsDlg::s_StreamLinesWidth);
+    glLineWidth(GLfloat(W3dPrefsDlg::s_StreamLinesWidth));
 
     int pos=0;
 
-    for(uint il=0; il<m_NStreamLines; il++)
+    for(int il=0; il<m_NStreamLines; il++)
     {
         glDrawArrays(GL_LINE_STRIP, pos, GL3DScales::s_NX);
         pos += GL3DScales::s_NX;
@@ -1794,7 +1794,7 @@ void gl3dMiarexView::paintTransitions(int iWing)
         m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, W3dPrefsDlg::s_TopColor);
         GLLineStipple(W3dPrefsDlg::s_TopStyle);
 
-        glLineWidth((GLfloat)W3dPrefsDlg::s_TopWidth);
+        glLineWidth(GLfloat(W3dPrefsDlg::s_TopWidth));
         glDrawArrays(GL_LINE_STRIP, 0, m_Ny[iWing]);
     }
 
@@ -1803,7 +1803,7 @@ void gl3dMiarexView::paintTransitions(int iWing)
     {
         m_ShaderProgramLine.setUniformValue(m_ColorLocationLine, W3dPrefsDlg::s_BotColor);
         GLLineStipple(W3dPrefsDlg::s_BotStyle);
-        glLineWidth((GLfloat)W3dPrefsDlg::s_BotWidth);
+        glLineWidth(GLfloat(W3dPrefsDlg::s_BotWidth));
         glDrawArrays(GL_LINE_STRIP, m_Ny[iWing], m_Ny[iWing]);
     }
 
@@ -1833,8 +1833,7 @@ void gl3dMiarexView::paintSurfaceVelocities(int nPanels)
     m_vboSurfaceVelocities.bind();
     m_ShaderProgramLine.setAttributeBuffer(m_VertexLocationLine, GL_FLOAT, 0, 3, 3 * sizeof(GLfloat));
 
-    /*    uint size = m_vboSurfaceVelocities.size();
-    qDebug("vbosize=%u", size);*/
+
     glLineWidth(W3dPrefsDlg::s_WakeWidth);
     glEnable(GL_DEPTH_TEST);
     glDrawArrays(GL_LINES, 0, nPanels*3*2);
@@ -1956,7 +1955,7 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
     int p=0;
     double *Cp=nullptr;
     float force=0, cosa=0, sina2=0, cosa2=0, color=0;
-    double rmin=0, rmax=0, range=0;
+    float rmin=0, rmax=0, range=0;
 
     Quaternion Qt; // Quaternion operator to align the reference arrow to the panel's normal
     Vector3d Omega; // rotation vector to align the reference arrow to the panel's normal
@@ -1971,42 +1970,42 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
     //define the range of values to set the colors in accordance
     rmin = 1.e10;
     rmax = -rmin;
-    double coef = .0005;
+    float coef = .0005f;
 
     Cp = pPOpp->m_dCp;
 
     for (int p=0; p<nPanels; p++)
     {
-        rmax = qMax(rmax, Cp[p] );
-        rmin = qMin(rmin, Cp[p] );
+        rmax = qMax(rmax, float(Cp[p]) );
+        rmin = qMin(rmin, float(Cp[p]) );
     }
 
-    double qdyn = 0.5*pWPolar->density() *pPOpp->m_QInf*pPOpp->m_QInf;
+    float qdyn = 0.5f*float(pWPolar->density() *pPOpp->m_QInf*pPOpp->m_QInf);
     rmin *= qdyn;
     rmax *= qdyn;
     range = rmax - rmin;
 
     // vertices array size:
-    //		nPanels x 1 arrow
+    //        nPanels x 1 arrow
     //      x3 lines per arrow
     //      x2 vertices per line
-    //		x6 = 3 vertex components + 3 color components
+    //        x6 = 3 vertex components + 3 color components
 
     int forceVertexSize = nPanels * 3 * 2 * 6;
-    float *forceVertexArray = new float[forceVertexSize];
+    QVector<float> forceVertexArray(forceVertexSize);
 
     int iv=0;
     for (p=0; p<nPanels; p++)
     {
-        force = qdyn * Cp[p];
+        force = qdyn * float(Cp[p]);
         color = (force-rmin)/range;
 
         //scale force for display
-        force *= s_LiftScale *coef;
+        force *= float(s_LiftScale) *coef;
 
-        double r= GLGetRed(color);
-        double g= GLGetGreen(color);
-        double b= GLGetBlue(color);
+        float r = GLGetRed(color);
+        float g= GLGetGreen(color);
+        float b= GLGetBlue(color);
 
         if(pPanel->m_Pos==MIDSURFACE) O = pPanel[p].CtrlPt;
         else                          O = pPanel[p].CollPt;
@@ -2018,14 +2017,14 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
         }
         else
         {
-            cosa   = R.dot(pPanel[p].Normal);
-            sina2  = sqrt((1.0 - cosa)*0.5);
-            cosa2  = sqrt((1.0 + cosa)*0.5);
+            cosa   = float(R.dot(pPanel[p].Normal));
+            sina2  = sqrtf((1.0f - cosa)*0.5f);
+            cosa2  = sqrtf((1.0f + cosa)*0.5f);
 
             Omega = R * pPanel[p].Normal;//crossproduct
             Omega.normalize();
-            Omega *=sina2;
-            Qt.set(cosa2, Omega.x, Omega.y, Omega.z);
+            Omega *= double(sina2);
+            Qt.set(double(cosa2), Omega.x, Omega.y, Omega.z);
         }
 
         Qt.Conjugate(R,  P);
@@ -2033,9 +2032,9 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
         Qt.Conjugate(R2, P2);
 
         // Scale the pressure vector
-        P  *= force;
-        P1 *= force;
-        P2 *= force;
+        P  *= double(force);
+        P1 *= double(force);
+        P2 *= double(force);
 
         // Plot
         if(pPanel[p].m_Pos==MIDSURFACE)
@@ -2046,65 +2045,65 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
             forceVertexArray[iv++] = r;
             forceVertexArray[iv++] = g;
             forceVertexArray[iv++] = b;
-            forceVertexArray[iv++] = O.x+P.xf();
-            forceVertexArray[iv++] = O.y+P.yf();
-            forceVertexArray[iv++] = O.z+P.zf();
+            forceVertexArray[iv++] = O.xf()+P.xf();
+            forceVertexArray[iv++] = O.yf()+P.yf();
+            forceVertexArray[iv++] = O.zf()+P.zf();
             forceVertexArray[iv++] = r;
             forceVertexArray[iv++] = g;
             forceVertexArray[iv++] = b;
 
             if(force>0)
             {
-                forceVertexArray[iv++] = O.x+P.xf();
-                forceVertexArray[iv++] = O.y+P.yf();
-                forceVertexArray[iv++] = O.z+P.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
-                forceVertexArray[iv++] = O.x+P.x+P1.xf();
-                forceVertexArray[iv++] = O.y+P.y+P1.yf();
-                forceVertexArray[iv++] = O.z+P.z+P1.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf()+P1.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf()+P1.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf()+P1.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
 
-                forceVertexArray[iv++] = O.x+P.xf();
-                forceVertexArray[iv++] = O.y+P.yf();
-                forceVertexArray[iv++] = O.z+P.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
-                forceVertexArray[iv++] = O.x+P.x+P2.xf();
-                forceVertexArray[iv++] = O.y+P.y+P2.yf();
-                forceVertexArray[iv++] = O.z+P.z+P2.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf()+P2.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf()+P2.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf()+P2.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
             }
             else
             {
-                forceVertexArray[iv++] = O.x+P.xf();
-                forceVertexArray[iv++] = O.y+P.yf();
-                forceVertexArray[iv++] = O.z+P.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
-                forceVertexArray[iv++] = O.x+P.x+P1.xf();
-                forceVertexArray[iv++] = O.y+P.y+P1.yf();
-                forceVertexArray[iv++] = O.z+P.z+P1.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf()+P1.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf()+P1.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf()+P1.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
 
-                forceVertexArray[iv++] = O.x+P.xf();
-                forceVertexArray[iv++] = O.y+P.yf();
-                forceVertexArray[iv++] = O.z+P.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
-                forceVertexArray[iv++] = O.x+P.x+P2.xf();
-                forceVertexArray[iv++] = O.y+P.y+P2.yf();
-                forceVertexArray[iv++] = O.z+P.z+P2.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf()+P2.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf()+P2.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf()+P2.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
@@ -2121,9 +2120,9 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
-                forceVertexArray[iv++] = O.x+P.xf();
-                forceVertexArray[iv++] = O.y+P.yf();
-                forceVertexArray[iv++] = O.z+P.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
@@ -2134,9 +2133,9 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
-                forceVertexArray[iv++] = O.x-P1.xf();
-                forceVertexArray[iv++] = O.y-P1.yf();
-                forceVertexArray[iv++] = O.z-P1.zf();
+                forceVertexArray[iv++] = O.xf()-P1.xf();
+                forceVertexArray[iv++] = O.yf()-P1.yf();
+                forceVertexArray[iv++] = O.zf()-P1.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
@@ -2147,9 +2146,9 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
-                forceVertexArray[iv++] = O.x-P2.xf();
-                forceVertexArray[iv++] = O.y-P2.yf();
-                forceVertexArray[iv++] = O.z-P2.zf();
+                forceVertexArray[iv++] = O.xf()-P2.xf();
+                forceVertexArray[iv++] = O.yf()-P2.yf();
+                forceVertexArray[iv++] = O.zf()-P2.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
@@ -2165,35 +2164,35 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
-                forceVertexArray[iv++] = O.x+P.xf();
-                forceVertexArray[iv++] = O.y+P.yf();
-                forceVertexArray[iv++] = O.z+P.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
 
-                forceVertexArray[iv++] = O.x+P.xf();
-                forceVertexArray[iv++] = O.y+P.yf();
-                forceVertexArray[iv++] = O.z+P.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
-                forceVertexArray[iv++] = O.x+P.x-P1.xf();
-                forceVertexArray[iv++] = O.y+P.y-P1.yf();
-                forceVertexArray[iv++] = O.z+P.z-P1.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf()-P1.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf()-P1.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf()-P1.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
 
-                forceVertexArray[iv++] = O.x+P.xf();
-                forceVertexArray[iv++] = O.y+P.yf();
-                forceVertexArray[iv++] = O.z+P.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
-                forceVertexArray[iv++] = O.x+P.x-P2.xf();
-                forceVertexArray[iv++] = O.y+P.y-P2.yf();
-                forceVertexArray[iv++] = O.z+P.z-P2.zf();
+                forceVertexArray[iv++] = O.xf()+P.xf()-P2.xf();
+                forceVertexArray[iv++] = O.yf()+P.yf()-P2.yf();
+                forceVertexArray[iv++] = O.zf()+P.zf()-P2.zf();
                 forceVertexArray[iv++] = r;
                 forceVertexArray[iv++] = g;
                 forceVertexArray[iv++] = b;
@@ -2205,90 +2204,43 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPol
     m_vboPanelForces.destroy();
     m_vboPanelForces.create();
     m_vboPanelForces.bind();
-    m_vboPanelForces.allocate(forceVertexArray, forceVertexSize * sizeof(GLfloat));
+    m_vboPanelForces.allocate(forceVertexArray.data(), forceVertexSize * int(sizeof(GLfloat)));
     m_vboPanelForces.release();
-
-    delete [] forceVertexArray;
 }
 
 
-void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, Vector3d *pNode, Panel *pPanel, PlaneOpp *pPOpp)
+void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int , Vector3d *pNode, Panel *pPanel, PlaneOpp *pPOpp)
 {
     if(!pPanel || !pNode || !nPanels) return;
 
-    int pp=0, n=0, averageInf=0, averageSup=0, average100=0;
+    int pp=0;
 
     float color=0;
-    float lmin=0, lmax=0, range=0;
-    double *tab = nullptr;
-    if(pPOpp) tab= pPOpp->m_dCp;
+    float range=0;
+
 
     Vector3d TA,LA, TB, LB;
 
-    double *CpInf = new double[2*nPanels];
-    double *CpSup = new double[2*nPanels];
-    double *Cp100 = new double[2*nPanels];
-
-    lmin =  10000.0;
-    lmax = -10000.0;
+    float lmin =  10000.0;
+    float lmax = -10000.0;
     // find min and max Cp for scale set
     if(pPOpp)
     {
-        for (n=0; n<nNodes; n++)
+        for (pp=0; pp< nPanels; pp++)
         {
-            averageInf = 0; averageSup = 0; average100 = 0;
-            CpInf[n] = 0.0; CpSup[n] = 0.0; Cp100[n] = 0.0;
-            for (pp=0; pp< nPanels; pp++)
-            {
-                if (pNode[pPanel[pp].m_iLA].isSame(pNode[n]) || pNode[pPanel[pp].m_iTA].isSame(pNode[n]) ||
-                        pNode[pPanel[pp].m_iTB].isSame(pNode[n]) || pNode[pPanel[pp].m_iLB].isSame(pNode[n]))
-                {
-                    if(pPanel[pp].m_Pos==TOPSURFACE)
-                    {
-                        CpSup[n] +=tab[pp];
-                        averageSup++;
-                    }
-                    else if(pPanel[pp].m_Pos<=MIDSURFACE)
-                    {
-                        CpInf[n] +=tab[pp];
-                        averageInf++;
-                    }
-                    else if(pPanel[pp].m_Pos==BODYSURFACE)
-                    {
-                        Cp100[n] +=tab[pp];
-                        average100++;
-                    }
-                }
-            }
-            if(averageSup>0)
-            {
-                CpSup[n] /= averageSup;
-                if(CpSup[n]<lmin) lmin = CpSup[n];
-                if(lmax<CpSup[n]) lmax = CpSup[n];
-            }
-            if(averageInf>0)
-            {
-                CpInf[n] /= averageInf;
-                if(CpInf[n]<lmin) lmin = CpInf[n];
-                if(lmax<CpInf[n]) lmax = CpInf[n];
-            }
-            if(average100>0)
-            {
-                Cp100[n] /= average100;
-                if(Cp100[n]<lmin) lmin = Cp100[n];
-                if(lmax<Cp100[n]) lmax = Cp100[n];
-            }
+            lmin = std::min(lmin, float(pPOpp->m_dCp[pp]));
+            lmax = std::max(lmax, float(pPOpp->m_dCp[pp]));
+        }
 
-            if(gl3dMiarexView::s_bAutoCpScale)
-            {
-                gl3dMiarexView::s_LegendMin = lmin;
-                gl3dMiarexView::s_LegendMax = lmax;
-            }
-            else
-            {
-                lmin = gl3dMiarexView::s_LegendMin;
-                lmax = gl3dMiarexView::s_LegendMax;
-            }
+        if(gl3dMiarexView::s_bAutoCpScale)
+        {
+            gl3dMiarexView::s_LegendMin = double(lmin);
+            gl3dMiarexView::s_LegendMax = double(lmax);
+        }
+        else
+        {
+            lmin = float(gl3dMiarexView::s_LegendMin);
+            lmax = float(gl3dMiarexView::s_LegendMax);
         }
     }
 
@@ -2300,13 +2252,13 @@ void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, V
     // so write as many nodes as there are triangles.
     //
     // vertices array size:
-    //		nPanels
+    //      nPanels
     //      x2 triangles per panels
     //      x3 nodes per triangle
-    //		x6 = 3 vertex components + 3 color components
+    //      x6 = 3 vertex components + 3 color components
 
     int nodeVertexSize = nPanels * 2 * 3 * 6;
-    float *nodeVertexArray = new float[nodeVertexSize];
+    QVector<float>nodeVertexArray(nodeVertexSize);
 
     Q_ASSERT(nPanels==nPanels);
 
@@ -2324,18 +2276,16 @@ void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, V
         nodeVertexArray[iv++] = TA.zf();
         if(pPOpp)
         {
-            if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iTA]-lmin)/range;
-            else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iTA]-lmin)/range;
-            else                                 color = (Cp100[pPanel[p].m_iTA]-lmin)/range;
+            color = (float(pPOpp->m_dCp[p])-lmin)/range;
             nodeVertexArray[iv++] = GLGetRed(color);
             nodeVertexArray[iv++] = GLGetGreen(color);
             nodeVertexArray[iv++] = GLGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.redF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.greenF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.blueF());
         }
 
         nodeVertexArray[iv++] = LA.xf();
@@ -2343,19 +2293,16 @@ void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, V
         nodeVertexArray[iv++] = LA.zf();
         if(pPOpp)
         {
-
-            if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iLA]-lmin)/range;
-            else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iLA]-lmin)/range;
-            else                                 color = (Cp100[pPanel[p].m_iLA]-lmin)/range;
+            color = (float(pPOpp->m_dCp[p])-lmin)/range;
             nodeVertexArray[iv++] = GLGetRed(color);
             nodeVertexArray[iv++] = GLGetGreen(color);
             nodeVertexArray[iv++] = GLGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.redF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.greenF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.blueF());
         }
 
         nodeVertexArray[iv++] = LB.xf();
@@ -2363,18 +2310,16 @@ void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, V
         nodeVertexArray[iv++] = LB.zf();
         if(pPOpp)
         {
-            if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iLB]-lmin)/range;
-            else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iLB]-lmin)/range;
-            else                                 color = (Cp100[pPanel[p].m_iLB]-lmin)/range;
+            color = (float(pPOpp->m_dCp[p])-lmin)/range;
             nodeVertexArray[iv++] = GLGetRed(color);
             nodeVertexArray[iv++] = GLGetGreen(color);
             nodeVertexArray[iv++] = GLGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.redF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.greenF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.blueF());
         }
 
         // write the second one
@@ -2384,18 +2329,16 @@ void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, V
 
         if(pPOpp)
         {
-            if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iLB]-lmin)/range;
-            else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iLB]-lmin)/range;
-            else                                 color = (Cp100[pPanel[p].m_iLB]-lmin)/range;
+            color = (float(pPOpp->m_dCp[p])-lmin)/range;
             nodeVertexArray[iv++] = GLGetRed(color);
             nodeVertexArray[iv++] = GLGetGreen(color);
             nodeVertexArray[iv++] = GLGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.redF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.greenF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.blueF());
         }
 
         nodeVertexArray[iv++] = TB.xf();
@@ -2403,38 +2346,34 @@ void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, V
         nodeVertexArray[iv++] = TB.zf();
         if(pPOpp)
         {
-            if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iTB]-lmin)/range;
-            else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iTB]-lmin)/range;
-            else                                 color = (Cp100[pPanel[p].m_iTB]-lmin)/range;
+            color = (float(pPOpp->m_dCp[p])-lmin)/range;
             nodeVertexArray[iv++] = GLGetRed(color);
             nodeVertexArray[iv++] = GLGetGreen(color);
             nodeVertexArray[iv++] = GLGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
-        }
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.redF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.greenF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.blueF());
+         }
 
         nodeVertexArray[iv++] = TA.xf();
         nodeVertexArray[iv++] = TA.yf();
         nodeVertexArray[iv++] = TA.zf();
         if(pPOpp)
         {
-            if(pPanel[p].m_Pos==TOPSURFACE)      color = (CpSup[pPanel[p].m_iTA]-lmin)/range;
-            else if(pPanel[p].m_Pos<=MIDSURFACE) color = (CpInf[pPanel[p].m_iTA]-lmin)/range;
-            else                                 color = (Cp100[pPanel[p].m_iTA]-lmin)/range;
+            color = (float(pPOpp->m_dCp[p])-lmin)/range;
             nodeVertexArray[iv++] = GLGetRed(color);
             nodeVertexArray[iv++] = GLGetGreen(color);
             nodeVertexArray[iv++] = GLGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.redF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.greenF();
-            nodeVertexArray[iv++] = Settings::s_BackgroundColor.blueF();
-        }
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.redF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.greenF());
+            nodeVertexArray[iv++] = float(Settings::s_BackgroundColor.blueF());
+         }
     }
 
     Q_ASSERT(iv==nodeVertexSize);
@@ -2443,13 +2382,8 @@ void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, V
     vbo.destroy();
     vbo.create();
     vbo.bind();
-    vbo.allocate(nodeVertexArray, nodeVertexSize * sizeof(GLfloat));
+    vbo.allocate(nodeVertexArray.data(), nodeVertexSize * int(sizeof(GLfloat)));
     vbo.release();
-
-    delete [] nodeVertexArray;
-    delete [] CpInf;
-    delete [] CpSup;
-    delete [] Cp100;
 }
 
 
@@ -2541,14 +2475,12 @@ void gl3dMiarexView::glMake3dObjects()
                 }
                 else
                 {
-                    glMakeWingGeometry(iw, pCurPlane->wing(iw), NULL);
+                    glMakeWingGeometry(iw, pCurPlane->wing(iw), nullptr);
                 }
             }
         }
-
         s_bResetglGeom = false;
     }
-
 
     if(s_bResetglMesh)
     {
@@ -2565,7 +2497,7 @@ void gl3dMiarexView::glMake3dObjects()
                 glMakeEditBodyMesh(pCurPlane->body(), pCurPlane->bodyPos());
         }
         else
-            glMakePanels(m_vboMesh, theTask.m_MatSize, theTask.m_nNodes, theTask.m_Node, theTask.m_Panel, NULL);
+            glMakePanels(m_vboMesh, theTask.m_MatSize, theTask.m_nNodes, theTask.m_Node, theTask.m_Panel, nullptr);
         s_bResetglMesh = false;
     }
 

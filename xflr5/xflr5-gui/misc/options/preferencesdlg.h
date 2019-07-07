@@ -41,24 +41,24 @@ class ColorButton;
 
 class PreferencesDlg : public QDialog
 {
-	friend class MainFrame;
-	Q_OBJECT
+    friend class MainFrame;
+    Q_OBJECT
 
 public:
-	PreferencesDlg(QWidget *pParent);
+    PreferencesDlg(QWidget *pParent);
 
 private:
-	void setupLayout();
+    void setupLayout();
     void keyPressEvent(QKeyEvent *event);
 
 private slots:
-	void onPage(int iRow);
+    void onPage(int iRow);
     void onButton(QAbstractButton *pButton);
     void onClose();
 
 private:
-	QListWidget *m_pTabWidget;
-	QStackedWidget *m_pPageStack;
+    QListWidget *m_pTabWidget;
+    QStackedWidget *m_pPageStack;
 
     SaveOptions *m_pSaveOptionsWt;
     LanguageWt *m_pLanguageWt;

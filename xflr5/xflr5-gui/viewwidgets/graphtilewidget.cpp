@@ -31,14 +31,14 @@
 #include "graphtilewidget.h"
 #include <globals/mainframe.h>
 #include <graph/graphdlg.h>
-#include <miarex/Miarex.h>
+#include <miarex/miarex.h>
 #include <misc/options/units.h>
-#include <misc/options/displayoptions.h>
-#include <objects/objects3d/Plane.h>
+#include <misc/options/settings.h>
+#include <objects/objects3d/plane.h>
 #include <viewwidgets/graphwidget.h>
 #include <viewwidgets/legendwidget.h>
-#include <xdirect/XDirect.h>
-#include <xinverse/XInverse.h>
+#include <xdirect/xdirect.h>
+#include <xinverse/xinverse.h>
 
 
 MainFrame* GraphTileWidget::s_pMainFrame = nullptr;
@@ -49,7 +49,7 @@ XDirect* GraphTileWidget::s_pXDirect = nullptr;
 
 GraphTileWidget::GraphTileWidget(QWidget *parent) : QWidget(parent)
 {
-    //	setMouseTracking(true);
+    //    setMouseTracking(true);
     m_pLegendWidget = nullptr;
     m_pMainSplitter = nullptr;
 
@@ -99,7 +99,7 @@ GraphWidget *GraphTileWidget::graphWidget(Graph *pGraph)
 }
 
 
-void GraphTileWidget::setGraphList(QList<Graph *> pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation)
+void GraphTileWidget::setGraphList(QVector<Graph *> pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation)
 {
     m_xflr5App = s_pMainFrame->xflr5App();
     m_nGraphWidgets = qMin(nGraphs,MAXGRAPHS);
@@ -169,9 +169,9 @@ void GraphTileWidget::contextMenuEvent (QContextMenuEvent *event)
 
 void GraphTileWidget::keyPressEvent(QKeyEvent *event)
 {
-    //	bool bShift = false;
+    //    bool bShift = false;
     bool bCtrl  = false;
-    //	if(event->modifiers() & Qt::ShiftModifier)   bShift =true;
+    //    if(event->modifiers() & Qt::ShiftModifier)   bShift =true;
     if(event->modifiers() & Qt::ControlModifier) bCtrl =true;
     switch (event->key())
     {
@@ -198,7 +198,7 @@ void GraphTileWidget::keyPressEvent(QKeyEvent *event)
                 {
                     if (s_pMiarex->m_iView==XFLR5::WOPPVIEW)   m_iPOppIndex = iGraph;
                     if (s_pMiarex->m_iView==XFLR5::WPOLARVIEW) m_iWPolarIndex = iGraph;
-                    if (s_pMiarex->m_iView==XFLR5::WCPVIEW && iGraph>0)	return;
+                    if (s_pMiarex->m_iView==XFLR5::WCPVIEW && iGraph>0)    return;
                     if (s_pMiarex->m_iView==XFLR5::STABPOLARVIEW)
                     {
                         if(iGraph>1) return;

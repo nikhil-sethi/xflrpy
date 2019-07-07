@@ -30,7 +30,7 @@
 #include <viewwidgets/legendwidget.h>
 #include <viewwidgets/oppointwidget.h>
 #include <viewwidgets/xdirecttilewidget.h>
-#include <xdirect/XDirect.h>
+#include <xdirect/xdirect.h>
 
 
 XDirectTileWidget::XDirectTileWidget(QWidget *pParent) :  GraphTileWidget(pParent)
@@ -45,7 +45,7 @@ XDirectTileWidget::XDirectTileWidget(QWidget *pParent) :  GraphTileWidget(pParen
 
     m_pLegendWidget = new LegendWidget(this);
     m_pOpPointWidget = new OpPointWidget(this);
-    //	m_pLegendStack = new QStackedWidget(this);
+    //    m_pLegendStack = new QStackedWidget(this);
 
     m_nGraphWidgets = MAXPOLARGRAPHS;
 
@@ -64,11 +64,10 @@ XDirectTileWidget::~XDirectTileWidget()
 
 void XDirectTileWidget::connectSignals()
 {
-    MainFrame*pMainFrame = (MainFrame*)s_pMainFrame;
-    connect(pMainFrame->m_pResetFoilScale,  SIGNAL(triggered()), m_pOpPointWidget, SLOT(onResetFoilScale()));
-    connect(pMainFrame->m_pXDirectStyleAct, SIGNAL(triggered()), m_pOpPointWidget, SLOT(onXDirectStyle()));
-    connect(pMainFrame->m_pShowNeutralLine, SIGNAL(triggered()), m_pOpPointWidget, SLOT(onShowNeutralLine()));
-    //	connect(pMainFrame->m_pShowPanels,      SIGNAL(triggered()), m_pOpPointWidget, SLOT(onShowPanels()));
+    connect(s_pMainFrame->m_pResetFoilScale,  SIGNAL(triggered()), m_pOpPointWidget, SLOT(onResetFoilScale()));
+    connect(s_pMainFrame->m_pXDirectStyleAct, SIGNAL(triggered()), m_pOpPointWidget, SLOT(onXDirectStyle()));
+    connect(s_pMainFrame->m_pShowNeutralLine, SIGNAL(triggered()), m_pOpPointWidget, SLOT(onShowNeutralLine()));
+    //    connect(pMainFrame->m_pShowPanels,      SIGNAL(triggered()), m_pOpPointWidget, SLOT(onShowPanels()));
     connect(m_pOpPointWidget, SIGNAL(graphChanged(Graph*)), this, SLOT(onResetCurves(Graph*)));
 
     for(int igw=0; igw<m_GraphWidget.count(); igw++)
@@ -100,8 +99,6 @@ void XDirectTileWidget::setupMainLayout()
 
 void XDirectTileWidget::adjustLayout()
 {
-    XDirect *pXDirect = (XDirect*)s_pXDirect;
-
     blockSignals(true);
 
     for(int ig=0; ig<MAXPOLARGRAPHS; ig++)
@@ -110,7 +107,7 @@ void XDirectTileWidget::adjustLayout()
     m_pMainGridLayout->removeWidget(m_pOpPointWidget);
     m_pMainGridLayout->removeWidget(m_pLegendWidget);
 
-    if(!pXDirect->bPolarView())
+    if(!s_pXDirect->bPolarView())
     {
         m_iActiveGraphWidget = 0;
         for(int igw=0; igw<m_GraphWidget.count(); igw++)
@@ -119,9 +116,9 @@ void XDirectTileWidget::adjustLayout()
         m_pOpPointWidget->setVisible(true);
         m_pLegendWidget->setVisible(false);
 
-        //		m_pMainGridLayout->addWidget(m_GraphWidget.at(0),1,1);
+        //        m_pMainGridLayout->addWidget(m_GraphWidget.at(0),1,1);
         m_pMainGridLayout->addWidget(m_pOpPointWidget,1,1,2,3);
-        /*		m_pMainGridLayout->setRowStretch(1,5);
+        /*        m_pMainGridLayout->setRowStretch(1,5);
         m_pMainGridLayout->setRowStretch(2,3);
         m_pMainGridLayout->setColumnStretch(1,1);
         m_pMainGridLayout->setColumnStretch(2,0);
@@ -208,18 +205,16 @@ void XDirectTileWidget::adjustLayout()
 
 
 
-void XDirectTileWidget::setGraphList(QList<Graph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation)
+void XDirectTileWidget::setGraphList(QVector<Graph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation)
 {
-    MainFrame*pMainFrame = (MainFrame*)s_pMainFrame;
-    XDirect *pXDirect = (XDirect*)s_pXDirect;
-    m_xflr5App = pMainFrame->xflr5App();
+    m_xflr5App = s_pMainFrame->xflr5App();
     m_nGraphWidgets = qMin(nGraphs,MAXPOLARGRAPHS);
     m_iActiveGraphWidget = iGraphWidget;
 
-    if(!pXDirect->m_bPolarView)
+    if(!s_pXDirect->m_bPolarView)
     {
         for(int ig=0; ig<qMin(MAXPOLARGRAPHS, pGraphList.count()); ig++)
-            m_GraphWidget.at(ig)->setGraph(NULL);
+            m_GraphWidget.at(ig)->setGraph(nullptr);
     }
     else
     {
@@ -229,8 +224,8 @@ void XDirectTileWidget::setGraphList(QList<Graph*>pGraphList, int nGraphs, int i
     m_pLegendWidget->setGraph(pGraphList.at(0));
     m_SingleGraphOrientation = orientation;
 
-    m_pOpPointWidget->setGraph(&pXDirect->m_CpGraph);
-    //	m_pOpPointWidget->setFoilScale();
+    m_pOpPointWidget->setGraph(&s_pXDirect->m_CpGraph);
+    //    m_pOpPointWidget->setFoilScale();
 
     adjustLayout();
 
@@ -245,8 +240,8 @@ void XDirectTileWidget::setGraphList(QList<Graph*>pGraphList, int nGraphs, int i
 void XDirectTileWidget::onResetCurGraphScales()
 {
     if(!isVisible()) return;
-    XDirect *pXDirect = (XDirect*)s_pXDirect;
-    if(!pXDirect->bPolarView())
+
+    if(!s_pXDirect->bPolarView())
     {
         m_pOpPointWidget->resetGraphScale();
     }

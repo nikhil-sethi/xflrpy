@@ -55,11 +55,11 @@ class GLRenderWindow : public QWindow
     Q_OBJECT
 
 public:
-	GLRenderWindow(const QSurfaceFormat &format);
-	~GLRenderWindow();
-	QOpenGLContext *context() { return m_pContext; }
-	void exposeEvent(QExposeEvent *) Q_DECL_OVERRIDE;
-	void setForceGLSL110(bool enable) { m_forceGLSL110 = enable; }
+    GLRenderWindow(const QSurfaceFormat &format);
+    ~GLRenderWindow();
+    QOpenGLContext *context() { return m_pContext; }
+    void exposeEvent(QExposeEvent *) Q_DECL_OVERRIDE;
+    void setForceGLSL110(bool enable) { m_forceGLSL110 = enable; }
 
 signals:
     void ready();
@@ -69,22 +69,22 @@ private slots:
     void render();
 
 private:
-	void init();
-	void setupVertexAttribs();
-	void makeObject();
-	void rotateBy(int xAngle, int yAngle, int zAngle);
+    void init();
+    void setupVertexAttribs();
+    void makeObject();
+    void rotateBy(int xAngle, int yAngle, int zAngle);
 
-	QOpenGLContext *m_pContext;
-	QOpenGLTexture *m_pOpenGLTexture;
-	QOpenGLShaderProgram *m_pShaderProgram;
+    QOpenGLContext *m_pContext;
+    QOpenGLTexture *m_pOpenGLTexture;
+    QOpenGLShaderProgram *m_pShaderProgram;
 
-	bool m_initialized;
-	bool m_forceGLSL110;
-	int m_posAttr, m_colAttr, m_matrixUniform;
-	QOpenGLVertexArrayObject m_vao;
-	QOpenGLBuffer m_vbo;
-	float m_angle;
-	int xRot, yRot, zRot;
+    bool m_initialized;
+    bool m_forceGLSL110;
+    int m_posAttr, m_colAttr, m_matrixUniform;
+    QOpenGLVertexArrayObject m_vao;
+    QOpenGLBuffer m_vbo;
+    float m_angle;
+    int xRot, yRot, zRot;
 };
 
 #endif // RENDERWINDOW_H

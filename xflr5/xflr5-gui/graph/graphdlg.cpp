@@ -30,15 +30,15 @@
 
 #include <graph/graph.h>
 #include <graph/graphdlg.h>
-#include <miarex/Miarex.h>
-#include <misc/color/ColorButton.h>
-#include <misc/line/LineBtn.h>
-#include <misc/line/LinePickerDlg.h>
-#include <misc/text/DoubleEdit.h>
-#include <misc/text/IntEdit.h>
-#include <misc/text/TextClrBtn.h>
-#include <objects/objects2d/Polar.h>
-#include <objects/objects3d/WPolar.h>
+#include <miarex/miarex.h>
+#include <misc/color/colorbutton.h>
+#include <misc/line/linebtn.h>
+#include <misc/line/linepickerdlg.h>
+#include <misc/text/doubleedit.h>
+#include <misc/text/intedit.h>
+#include <misc/text/textclrbtn.h>
+#include <objects/objects2d/polar.h>
+#include <objects/objects3d/wpolar.h>
 
 
 int GraphDlg::s_iActivePage = 0;
@@ -94,7 +94,7 @@ void GraphDlg::connectSignals()
     connect(m_pctrlGraphBack, SIGNAL(clicked()), this, SLOT(onGraphBackColor()));
     connect(m_pctrlBorderStyle, SIGNAL(clicked()), this, SLOT(onBorderStyle()));
 
-    /*	connect(m_pctrlXSel, SIGNAL(itemActivated ( QListWidgetItem*)), SLOT(OnVariableChanged()));
+    /*    connect(m_pctrlXSel, SIGNAL(itemActivated ( QListWidgetItem*)), SLOT(OnVariableChanged()));
     connect(m_pctrlYSel, SIGNAL(itemActivated ( QListWidgetItem*)), SLOT(OnVariableChanged()));
     connect(m_pctrlXSel, SIGNAL(itemClicked ( QListWidgetItem*)), SLOT(OnVariableChanged()));
     connect(m_pctrlYSel, SIGNAL(itemClicked ( QListWidgetItem*)), SLOT(OnVariableChanged()));*/
@@ -154,13 +154,13 @@ void GraphDlg::fillVariableList()
             //wing graph variable
             m_pctrlXSel->addItem(tr("Y - span"));
 
-            m_pctrlYSel->addItem(tr("Induced Angle"));						//0
-            m_pctrlYSel->addItem(tr("Total Angle"));						//1
-            m_pctrlYSel->addItem(tr("Local lift coef."));					//2
-            m_pctrlYSel->addItem(tr("Local Lift C.Cl/M.A.C."));				//3
-            m_pctrlYSel->addItem(tr("Airfoil viscous drag coef."));			//4
-            m_pctrlYSel->addItem(tr("Induced drag coef."));					//5
-            m_pctrlYSel->addItem(tr("Total drag coef."));					//6
+            m_pctrlYSel->addItem(tr("Induced Angle"));                        //0
+            m_pctrlYSel->addItem(tr("Total Angle"));                        //1
+            m_pctrlYSel->addItem(tr("Local lift coef."));                    //2
+            m_pctrlYSel->addItem(tr("Local Lift C.Cl/M.A.C."));                //3
+            m_pctrlYSel->addItem(tr("Airfoil viscous drag coef."));            //4
+            m_pctrlYSel->addItem(tr("Induced drag coef."));                    //5
+            m_pctrlYSel->addItem(tr("Total drag coef."));                    //6
             m_pctrlYSel->addItem(tr("Local Drag C.Cd/M.A.C."));              //7
             m_pctrlYSel->addItem(tr("Airfoil Pitching moment coef."));       //8
             m_pctrlYSel->addItem(tr("Total Pitching moment coef."));         //9
@@ -623,7 +623,7 @@ void GraphDlg::onYMinGridStyle()
 void GraphDlg::setApplied(bool bApplied)
 {
     m_bApplied = bApplied;
-    //	ApplyButton->setEnabled(!bApplied);
+    //    ApplyButton->setEnabled(!bApplied);
 }
 
 
@@ -881,7 +881,7 @@ void GraphDlg::setupLayout()
         MaxLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         OriginLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         UnitLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        //	ScaleData->addStretch(1);
+        //    ScaleData->addStretch(1);
         pScalePageLayout->addWidget(MinLabel,5,1);
         pScalePageLayout->addWidget(MaxLabel,6,1);
         pScalePageLayout->addWidget(OriginLabel,7,1);
@@ -971,12 +971,12 @@ void GraphDlg::setupLayout()
     m_pTabWidget->setCurrentIndex(s_iActivePage);
     connect(m_pTabWidget, SIGNAL(currentChanged (int)), this, SLOT(onActivePage(int)));
 
-    QVBoxLayout *mainLayout = new QVBoxLayout;
+    QVBoxLayout *pMainLayout = new QVBoxLayout;
     {
-        mainLayout->addWidget(m_pTabWidget);
-        mainLayout->addWidget(m_pButtonBox);
+        pMainLayout->addWidget(m_pTabWidget);
+        pMainLayout->addWidget(m_pButtonBox);
     }
-    setLayout(mainLayout);
+    setLayout(pMainLayout);
 }
 
 

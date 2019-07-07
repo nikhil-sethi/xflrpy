@@ -7,9 +7,9 @@ varying vec3 vPosition;
 
 void main(void)
 {
-	if (vPosition.z > clipPlane0.w) {
-	  discard;
-	} else {
-		gl_FragColor = color;
-	}
+    if (vPosition.z > clipPlane0.w) {
+      discard;
+    } else {
+        gl_FragColor = color;
+    }
 }

@@ -34,10 +34,10 @@
 #define GUI_PARAMS_H
 
 
-#define VERSIONNAME     "xflr5 v6.46"
+#define VERSIONNAME     "xflr5 v6.47"
 
 #define MAJOR_VERSION    6
-#define MINOR_VERSION    46
+#define MINOR_VERSION    47
 
 
 //General

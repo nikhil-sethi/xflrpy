@@ -23,11 +23,11 @@ TEMPLATE = lib
 DEFINES += XFOILLIB_LIBRARY
 
 SOURCES += \
-    XFoil.cpp
+    xfoil.cpp
 
 HEADERS +=\
     xfoil-lib_global.h \
-    XFoil.h \
+    xfoil.h \
     xfoil_params.h
 
 OBJECTS_DIR = ./objects
@@ -40,19 +40,19 @@ win32 {
 
 
 macx{
-#	CONFIG += lib_bundle
-#	CONFIG += i386
-	QMAKE_SONAME_PREFIX = @executable_path/../Frameworks
-	QMAKE_MAC_SDK = macosx
+#    CONFIG += lib_bundle
+#    CONFIG += i386
+    QMAKE_SONAME_PREFIX = @executable_path/../Frameworks
+    QMAKE_MAC_SDK = macosx
 }
 
 
 linux-g++{
 
-	isEmpty(PREFIX){
-		PREFIX = /usr/local
-	}
-	target.path = $$PREFIX/lib
-	INSTALLS += target
+    isEmpty(PREFIX){
+        PREFIX = /usr/local
+    }
+    target.path = $$PREFIX/lib
+    INSTALLS += target
 }
 

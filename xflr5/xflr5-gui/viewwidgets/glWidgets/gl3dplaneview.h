@@ -25,6 +25,7 @@
 #include <gl3dview.h>
 
 class Plane;
+class EditPlaneDlg;
 
 class gl3dPlaneView : public gl3dView
 {
@@ -44,6 +45,8 @@ public slots:
 
 private:
     Plane* m_pPlane;
+
+    EditPlaneDlg *m_pEditPlaneDlg;
 };
 
 #endif // GL3DPLANEVIEW_H

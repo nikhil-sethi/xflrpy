@@ -59,7 +59,7 @@ public:
     void showEvent(QShowEvent *event);
 
 
-    virtual void setGraphList(QList<Graph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation =Qt::Horizontal);
+    virtual void setGraphList(QVector<Graph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation =Qt::Horizontal);
     virtual void connectSignals() = 0;
 
 
@@ -95,7 +95,7 @@ public:
 
 
 private:
-    QList<GraphWidget*>m_GraphWidget;
+    QVector<GraphWidget*>m_GraphWidget;
     LegendWidget *m_pLegendWidget;
     QSplitter *m_pMainSplitter;
 

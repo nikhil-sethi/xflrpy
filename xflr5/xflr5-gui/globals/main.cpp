@@ -1,6 +1,6 @@
 /****************************************************************************
 
-	XFLR5 Application
+    XFLR5 Application
 
     Copyright (C) 2008-2019 Andre Deperrois techwinder@users.sourceforge.net
 
@@ -23,7 +23,7 @@
 #include <QSurfaceFormat>
 #include <QDebug>
 
-#include "XFLR5Application.h"
+#include "xflr5application.h"
 #include <globals/mainframe.h>
 
 
@@ -33,17 +33,17 @@
 */
 int main(int argc, char *argv[])
 {
-//	QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+//    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 
 #ifdef Q_OS_MACX
-	/*
+    /*
     if ( QSysInfo::MacintoshVersion > QSysInfo::MV_10_8 )
-	{
-		// fix Mac OS X 10.9 (mavericks) font issue
-		// https://bugreports.qt-project.org/browse/QTBUG-32789
-		QFont::insertSubstitution(".Lucida Grande UI", "Lucida Grande");
-	}
-	*/
+    {
+        // fix Mac OS X 10.9 (mavericks) font issue
+        // https://bugreports.qt-project.org/browse/QTBUG-32789
+        QFont::insertSubstitution(".Lucida Grande UI", "Lucida Grande");
+    }
+    */
 #endif
 
 /* Note: Calling QSurfaceFormat::setDefaultFormat() before constructing the QApplication instance
@@ -63,9 +63,9 @@ int main(int argc, char *argv[])
 
 
 #ifdef QT_DEBUG
-/*	QString strange;
-	strange.sprintf("Default OpengGl format:%d.%d", QSurfaceFormat::defaultFormat().majorVersion(),QSurfaceFormat::defaultFormat().minorVersion());
-	qDebug()<<strange;*/
+/*    QString strange;
+    strange.sprintf("Default OpengGl format:%d.%d", QSurfaceFormat::defaultFormat().majorVersion(),QSurfaceFormat::defaultFormat().minorVersion());
+    qDebug()<<strange;*/
 #endif
 
 /*    QSurfaceFormat defaultFormat = QSurfaceFormat::defaultFormat();
@@ -76,27 +76,27 @@ int main(int argc, char *argv[])
 /*
 #ifdef QT_DEBUG
     QString strange;
-	strange.sprintf("App default OpengGl format:%d.%d", QSurfaceFormat::defaultFormat().majorVersion(),QSurfaceFormat::defaultFormat().minorVersion());
-	qDebug()<<strange;
-	switch (QSurfaceFormat::defaultFormat().profile()) {
-		case QSurfaceFormat::NoProfile:
-				qDebug()<<"   No Profile";
-			break;
-		case QSurfaceFormat::CoreProfile:
-				qDebug()<<"   Core Profile";
-			break;
-		case QSurfaceFormat::CompatibilityProfile:
-				qDebug()<<"   Compatibility Profile";
-			break;
-		default:
-			break;
-	}
+    strange.sprintf("App default OpengGl format:%d.%d", QSurfaceFormat::defaultFormat().majorVersion(),QSurfaceFormat::defaultFormat().minorVersion());
+    qDebug()<<strange;
+    switch (QSurfaceFormat::defaultFormat().profile()) {
+        case QSurfaceFormat::NoProfile:
+                qDebug()<<"   No Profile";
+            break;
+        case QSurfaceFormat::CoreProfile:
+                qDebug()<<"   Core Profile";
+            break;
+        case QSurfaceFormat::CompatibilityProfile:
+                qDebug()<<"   Compatibility Profile";
+            break;
+        default:
+            break;
+    }
 #endif*/
 
-	QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-	XFLR5Application app(argc, argv);
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+    XFLR5Application app(argc, argv);
 
-	return app.exec();
+    return app.exec();
 }
 
 

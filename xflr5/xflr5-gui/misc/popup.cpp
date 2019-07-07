@@ -40,26 +40,26 @@ Popup::Popup(QWidget *pParent) : QWidget(pParent)
 
 Popup::Popup(QString const &message, QWidget *pParent) : QWidget(pParent)
 {
-	setupLayout();
-	m_pMessage->setText(message);
+    setupLayout();
+    m_pMessage->setText(message);
 }
 
 
 void Popup::setupLayout()
 {
-	QVBoxLayout *pMainLayout = new QVBoxLayout;
-	{
-		m_pMessage = new QLabel;
+    QVBoxLayout *pMainLayout = new QVBoxLayout;
+    {
+        m_pMessage = new QLabel;
         QFont fixedWidthFont("Courier");
         fixedWidthFont.setPointSize(14);
         m_pMessage->setFont(fixedWidthFont);
-		m_pMessage->setStyleSheet("QLabel { color : red; background-color: black; "
+        m_pMessage->setStyleSheet("QLabel { color : red; background-color: black; "
                                   "padding: 5px}");
 
-		m_pMessage->setText("A toast popup\n with useful information");
-	}
-	pMainLayout->addWidget(m_pMessage);
-	setLayout(pMainLayout);
+        m_pMessage->setText("A toast popup\n with useful information");
+    }
+    pMainLayout->addWidget(m_pMessage);
+    setLayout(pMainLayout);
 }
 
 void Popup::setRed()
@@ -89,25 +89,25 @@ void Popup::showEvent(QShowEvent *)
 
 void Popup::hideEvent(QHideEvent*)
 {
-	s_Position = pos();
-	s_WindowSize = size();
+    s_Position = pos();
+    s_WindowSize = size();
 }
 
 void Popup::mousePressEvent(QMouseEvent *)
 {
-	close();
+    close();
 }
 
 void Popup::setTextMessage(const QString &text)
 {
-	m_pMessage->setText(text);
+    m_pMessage->setText(text);
 }
 
 
 void Popup::appendTextMessage(const QString &text)
 {
-	QString strange = m_pMessage->text();
-	m_pMessage->setText(strange + "\n"+ text);
+    QString strange = m_pMessage->text();
+    m_pMessage->setText(strange + "\n"+ text);
 }
 
 

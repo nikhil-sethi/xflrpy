@@ -27,31 +27,31 @@
 
 class Popup : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	Popup(QWidget *pParent=NULL);
-	Popup(QString const &message, QWidget *pParent);
-	void appendTextMessage(QString const &text);
-	void setTextMessage(QString const &text);
+    Popup(QWidget *pParent=NULL);
+    Popup(QString const &message, QWidget *pParent);
+    void appendTextMessage(QString const &text);
+    void setTextMessage(QString const &text);
 
     void setRed();
     void setGreen();
 
-	static void setWindowPos(QPoint pt) {s_Position=pt;}
+    static void setWindowPos(QPoint pt) {s_Position=pt;}
 
 protected:
-	void showEvent(QShowEvent *);
-	void hideEvent(QHideEvent *);
-	void mousePressEvent(QMouseEvent *event);
+    void showEvent(QShowEvent *);
+    void hideEvent(QHideEvent *);
+    void mousePressEvent(QMouseEvent *event);
 
 private:
-	void setupLayout();
+    void setupLayout();
 
 
 private:
-	QLabel *m_pMessage;
+    QLabel *m_pMessage;
 
-	static QSize  s_WindowSize;
-	static QPoint s_Position;
+    static QSize  s_WindowSize;
+    static QPoint s_Position;
 };
 

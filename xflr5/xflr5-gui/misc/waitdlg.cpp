@@ -24,7 +24,7 @@
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
 
-#include <misc/text/IntEdit.h>
+#include <misc/text/intedit.h>
 
 WaitDlg::WaitDlg() : QDialog()
 {

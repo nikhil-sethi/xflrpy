@@ -58,7 +58,7 @@ class Section2dWidget : public QWidget
 
     Q_OBJECT
 public:
-    Section2dWidget(QWidget *parent = 0);
+    Section2dWidget(QWidget *parent = nullptr);
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
@@ -84,10 +84,10 @@ protected:
     void drawScale(QPainter &painter, double scalex);
     void drawScaleLegend(QPainter &painter);
     void drawBackImage(QPainter &painter);
-    void drawXGrid(QPainter &painter, double scalex, double scaley, QPointF Offset);
-    void drawYGrid(QPainter &painter, double scalex, double scaley, QPointF Offset);
-    void drawXMinGrid(QPainter &painter, double scalex, double scaley, QPointF Offset);
-    void drawYMinGrid(QPainter &painter, double scalex, double scaley, QPointF Offset);
+    void drawXGrid(QPainter &painter, double scalex, QPointF Offset);
+    void drawYGrid(QPainter &painter, double scaley, QPointF Offset);
+    void drawXMinGrid(QPainter &painter, double scalex, QPointF Offset);
+    void drawYMinGrid(QPainter &painter, double scaley, QPointF Offset);
 
     void releaseZoom();
     void zoomView(double zoomFactor);
@@ -126,7 +126,7 @@ protected:
     QCursor m_hcCross;          /**< the cursor to display in the client area, when not dragging or zooming */
 
     QMenu *m_pSection2dContextMenu;
-    QList<QAction*> m_ActionList;
+    QVector<QAction*> m_ActionList;
 
     bool m_bScale;              /**< true if the scale should be displayed */
     bool m_bZoomPlus;           /**< true if the user is in the process of zooming in by drawing a rectangle */
@@ -181,8 +181,8 @@ protected:
     bool m_bIsImageLoaded;      /**< true if a backgruond image is loaded */
     QPixmap m_BackImage;        /**< the QPixmap object with the background image */
 
-    //	QAction *m_pInsertPt, *m_pRemovePt, *m_pResetScaleAction, *m_pGridSettingsAction;
-    //	QAction *m_pLoadBackImage, *m_pClearBackImage;
+    //    QAction *m_pInsertPt, *m_pRemovePt, *m_pResetScaleAction, *m_pGridSettingsAction;
+    //    QAction *m_pLoadBackImage, *m_pClearBackImage;
 
 };
 

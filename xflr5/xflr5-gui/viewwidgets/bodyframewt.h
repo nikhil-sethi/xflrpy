@@ -32,7 +32,7 @@ class BodyFrameWt : public Section2dWidget
     Q_OBJECT
 
     friend class GL3dBodyDlg;
-    //	friend class Body;
+    //    friend class Body;
 
 public:
     BodyFrameWt(QWidget *pParent=nullptr, Body *pBody=nullptr);

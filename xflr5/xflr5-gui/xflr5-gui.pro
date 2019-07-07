@@ -11,9 +11,9 @@ lessThan(QT_MAJOR_VERSION, 5) {
 }
 else
 {
-	lessThan(QT_MINOR_VERSION, 4) {
-	  error("Qt5.4 or greater is required for xflr5 v6")
-	}
+    lessThan(QT_MINOR_VERSION, 4) {
+      error("Qt5.4 or greater is required for xflr5 v6")
+    }
 }
 
 # The following define makes your compiler emit warnings if you use
@@ -65,7 +65,7 @@ win32 {
 
     LIBS += -lopenGL32
 
-	RC_FILE = ../win/xflr5.rc
+    RC_FILE = ../win/xflr5.rc
 
     CONFIG+= static
 }
@@ -73,46 +73,46 @@ win32 {
 
 linux-g++{
 
-	# VARIABLES
-	isEmpty(PREFIX):PREFIX = /usr/local
-	BINDIR = $$PREFIX/bin
-	DATADIR = $$PREFIX/share
+    # VARIABLES
+    isEmpty(PREFIX):PREFIX = /usr/local
+    BINDIR = $$PREFIX/bin
+    DATADIR = $$PREFIX/share
 
-	# MAKE INSTALL
-	INSTALLS += target
-	target.path = $$BINDIR
+    # MAKE INSTALL
+    INSTALLS += target
+    target.path = $$BINDIR
 }
 
 
 macx{
     DESTDIR = ../
-#	CONFIG += i386
-	QMAKE_MAC_SDK = macosx
-#	QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.4
+#    CONFIG += i386
+    QMAKE_MAC_SDK = macosx
+#    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.4
 
-	OTHER_FILES += ./mac/Info.plist
-	QMAKE_INFO_PLIST = ./mac/Info.plist
-	ICON = ./mac/xflr5.icns
+    OTHER_FILES += ./mac/Info.plist
+    QMAKE_INFO_PLIST = ./mac/Info.plist
+    ICON = ./mac/xflr5.icns
 
 #message($$OUT_PWD)
-#	LIBS += -F$$OUT_PWD/../xflr5-engine
-#	LIBS += -framework xflr5-engine
-#	LIBS += -F$$OUT_PWD/../XFoil-lib
-#	LIBS += -framework XFoil
+#    LIBS += -F$$OUT_PWD/../xflr5-engine
+#    LIBS += -framework xflr5-engine
+#    LIBS += -F$$OUT_PWD/../XFoil-lib
+#    LIBS += -framework XFoil
 
-	# link to the lib:
-	LIBS += -L$$OUT_PWD/../xflr5-engine -lxflr5-engine
-	# deploy the libs:
-	xflr5-engine.files = $$OUT_PWD/../xflr5-engine/libxflr5-engine.1.dylib
-	xflr5-engine.path = Contents/Frameworks
-	QMAKE_BUNDLE_DATA += xflr5-engine
+    # link to the lib:
+    LIBS += -L$$OUT_PWD/../xflr5-engine -lxflr5-engine
+    # deploy the libs:
+    xflr5-engine.files = $$OUT_PWD/../xflr5-engine/libxflr5-engine.1.dylib
+    xflr5-engine.path = Contents/Frameworks
+    QMAKE_BUNDLE_DATA += xflr5-engine
 
-	# link to the lib:
-	LIBS += -L$$OUT_PWD/../XFoil-lib -lXFoil
-	# deploy the libs:
-	XFoil.files = $$OUT_PWD/../XFoil-lib/libXFoil.1.dylib
-	XFoil.path = Contents/Frameworks
-	QMAKE_BUNDLE_DATA += XFoil
+    # link to the lib:
+    LIBS += -L$$OUT_PWD/../XFoil-lib -lXFoil
+    # deploy the libs:
+    XFoil.files = $$OUT_PWD/../XFoil-lib/libXFoil.1.dylib
+    XFoil.path = Contents/Frameworks
+    QMAKE_BUNDLE_DATA += XFoil
 
     # make the app find the libs:
     QMAKE_RPATHDIR = @executable_path/../Frameworks

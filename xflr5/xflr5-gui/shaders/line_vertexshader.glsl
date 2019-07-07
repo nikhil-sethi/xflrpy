@@ -9,8 +9,8 @@ out vec3 vPosition;
 
 void main(void)
 {
-	gl_Position = pvmMatrix * vertex;
-	vec4 vsPos = vMatrix * mMatrix * vertex; // position of vertex in viewspace
+    gl_Position = pvmMatrix * vertex;
+    vec4 vsPos = vMatrix * mMatrix * vertex; // position of vertex in viewspace
 
-	vPosition = vsPos.xyz / vsPos.w;
+    vPosition = vsPos.xyz / vsPos.w;
 }

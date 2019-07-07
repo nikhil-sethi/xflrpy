@@ -24,10 +24,10 @@
 #include <QtDebug>
 
 #include <globals/globals.h>
-#include <miarex/design/BodyScaleDlg.h>
-#include <misc/options/displayoptions.h>
+#include <miarex/design/bodyscaledlg.h>
+#include <misc/options/settings.h>
 #include <misc/options/units.h>
-#include <objects/objects3d/Body.h>
+#include <objects/objects3d/body.h>
 #include <viewwidgets/bodylinewt.h>
 
 
@@ -57,12 +57,12 @@ void BodyLineWt::setScale()
     if(!m_pBody)
     {
         //scale is set by user zooming
-        m_fRefScale = (double)rect().width()-150.0;
+        m_fRefScale = rect().width()-150.0;
         m_fScale = m_fRefScale;
     }
     else
     {
-        m_fRefScale = ((double)rect().width()-150.0)/m_pBody->length();
+        m_fRefScale = (double(rect().width())-150.0)/m_pBody->length();
         m_fScale = m_fRefScale;
 
     }
@@ -114,7 +114,7 @@ void BodyLineWt::drawBodyLines()
         double xinc=0, u=0, v=0;
 
         int nh = 50;
-        xinc = 1./(double)(nh-1);
+        xinc = 1./double(nh-1);
 
         //top line
         u = 0.0;
@@ -137,7 +137,7 @@ void BodyLineWt::drawBodyLines()
         }
     }
 
-    //	QRect r(rect());
+    //    QRect r(rect());
     painter.drawPolyline(midLine);
     painter.drawPolyline(topLine);
     painter.drawPolyline(botLine);
@@ -190,7 +190,7 @@ void BodyLineWt::setBody(Body *pBody)
 }
 
 
-void BodyLineWt::paintEvent(QPaintEvent *pEvent)
+void BodyLineWt::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.save();

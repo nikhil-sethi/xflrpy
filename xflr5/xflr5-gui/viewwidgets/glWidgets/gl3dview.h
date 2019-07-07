@@ -34,9 +34,10 @@
 #include <QTimer>
 
 #include <globals/gui_enums.h>
-#include <viewwidgets/glWidgets/ArcBall.h>
+#include <viewwidgets/glWidgets/arcball.h>
 
 
+#define PIf 3.141592654f
 
 #define MAXCPCOLORS    21
 
@@ -122,7 +123,6 @@ protected:
     void glMakeBodySplines(Body *pBody);
     void glMakeWingGeometry(int iWing, Wing *pWing, Body *pBody);
     void glMakeWingEditMesh(QOpenGLBuffer &vbo, Wing *pWing);
-    void glMakeWingSectionHighlight(Wing *pWing, int iSectionHighLight, bool bRightSide);
     void glMakeBodyFrameHighlight(Body *pBody, Vector3d bodyPos, int iFrame);
     void glMakeEditBodyMesh(Body *pBody, Vector3d BodyPosition);
     void glRenderText(int x, int y, const QString & str, QColor textColor = QColor(Qt::white));
@@ -130,11 +130,12 @@ protected:
     void glMakeAxis();
 
     virtual void glRenderView() = 0;
+    virtual void set3DRotationCenter(QPoint point) = 0;
+    virtual void paintOverlay() {}
 
     void paintGL3();
-    void paintFoilNames(void *pWingPtr);
-    void paintMasses(double volumeMass, Vector3d pos, QString tag, const QList<PointMass *> &ptMasses);
-    virtual void paintOverlay() {}
+    void paintFoilNames(Wing *pWingPtr);
+    void paintMasses(double volumeMass, Vector3d pos, QString tag, const QVector<PointMass *> &ptMasses);
     void paintArcBall();
     void paintAxes();
     void paintWingMesh(Wing *pWing);
@@ -146,7 +147,6 @@ protected:
     void paintSphere(Vector3d place, double radius, QColor sphereColor, bool bLight=true);
     void printFormat(const QSurfaceFormat &format);
     void reset3DRotationCenter();
-    virtual void set3DRotationCenter(QPoint point) = 0;
     void set3DScale(double length=-1.0);
     void setSpanStations(Plane *pPlane, WPolar *pWPolar, PlaneOpp *pPOpp);
     void startResetTimer(double length);
@@ -171,8 +171,8 @@ protected:
     QOpenGLBuffer m_vboAxis;
 
 
-    QOpenGLTexture 	*m_pLeftBodyTexture, *m_pRightBodyTexture;
-    QOpenGLTexture 	*m_pWingTopLeftTexture[MAXWINGS], *m_pWingTopRightTexture[MAXWINGS], *m_pWingBotLeftTexture[MAXWINGS], *m_pWingBotRightTexture[MAXWINGS];
+    QOpenGLTexture     *m_pLeftBodyTexture, *m_pRightBodyTexture;
+    QOpenGLTexture     *m_pWingTopLeftTexture[MAXWINGS], *m_pWingTopRightTexture[MAXWINGS], *m_pWingBotLeftTexture[MAXWINGS], *m_pWingBotRightTexture[MAXWINGS];
 
     int m_VertexLocationGradient, m_ColorLocationGradient;
     int m_pvmMatrixLocationGradient;
@@ -202,16 +202,17 @@ protected:
     int m_MaterialShininessTexture;
 
 
-    bool m_bArcball;			//true if the arcball is to be displayed
-    bool m_bCrossPoint;			//true if the control point on the arcball is to be displayed
+    bool m_bArcball;            //true if the arcball is to be displayed
+    bool m_bCrossPoint;            //true if the control point on the arcball is to be displayed
     ArcBall m_ArcBall;
-    unsigned short *m_WingIndicesArray[MAXWINGS], *m_BodyIndicesArray, *m_SphereIndicesArray, *m_WingMeshIndicesArray;
+    unsigned short *m_SphereIndicesArray, *m_WingMeshIndicesArray;
+    QVector<ushort> m_BodyIndicesArray;
+    QVector<ushort> m_WingIndicesArray[MAXWINGS];
 
     double m_glScaled, m_glScaledRef;
 
     static Miarex *s_pMiarex;     /**< A void pointer to the instance of the QMiarex widget.*/
     static MainFrame *s_pMainFrame;  /**< A void pointer to the instance of the MainFrame widget.*/
-    void *m_pParent;            /**< A void pointer to the parent widget. */
 
     bool m_bOutline;                   /**< true if the surface outlines are to be displayed in the 3D view*/
     bool m_bSurfaces;                  /**< true if the surfaces are to be displayed in the 3D view*/
@@ -231,7 +232,7 @@ protected:
     bool m_bDragPoint;
 
 
-    double m_ClipPlanePos;      /**< the z-position of the clip plane in viewport coordinates */
+    float m_ClipPlanePos;      /**< the z-position of the clip plane in viewport coordinates */
     double MatIn[4][4], MatOut[4][4];
 
     bool m_bUse120StyleShaders;
@@ -253,9 +254,10 @@ protected:
 
     QPixmap m_PixTextOverlay;
 
-    unsigned int m_iBodyElems, m_iWingElems[MAXWINGS], m_iWingMeshElems;
+    int m_iBodyElems;
+    int m_iWingElems[MAXWINGS], m_iWingMeshElems;
 
-    uint m_Ny[MAXWINGS];
+    int m_Ny[MAXWINGS];
     int m_nHighlightLines, m_HighlightLineSize;
 
     int m_iBodyMeshLines;

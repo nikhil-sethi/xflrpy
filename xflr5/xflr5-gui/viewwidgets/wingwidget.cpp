@@ -21,18 +21,19 @@
 
 #include <QPainter>
 #include <QDebug>
+#include <QContextMenuEvent>
 
 #include <globals/globals.h>
 #include <graph_globals.h>
 
 #include "wingwidget.h"
-#include <misc/options/displayoptions.h>
+#include <misc/options/settings.h>
 #include <miarex/objects3d.h>
-#include <miarex/view/W3dPrefsDlg.h>
-#include <miarex/Miarex.h>
-#include <objects/objects3d/WPolar.h>
-#include <objects/objects3d/Plane.h>
-#include <objects/objects3d/PlaneOpp.h>
+#include <miarex/view/w3drefsdlg.h>
+#include <miarex/miarex.h>
+#include <objects/objects3d/wpolar.h>
+#include <objects/objects3d/plane.h>
+#include <objects/objects3d/planeopp.h>
 #include <graph/graph.h>
 
 
@@ -59,9 +60,9 @@ WingWidget::~WingWidget()
 
 
 
-void WingWidget::contextMenuEvent (QContextMenuEvent *event)
+void WingWidget::contextMenuEvent (QContextMenuEvent *pEvent)
 {
-    event->ignore();
+    pEvent->ignore();
 }
 
 
@@ -71,52 +72,50 @@ void WingWidget::setWingGraph(Graph *pGraph)
 }
 
 
-void WingWidget::keyPressEvent(QKeyEvent *event)
+void WingWidget::keyPressEvent(QKeyEvent *pEvent)
 {
-    //	bool bShift = false;
-    //	if(event->modifiers() & Qt::ShiftModifier)   bShift =true;
+    //    bool bShift = false;
+    //    if(event->modifiers() & Qt::ShiftModifier)   bShift =true;
 
-    switch (event->key())
+    switch (pEvent->key())
     {
         case Qt::Key_R:
             onResetWingScale();
-            event->accept();
+            pEvent->accept();
             return;
 
         default:
-            QWidget::keyPressEvent(event);
+            QWidget::keyPressEvent(pEvent);
     }
 
-    event->ignore();
+    pEvent->ignore();
 }
 
 
-void WingWidget::mouseDoubleClickEvent (QMouseEvent *event)
+void WingWidget::mouseDoubleClickEvent (QMouseEvent *)
 {
-    Q_UNUSED(event);
-
 }
 
 
-void WingWidget::mouseMoveEvent(QMouseEvent *event)
+void WingWidget::mouseMoveEvent(QMouseEvent *pEvent)
 {
     setFocus();
 
     // we translate the Plane
-    if (event->buttons() & Qt::LeftButton)
+    if (pEvent->buttons() & Qt::LeftButton)
     {
         QPointF Delta;
-        Delta.setX(event->pos().x() - m_LastPoint.x());
-        Delta.setY(event->pos().y() - m_LastPoint.y());
+        Delta.setX(pEvent->pos().x() - m_LastPoint.x());
+        Delta.setY(pEvent->pos().y() - m_LastPoint.y());
         m_ptOffset.rx() += Delta.x();
         m_ptOffset.ry() += Delta.y();
         update();
     }
-    else if ((event->buttons() & Qt::MidButton) || event->modifiers().testFlag(Qt::AltModifier))
+    else if ((pEvent->buttons() & Qt::MidButton) || pEvent->modifiers().testFlag(Qt::AltModifier))
     {
         //zoom the wing
 
-        if(event->pos().y()-m_LastPoint.y()<0) m_WingScale /= 1.02;
+        if(pEvent->pos().y()-m_LastPoint.y()<0) m_WingScale /= 1.02;
         else                                   m_WingScale *= 1.02;
 
         double a = rect().center().x();
@@ -125,31 +124,28 @@ void WingWidget::mouseMoveEvent(QMouseEvent *event)
 
         update();
     }
-    m_LastPoint = event->pos();
+    m_LastPoint = pEvent->pos();
 }
 
 
-void WingWidget::mousePressEvent(QMouseEvent *event)
+void WingWidget::mousePressEvent(QMouseEvent *pEvent)
 {
-    if (event->buttons() & Qt::LeftButton)
+    if (pEvent->buttons() & Qt::LeftButton)
     {
-        m_LastPoint = event->pos();
+        m_LastPoint = pEvent->pos();
     }
 }
 
 
-void WingWidget::mouseReleaseEvent(QMouseEvent *event)
+void WingWidget::mouseReleaseEvent(QMouseEvent *)
 {
-    Q_UNUSED(event);
     m_bTrans = false;
 }
 
 
-void WingWidget::paintEvent(QPaintEvent *event)
+void WingWidget::paintEvent(QPaintEvent *)
 {
-    Q_UNUSED(event);
-    Miarex *pMiarex=(Miarex*)s_pMiarex;
-    if(pMiarex->m_bResetTextLegend) pMiarex->drawTextLegend();
+    if(s_pMiarex->m_bResetTextLegend) s_pMiarex->drawTextLegend();
 
     QPainter painter(this);
     painter.save();
@@ -161,21 +157,21 @@ void WingWidget::paintEvent(QPaintEvent *event)
     painter.setPen(TextPen);
 
 
-    if(pMiarex->m_pCurPlane)
+    if(s_pMiarex->m_pCurPlane)
     {
         paintWing(painter, m_ptOffset, m_WingScale);
-        if(pMiarex->m_pCurPOpp && pMiarex->m_pCurPOpp->isVisible())
+        if(s_pMiarex->m_pCurPOpp && s_pMiarex->m_pCurPOpp->isVisible())
         {
-            if (pMiarex->m_bXTop || pMiarex->m_bXBot) paintXTr(painter, m_ptOffset, m_WingScale);
-            if (pMiarex->m_bXCP) paintXCP(painter, m_ptOffset, m_WingScale);
-            if (pMiarex->m_bXCmRef) paintXCmRef(painter, m_ptOffset, m_WingScale);
+            if (s_pMiarex->m_bXTop || s_pMiarex->m_bXBot) paintXTr(painter, m_ptOffset, m_WingScale);
+            if (s_pMiarex->m_bXCP) paintXCP(painter, m_ptOffset, m_WingScale);
+            if (s_pMiarex->m_bXCmRef) paintXCmRef(painter, m_ptOffset, m_WingScale);
         }
 
         painter.setBackgroundMode(Qt::TransparentMode);
         painter.setOpacity(1);
 
-        if(pMiarex->m_bResetTextLegend) pMiarex->drawTextLegend();
-        if(!pMiarex->m_PixText.isNull()) painter.drawPixmap(QPoint(0,0), pMiarex->m_PixText);
+        if(s_pMiarex->m_bResetTextLegend) s_pMiarex->drawTextLegend();
+        if(!s_pMiarex->m_PixText.isNull()) painter.drawPixmap(QPoint(0,0), s_pMiarex->m_PixText);
     }
     painter.restore();
 }
@@ -190,15 +186,12 @@ void WingWidget::paintEvent(QPaintEvent *event)
  */
 void WingWidget::paintWing(QPainter &painter, QPointF ORef, double scale)
 {
-    Miarex *pMiarex=(Miarex*)s_pMiarex;
-    if(!pMiarex->m_pCurPlane)	return;
-    int i;
-    double scalex, scaley;
+    if(!s_pMiarex->m_pCurPlane)    return;
 
-    scalex  = scale;
-    scaley  = scale;
+    double scalex  = scale;
+    double scaley  = scale;
 
-    Wing *pWing = pMiarex->m_pCurPlane->m_Wing;
+    Wing *pWing = s_pMiarex->m_pCurPlane->m_Wing;
 
     painter.save();
     QPen WingPen(W3dPrefsDlg::s_OutlineColor);
@@ -207,50 +200,48 @@ void WingWidget::paintWing(QPainter &painter, QPointF ORef, double scale)
 
     painter.setPen(WingPen);
 
-    QPointF O(ORef);
-
     //Right Wing
-    O.rx() = ORef.x();
-    O.ry() = ORef.y();
-    for (i=0; i<pWing->NWingSection()-1;i++)
+    int x = int(ORef.x());
+    int y = int(ORef.y());
+    for (int i=0; i<pWing->NWingSection()-1;i++)
     {
-        O.rx() +=(int)(pWing->Length(i)*scalex);
-        painter.drawLine(O.x(),                                   O.y()+(int)(pWing->Offset(i)*scaley),
-                         O.x()+(int)(pWing->Length(i+1)*scalex),  O.y()+(int)(pWing->Offset(i+1)*scaley));
+        x +=int(pWing->Length(i)*scalex);
+        painter.drawLine(x,                                 y+int(pWing->Offset(i)*scaley),
+                         x+int(pWing->Length(i+1)*scalex),  y+int(pWing->Offset(i+1)*scaley));
 
-        painter.drawLine(O.x()+(int)(pWing->Length(i+1)*scalex),  O.y()+(int)(pWing->Offset(i+1)*scaley),
-                         O.x()+(int)(pWing->Length(i+1)*scalex),  O.y()+(int)((pWing->Offset(i+1)+pWing->Chord(i+1))*scaley));
+        painter.drawLine(x+int(pWing->Length(i+1)*scalex),  y+int(pWing->Offset(i+1)*scaley),
+                         x+int(pWing->Length(i+1)*scalex),  y+int((pWing->Offset(i+1)+pWing->Chord(i+1))*scaley));
 
-        painter.drawLine(O.x()+(int)(pWing->Length(i+1)*scalex),  O.y()+(int)((pWing->Offset(i+1)+pWing->Chord(i+1))*scaley),
-                         O.x(),                                   O.y() +(int)((pWing->Offset(i)+pWing->Chord(i))*scaley));
+        painter.drawLine(x+int(pWing->Length(i+1)*scalex),  y+int((pWing->Offset(i+1)+pWing->Chord(i+1))*scaley),
+                         x,                                 y+int((pWing->Offset(i)+pWing->Chord(i))*scaley));
 
-        painter.drawLine(O.x(),                                   O.y() +(int)((pWing->Offset(i)+pWing->Chord(i))*scaley),
-                         O.x(),                                   O.y()+(int)(pWing->Offset(i)*scaley));
+        painter.drawLine(x,                                 y+int((pWing->Offset(i)+pWing->Chord(i))*scaley),
+                         x,                                 y+int(pWing->Offset(i)*scaley));
     }
 
 
     //LeftWing
-    O.rx() = ORef.x();
-    O.ry() = ORef.y();
+    x = int(ORef.x());
+    y = int(ORef.y());
 
-    for (i=0; i<pWing->NWingSection()-1;i++)
+    for (int i=0; i<pWing->NWingSection()-1;i++)
     {
-        O.rx() -= (int)(pWing->Length(i)*scalex);
-        painter.drawLine(O.x(),						                     O.y()+(int)(pWing->Offset(i)*scaley),
-                         O.x()-(int)(pWing->Length(i+1)*scalex), O.y()+(int)(pWing->Offset(i+1)*scaley));
+        x -= int(pWing->Length(i)*scalex);
+        painter.drawLine(x,                                   y+int(pWing->Offset(i)*scaley),
+                         x-int(pWing->Length(i+1)*scalex), y+int(pWing->Offset(i+1)*scaley));
 
-        painter.drawLine(O.x()-(int)(pWing->Length(i+1)*scalex), O.y()+(int)(pWing->Offset(i+1)*scaley),
-                         O.x()-(int)(pWing->Length(i+1)*scalex), O.y()+(int)((pWing->Offset(i+1)+pWing->Chord(i+1))*scaley));
+        painter.drawLine(x-int(pWing->Length(i+1)*scalex), y+int(pWing->Offset(i+1)*scaley),
+                         x-int(pWing->Length(i+1)*scalex), y+int((pWing->Offset(i+1)+pWing->Chord(i+1))*scaley));
 
-        painter.drawLine(O.x()-(int)(pWing->Length(i+1)*scalex), O.y()+(int)((pWing->Offset(i+1)+pWing->Chord(i+1))*scaley),
-                         O.x(),                                        O.y() +(int)((pWing->Offset(i)+pWing->Chord(i))*scaley));
+        painter.drawLine(x-int(pWing->Length(i+1)*scalex), y+int((pWing->Offset(i+1)+pWing->Chord(i+1))*scaley),
+                         x,                                y +int((pWing->Offset(i)+pWing->Chord(i))*scaley));
 
-        painter.drawLine(O.x(),                                        O.y() +(int)((pWing->Offset(i)+pWing->Chord(i))*scaley),
-                         O.x(),                                        O.y()+(int)(pWing->Offset(i)*scaley));
+        painter.drawLine(x,                                y +int((pWing->Offset(i)+pWing->Chord(i))*scaley),
+                         x,                                y+int(pWing->Offset(i)*scaley));
     }
 
 
-    /*	QPen SymPen(QColor(155,128,190));
+    /*    QPen SymPen(QColor(155,128,190));
     painter.setPen(SymPen);
     painter.setBackgroundMode(Qt::TransparentMode);
 
@@ -269,8 +260,7 @@ void WingWidget::paintWing(QPainter &painter, QPointF ORef, double scale)
 void WingWidget::paintXCmRef(QPainter & painter, QPointF ORef, double scale)
 {
     //Draws the moment reference point on the 2D view
-    Miarex *pMiarex=(Miarex*)s_pMiarex;
-    if(!pMiarex->m_pCurPlane || !pMiarex->m_pCurWPolar)	return;
+    if(!s_pMiarex->m_pCurPlane || !s_pMiarex->m_pCurWPolar)    return;
 
     painter.save();
     QPointF O(ORef);
@@ -280,7 +270,7 @@ void WingWidget::paintXCmRef(QPainter & painter, QPointF ORef, double scale)
 
     offset.rx() = ORef.x();
     offset.ry() = ORef.y();
-    //	scalex  = scale;
+    //    scalex  = scale;
     scaley  = scale;
     O.rx() = offset.x();
     O.ry() = offset.y();
@@ -289,18 +279,15 @@ void WingWidget::paintXCmRef(QPainter & painter, QPointF ORef, double scale)
     painter.setPen(XCmRefPen);
 
     double XCm = O.x() ;
-    double YCm = O.y() + pMiarex->m_pCurWPolar->CoG().x*scaley;
+    double YCm = O.y() + s_pMiarex->m_pCurWPolar->CoG().x*scaley;
     int size = 3;
-    QRect CM(XCm-size, YCm-size, 2*size, 2*size);
+    QRectF CM(XCm-size, YCm-size, 2*size, 2*size);
     painter.drawEllipse(CM);
 
-    painter.drawText(XCm+10, YCm-5, tr("Moment ref. location"));
+    painter.drawText(int(XCm+10), int(YCm-5), tr("Moment ref. location"));
 
     painter.restore();
 }
-
-
-
 
 
 /**
@@ -312,57 +299,59 @@ void WingWidget::paintXCmRef(QPainter & painter, QPointF ORef, double scale)
 void WingWidget::paintXCP(QPainter & painter, QPointF ORef, double scale)
 {
     //Draws the lift line and center of pressure position on the the 2D view
-    Miarex *pMiarex = (Miarex*)s_pMiarex;
-    if(!pMiarex->m_pCurPlane)	return;
+    if(!s_pMiarex->m_pCurPlane)    return;
 
-    Wing *pWing = pMiarex->m_pCurPlane->m_Wing;
+    Wing *pWing = s_pMiarex->m_pCurPlane->m_Wing;
 
-    painter.save();
 
     QPointF From, To;
 
-    double y;
-    int nStart;
-    double offLE;
-    if(pMiarex->m_pCurPOpp->analysisMethod()==XFLR5::LLTMETHOD) nStart = 1; else nStart = 0;
+    int nStart=0;
+    if(s_pMiarex->m_pCurPOpp->analysisMethod()==XFLR5::LLTMETHOD) nStart = 1; else nStart = 0;
 
     QPointF O(ORef);
     QPointF offset;
-
-    double scalex, scaley;
     offset.rx() = ORef.x();
     offset.ry() = ORef.y();
-    scalex  = scale;
-    scaley  = scale;
     O.rx() = offset.x();
     O.ry() = offset.y();
+
+    double scalex  = scale;
+    double scaley  = scale;
 
     QPen XCPPen(W3dPrefsDlg::s_XCPColor);
     XCPPen.setWidth(W3dPrefsDlg::s_XCPWidth);
     XCPPen.setStyle(getStyle(W3dPrefsDlg::s_XCPStyle));
     painter.setPen(XCPPen);
 
-    double XCp = O.x() + pMiarex->m_pCurPOpp->m_pWOpp[0]->m_CP.y*scalex;
-    double YCp = O.y() + pMiarex->m_pCurPOpp->m_pWOpp[0]->m_CP.x*scaley;
-    //    int ZCp = O.z() + (int)(pMiarex->m_pCurPOpp->m_pPlaneWOpp[0]->m_ZCP*scalez);
+    PlaneOpp const *pPOpp = s_pMiarex->curPOpp();
+    if(!pPOpp)  return;  // something went wrong upstream
+    WingOpp const *pWOpp = pPOpp->wingOpp(0);
+    if(!pWOpp)  return;  // something went wrong upstream
+
+    painter.save();
+
+    double XCp = O.x() + pWOpp->m_CP.y*scalex;
+    double YCp = O.y() + pWOpp->m_CP.x*scaley;
+
     int size = 3;
-    QRect CP(XCp-size, YCp-size, 2*size, 2*size);
+    QRectF CP(XCp-size, YCp-size, 2*size, 2*size);
     painter.drawEllipse(CP);
 
-    offLE = pWing->getOffset(pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[nStart]*2.0/pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Span);
-    y = (offLE+pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Chord[nStart]*pMiarex->m_pCurPOpp->m_pWOpp[0]->m_XCPSpanRel[nStart])*scaley;
-    From = QPoint(O.x()+pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[nStart]*scalex,	O.y()+y );
+    double offLE = pWing->getOffset(pWOpp->m_SpanPos[nStart]*2.0/pWOpp->m_Span);
+    double y = (offLE+pWOpp->m_Chord[nStart]*pWOpp->m_XCPSpanRel[nStart])*scaley;
+    From = QPointF(O.x()+pWOpp->m_SpanPos[nStart]*scalex,    O.y()+y );
 
-    for (int m=nStart; m<pMiarex->m_pCurPOpp->m_pWOpp[0]->m_NStation; m++)
+    for (int m=nStart; m<pWOpp->m_NStation; m++)
     {
-        offLE = pWing->getOffset(pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[m]*2.0/pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Span);
-        y = (offLE+pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Chord[m]*pMiarex->m_pCurPOpp->m_pWOpp[0]->m_XCPSpanRel[m])*scaley;
-        To = QPoint(O.x()+pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[m]*scalex,	O.y()+y );
+        offLE = pWing->getOffset(pWOpp->m_SpanPos[m]*2.0/pWOpp->m_Span);
+        y = (offLE+pWOpp->m_Chord[m]*pWOpp->m_XCPSpanRel[m])*scaley;
+        To = QPointF(O.x()+pWOpp->m_SpanPos[m]*scalex,    O.y()+y );
         painter.drawLine(From, To);
         From = To;
     }
 
-    int x = (int)(rect().width()/2);
+    int x = int(rect().width()/2);
     int y1 = rect().bottom();
     painter.drawLine(x-60,  y1- 20, x-40,  y1 - 20);
     painter.drawText(x-35, y1 - 18, tr("Centre of Pressure"));
@@ -380,15 +369,14 @@ void WingWidget::paintXCP(QPainter & painter, QPointF ORef, double scale)
 void WingWidget::paintXTr(QPainter & painter, QPointF ORef, double scale)
 {
     //Draws the transition lines on the 2D view
-    Miarex *pMiarex = (Miarex*)s_pMiarex;
-    if(!pMiarex->m_pCurPlane)	return;
+    if(!s_pMiarex->m_pCurPlane)    return;
 
-    Wing *pWing = pMiarex->m_pCurPlane->wing();
+    Wing *pWing = s_pMiarex->m_pCurPlane->wing();
     painter.save();
 
     double y;
     int m,nStart;
-    if(pMiarex->m_pCurPOpp->analysisMethod()==XFLR5::LLTMETHOD) nStart = 1; else nStart = 0;
+    if(s_pMiarex->m_pCurPOpp->analysisMethod()==XFLR5::LLTMETHOD) nStart = 1; else nStart = 0;
 
     QPointF O(ORef);
     QPointF offset, From, To;
@@ -408,24 +396,24 @@ void WingWidget::paintXTr(QPainter & painter, QPointF ORef, double scale)
     TopPen.setWidth(W3dPrefsDlg::s_TopWidth);
     painter.setPen(TopPen);
 
-    if (pMiarex->m_bXTop)
+    if (s_pMiarex->m_bXTop)
     {
-        offLE = pWing->getOffset(pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[nStart]*2.0/pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Span);
-        y = (offLE+pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Chord[nStart]*pMiarex->m_pCurPOpp->m_pWOpp[0]->m_XTrTop[nStart])*scaley;
-        From = QPoint(O.x()+pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[nStart]*scalex,	O.y()+y);
+        offLE = pWing->getOffset(s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[nStart]*2.0/s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Span);
+        y = (offLE+s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Chord[nStart]*s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_XTrTop[nStart])*scaley;
+        From = QPointF(O.x()+s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[nStart]*scalex,    O.y()+y);
 
-        for (m=nStart; m<pMiarex->m_pCurPOpp->m_pWOpp[0]->m_NStation; m++)
+        for (m=nStart; m<s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_NStation; m++)
         {
-            offLE = pWing->getOffset(pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[m]*2.0/pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Span);
-            y = (offLE+pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Chord[m]*pMiarex->m_pCurPOpp->m_pWOpp[0]->m_XTrTop[m])*scaley;
+            offLE = pWing->getOffset(s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[m]*2.0/s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Span);
+            y = (offLE+s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Chord[m]*s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_XTrTop[m])*scaley;
 
-            To = QPoint(O.x()+pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[m]*scalex, O.y()+y );
+            To = QPointF(O.x()+s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[m]*scalex, O.y()+y );
             painter.drawLine(From, To);
             From  = To;
         }
 
 
-        int x = (int)(rect().width()/2);
+        int x = int(double(rect().width())/2);
         int y = rect().bottom();
         painter.drawLine(x-60,  y - 50, x-40,  y - 50);
         painter.drawText(x-35, y - 48, tr("Top transition"));
@@ -438,21 +426,21 @@ void WingWidget::paintXTr(QPainter & painter, QPointF ORef, double scale)
     BotPen.setWidth(W3dPrefsDlg::s_BotWidth);
 
     painter.setPen(BotPen);
-    if (pMiarex->m_bXBot)
+    if (s_pMiarex->m_bXBot)
     {
-        offLE = pWing->getOffset(pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[nStart]*2.0/pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Span);
-        y = (offLE+pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Chord[nStart]*pMiarex->m_pCurPOpp->m_pWOpp[0]->m_XTrBot[nStart])*scaley;
-        From = QPoint(O.x() +pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[nStart]*scalex, O.y()+y );
-        for (m=nStart; m<pMiarex->m_pCurPOpp->m_pWOpp[0]->m_NStation; m++)
+        offLE = pWing->getOffset(s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[nStart]*2.0/s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Span);
+        y = (offLE+s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Chord[nStart]*s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_XTrBot[nStart])*scaley;
+        From = QPointF(O.x() +s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[nStart]*scalex, O.y()+y );
+        for (m=nStart; m<s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_NStation; m++)
         {
-            offLE = pWing->getOffset(pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[m]*2.0/pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Span);
-            y = (offLE+pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Chord[m]*pMiarex->m_pCurPOpp->m_pWOpp[0]->m_XTrBot[m])*scaley;
-            To = QPoint(O.x()+pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[m]*scalex, O.y()+y );
+            offLE = pWing->getOffset(s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[m]*2.0/s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Span);
+            y = (offLE+s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_Chord[m]*s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_XTrBot[m])*scaley;
+            To = QPointF(O.x()+s_pMiarex->m_pCurPOpp->m_pWOpp[0]->m_SpanPos[m]*scalex, O.y()+y );
             painter.drawLine(From, To);
             From  = To;
         }
 
-        int x = (int)(rect().width()/2);
+        int x = int(rect().width()/2);
         int y = rect().bottom();
         painter.drawLine(x-60,  y - 35, x-40,  y - 35);
         painter.drawText(x-35, y - 33, tr("Bottom transition"));
@@ -462,26 +450,21 @@ void WingWidget::paintXTr(QPainter & painter, QPointF ORef, double scale)
 }
 
 
-
-
-
-void WingWidget::resizeEvent (QResizeEvent *event)
+void WingWidget::resizeEvent (QResizeEvent *)
 {
-    Q_UNUSED(event);
-    Miarex *pMiarex = (Miarex*)s_pMiarex;
-    pMiarex->m_bResetTextLegend = true;
+    s_pMiarex->m_bResetTextLegend = true;
     setWingScale();
     update();
 }
 
 
-void WingWidget::wheelEvent (QWheelEvent *event)
+void WingWidget::wheelEvent (QWheelEvent *pEvent)
 {
     double zoomFactor=1.0;
 
-    QPoint pt(event->x(), event->y()); //client coordinates
+    QPoint pt(pEvent->x(), pEvent->y()); //client coordinates
 
-    if(event->delta()>0)
+    if(pEvent->delta()>0)
     {
         if(!Settings::s_bReverseZoom) zoomFactor = 1./1.06;
         else                          zoomFactor = 1.06;
@@ -502,14 +485,12 @@ void WingWidget::wheelEvent (QWheelEvent *event)
 
 void WingWidget::setWingScale()
 {
-    Miarex *pMiarex=(Miarex*)s_pMiarex;
-
     m_ptOffset.rx() = rect().width()/2.0;
     m_ptOffset.ry() = rect().height()/4.0;
 
-    if(pMiarex->m_pCurPlane && m_pGraph)
+    if(s_pMiarex->m_pCurPlane && m_pGraph)
     {
-        m_WingScale = (rect().width()-2*m_pGraph->margin())/pMiarex->m_pCurPlane->planformSpan();
+        m_WingScale = (rect().width()-2*m_pGraph->margin())/s_pMiarex->m_pCurPlane->planformSpan();
     }
 }
 

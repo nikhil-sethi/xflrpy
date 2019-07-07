@@ -24,33 +24,22 @@
 #include <QProcess>
 #include <QDebug>
 
-#include <miarex/Miarex.h>
-#include <misc/RenameDlg.h>
+#include <miarex/miarex.h>
+#include <misc/renamedlg.h>
 
 #include "objects3d.h"
-#include <objects/objects3d/Surface.h>
-#include <objects/objects3d/WPolar.h>
+#include <objects/objects3d/surface.h>
+#include <objects/objects3d/wpolar.h>
 
 
-QList <Plane*>    Objects3d::s_oaPlane;
-QList <WPolar*>   Objects3d::s_oaWPolar;
-QList <PlaneOpp*> Objects3d::s_oaPOpp;
-QList <Body*>     Objects3d::s_oaBody;
+QVector <Plane*>    Objects3d::s_oaPlane;
+QVector <WPolar*>   Objects3d::s_oaWPolar;
+QVector <PlaneOpp*> Objects3d::s_oaPOpp;
+QVector <Body*>     Objects3d::s_oaBody;
 
 
 Objects3d::Objects3d()
 {
-}
-
-
-/**
- * Creates local pointers in the classes, for programming convenience.
- */
-void Objects3d::setStaticPointers()
-{
-    Miarex::m_poaPlane  = &s_oaPlane;
-    Miarex::m_poaWPolar = &s_oaWPolar;
-    Miarex::m_poaPOpp   = &s_oaPOpp;
 }
 
 
@@ -77,9 +66,9 @@ void Objects3d::addBody(Body *pBody)
             pPlane->setBody(planeBody);
         }
     }
-    /*	for(int ib=0; ib<m_poaBody->size(); ib++)
+    /*    for(int ib=0; ib<m_poaBody->size(); ib++)
     {
-        Body *pOldBody = (Body*)m_poaBody->at(ib);
+        Body *pOldBody = m_poaBody->at(ib);
         if(pOldBody==pBody)
         {
             m_poaBody->removeAt(ib);
@@ -181,12 +170,6 @@ void Objects3d::insertPOpp(PlaneOpp *pPOpp)
                     if(qAbs(pPOpp->alpha() - pOldPOpp->alpha())<0.005)
                     {
                         //replace existing point
-                        pPOpp->color()      = pOldPOpp->color();
-                        pPOpp->style()      = pOldPOpp->style();
-                        pPOpp->width()      = pOldPOpp->width();
-                        pPOpp->isVisible()  = pOldPOpp->isVisible();
-                        pPOpp->points()     = pOldPOpp->points();
-
                         s_oaPOpp.removeAt(i);
                         delete pOldPOpp;
                         s_oaPOpp.insert(i, pPOpp);
@@ -205,13 +188,7 @@ void Objects3d::insertPOpp(PlaneOpp *pPOpp)
                 {
                     if(qAbs(pPOpp->m_QInf - pOldPOpp->m_QInf)<0.1)
                     {
-                        //replace existing point
-                        pPOpp->color() = pOldPOpp->color();
-                        pPOpp->style() = pOldPOpp->style();
-                        pPOpp->width() = pOldPOpp->width();
-                        pPOpp->isVisible()  = pOldPOpp->isVisible();
-                        pPOpp->points() = pOldPOpp->points();
-
+                        //replace the existing point
                         s_oaPOpp.removeAt(i);
                         delete pOldPOpp;
                         s_oaPOpp.insert(i, pPOpp);
@@ -231,12 +208,6 @@ void Objects3d::insertPOpp(PlaneOpp *pPOpp)
                     if(qAbs(pPOpp->beta() - pOldPOpp->beta())<0.01)
                     {
                         //replace existing point
-                        pPOpp->color() = pOldPOpp->color();
-                        pPOpp->style() = pOldPOpp->style();
-                        pPOpp->width() = pOldPOpp->width();
-                        pPOpp->isVisible()  = pOldPOpp->isVisible();
-                        pPOpp->points() = pOldPOpp->points();
-
                         s_oaPOpp.removeAt(i);
                         delete pOldPOpp;
                         s_oaPOpp.insert(i, pPOpp);
@@ -256,12 +227,6 @@ void Objects3d::insertPOpp(PlaneOpp *pPOpp)
                     if(qAbs(pPOpp->ctrl() - pOldPOpp->ctrl())<0.001)
                     {
                         //replace existing point
-                        pPOpp->color() = pOldPOpp->color();
-                        pPOpp->style() = pOldPOpp->style();
-                        pPOpp->width() = pOldPOpp->width();
-                        pPOpp->isVisible()  = pOldPOpp->isVisible();
-                        pPOpp->points() = pOldPOpp->points();
-
                         s_oaPOpp.removeAt(i);
                         delete pOldPOpp;
                         s_oaPOpp.insert(i, pPOpp);
@@ -280,7 +245,7 @@ void Objects3d::insertPOpp(PlaneOpp *pPOpp)
         }
     }
 
-    if (!bIsInserted) 	s_oaPOpp.append(pPOpp);
+    if (!bIsInserted)     s_oaPOpp.append(pPOpp);
 }
 
 
@@ -447,7 +412,7 @@ Body * Objects3d::getBody(QString BodyName)
     Body* pBody = nullptr;
     for (int ib=0; ib<s_oaBody.size(); ib++)
     {
-        pBody = (Body*)s_oaBody.at(ib);
+        pBody = s_oaBody.at(ib);
         if (pBody->m_BodyName == BodyName) return pBody;
     }
 
@@ -623,7 +588,7 @@ Plane * Objects3d::setModPlane(Plane *pModPlane)
                         break;
                     }
                 }
-                if(!bInserted)	s_oaPlane.append(pModPlane);
+                if(!bInserted)    s_oaPlane.append(pModPlane);
                 break;
 
             }
@@ -695,7 +660,7 @@ WPolar* Objects3d::insertNewWPolar(WPolar *pNewWPolar, Plane *pCurPlane)
         pOldWPolar = s_oaWPolar.at(ip);
         if(pOldWPolar==pNewWPolar)
         {
-            //			Trace("this WPolar is already in the array, nothing inserted");
+            //            Trace("this WPolar is already in the array, nothing inserted");
             return nullptr;
         }
     }
@@ -784,7 +749,7 @@ WPolar* Objects3d::insertNewWPolar(WPolar *pNewWPolar, Plane *pCurPlane)
         }
 
         //room has been made, insert the new WPolar in alphabetical order
-        pNewWPolar->polarName() = dlg.newName();
+        pNewWPolar->setPolarName(dlg.newName());
         for (l=0; l<s_oaWPolar.size();l++)
         {
             pOldWPolar = s_oaWPolar.at(l);
@@ -808,7 +773,7 @@ WPolar* Objects3d::insertNewWPolar(WPolar *pNewWPolar, Plane *pCurPlane)
     else if(resp==QDialog::Accepted)
     {
         //not rejected, no overwrite, else the user has selected a non-existing name, rename and insert
-        pNewWPolar->polarName()=dlg.newName();
+        pNewWPolar->setPolarName(dlg.newName());
         for (l=0; l<s_oaWPolar.size();l++)
         {
             pOldWPolar = s_oaWPolar.at(l);
@@ -856,7 +821,7 @@ void Objects3d::renamePlane(QString PlaneName)
             pWPolar = s_oaWPolar.at(l);
             if (pWPolar->planeName() == OldName)
             {
-                pWPolar->planeName() = pPlane->planeName();
+                pWPolar->setPlaneName(pPlane->planeName());
             }
         }
         for (l=s_oaPOpp.size()-1;l>=0; l--)
@@ -864,7 +829,7 @@ void Objects3d::renamePlane(QString PlaneName)
             pPOpp = s_oaPOpp.at(l);
             if (pPOpp->planeName() == OldName)
             {
-                pPOpp->planeName() = pPlane->planeName();
+                pPOpp->setPlaneName(pPlane->planeName());
             }
         }
     }
@@ -909,19 +874,24 @@ void Objects3d::deleteObjects()
         s_oaBody.removeAt(i);
         delete pObj;
     }
-
 }
 
 
-
-
-
-
-
-
-
-
-
+void Objects3d::setWPolarChildrenStyle(WPolar *pWPolar)
+{
+    if(!pWPolar) return;
+    for (int j=s_oaPOpp.size()-1; j>=0; j--)
+    {
+        PlaneOpp *pPOpp = s_oaPOpp.at(j);
+        if(pPOpp->planeName() == pWPolar->planeName() && pPOpp->polarName()==pWPolar->polarName())
+        {
+            pPOpp->setStyle(pWPolar->curveStyle());
+            pPOpp->setWidth(pWPolar->curveWidth());
+            pPOpp->setColor(pWPolar->curveColor());
+            pPOpp->setPoints(pWPolar->points());
+        }
+    }
+}
 
 
 

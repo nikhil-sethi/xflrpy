@@ -1,7 +1,7 @@
 /****************************************************************************
 
     Curve Class
-	Copyright (C) 2003-2016 Andre Deperrois 
+    Copyright (C) 2003-2016 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,13 +30,13 @@
  */
 Curve::Curve()
 {
-	m_curveStyle.m_Color = QColor(255,0,0,127);
-	m_CurveName = "";
-	m_curveStyle.m_bIsVisible = true;
-	m_curveStyle.m_PointStyle = 0;
-	m_curveStyle.m_Width = 1;
-	m_curveStyle.m_Style = Qt::SolidLine;
-	m_iSelected = -1;
+    m_curveStyle.m_Color = QColor(255,0,0,127);
+    m_CurveName = "";
+    m_curveStyle.m_bIsVisible = true;
+    m_curveStyle.m_PointStyle = 0;
+    m_curveStyle.m_Width = 1;
+    m_curveStyle.m_Style = Qt::SolidLine;
+    m_iSelected = -1;
 }
 
 
@@ -48,9 +48,9 @@ Curve::Curve()
  */
 int Curve::appendPoint(double xn, double yn)
 {
-	x.append(xn);
-	y.append(yn);
-	return size();
+    x.append(xn);
+    y.append(yn);
+    return size();
 }
 
 
@@ -60,12 +60,12 @@ int Curve::appendPoint(double xn, double yn)
  */
 void Curve::duplicate(Curve *pCurve)
 {
-	if(!pCurve) return;
+    if(!pCurve) return;
 
-	copyData(pCurve);
+    copyData(pCurve);
 
-	m_curveStyle = pCurve->m_curveStyle;
-	m_CurveName  = pCurve->m_CurveName;
+    m_curveStyle = pCurve->m_curveStyle;
+    m_CurveName  = pCurve->m_CurveName;
 }
 
 
@@ -75,14 +75,14 @@ void Curve::duplicate(Curve *pCurve)
  */
 void Curve::copyData(Curve *pCurve)
 {
-	if(!pCurve) return;
-	clear();
+    if(!pCurve) return;
+    clear();
 
-	for (int i=0; i<pCurve->size() ;i++)
-	{
-		x.append(pCurve->x[i]);
-		y.append(pCurve->y[i]);
-	}
+    for (int i=0; i<pCurve->size() ;i++)
+    {
+        x.append(pCurve->x[i]);
+        y.append(pCurve->y[i]);
+    }
 }
 
 
@@ -97,23 +97,23 @@ void Curve::copyData(Curve *pCurve)
  */
 int Curve::closestPoint(double xs, double ys, double &dist )
 {
-	Graph *pGraph = (Graph*)m_pParentGraph;
-	int ref;
-	double d2;
-	ref = -1;
-	dist = 1.e10;
-	if (size()<1) return -1;
-	for(int i=0; i<size(); i++)
-	{
-		d2 =   (xs-x[i])*(xs-x[i])/pGraph->xScale()/pGraph->xScale() 
-			 + (ys-y[i])*(ys-y[i])/pGraph->yScale()/pGraph->yScale();
-		if (d2<dist)
-		{
-			dist = d2;
-			ref = i;
-		}
-	}
-	return ref;
+    Graph *pGraph = (Graph*)m_pParentGraph;
+    int ref;
+    double d2;
+    ref = -1;
+    dist = 1.e10;
+    if (size()<1) return -1;
+    for(int i=0; i<size(); i++)
+    {
+        d2 =   (xs-x[i])*(xs-x[i])/pGraph->xScale()/pGraph->xScale() 
+             + (ys-y[i])*(ys-y[i])/pGraph->yScale()/pGraph->yScale();
+        if (d2<dist)
+        {
+            dist = d2;
+            ref = i;
+        }
+    }
+    return ref;
 }
 
 
@@ -128,20 +128,20 @@ int Curve::closestPoint(double xs, double ys, double &dist )
  */
 void Curve::closestPoint(double xs, double ys, double &dist, int &n)
 {
-	Graph *pGraph = (Graph*)m_pParentGraph;
-	double d2;
-	dist = 1.e10;
-	if (n<1) return;
-	for(int i=0; i<n; i++)
-	{
-		d2 =   (xs-x[i])*(xs-x[i])/pGraph->xScale()/pGraph->xScale()
-			 + (ys-y[i])*(ys-y[i])/pGraph->yScale()/pGraph->yScale();
-		if (d2<dist)
-		{
-			dist = d2;
-			n = i;
-		}
-	}
+    Graph *pGraph = (Graph*)m_pParentGraph;
+    double d2;
+    dist = 1.e10;
+    if (n<1) return;
+    for(int i=0; i<n; i++)
+    {
+        d2 =   (xs-x[i])*(xs-x[i])/pGraph->xScale()/pGraph->xScale()
+             + (ys-y[i])*(ys-y[i])/pGraph->yScale()/pGraph->yScale();
+        if (d2<dist)
+        {
+            dist = d2;
+            n = i;
+        }
+    }
 }
 
 
@@ -156,20 +156,20 @@ void Curve::closestPoint(double xs, double ys, double &dist, int &n)
  */
 void Curve::closestPoint(double const &xs, double const &ys, double &xSel, double &ySel, double &dist, int &nSel)
 {
-	double d2;
-	dist = 1.e40;
+    double d2;
+    dist = 1.e40;
 
-	for(int i=0; i<size(); i++)
-	{
-		d2 =   (xs-x[i])*(xs-x[i]) + (ys-y[i])*(ys-y[i]);
-		if (d2<dist)
-		{
-			dist = d2;
-			xSel = x[i];
-			ySel = y[i];
-			nSel = i;
-		}
-	}
+    for(int i=0; i<size(); i++)
+    {
+        d2 =   (xs-x[i])*(xs-x[i]) + (ys-y[i])*(ys-y[i]);
+        if (d2<dist)
+        {
+            dist = d2;
+            xSel = x[i];
+            ySel = y[i];
+            nSel = i;
+        }
+    }
 }
 
 
@@ -179,12 +179,12 @@ void Curve::closestPoint(double const &xs, double const &ys, double &xSel, doubl
  */
 double Curve::xMin()
 {
-	double xMin = 99999999.0;
-//	if(n==0) xmin = .0; 
-//	else
-		for(int i=0; i<size();i++)
-			xMin = qMin(xMin, x[i]);
-	return xMin;
+    double xMin = 99999999.0;
+//    if(n==0) xmin = .0; 
+//    else
+        for(int i=0; i<size();i++)
+            xMin = qMin(xMin, x[i]);
+    return xMin;
 }
 
 
@@ -194,12 +194,12 @@ double Curve::xMin()
  */
 double Curve::xMax()
 {
-	double xMax = -99999999.0;
-//	if(n==0) xmax = 1.0; 
-//	else
-	for(int i=0; i<size();i++)
-			xMax = qMax(xMax, x[i]);
-	return xMax;
+    double xMax = -99999999.0;
+//    if(n==0) xmax = 1.0; 
+//    else
+    for(int i=0; i<size();i++)
+            xMax = qMax(xMax, x[i]);
+    return xMax;
 }
 
 
@@ -209,12 +209,12 @@ double Curve::xMax()
  */
 double Curve::yMin()
 {
-	double yMin = 99999999.0;
-//	if(n==0) ymin = .0; 
-//	else
-	for(int i=0; i<size();i++)
-			yMin = qMin(yMin, y[i]);
-	return yMin;
+    double yMin = 99999999.0;
+//    if(n==0) ymin = .0; 
+//    else
+    for(int i=0; i<size();i++)
+            yMin = qMin(yMin, y[i]);
+    return yMin;
 }
 
 
@@ -224,21 +224,21 @@ double Curve::yMin()
  */
 double Curve::yMax()
 {
-	double yMax = -99999999.0;
-//	if(n==0) ymax = 1.0; 
-//	else
-		for(int i=0; i<size();i++)
-			yMax = qMax(yMax, y[i]);
-	return yMax;
+    double yMax = -99999999.0;
+//    if(n==0) ymax = 1.0; 
+//    else
+        for(int i=0; i<size();i++)
+            yMax = qMax(yMax, y[i]);
+    return yMax;
 }
 
 
 
 void Curve::setLineStyle(int Style, int Width, QColor color, int PointStyle, bool bVisible)
 {
-	m_curveStyle.m_Style = Style;
-	m_curveStyle.m_Width = Width;
-	m_curveStyle.m_Color = color;
-	m_curveStyle.m_PointStyle = PointStyle;
-	m_curveStyle.m_bIsVisible = bVisible;
+    m_curveStyle.m_Style = Style;
+    m_curveStyle.m_Width = Width;
+    m_curveStyle.m_Color = color;
+    m_curveStyle.m_PointStyle = PointStyle;
+    m_curveStyle.m_bIsVisible = bVisible;
 }

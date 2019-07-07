@@ -29,9 +29,9 @@
 
 class LanguageWt : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
-	friend class MainFrame;
+    friend class MainFrame;
 public:
     LanguageWt(QWidget *pParent);
 
@@ -41,15 +41,15 @@ public slots:
     void readLanguage();
 
 private:
-	void setupLayout();
-	void initWidget();
-	QStringList findQmFiles();
-	QString languageName(const QString &qmFile);
+    void setupLayout();
+    void initWidget();
+    QStringList findQmFiles();
+    QString languageName(const QString &qmFile);
 
-	QListWidget *m_pctrlLanguageList;
-	QMap<QString, QString> qmFileForLanguage;
+    QListWidget *m_pctrlLanguageList;
+    QMap<QString, QString> qmFileForLanguage;
 
-	bool m_bChanged;
+    bool m_bChanged;
 
 };
 

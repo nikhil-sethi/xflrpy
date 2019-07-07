@@ -73,7 +73,7 @@ void BLXFoil::serialize(QDataStream &ar, bool bIsStoring)
         ar << nd1 << nd2 << nd3;
         for (int k=0; k<=nd1; k++)  ar << float(xd1[k]) << float(yd1[k]);
         for (int k=0; k<nd2; k++)   ar << float(xd2[k]) << float(yd2[k]);
-        for (int k=0; k<nd3; k++)	ar << float(xd3[k]) << float(yd3[k]);
+        for (int k=0; k<nd3; k++)    ar << float(xd3[k]) << float(yd3[k]);
 
         // dynamic space allocation for the future storage of more data, without need to change the format
         nIntSpares=0;

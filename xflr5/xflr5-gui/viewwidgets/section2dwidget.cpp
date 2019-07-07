@@ -28,8 +28,8 @@
 
 #include "section2dwidget.h"
 #include <globals/globals.h>
-#include <misc/options/displayoptions.h>
-#include <design/GridSettingsDlg.h>
+#include <misc/options/settings.h>
+#include <design/gridsettingsdlg.h>
 #include <graph_globals.h>
 
 
@@ -197,8 +197,8 @@ void Section2dWidget::contextMenuEvent (QContextMenuEvent *pEvent)
 
 void Section2dWidget::keyPressEvent(QKeyEvent *pEvent)
 {
-    //	bool bShift = false;
-    //	if(event->modifiers() & Qt::ShiftModifier)   bShift =true;
+    //    bool bShift = false;
+    //    if(event->modifiers() & Qt::ShiftModifier)   bShift =true;
 
     switch (pEvent->key())
     {
@@ -289,7 +289,7 @@ void Section2dWidget::keyReleaseEvent(QKeyEvent *pEvent)
 
 void Section2dWidget::mouseDoubleClickEvent (QMouseEvent *pEvent)
 {
-    //	if(!hasFocus()) setFocus();
+    //    if(!hasFocus()) setFocus();
 
     QPoint center = rect().center();
 
@@ -305,7 +305,7 @@ void Section2dWidget::mouseDoubleClickEvent (QMouseEvent *pEvent)
 
 void Section2dWidget::mouseMoveEvent(QMouseEvent *pEvent)
 {
-    //	if(!hasFocus()) setFocus();
+    //    if(!hasFocus()) setFocus();
     QPoint point = pEvent->pos();
     m_MousePos = mousetoReal(point);
 
@@ -364,7 +364,7 @@ void Section2dWidget::mouseMoveEvent(QMouseEvent *pEvent)
             else
             {
                 if(point.y()-m_PointDown.y()>0) m_fScale *= 1.02;
-                else		                    m_fScale /= 1.02;
+                else                            m_fScale /= 1.02;
             }
         }
         else
@@ -376,7 +376,7 @@ void Section2dWidget::mouseMoveEvent(QMouseEvent *pEvent)
         m_PointDown = point;
 
         int a = rect().center().x();
-        m_ptOffset.rx() = a + (int)((m_ptOffset.x()-a)*m_fScale/scale);
+        m_ptOffset.rx() = a + int((m_ptOffset.x()-a)*m_fScale/scale);
     }
     else if(pEvent->modifiers().testFlag(Qt::AltModifier))
     {
@@ -430,14 +430,14 @@ void Section2dWidget::mousePressEvent(QMouseEvent *pEvent)
                 //dragging a point
                 setCursor(m_hcMove);
                 m_bDrag = true;
-                //				m_bTrans = false;
+                //                m_bTrans = false;
             }
             else
             {
                 //dragging the view
                 setCursor(m_hcMove);
                 m_bTrans = true;
-                //				m_bDrag = false;
+                //                m_bDrag = false;
             }
         }
     }
@@ -458,8 +458,8 @@ void Section2dWidget::mouseReleaseEvent(QMouseEvent *pEvent)
         {
             m_ZoomRect = ZRect;
 
-            double ZoomFactor = qMin((double)rect().width()  / (double)m_ZoomRect.width() ,
-                                     (double)rect().height() / (double)m_ZoomRect.height());
+            double ZoomFactor = qMin(double(rect().width())  / double(m_ZoomRect.width()) ,
+                                     double(rect().height()) / double(m_ZoomRect.height()));
 
             double newScale = qMin(ZoomFactor*m_fScale, 32.0*m_fRefScale);
 
@@ -469,17 +469,17 @@ void Section2dWidget::mouseReleaseEvent(QMouseEvent *pEvent)
             int a = rect().center().x();
             int b = rect().center().y();
 
-            int aZoom = (int)((m_ZoomRect.right() + m_ZoomRect.left())/2);
-            int bZoom = (int)((m_ZoomRect.top()   + m_ZoomRect.bottom())/2);
+            int aZoom = int((m_ZoomRect.right() + m_ZoomRect.left())/2);
+            int bZoom = int((m_ZoomRect.top()   + m_ZoomRect.bottom())/2);
 
             //translate view
             m_ptOffset.rx() += (a - aZoom);
             m_ptOffset.ry() += (b - bZoom);
             //scale view
-            m_ptOffset.rx() = (int)(ZoomFactor * (m_ptOffset.x()-a)+a);
-            m_ptOffset.ry() = (int)(ZoomFactor * (m_ptOffset.y()-b)+b);
+            m_ptOffset.rx() = int(ZoomFactor * (m_ptOffset.x()-a)+a);
+            m_ptOffset.ry() = int(ZoomFactor * (m_ptOffset.y()-b)+b);
 
-            //			m_ZoomRect.setBottomRight(m_ZoomRect.topLeft());
+            //            m_ZoomRect.setBottomRight(m_ZoomRect.topLeft());
             m_ZoomRect.setRight(m_ZoomRect.left()-1);
         }
         else
@@ -579,7 +579,7 @@ void Section2dWidget::zoomView(double zoomFactor)
 void Section2dWidget::setScale()
 {
     //scale is set by user zooming
-    m_fRefScale = (double)rect().width()-150.0;
+    m_fRefScale = double(rect().width())-150.0;
     m_fScale = m_fRefScale;
 
     m_ptOffset.rx() = rect().width()/2;
@@ -614,15 +614,15 @@ void Section2dWidget::paintGrids(QPainter &painter)
         NPen.setWidth(m_NeutralWidth);
         painter.setPen(NPen);
 
-        painter.drawLine(m_ptOffset.x(), rect().bottom(), m_ptOffset.x(), rect().top());
-        painter.drawLine(rect().right(), m_ptOffset.y(), rect().left(), m_ptOffset.y());
+        painter.drawLine(int(m_ptOffset.x()), rect().bottom(), int(m_ptOffset.x()), rect().top());
+        painter.drawLine(rect().right(), int(m_ptOffset.y()), rect().left(), int(m_ptOffset.y()));
     }
 
     //draw grids
-    if(m_bXGrid)	drawXGrid(painter, m_fScale, m_fScale*m_fScaleY, m_ptOffset);
-    if(m_bYGrid)	drawYGrid(painter, m_fScale, m_fScale*m_fScaleY, m_ptOffset);
-    if(m_bXMinGrid) drawXMinGrid(painter, m_fScale, m_fScale*m_fScaleY, m_ptOffset);
-    if(m_bYMinGrid) drawYMinGrid(painter, m_fScale, m_fScale*m_fScaleY, m_ptOffset);
+    if(m_bXGrid)    drawXGrid(painter, m_fScale, m_ptOffset);
+    if(m_bYGrid)    drawYGrid(painter, m_fScale*m_fScaleY, m_ptOffset);
+    if(m_bXMinGrid) drawXMinGrid(painter, m_fScale, m_ptOffset);
+    if(m_bYMinGrid) drawYMinGrid(painter, m_fScale*m_fScaleY, m_ptOffset);
 
     if(m_bScale) drawScale(painter, m_fScale);
 
@@ -638,9 +638,8 @@ void Section2dWidget::paintGrids(QPainter &painter)
  * @param Offset the Foil leading edge offset in the client area
  * @param dRect the drawing rectangle
  */
-void Section2dWidget::drawXGrid(QPainter &painter, double scalex, double scaley, QPointF Offset)
+void Section2dWidget::drawXGrid(QPainter &painter, double scalex, QPointF Offset)
 {
-    Q_UNUSED(scaley);
     painter.save();
     QPen GridPen(m_XGridColor);
     GridPen.setStyle(getStyle(m_XGridStyle));
@@ -656,7 +655,7 @@ void Section2dWidget::drawXGrid(QPainter &painter, double scalex, double scaley,
     while(int(xt*scalex) + Offset.x()>rect().left() && iter<100)
     {
         //Draw  grid
-        painter.drawLine(int(xt*scalex) + Offset.x(), YMin, int(xt*scalex) + Offset.x(), YMax);
+        painter.drawLine(int(xt*scalex + Offset.x()), YMin, int(xt*scalex + Offset.x()), YMax);
         xt -= m_XGridUnit;
         iter++;
     }
@@ -666,7 +665,7 @@ void Section2dWidget::drawXGrid(QPainter &painter, double scalex, double scaley,
     while(int(xt*scalex) + Offset.x()<rect().right() && iter<100)
     {
         //Draw  grid
-        painter.drawLine(int(xt*scalex) + Offset.x(), YMin, int(xt*scalex) + Offset.x(), YMax);
+        painter.drawLine(int(xt*scalex + Offset.x()), YMin, int(xt*scalex + Offset.x()), YMax);
         xt += m_XGridUnit ;
         iter++;
     }
@@ -684,10 +683,8 @@ void Section2dWidget::drawXGrid(QPainter &painter, double scalex, double scaley,
  * @param Offset the Foil leading edge offset in the client area
  * @param dRect the drawing rectangle
  */
-void Section2dWidget::drawYGrid(QPainter &painter, double scalex, double scaley, QPointF Offset)
+void Section2dWidget::drawYGrid(QPainter &painter, double scaley, QPointF Offset)
 {
-    Q_UNUSED(scalex);
-
     painter.save();
     QPen GridPen(m_YGridColor);
     GridPen.setStyle(getStyle(m_YGridStyle));
@@ -699,18 +696,18 @@ void Section2dWidget::drawYGrid(QPainter &painter, double scalex, double scaley,
 
     double yt = -m_YGridUnit;//one tick at the origin
     int iter = 0;
-    while((int)(yt*scaley) + Offset.y()>rect().top() && iter<100)
+    while(int(yt*scaley+Offset.y())>rect().top() && iter<100)
     {
-        painter.drawLine(XMin, (int)(yt*scaley) + Offset.y(), XMax, (int)(yt*scaley) + Offset.y());
+        painter.drawLine(XMin, int(yt*scaley + Offset.y()), XMax, int(yt*scaley + Offset.y()));
         yt -= m_YGridUnit;
         iter++;
     }
 
     iter = 0;
     yt = m_YGridUnit;
-    while((int)(yt*scaley) + Offset.y()<rect().bottom() && iter<100)
+    while(int(yt*scaley+Offset.y())<rect().bottom() && iter<100)
     {
-        painter.drawLine(XMin, (int)(yt*scaley) + Offset.y(), XMax, (int)(yt*scaley) + Offset.y());
+        painter.drawLine(XMin, int(yt*scaley + Offset.y()), XMax, int(yt*scaley+ Offset.y()));
         yt += m_YGridUnit;
         iter++;
     }
@@ -728,7 +725,7 @@ void Section2dWidget::drawYGrid(QPainter &painter, double scalex, double scaley,
  * @param Offset the Foil leading edge offset in the client area
  * @param dRect the drawing rectangle
  */
-void Section2dWidget::drawXMinGrid(QPainter &painter, double scalex, double scaley, QPointF Offset)
+void Section2dWidget::drawXMinGrid(QPainter &painter, double scalex, QPointF Offset)
 {
     painter.save();
 
@@ -747,7 +744,7 @@ void Section2dWidget::drawXMinGrid(QPainter &painter, double scalex, double scal
     while(int(xt*scalex) + Offset.x()>rect().left() && iter<100)
     {
         //Draw  grid
-        painter.drawLine(int(xt*scalex) + Offset.x(), YMin, int(xt*scalex) + Offset.x(), YMax);
+        painter.drawLine(int(xt*scalex + Offset.x()), YMin, int(xt*scalex + Offset.x()), YMax);
         xt -= m_XMinUnit;
         iter++;
     }
@@ -757,7 +754,7 @@ void Section2dWidget::drawXMinGrid(QPainter &painter, double scalex, double scal
     while(int(xt*scalex) + Offset.x()<rect().right() && iter<100)
     {
         //Draw  grid
-        painter.drawLine(int(xt*scalex) + Offset.x(), YMin, int(xt*scalex) + Offset.x(), YMax);
+        painter.drawLine(int(xt*scalex + Offset.x()), YMin, int(xt*scalex+ Offset.x()) , YMax);
         xt += m_XMinUnit ;
         iter++;
     }
@@ -775,7 +772,7 @@ void Section2dWidget::drawXMinGrid(QPainter &painter, double scalex, double scal
  * @param Offset the Foil leading edge offset in the client area
  * @param dRect the drawing rectangle
  */
-void Section2dWidget::drawYMinGrid(QPainter &painter, double scalex, double scaley, QPointF Offset)
+void Section2dWidget::drawYMinGrid(QPainter &painter, double scaley, QPointF Offset)
 {
     painter.save();
 
@@ -790,30 +787,27 @@ void Section2dWidget::drawYMinGrid(QPainter &painter, double scalex, double scal
 
     double yt =  +(rect().bottom() - m_ptOffset.y())/m_fScale/m_fScaleY;
 
-    int iter = -m_YMinUnit;
-    yt = 0;
-    while((int)(yt*scaley) + Offset.y()>rect().top() && iter<100)
+    int iter = 0;
+    yt = -m_YMinUnit;
+    while(int(yt*scaley) + Offset.y()>rect().top() && iter<100)
     {
         //Draw  grid
-        painter.drawLine(XMin, int(yt*scaley) + Offset.y(), XMax, int(yt*scaley) + Offset.y());
+        painter.drawLine(XMin, int(yt*scaley + Offset.y()), XMax, int(yt*scaley + Offset.y()));
         yt -= m_YMinUnit;
         iter++;
     }
 
     yt = m_YMinUnit;
     iter = 0;
-    while((int)(yt*scaley) + Offset.y()<rect().bottom() && iter<100)
+    while(int(yt*scaley) + Offset.y()<rect().bottom() && iter<100)
     {
         //Draw  grid
-        painter.drawLine(XMin, int(yt*scaley) + Offset.y(), XMax, int(yt*scaley) + Offset.y());
+        painter.drawLine(XMin, int(yt*scaley + Offset.y()), XMax, int(yt*scaley + Offset.y()));
         yt += m_YMinUnit ;
         iter++;
     }
     painter.restore();
 }
-
-
-
 
 
 /**
@@ -823,7 +817,6 @@ void Section2dWidget::drawYMinGrid(QPainter &painter, double scalex, double scal
  */
 void Section2dWidget::drawScale(QPainter &painter, double scalex)
 {
-    int i;
     painter.save();
 
     painter.setFont(Settings::s_TextFont);
@@ -834,8 +827,8 @@ void Section2dWidget::drawScale(QPainter &painter, double scalex)
 
     int TickSize, offy;
 
-    TickSize = (int)(dD/2);
-    offy = m_ptOffset.y();
+    TickSize = dD/2;
+    offy = int(m_ptOffset.y());
 
     QPen TextPen(Settings::s_TextColor);
     painter.setPen(TextPen);
@@ -852,32 +845,32 @@ void Section2dWidget::drawScale(QPainter &painter, double scalex)
     double xht = xo-int((xo-xmin)*1.0001/XHalfGridUnit)*XHalfGridUnit;//one tick at the origin
     double xmt = xo-int((xo-xmin)*1.0001/XMinGridUnit)*XMinGridUnit;//one tick at the origin
 
-    painter.drawLine(int(xt*scalex) + m_ptOffset.x(), offy, int(xmax*scalex) + m_ptOffset.x(), offy);
+    painter.drawLine(int(xt*scalex + m_ptOffset.x()), offy, int(xmax*scalex + m_ptOffset.x()), offy);
 
     QString strLabel;
 
     while(xt<=xmax*1.001)
     {
         //Draw  ticks
-        painter.drawLine(int(xt*scalex) + m_ptOffset.x(), offy, int(xt*scalex) + m_ptOffset.x(), offy+TickSize*2);
+        painter.drawLine(int(xt*scalex + m_ptOffset.x()), offy, int(xt*scalex + m_ptOffset.x()), offy+TickSize*2);
         strLabel = QString("%1").arg(xt,4,'f',1);
-        painter.drawText(int(xt*scalex)+m_ptOffset.x()-dW/2, offy+dD*2, strLabel);
+        painter.drawText(int(xt*scalex+m_ptOffset.x())-dW/2, offy+dD*2, strLabel);
         xt += XGridUnit ;
     }
 
-    //	while(xht<=xmax*1.001)
+    //    while(xht<=xmax*1.001)
     xht = 0;
-    for(i=0;i<1/XHalfGridUnit;i++)
+    for(int i=0;i<1/XHalfGridUnit;i++)
     {
-        if(i%2!=0) painter.drawLine(int(xht*scalex) + m_ptOffset.x(), offy, int(xht*scalex) + m_ptOffset.x(), offy+TickSize*2);
+        if(i%2!=0) painter.drawLine(int(xht*scalex + m_ptOffset.x()), offy, int(xht*scalex + m_ptOffset.x()), offy+TickSize*2);
         xht += XHalfGridUnit ;
     }
 
     xmt=0;
-    //	while(xmt<=xmax*1.001)
-    for(i=0;i<1/XMinGridUnit;i++)
+    //    while(xmt<=xmax*1.001)
+    for(int i=0;i<1/XMinGridUnit;i++)
     {
-        if(i%5!=0) painter.drawLine(int(xmt*scalex) + m_ptOffset.x(), offy,int(xmt*scalex) + m_ptOffset.x(), offy+TickSize);
+        if(i%5!=0) painter.drawLine(int(xmt*scalex + m_ptOffset.x()), offy,int(xmt*scalex + m_ptOffset.x()), offy+TickSize);
         xmt += XMinGridUnit ;
     }
 
@@ -890,7 +883,7 @@ void Section2dWidget::drawScale(QPainter &painter, double scalex)
  */
 void Section2dWidget::releaseZoom()
 {
-   //	pMainFrame->zoomInAct->setChecked(false);
+   //    pMainFrame->zoomInAct->setChecked(false);
     m_bZoomPlus = false;
 
     m_ZoomRect.setRight(m_ZoomRect.left()-1);
@@ -1050,13 +1043,13 @@ void Section2dWidget::drawBackImage(QPainter &painter)
         QPoint VCenter = rect().center();
 
         //draw the background image in the viewport
-        int w = (int)((double)m_BackImage.width()* xscale);
-        int h = (int)((double)m_BackImage.height()* yscale);
+        int w = int(double(m_BackImage.width())* xscale);
+        int h = int(double(m_BackImage.height())* yscale);
         //the coordinates of the top left corner are measured from the center of the viewport
-        double xtop = VCenter.x() + m_ViewportTrans.x() - (double)m_BackImage.width()  /2.*xscale;
-        double ytop = VCenter.y() + m_ViewportTrans.y() - (double)m_BackImage.height() /2.*yscale;
+        double xtop = VCenter.x() + m_ViewportTrans.x() - double(m_BackImage.width())  /2.*xscale;
+        double ytop = VCenter.y() + m_ViewportTrans.y() - double(m_BackImage.height()) /2.*yscale;
 
-        painter.drawPixmap(xtop, ytop, w, h, m_BackImage);
+        painter.drawPixmap(int(xtop), int(ytop), w, h, m_BackImage);
         painter.restore();
     }
 }
@@ -1094,7 +1087,7 @@ void Section2dWidget::onZoomIn()
 void Section2dWidget::onZoomYOnly()
 {
     m_bZoomYOnly = !m_bZoomYOnly;
-    //	pMainFrame->zoomYAct->setChecked(m_bZoomYOnly);
+    //    pMainFrame->zoomYAct->setChecked(m_bZoomYOnly);
 
 }
 
@@ -1117,8 +1110,8 @@ void Section2dWidget::onZoomLess()
     int b = rect().center().y();
 
     //scale
-    m_ptOffset.rx() = (int)(ZoomFactor*(m_ptOffset.x()-a)+a);
-    m_ptOffset.ry() = (int)(ZoomFactor*(m_ptOffset.y()-b)+b);
+    m_ptOffset.rx() = int(ZoomFactor*(m_ptOffset.x()-a)+a);
+    m_ptOffset.ry() = int(ZoomFactor*(m_ptOffset.y()-b)+b);
 
     update();
 }

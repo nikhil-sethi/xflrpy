@@ -29,24 +29,24 @@ class IntEdit;
 
 class SaveOptions : public QWidget
 {
-	friend class MainFrame;
-	Q_OBJECT
+    friend class MainFrame;
+    Q_OBJECT
 public:
     SaveOptions(QWidget *parent = nullptr);
 
-	void initWidget(bool bAutoLoadLast=false, bool bOpps=false, bool bWOpps = true, bool bAutoSave=true, int saveInterval=10);
+    void initWidget(bool bAutoLoadLast=false, bool bOpps=false, bool bWOpps = true, bool bAutoSave=true, int saveInterval=10);
 
 public slots:
-	void onOK();
+    void onOK();
 
 private:
-	void setupLayout();
-	void readParams();
+    void setupLayout();
+    void readParams();
 
-	bool m_bOpps, m_bWOpps, m_bAutoSave, m_bAutoLoadLast;
-	int m_SaveInterval;
-	IntEdit *m_pctrlInterval;
-	QCheckBox *m_pctrlOpps, *m_pctrlWOpps;
-	QCheckBox *m_pctrlAutoSave, *m_pctrlAutoLoadLast;
+    bool m_bOpps, m_bWOpps, m_bAutoSave, m_bAutoLoadLast;
+    int m_SaveInterval;
+    IntEdit *m_pctrlInterval;
+    QCheckBox *m_pctrlOpps, *m_pctrlWOpps;
+    QCheckBox *m_pctrlAutoSave, *m_pctrlAutoLoadLast;
 };
 

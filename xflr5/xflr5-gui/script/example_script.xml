@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE XFLR5_SCRIPT>
 <XFLR5_SCRIPT version="1.0">
-	<Input>
-		<Foils>
-		  <Input_Directory_Foil_Files>/home/techwinder/aero/all_XFLR5/studies/airfoils</Input_Directory_Foil_Files>
-			<Foil_Files>
-				<Foil_File_Name>foil1.dat</Foil_File_Name>
-				<Foil_File_Name>naca/naca1410.dat</Foil_File_Name>
-				<Foil_File_Name>rg/rg14.dat</Foil_File_Name>
-			</Foil_Files>
-		</Foils>
-	    
-		<Foil_Polars>
-			<Input_Directory_Foil_Polar_Files>/home/techwinder/aero/all_XFLR5/studies/polars</Input_Directory_Foil_Polar_Files>
-			<Foil_Polar_Files> 
-				<Polar_File_Name>foil2.plr</Polar_File_Name>
-				<Polar_File_Name>NACA 009.plr</Polar_File_Name>
-				<Polar_File_Name>hn-354.plr</Polar_File_Name>
-			</Foil_Polar_Files> 
-		</Foil_Polars> 
-	    
-		<Planes>
-			<Input_Directory_Plane_Files>/home/techwinder/aero/all_XFLR5/studies/xmlplanes</Input_Directory_Plane_Files>
-			<Plane_Files>
-				<Plane_File_Name>Plane_001.xml</Plane_File_Name>
-				<Plane_File_Name>000wing clark.xml</Plane_File_Name>
-				<Plane_File_Name>Micro Thing.xml</Plane_File_Name>
-				<Plane_File_Name>Prodij.xml</Plane_File_Name>
-			</Plane_Files>
-		</Planes>
-	    
-		<Plane_Polars>
-			<Input_Directory_Plane_Polar_Files>/home/techwinder/aero/all_XFLR5/studies/xmlplanepolars</Input_Directory_Plane_Polar_Files>
-			<Plane_Polar_Files> 
-				<Polar_File_Name>T2-VLM2.xml</Polar_File_Name>
-				<Polar_File_Name>T7-VLM2.xml</Polar_File_Name>
-			</Plane_Polar_Files> 
-		</Plane_Polars> 
-	    
-		<Foil_Analysis>
-			<Mach> 0.01 0.01  0.01   0.01 0.02 0.03</Mach>
-			<NCrit> 7.0  9.0   9.0    9.0  10.0   11.0</NCrit>
-			<Reynolds> 30000 50000 100000 200000 500000 1000000</Reynolds>
-			<Forced_Top_Transition>0.7</Forced_Top_Transition>
-			<Forced_Bottom_Transition>0.9</Forced_Bottom_Transition>
-			<Alpha>-6.0, 10.0, 0.5</Alpha>
-			<Velocity>25.00</Velocity>
-		</Foil_Analysis>
-	    
-		<Plane_Analysis>
-			<Alpha>-5.0, 7.1, 0.783</Alpha>
-			<Beta>3.141592654, 5.52121</Beta>
-			<Velocity>15.7321456</Velocity>
-			<Control>0.123456789</Control>
-		</Plane_Analysis>
-	</Input>
-	
-	<Output>
-		<Output_Directory>/home/techwinder/tmp</Output_Directory>
-		<make_xfl_project_file>true</make_xfl_project_file>
-		<project_file_name>test_project</project_file_name>
-		<make_oppoints>false</make_oppoints>
-	</Output>
-	
-	<Options>
-		<use_multithreading>true</use_multithreading>
-		<max_threads>2</max_threads>
-	</Options>
+    <Input>
+        <Foils>
+          <Input_Directory_Foil_Files>/home/techwinder/aero/all_XFLR5/studies/airfoils</Input_Directory_Foil_Files>
+            <Foil_Files>
+                <Foil_File_Name>foil1.dat</Foil_File_Name>
+                <Foil_File_Name>naca/naca1410.dat</Foil_File_Name>
+                <Foil_File_Name>rg/rg14.dat</Foil_File_Name>
+            </Foil_Files>
+        </Foils>
+        
+        <Foil_Polars>
+            <Input_Directory_Foil_Polar_Files>/home/techwinder/aero/all_XFLR5/studies/polars</Input_Directory_Foil_Polar_Files>
+            <Foil_Polar_Files> 
+                <Polar_File_Name>foil2.plr</Polar_File_Name>
+                <Polar_File_Name>NACA 009.plr</Polar_File_Name>
+                <Polar_File_Name>hn-354.plr</Polar_File_Name>
+            </Foil_Polar_Files> 
+        </Foil_Polars> 
+        
+        <Planes>
+            <Input_Directory_Plane_Files>/home/techwinder/aero/all_XFLR5/studies/xmlplanes</Input_Directory_Plane_Files>
+            <Plane_Files>
+                <Plane_File_Name>Plane_001.xml</Plane_File_Name>
+                <Plane_File_Name>000wing clark.xml</Plane_File_Name>
+                <Plane_File_Name>Micro Thing.xml</Plane_File_Name>
+                <Plane_File_Name>Prodij.xml</Plane_File_Name>
+            </Plane_Files>
+        </Planes>
+        
+        <Plane_Polars>
+            <Input_Directory_Plane_Polar_Files>/home/techwinder/aero/all_XFLR5/studies/xmlplanepolars</Input_Directory_Plane_Polar_Files>
+            <Plane_Polar_Files> 
+                <Polar_File_Name>T2-VLM2.xml</Polar_File_Name>
+                <Polar_File_Name>T7-VLM2.xml</Polar_File_Name>
+            </Plane_Polar_Files> 
+        </Plane_Polars> 
+        
+        <Foil_Analysis>
+            <Mach> 0.01 0.01  0.01   0.01 0.02 0.03</Mach>
+            <NCrit> 7.0  9.0   9.0    9.0  10.0   11.0</NCrit>
+            <Reynolds> 30000 50000 100000 200000 500000 1000000</Reynolds>
+            <Forced_Top_Transition>0.7</Forced_Top_Transition>
+            <Forced_Bottom_Transition>0.9</Forced_Bottom_Transition>
+            <Alpha>-6.0, 10.0, 0.5</Alpha>
+            <Velocity>25.00</Velocity>
+        </Foil_Analysis>
+        
+        <Plane_Analysis>
+            <Alpha>-5.0, 7.1, 0.783</Alpha>
+            <Beta>3.141592654, 5.52121</Beta>
+            <Velocity>15.7321456</Velocity>
+            <Control>0.123456789</Control>
+        </Plane_Analysis>
+    </Input>
+    
+    <Output>
+        <Output_Directory>/home/techwinder/tmp</Output_Directory>
+        <make_xfl_project_file>true</make_xfl_project_file>
+        <project_file_name>test_project</project_file_name>
+        <make_oppoints>false</make_oppoints>
+    </Output>
+    
+    <Options>
+        <use_multithreading>true</use_multithreading>
+        <max_threads>2</max_threads>
+    </Options>
   
 </XFLR5_SCRIPT>
 

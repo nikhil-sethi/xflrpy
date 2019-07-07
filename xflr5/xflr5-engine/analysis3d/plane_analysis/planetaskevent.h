@@ -16,18 +16,18 @@ class XFLR5ENGINELIBSHARED_EXPORT PlaneTaskEvent : public QEvent
 {
 
 public:
-	PlaneTaskEvent(void * pPlane, void *pWPolar): QEvent(PLANE_END_TASK_EVENT),
-		m_pPlane(pPlane),
-		m_pWPolar(pWPolar)
-	{
-	}
+    PlaneTaskEvent(void * pPlane, void *pWPolar): QEvent(PLANE_END_TASK_EVENT),
+        m_pPlane(pPlane),
+        m_pWPolar(pWPolar)
+    {
+    }
 
-	void * planePtr() const	{return m_pPlane;}
-	void * wPolarPtr() const	{return m_pWPolar;}
+    void * planePtr() const    {return m_pPlane;}
+    void * wPolarPtr() const    {return m_pWPolar;}
 
 private:
-	void *m_pPlane;
-	void *m_pWPolar;
+    void *m_pPlane;
+    void *m_pWPolar;
 };
 
 
@@ -36,8 +36,8 @@ class PlanePOppEvent : public QEvent
 {
 
 public:
-	PlanePOppEvent(): QEvent(PLANE_END_POPP_EVENT)	{
-	}
+    PlanePOppEvent(): QEvent(PLANE_END_POPP_EVENT)    {
+    }
 };
 
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 
     Vector Class
-	Copyright (C) 2008 Andre Deperrois 
+    Copyright (C) 2008 Andre Deperrois 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,21 +36,21 @@ void Vector3d::rotate(Vector3d const &R, double Angle)
 {
     double norm, ux, uy,uz, ca, sa, x0, y0, z0;
 
-	ca = cos(Angle *PI/180.0);
-	sa = sin(Angle *PI/180.0);
+    ca = cos(Angle *PI/180.0);
+    sa = sin(Angle *PI/180.0);
 
-	x0 = x;
-	y0 = y;
-	z0 = z;
+    x0 = x;
+    y0 = y;
+    z0 = z;
 
-	norm = sqrt(R.x*R.x+ R.y*R.y + R.z*R.z);
-	ux = R.x/norm;
-	uy = R.y/norm;
-	uz = R.z/norm;
+    norm = sqrt(R.x*R.x+ R.y*R.y + R.z*R.z);
+    ux = R.x/norm;
+    uy = R.y/norm;
+    uz = R.z/norm;
 
-	x =     (ca+ux*ux*(1-ca))  *x0  +  (ux*uy*(1-ca)-uz*sa) *y0 +  (ux*uz*(1-ca)+uy*sa) *z0;
-	y =   (uy*ux*(1-ca)+uz*sa) *x0  +    (ca+uy*uy*(1-ca))  *y0 +  (uy*uz*(1-ca)-ux*sa) *z0;
-	z =   (uz*ux*(1-ca)-uy*sa) *x0  +  (uz*uy*(1-ca)+ux*sa) *y0 +    (ca+uz*uz*(1-ca))  *z0;
+    x =     (ca+ux*ux*(1-ca))  *x0  +  (ux*uy*(1-ca)-uz*sa) *y0 +  (ux*uz*(1-ca)+uy*sa) *z0;
+    y =   (uy*ux*(1-ca)+uz*sa) *x0  +    (ca+uy*uy*(1-ca))  *y0 +  (uy*uz*(1-ca)-ux*sa) *z0;
+    z =   (uz*ux*(1-ca)-uy*sa) *x0  +  (uz*uy*(1-ca)+ux*sa) *y0 +    (ca+uz*uz*(1-ca))  *z0;
 }
 
 
@@ -62,15 +62,15 @@ void Vector3d::rotate(Vector3d const &R, double Angle)
 void Vector3d::rotate(Vector3d &O, Vector3d const &R, double Angle)
 {
     Vector3d OP;
-	OP.x = x-O.x;
-	OP.y = y-O.y;
-	OP.z = z-O.z;
+    OP.x = x-O.x;
+    OP.y = y-O.y;
+    OP.z = z-O.z;
 
-	OP.rotate(R, Angle);
+    OP.rotate(R, Angle);
 
-	x = O.x + OP.x;
-	y = O.y + OP.y;
-	z = O.z + OP.z;
+    x = O.x + OP.x;
+    y = O.y + OP.y;
+    z = O.z + OP.z;
 }
 
 
@@ -82,14 +82,14 @@ void Vector3d::rotate(Vector3d &O, Vector3d const &R, double Angle)
 */
 void Vector3d::rotateX(Vector3d const &O, double XTilt)
 {
-	Vector3d OP;
-	OP.x = x-O.x;
-	OP.y = y-O.y;
-	OP.z = z-O.z;
-		
-	XTilt *=PI/180.0;
-	y = O.y + OP.y * cos(XTilt) - OP.z * sin(XTilt);
-	z = O.z + OP.y * sin(XTilt) + OP.z * cos(XTilt);
+    Vector3d OP;
+    OP.x = x-O.x;
+    OP.y = y-O.y;
+    OP.z = z-O.z;
+        
+    XTilt *=PI/180.0;
+    y = O.y + OP.y * cos(XTilt) - OP.z * sin(XTilt);
+    z = O.z + OP.y * sin(XTilt) + OP.z * cos(XTilt);
 }
 
 /**
@@ -100,16 +100,16 @@ void Vector3d::rotateX(Vector3d const &O, double XTilt)
 */
 void Vector3d::rotateY(Vector3d const &O, double YTilt)
 {
-	//Rotate the vector around the Y-axis, by an angle YTilt
-	Vector3d OP;
-	OP.x = x-O.x;
-	OP.y = y-O.y;
-	OP.z = z-O.z;
-		
-	YTilt *=PI/180.0;
+    //Rotate the vector around the Y-axis, by an angle YTilt
+    Vector3d OP;
+    OP.x = x-O.x;
+    OP.y = y-O.y;
+    OP.z = z-O.z;
+        
+    YTilt *=PI/180.0;
 
-	x = O.x + OP.x * cos(YTilt) + OP.z * sin(YTilt);
-	z = O.z - OP.x * sin(YTilt) + OP.z * cos(YTilt);
+    x = O.x + OP.x * cos(YTilt) + OP.z * sin(YTilt);
+    z = O.z - OP.x * sin(YTilt) + OP.z * cos(YTilt);
 }
 
 
@@ -121,46 +121,46 @@ void Vector3d::rotateY(Vector3d const &O, double YTilt)
 */
 void Vector3d::rotateZ(Vector3d const &O, double ZTilt)
 {
-	//Rotate the vector around the Z-axis, by an angle ZTilt
-	Vector3d OP;
-	OP.x = x-O.x;
-	OP.y = y-O.y;
-	OP.z = z-O.z;
-	
-	ZTilt *=PI/180.0;
+    //Rotate the vector around the Z-axis, by an angle ZTilt
+    Vector3d OP;
+    OP.x = x-O.x;
+    OP.y = y-O.y;
+    OP.z = z-O.z;
+    
+    ZTilt *=PI/180.0;
 
-	x = O.x + OP.x * cos(ZTilt) - OP.y * sin(ZTilt);
-	y = O.y + OP.x * sin(ZTilt) + OP.y * cos(ZTilt);
+    x = O.x + OP.x * cos(ZTilt) - OP.y * sin(ZTilt);
+    y = O.y + OP.x * sin(ZTilt) + OP.y * cos(ZTilt);
 }
 
 
 void  Vector3d::rotateX(double delta)
 {
-	delta *=PI/180.0;
+    delta *=PI/180.0;
 
-	double yo = y;
-	double zo = z;
-	y =  yo * cos(delta) - zo * sin(delta);
-	z =  yo * sin(delta) + zo * cos(delta);
+    double yo = y;
+    double zo = z;
+    y =  yo * cos(delta) - zo * sin(delta);
+    z =  yo * sin(delta) + zo * cos(delta);
 }
 
 
 
 void  Vector3d::rotateY(double YTilt)
 {
-	YTilt *=PI/180.0;
+    YTilt *=PI/180.0;
 
-	double xo = x;
-	double zo = z;
-	x =  xo * cos(YTilt) + zo * sin(YTilt);
-	z = -xo * sin(YTilt) + zo * cos(YTilt);
+    double xo = x;
+    double zo = z;
+    x =  xo * cos(YTilt) + zo * sin(YTilt);
+    z = -xo * sin(YTilt) + zo * cos(YTilt);
 }
 
 
 void Vector3d::displayCoords(QString msg) const
 {
-	QString strange;
-	strange.sprintf("%s  %13.5g, %13.5g, %13.5g", msg.toStdString().c_str(), x,y,z);
-	qDebug("%s", strange.toStdString().c_str());
+    QString strange;
+    strange.sprintf("%s  %13.5g, %13.5g, %13.5g", msg.toStdString().c_str(), x,y,z);
+    qDebug("%s", strange.toStdString().c_str());
 }
 

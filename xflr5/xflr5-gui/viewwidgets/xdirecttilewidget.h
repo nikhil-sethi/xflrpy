@@ -41,9 +41,9 @@ public:
 public:
     void connectSignals();
     void adjustLayout();
-    void setGraphList(QList<Graph *> pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation =Qt::Horizontal);
+    void setGraphList(QVector<Graph *> pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation =Qt::Horizontal);
 
-    OpPointWidget *opPointWidget(){return m_pOpPointWidget;}
+    OpPointWidget *opPointWidget() {return m_pOpPointWidget;}
 
 public slots:
     void onResetCurGraphScales();
@@ -51,7 +51,7 @@ public slots:
 private:
     void setupMainLayout();
 
-    //	QStackedWidget *m_pLegendStack;
+    //    QStackedWidget *m_pLegendStack;
     OpPointWidget *m_pOpPointWidget;
 
     QGridLayout *m_pMainGridLayout;

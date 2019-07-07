@@ -1,31 +1,32 @@
 /****************************************************************************
 
-	InverseViewWidget Class
-	Copyright (C) 2009-2016 Andre Deperrois 
+    InverseViewWidget Class
+    Copyright (C) 2009-2016 Andre Deperrois
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 *****************************************************************************/
 
 #include <math.h>
 #include <QMenu>
+#include <QMouseEvent>
 
 #include <globals/mainframe.h>
-#include <misc/options/displayoptions.h>
+#include <misc/options/settings.h>
 #include <graph/graph.h>
-#include <xinverse/XInverse.h>
+#include <xinverse/xinverse.h>
 #include <viewwidgets/inverseviewwidget.h>
 
 
@@ -33,18 +34,18 @@
 *The public constructor
 */
 InverseViewWidget::InverseViewWidget(QWidget *parent)
-	: QWidget(parent)
+    : QWidget(parent)
 {
-	m_pMainFrame = nullptr;
-	m_pXInverse = nullptr;
+    m_pMainFrame = nullptr;
+    m_pXInverse = nullptr;
 
-	setMouseTracking(true);
-	setCursor(Qt::CrossCursor);
+    setMouseTracking(true);
+    setCursor(Qt::CrossCursor);
 
-	QSizePolicy sizepol;
-	sizepol.setHorizontalPolicy(QSizePolicy::Expanding);
-	sizepol.setVerticalPolicy(QSizePolicy::Expanding);
-	setSizePolicy(sizepol);
+    QSizePolicy sizepol;
+    sizepol.setHorizontalPolicy(QSizePolicy::Expanding);
+    sizepol.setVerticalPolicy(QSizePolicy::Expanding);
+    setSizePolicy(sizepol);
 }
 
 
@@ -55,9 +56,9 @@ InverseViewWidget::InverseViewWidget(QWidget *parent)
 void InverseViewWidget::keyPressEvent(QKeyEvent *event)
 {
     if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
-	{
+    {
         m_pXInverse->keyPressEvent(event);
-	}
+    }
 }
 
 
@@ -68,9 +69,9 @@ void InverseViewWidget::keyPressEvent(QKeyEvent *event)
 void InverseViewWidget::keyReleaseEvent(QKeyEvent *event)
 {
     if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
-	{
+    {
         m_pXInverse->keyReleaseEvent(event);
-	}
+    }
 }
 
 
@@ -82,9 +83,9 @@ void InverseViewWidget::keyReleaseEvent(QKeyEvent *event)
 void InverseViewWidget::mousePressEvent(QMouseEvent *event)
 {
     if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
-	{
+    {
         m_pXInverse->mousePressEvent(event);
-	}
+    }
 }
 
 
@@ -95,9 +96,9 @@ void InverseViewWidget::mousePressEvent(QMouseEvent *event)
 void InverseViewWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
-	{
+    {
         m_pXInverse->mouseReleaseEvent(event);
-	}
+    }
 }
 
 
@@ -108,9 +109,9 @@ void InverseViewWidget::mouseReleaseEvent(QMouseEvent *event)
 void InverseViewWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
-	{
+    {
         m_pXInverse->mouseMoveEvent(event);
-	}
+    }
 }
 
 
@@ -122,9 +123,9 @@ void InverseViewWidget::mouseMoveEvent(QMouseEvent *event)
 void InverseViewWidget::mouseDoubleClickEvent ( QMouseEvent * event )
 {
     if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
-	{
+    {
         m_pXInverse->doubleClickEvent(event->pos());
-	}
+    }
 }
 
 
@@ -134,11 +135,11 @@ void InverseViewWidget::mouseDoubleClickEvent ( QMouseEvent * event )
 */
 void InverseViewWidget::resizeEvent(QResizeEvent *event)
 {
-	if(m_pXInverse)
-	{
+    if(m_pXInverse)
+    {
         m_pXInverse->setXInverseScale(rect());
-	}
-	event->accept();
+    }
+    event->accept();
 }
 
 
@@ -150,25 +151,25 @@ void InverseViewWidget::resizeEvent(QResizeEvent *event)
 */
 void InverseViewWidget::wheelEvent(QWheelEvent *event)
 {
-	double ZoomFactor=1.0;
+    double ZoomFactor=1.0;
 
-	QPoint pt(event->x(), event->y()); //client coordinates
+    QPoint pt(event->x(), event->y()); //client coordinates
 
-	if(event->delta()>0)
-	{
-		if(!Settings::s_bReverseZoom) ZoomFactor = 1./1.06;
-		else                          ZoomFactor = 1.06;
-	}
-	else
-	{
-		if(!Settings::s_bReverseZoom) ZoomFactor = 1.06;
-		else                          ZoomFactor = 1./1.06;
-	}
+    if(event->delta()>0)
+    {
+        if(!Settings::s_bReverseZoom) ZoomFactor = 1./1.06;
+        else                          ZoomFactor = 1.06;
+    }
+    else
+    {
+        if(!Settings::s_bReverseZoom) ZoomFactor = 1.06;
+        else                          ZoomFactor = 1./1.06;
+    }
 
     if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
-	{
+    {
         m_pXInverse->zoomEvent(pt, ZoomFactor);
-	}
+    }
 }
 
 
@@ -179,16 +180,16 @@ void InverseViewWidget::wheelEvent(QWheelEvent *event)
 void InverseViewWidget::paintEvent(QPaintEvent *event)
 {
     if(m_pMainFrame->m_iApp == XFLR5::INVERSEDESIGN && m_pXInverse)
-	{
-		QPainter painter(this);
+    {
+        QPainter painter(this);
         m_pXInverse->paintView(painter);
-	}
-	else
-	{
-		QPainter painter(this);
-		painter.fillRect(rect(), Settings::s_BackgroundColor);
-	}
-	event->accept();
+    }
+    else
+    {
+        QPainter painter(this);
+        painter.fillRect(rect(), Settings::s_BackgroundColor);
+    }
+    event->accept();
 }
 
 
@@ -198,16 +199,16 @@ void InverseViewWidget::paintEvent(QPaintEvent *event)
 */
 void InverseViewWidget::contextMenuEvent (QContextMenuEvent * event)
 {
-	QPoint ScreenPt = event->globalPos();
+    QPoint ScreenPt = event->globalPos();
 
     switch(m_pMainFrame->m_iApp)
-	{
-		case XFLR5::INVERSEDESIGN:
-		{
+    {
+        case XFLR5::INVERSEDESIGN:
+        {
             m_pMainFrame->m_pInverseContextMenu->exec(ScreenPt);
-			break;
-		}
-		default:
-			break;
-	}
+            break;
+        }
+        default:
+            break;
+    }
 }

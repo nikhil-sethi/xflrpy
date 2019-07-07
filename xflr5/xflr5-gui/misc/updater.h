@@ -66,7 +66,7 @@ private slots:
     void onReplyFinished(QNetworkReply*pNetReply);
     void onReadyRead();
     void slotError(QNetworkReply::NetworkError neterror);
-    void slotSslErrors(QList<QSslError> sslerrors);
+    void slotSslErrors(QVector<QSslError> sslerrors);
 
 
 private:

@@ -30,52 +30,52 @@ class gl3dMiarexView : public gl3dView
 {
 public:
     gl3dMiarexView(QWidget *parent = nullptr);
-	~gl3dMiarexView();
+    ~gl3dMiarexView();
 
 private:
-	void glRenderView();
-	void contextMenuEvent (QContextMenuEvent * event);
-	void paintGL();
-	void paintOverlay();
-	void set3DRotationCenter(QPoint point);
-	void resizeGL(int width, int height);
+    void glRenderView();
+    void contextMenuEvent(QContextMenuEvent *pEvent);
+    void paintGL();
+    void paintOverlay();
+    void set3DRotationCenter(QPoint point);
+    void resizeGL(int width, int height);
 
 public:
     void glMake3dObjects();
-	void glMakeCpLegendClr();
+    void glMakeCpLegendClr();
     bool glMakeStreamLines(Wing *PlaneWing[MAXWINGS], Vector3d *pNode, WPolar *pWPolar, PlaneOpp *pPOpp, int nPanels);
-	void glMakeSurfVelocities(Panel *pPanel, WPolar *pWPolar, PlaneOpp *pPOpp, int nPanels);
-	void glMakeTransitions(int iWing, Wing *pWing, WPolar *pWPolar, WingOpp *pWOpp);
+    void glMakeSurfVelocities(Panel *pPanel, WPolar *pWPolar, PlaneOpp *pPOpp, int nPanels);
+    void glMakeTransitions(int iWing, Wing *pWing, WPolar *pWPolar, WingOpp *pWOpp);
     void glMakeLiftStrip(int iWing, Wing *pWing, WPolar *pWPolar, WingOpp *pWOpp);
-	void glMakeLiftForce(WPolar *pWPolar, PlaneOpp *pPOpp);
-	void glMakeMoments(Wing *pWing, WPolar *pWPolar, PlaneOpp *pPOpp);
-	void glMakeDownwash(int iWing, Wing *pWing, WPolar *pWPolar, WingOpp *pWOpp);
-	void glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, WingOpp *pWOpp, double beta);
-	void glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPolar, PlaneOpp *pPOpp);
-	void glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, Vector3d *pNode, Panel *pPanel, PlaneOpp *pPOpp);
+    void glMakeLiftForce(WPolar *pWPolar, PlaneOpp *pPOpp);
+    void glMakeMoments(Wing *pWing, WPolar *pWPolar, PlaneOpp *pPOpp);
+    void glMakeDownwash(int iWing, Wing *pWing, WPolar *pWPolar, WingOpp *pWOpp);
+    void glMakeDragStrip(int iWing, Wing *pWing, WPolar *pWPolar, WingOpp *pWOpp, double beta);
+    void glMakePanelForces(int nPanels, Panel *pPanel, WPolar *pWPolar, PlaneOpp *pPOpp);
+    void glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, Vector3d *pNode, Panel *pPanel, PlaneOpp *pPOpp);
 
-	void paintLift(int iWing);
-	void paintMoments();
-	void paintDrag(int iWing);
-	void paintDownwash(int iWing);
-	void paintStreamLines();
-	void paintSurfaceVelocities(int nPanels);
-	void paintTransitions(int iWing);
-	void paintCpLegendClr();
-	void paintPanelCp(int nPanels);
-	void paintPanelForces(int nPanels);
-	void paintMesh(int nPanels);
+    void paintLift(int iWing);
+    void paintMoments();
+    void paintDrag(int iWing);
+    void paintDownwash(int iWing);
+    void paintStreamLines();
+    void paintSurfaceVelocities(int nPanels);
+    void paintTransitions(int iWing);
+    void paintCpLegendClr();
+    void paintPanelCp(int nPanels);
+    void paintPanelForces(int nPanels);
+    void paintMesh(int nPanels);
 
 public slots:
-	void on3DReset();
+    void on3DReset();
 
 public:
-	QOpenGLBuffer m_vboSurfaceVelocities, m_vboPanelCp, m_vboPanelForces, m_vboStreamLines;
-	QOpenGLBuffer m_vboLiftForce, m_vboMoments;
-	QOpenGLBuffer m_vboICd[MAXWINGS], m_vboVCd[MAXWINGS], m_vboLiftStrips[MAXWINGS], m_vboTransitions[MAXWINGS], m_vboDownwash[MAXWINGS];
-	QOpenGLBuffer m_vboMesh, m_vboLegendColor;
+    QOpenGLBuffer m_vboSurfaceVelocities, m_vboPanelCp, m_vboPanelForces, m_vboStreamLines;
+    QOpenGLBuffer m_vboLiftForce, m_vboMoments;
+    QOpenGLBuffer m_vboICd[MAXWINGS], m_vboVCd[MAXWINGS], m_vboLiftStrips[MAXWINGS], m_vboTransitions[MAXWINGS], m_vboDownwash[MAXWINGS];
+    QOpenGLBuffer m_vboMesh, m_vboLegendColor;
 
-    uint m_NStreamLines;
+    int m_NStreamLines;
 
 
     static bool s_bResetglGeom;               /**< true if the geometry OpenGL list needs to be re-generated */
@@ -96,7 +96,7 @@ public:
     static double s_VelocityScale;            /**< scaling factor for the velocity display in 3D view */
     static double s_DragScale;                /**< scaling factor for the drag display in 3D view */
 
-    static bool s_bAutoCpScale;		          /**< true if the Cp scale should be set automatically */
+    static bool s_bAutoCpScale;                  /**< true if the Cp scale should be set automatically */
     static double s_LegendMin;                /**< minimum value of the Cp scale in 3D view */
     static double s_LegendMax;                /**< maximum value of the Cp scale in 3D view */
 

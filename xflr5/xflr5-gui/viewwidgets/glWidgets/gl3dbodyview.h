@@ -25,6 +25,7 @@
 #include <gl3dview.h>
 
 class Body;
+class GL3dBodyDlg;
 
 class gl3dBodyView : public gl3dView
 {
@@ -51,6 +52,7 @@ public:
     bool m_bResetglFrameHighlight;
     bool m_bResetglBody;
 
+//    GL3dBodyDlg *m_pglBodyDlg;
 };
 
 #endif // GL3DBODYVIEW_H

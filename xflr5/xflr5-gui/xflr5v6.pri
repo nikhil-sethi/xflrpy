@@ -1,92 +1,95 @@
 
 SOURCES += \
-    design/AFoil.cpp \
-    design/AFoilTableDlg.cpp \
-    design/FoilTableDelegate.cpp \
-    design/GridSettingsDlg.cpp \
-    design/LECircleDlg.cpp \
-    design/SplineCtrlsDlg.cpp \
+    design/afoil.cpp \
+    design/afoiltabledlg.cpp \
+    design/foiltabledelegate.cpp \
+    design/gridsettingsdlg.cpp \
+    design/lecircledlg.cpp \
+    design/splinectrlsdlg.cpp \
     glcontextinfo/glrenderwindow.cpp \
     glcontextinfo/view3dtestdlg.cpp \
-    globals/XFLR5Application.cpp \
     globals/globals.cpp \
     globals/main.cpp \
     globals/mainframe.cpp \
+    globals/xflr5application.cpp \
     graph/curve.cpp \
     graph/graph.cpp \
     graph/graph_globals.cpp \
     graph/graphdlg.cpp \
-    gui_objects/Spline5.cpp \
-    gui_objects/SplineFoil.cpp \
-    miarex/Miarex.cpp \
-    miarex/analysis/AeroDataDlg.cpp \
-    miarex/analysis/CtrlTableDelegate.cpp \
-    miarex/analysis/EditPolarDefDlg.cpp \
-    miarex/analysis/LLTAnalysisDlg.cpp \
-    miarex/analysis/PanelAnalysisDlg.cpp \
-    miarex/analysis/StabPolarDlg.cpp \
-    miarex/analysis/WAdvancedDlg.cpp \
-    miarex/analysis/WPolarDlg.cpp  \
-    miarex/design/BodyGridDlg.cpp \
-    miarex/design/BodyScaleDlg.cpp \
-    miarex/design/BodyTableDelegate.cpp \
-    miarex/design/BodyTransDlg.cpp \
-    miarex/design/EditBodyDlg.cpp \
-    miarex/design/EditObjectDelegate.cpp \
-    miarex/design/EditPlaneDlg.cpp \
-    miarex/design/GL3dBodyDlg.cpp \
-    miarex/design/GL3dWingDlg.cpp \
-    miarex/design/InertiaDlg.cpp \
-    miarex/design/PlaneDlg.cpp \
-    miarex/design/WingDelegate.cpp \
-    miarex/design/WingScaleDlg.cpp \
+    gui_objects/spline5.cpp \
+    gui_objects/splinefoil.cpp \
+    miarex/analysis/aerodatadlg.cpp \
+    miarex/analysis/ctrltabledelegate.cpp \
+    miarex/analysis/editpolardefdlg.cpp \
+    miarex/analysis/lltanalysisdlg.cpp \
+    miarex/analysis/panelanalysisdlg.cpp \
+    miarex/analysis/stabpolardlg.cpp \
+    miarex/analysis/wadvanceddlg.cpp \
+    miarex/analysis/wpolardlg.cpp \
+    miarex/design/bodygriddlg.cpp \
+    miarex/design/bodyscaledlg.cpp \
+    miarex/design/bodytabledelegate.cpp \
+    miarex/design/bodytransdlg.cpp \
+    miarex/design/editbodydlg.cpp \
+    miarex/design/editobjectdelegate.cpp \
+    miarex/design/editplanedlg.cpp \
+    miarex/design/gl3dbodydlg.cpp \
+    miarex/design/gl3dwingdlg.cpp \
+    miarex/design/inertiadlg.cpp \
+    miarex/design/planedlg.cpp \
+    miarex/design/wingdelegate.cpp \
+    miarex/design/wingscaledlg.cpp \
     miarex/design/wingseldlg.cpp \
-    miarex/mgt/ImportObjectDlg.cpp\
-    miarex/mgt/ManagePlanesDlg.cpp \
-    miarex/mgt/PlaneTableDelegate.cpp \
-    miarex/mgt/XmlPlaneReader.cpp \
-    miarex/mgt/XmlPlaneWriter.cpp \
+    miarex/mgt/importobjectdlg.cpp \
+    miarex/mgt/manageplanesdlg.cpp \
+    miarex/mgt/planetabledelegate.cpp \
+    miarex/mgt/xmlplanereader.cpp \
+    miarex/mgt/xmlplanewriter.cpp \
     miarex/mgt/xmlwpolarreader.cpp \
     miarex/mgt/xmlwpolarwriter.cpp \
+    miarex/miarex.cpp \
     miarex/objects3d.cpp \
-    miarex/view/GL3DScales.cpp \
-    miarex/view/GLLightDlg.cpp \
-    miarex/view/StabViewDlg.cpp \
-    miarex/view/TargetCurveDlg.cpp \
-    miarex/view/W3dPrefsDlg.cpp \
-    misc/AboutQ5.cpp \
-    misc/EditPlrDlg.cpp \
-    misc/LengthUnitDlg.cpp \
-    misc/ModDlg.cpp \
-    misc/NewNameDlg.cpp \
-    misc/ObjectPropsDlg.cpp \
-    misc/PolarFilterDlg.cpp \
-    misc/ProgressDlg.cpp \
-    misc/RenameDlg.cpp \
-    misc/color/ColorButton.cpp \
+    miarex/view/gl3dscales.cpp \
+    miarex/view/gllightdlg.cpp \
+    miarex/view/stabviewdlg.cpp \
+    miarex/view/targetcurvedlg.cpp \
+    miarex/view/w3dprefsdlg.cpp \
+    misc/aboutq5.cpp \
+    misc/color/colorbutton.cpp \
+    misc/editplrdlg.cpp \
     misc/exponentialslider.cpp \
-    misc/line/LineBtn.cpp \
-    misc/line/LineCbBox.cpp \
-    misc/line/LineDelegate.cpp \
-    misc/line/LinePickerDlg.cpp \
-    misc/options/displayoptions.cpp \
+    misc/lengthunitdlg.cpp \
+    misc/line/linebtn.cpp \
+    misc/line/linecbbox.cpp \
+    misc/line/linedelegate.cpp \
+    misc/line/linepickerdlg.cpp \
+    misc/moddlg.cpp \
+    misc/newnamedlg.cpp \
+    misc/objectpropsdlg.cpp \
     misc/options/languagewt.cpp \
     misc/options/preferencesdlg.cpp \
     misc/options/saveoptions.cpp \
+    misc/options/settings.cpp \
     misc/options/units.cpp \
+    misc/polarfilterdlg.cpp \
     misc/popup.cpp \
+    misc/progressdlg.cpp \
+    misc/renamedlg.cpp \
     misc/stlexportdialog.cpp \
-    misc/text/DoubleEdit.cpp \
-    misc/text/FloatEditDelegate.cpp \
-    misc/text/IntEdit.cpp \
-    misc/text/MinTextEdit.cpp \
-    misc/text/TextClrBtn.cpp \
+    misc/text/doubleedit.cpp \
+    misc/text/floateditdelegate.cpp \
+    misc/text/intedit.cpp \
+    misc/text/mintextedit.cpp \
+    misc/text/textclrbtn.cpp \
     misc/updater.cpp \
     misc/voidwidget.cpp \
     misc/waitdlg.cpp \
     script/xflscriptexec.cpp \
     script/xflscriptreader.cpp \
-    viewwidgets/glWidgets/ArcBall.cpp \
+    viewwidgets/bodyframewt.cpp \
+    viewwidgets/bodylinewt.cpp \
+    viewwidgets/foildesignwt.cpp \
+    viewwidgets/glWidgets/arcball.cpp \
     viewwidgets/glWidgets/gl3dbodyview.cpp \
     viewwidgets/glWidgets/gl3dmiarexview.cpp \
     viewwidgets/glWidgets/gl3dplaneview.cpp \
@@ -102,129 +105,127 @@ SOURCES += \
     viewwidgets/section2dwidget.cpp \
     viewwidgets/wingwidget.cpp \
     viewwidgets/xdirecttilewidget.cpp \
-    xdirect/ManageFoilsDlg.cpp \
-    xdirect/XDirect.cpp \
-    xdirect/XDirectStyleDlg.cpp \
-    xdirect/analysis/BatchDlg.cpp \
-    xdirect/analysis/BatchThreadDlg.cpp \
-    xdirect/analysis/FoilPolarDlg.cpp \
-    xdirect/analysis/ReListDlg.cpp \
-    xdirect/analysis/XFoilAdvancedDlg.cpp \
-    xdirect/analysis/XFoilAnalysisDlg.cpp \
-    xdirect/analysis/XFoilTask.cpp \
-    xdirect/geometry/CAddDlg.cpp \
-    xdirect/geometry/FlapDlg.cpp \
-    xdirect/geometry/FoilCoordDlg.cpp \
-    xdirect/geometry/FoilGeomDlg.cpp \
-    xdirect/geometry/InterpolateFoilsDlg.cpp \
-    xdirect/geometry/LEDlg.cpp \
-    xdirect/geometry/NacaFoilDlg.cpp \
-    xdirect/geometry/TEGapDlg.cpp \
-    xdirect/geometry/TwoDPanelDlg.cpp \
+    xdirect/analysis/batchdlg.cpp \
+    xdirect/analysis/batchthreaddlg.cpp \
+    xdirect/analysis/foilpolardlg.cpp \
+    xdirect/analysis/relistdlg.cpp \
+    xdirect/analysis/xfoiladvanceddlg.cpp \
+    xdirect/analysis/xfoilanalysisdlg.cpp \
+    xdirect/analysis/xfoiltask.cpp \
+    xdirect/geometry/cadddlg.cpp \
+    xdirect/geometry/flapdlg.cpp \
+    xdirect/geometry/foilcoorddlg.cpp \
+    xdirect/geometry/foilgeomdlg.cpp \
+    xdirect/geometry/interpolatefoilsdlg.cpp \
+    xdirect/geometry/ledlg.cpp \
+    xdirect/geometry/nacafoildlg.cpp \
+    xdirect/geometry/tegapdlg.cpp \
+    xdirect/geometry/twodpaneldlg.cpp \
+    xdirect/mgt/managefoilsdlg.cpp \
     xdirect/objects2d.cpp \
-    xdirect/xmlpolarreader.cpp \
-    xdirect/xmlpolarwriter.cpp \
-    xinverse/FoilSelectionDlg.cpp \
-    xinverse/InverseOptionsDlg.cpp \
-    xinverse/PertDlg.cpp \
-    xinverse/XInverse.cpp \
-    $$PWD/viewwidgets/foildesignwt.cpp \
-    $$PWD/viewwidgets/bodylinewt.cpp \
-    $$PWD/viewwidgets/bodyframewt.cpp
+    xdirect/xdirect.cpp \
+    xdirect/xdirectstyledlg.cpp \
+    xdirect/xml/xmlpolarreader.cpp \
+    xdirect/xml/xmlpolarwriter.cpp \
+    xinverse/foilselectiondlg.cpp \
+    xinverse/inverseoptionsdlg.cpp \
+    xinverse/pertdlg.cpp \
+    xinverse/xinverse.cpp
 
 
 HEADERS += \
-    design/AFoil.h \
-    design/AFoilTableDlg.h \
-    design/FoilTableDelegate.h \
-    design/GridSettingsDlg.h \
-    design/LECircleDlg.h \
-    design/SplineCtrlsDlg.h \
+    design/afoil.h \
+    design/afoiltabledlg.h \
+    design/foiltabledelegate.h \
+    design/gridsettingsdlg.h \
+    design/lecircledlg.h \
+    design/splinectrlsdlg.h \
     glcontextinfo/glrenderwindow.h \
     glcontextinfo/view3dtestdlg.h \
-    globals/XFLR5Application.h \
     globals/globals.h \
     globals/gui_enums.h \
     globals/gui_params.h \
     globals/mainframe.h \
+    globals/xflr5application.h \
     graph/curve.h \
     graph/graph.h \
     graph/graph_globals.h \
     graph/graphdlg.h \
     graph/linestyle.h \
-    gui_objects/Spline5.h \
-    gui_objects/SplineFoil.h \
-    miarex/Miarex.h \
-    miarex/analysis/AeroDataDlg.h \
-    miarex/analysis/CtrlTableDelegate.h \
-    miarex/analysis/EditPolarDefDlg.h \
-    miarex/analysis/LLTAnalysisDlg.h \
-    miarex/analysis/PanelAnalysisDlg.h \
-    miarex/analysis/StabPolarDlg.h \
-    miarex/analysis/WAdvancedDlg.h \
-    miarex/analysis/WPolarDlg.h \
-    miarex/design/BodyGridDlg.h \
-    miarex/design/BodyScaleDlg.h \
-    miarex/design/BodyTableDelegate.h \
-    miarex/design/BodyTransDlg.h \
-    miarex/design/EditBodyDlg.h \
-    miarex/design/EditObjectDelegate.h \
-    miarex/design/EditPlaneDlg.h \
-    miarex/design/GL3dBodyDlg.h \
-    miarex/design/GL3dWingDlg.h \
-    miarex/design/InertiaDlg.h \
-    miarex/design/PlaneDlg.h \
-    miarex/design/WingDelegate.h \
-    miarex/design/WingScaleDlg.h \
+    gui_objects/spline5.h \
+    gui_objects/splinefoil.h \
+    miarex/analysis/aerodatadlg.h \
+    miarex/analysis/ctrltabledelegate.h \
+    miarex/analysis/editpolardefdlg.h \
+    miarex/analysis/lltanalysisdlg.h \
+    miarex/analysis/panelanalysisdlg.h \
+    miarex/analysis/stabpolardlg.h \
+    miarex/analysis/wadvanceddlg.h \
+    miarex/analysis/wpolardlg.h \
+    miarex/design/bodygriddlg.h \
+    miarex/design/bodyscaledlg.h \
+    miarex/design/bodytabledelegate.h \
+    miarex/design/bodytransdlg.h \
+    miarex/design/editbodydlg.h \
+    miarex/design/editobjectdelegate.h \
+    miarex/design/editplanedlg.h \
+    miarex/design/gl3dbodydlg.h \
+    miarex/design/gl3dwingdlg.h \
+    miarex/design/inertiadlg.h \
+    miarex/design/planedlg.h \
+    miarex/design/wingdelegate.h \
+    miarex/design/wingscaledlg.h \
     miarex/design/wingseldlg.h \
-    miarex/mgt/ImportObjectDlg.h \
-    miarex/mgt/ManagePlanesDlg.h \
-    miarex/mgt/PlaneTableDelegate.h \
-    miarex/mgt/XmlPlaneReader.h \
-    miarex/mgt/XmlPlaneWriter.h \
+    miarex/mgt/importobjectdlg.h \
+    miarex/mgt/manageplanesdlg.h \
+    miarex/mgt/planetabledelegate.h \
+    miarex/mgt/xmlplanereader.h \
+    miarex/mgt/xmlplanewriter.h \
     miarex/mgt/xmlwpolarreader.h \
     miarex/mgt/xmlwpolarwriter.h \
+    miarex/miarex.h \
     miarex/objects3d.h \
-    miarex/view/GL3DScales.h \
-    miarex/view/GLLightDlg.h \
-    miarex/view/StabViewDlg.h \
-    miarex/view/TargetCurveDlg.h \
-    miarex/view/W3dPrefsDlg.h \
-    misc/AboutQ5.h \
-    misc/EditPlrDlg.h \
-    misc/LengthUnitDlg.h \
-    misc/ModDlg.h \
-    misc/NewNameDlg.h \
-    misc/ObjectPropsDlg.h \
-    misc/PolarFilterDlg.h \
-    misc/ProgressDlg.h \
-    misc/RenameDlg.h \
-    misc/color/ColorButton.h \
-    misc/color/ColorButton.h \
+    miarex/view/gl3dscales.h \
+    miarex/view/gllightdlg.h \
+    miarex/view/stabviewdlg.h \
+    miarex/view/targetcurvedlg.h \
+    miarex/view/w3drefsdlg.h \
+    misc/aboutq5.h \
+    misc/color/colorbutton.h \
+    misc/editplrdlg.h \
     misc/exponentialslider.h \
-    misc/line/LineBtn.h \
-    misc/line/LineCbBox.h \
-    misc/line/LineDelegate.h \
-    misc/line/LinePickerDlg.h \
-    misc/options/displayoptions.h \
+    misc/lengthunitdlg.h \
+    misc/line/linebtn.h \
+    misc/line/linecbbox.h \
+    misc/line/linedelegate.h \
+    misc/line/linepickerdlg.h \
+    misc/moddlg.h \
+    misc/newnamedlg.h \
+    misc/objectpropsdlg.h \
     misc/options/languagewt.h \
     misc/options/preferencesdlg.h \
     misc/options/saveoptions.h \
+    misc/options/settings.h \
     misc/options/units.h \
+    misc/polarfilterdlg.h \
     misc/popup.h \
+    misc/progressdlg.h \
+    misc/renamedlg.h \
     misc/stlexportdialog.h \
-    misc/text/DoubleEdit.h \
-    misc/text/DoubleEdit.h \
-    misc/text/FloatEditDelegate.h \
-    misc/text/IntEdit.h \
-    misc/text/MinTextEdit.h \
-    misc/text/TextClrBtn.h \
+    misc/text/doubleedit.h \
+    misc/text/floatrditdelegate.h \
+    misc/text/intedit.h \
+    misc/text/mintextedit.h \
+    misc/text/textclrbtn.h \
     misc/updater.h \
     misc/voidwidget.h \
     misc/waitdlg.h \
     script/xflscriptexec.h \
     script/xflscriptreader.h \
-    viewwidgets/glWidgets/ArcBall.h \
+    viewwidgets/bodyframewt.h \
+    viewwidgets/bodylinewt.h \
+    viewwidgets/foildesignwt.h \
+    viewwidgets/glWidgets/arcball.h \
     viewwidgets/glWidgets/gl3dbodyview.h \
     viewwidgets/glWidgets/gl3dmiarexview.h \
     viewwidgets/glWidgets/gl3dplaneview.h \
@@ -240,36 +241,33 @@ HEADERS += \
     viewwidgets/section2dwidget.h \
     viewwidgets/wingwidget.h \
     viewwidgets/xdirecttilewidget.h \
-    xdirect/ManageFoilsDlg.h \
-    xdirect/XDirect.h \
-    xdirect/XDirectStyleDlg.h \
-    xdirect/analysis/BatchDlg.h \
-    xdirect/analysis/BatchThreadDlg.h \
-    xdirect/analysis/FoilPolarDlg.h \
-    xdirect/analysis/ReListDlg.h \
-    xdirect/analysis/XFoilAdvancedDlg.h \
-    xdirect/analysis/XFoilAnalysisDlg.h \
-    xdirect/analysis/XFoilTask.h \
+    xdirect/analysis/batchdlg.h \
+    xdirect/analysis/batchthreaddlg.h \
+    xdirect/analysis/foilpolardlg.h \
+    xdirect/analysis/relistdlg.h \
+    xdirect/analysis/xfoiladvanceddlg.h \
+    xdirect/analysis/xfoilanalysisdlg.h \
+    xdirect/analysis/xfoiltask.h \
     xdirect/analysis/xfoiltaskevent.h \
-    xdirect/geometry/CAddDlg.h \
-    xdirect/geometry/FlapDlg.h \
-    xdirect/geometry/FoilCoordDlg.h \
-    xdirect/geometry/FoilGeomDlg.h \
-    xdirect/geometry/InterpolateFoilsDlg.h \
-    xdirect/geometry/LEDlg.h \
-    xdirect/geometry/NacaFoilDlg.h \
-    xdirect/geometry/TEGapDlg.h \
-    xdirect/geometry/TwoDPanelDlg.h \
+    xdirect/geometry/cadddlg.h \
+    xdirect/geometry/flapdlg.h \
+    xdirect/geometry/foilcoorddlg.h \
+    xdirect/geometry/foilgeomdlg.h \
+    xdirect/geometry/interpolatefoilsdlg.h \
+    xdirect/geometry/ledlg.h \
+    xdirect/geometry/nacafoildlg.h \
+    xdirect/geometry/tegapdlg.h \
+    xdirect/geometry/twodpaneldlg.h \
+    xdirect/mgt/managefoilsdlg.h \
     xdirect/objects2d.h \
-    xdirect/xmlpolarreader.h \
-    xdirect/xmlpolarwriter.h \
-    xinverse/FoilSelectionDlg.h \
-    xinverse/InverseOptionsDlg.h \
-    xinverse/PertDlg.h \
-    xinverse/XInverse.h \
-    $$PWD/viewwidgets/foildesignwt.h \
-    $$PWD/viewwidgets/bodyframewt.h \
-    $$PWD/viewwidgets/bodylinewt.h
+    xdirect/xdirect.h \
+    xdirect/xdirectstyleDlg.h \
+    xdirect/xml/xmlpolarreader.h \
+    xdirect/xml/xmlpolarwriter.h \
+    xinverse/foilselectiondlg.h \
+    xinverse/inverseoptionsdlg.h \
+    xinverse/pertdlg.h \
+    xinverse/xinverse.h
 
 
 RESOURCES += \

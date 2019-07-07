@@ -27,7 +27,7 @@
 #include <QPoint>
 #include <QRect>
 #include <QColor>
-#include <QList>
+#include <QVector>
 #include <QFont>
 
 class Curve;
@@ -212,7 +212,7 @@ public:
     void resetYLimits();
 
     int curveCount() const {return m_oaCurves.size();}
-    QList<Curve*> *getCurves() {return &m_oaCurves;}
+    QVector<Curve*> *getCurves() {return &m_oaCurves;}
 
 
     QColor backgroundColor() const {return m_BkColor;}
@@ -256,7 +256,7 @@ private:
 
     QString m_XTitle;
     QString m_YTitle;
-    QList<Curve*> m_oaCurves;
+    QVector<Curve*> m_oaCurves;
 
     QPoint m_ptoffset; //in screen coordinates, w.r.t. the client area
 
