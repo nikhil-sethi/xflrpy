@@ -1,0 +1,26 @@
+#!/bin/sh
+#set -x
+if [ ! -d mac_release ]; then
+	mkdir mac_release
+fi
+
+if [ -f mac_release/XFLR5.app ]; then
+    rm mac_release/XFLR5.app
+fi
+
+if [ -f mac_release/XFLR5.dmg ]; then
+    rm mac_release/XFLR5.dmg
+fi
+
+#mkdir mac_release/XFLR5
+
+if [ -z "$QT_HOME" ]
+then 
+	QT_HOME=~/Applications/Qt5.8/5.8/clang_64/bin
+fi
+
+cp -r ../build/build-xflr5/release/xflr5.app mac_release/
+macdeployqt mac_release/xflr5.app -dmg
+
+#hdiutil create mac_release/XFLR5.dmg -srcfolder mac_release/XFLR5
+hdiutil internet-enable -yes mac_release/xflr5.dmg

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>script/example_script.xml</file>
+    </qresource>
+</RCC>

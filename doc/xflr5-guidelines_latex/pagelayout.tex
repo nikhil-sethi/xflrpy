@@ -1,0 +1,37 @@
+
+%-----PAGE LAYOUT---------------------
+% http://www.ctan.org/tex-archive/macros/latex/contrib/fancyhdr/fancyhdr.pdf
+% http://amath.colorado.edu/documentation/LaTeX/reference/layout.html
+% Lot of other ressources about Latex page layout on the web ...
+
+%-header and footer-
+\pagestyle{fancy}
+\rhead[~]{~}
+\chead[~]{~}
+\lhead[{\small \entetePages}]{~}
+\lfoot[\textbf{\thepage}]{~}
+\cfoot[~]{~}
+\rfoot[\today]{ \textbf{\thepage} }
+\renewcommand{\headrulewidth}{0.2pt}
+\renewcommand{\footrulewidth}{0.2pt}
+
+%-margins- A4 = 297 x 210 mm = 11.7 x 8.3 inches (1in~2.2cm)
+\setlength{\hoffset}{0in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textwidth}{6.3in} % 6.3in (16cm) (1in on each side)
+\setlength{\linewidth}{\textwidth}
+\setlength{\headwidth}{\textwidth}
+
+\setlength{\voffset}{-0.75in}
+\setlength{\topmargin}{0in}
+\setlength{\headheight}{0.5in}
+\setlength{\headsep}{0.25in}
+\setlength{\textheight}{9.7in} % 9.7in (22cm) (1in on the top and bottom)
+\setlength{\footskip}{0.75in}
+
+%-paragraphs
+\setlength{\parindent}{0in}
+%\renewcommand{\baselinestretch}{1.1}
+%\setlength{\parskip}{0.2\baselineskip}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
