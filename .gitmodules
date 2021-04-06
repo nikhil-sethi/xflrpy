@@ -1,0 +1,3 @@
+[submodule "pythonqt"]
+	path = pythonqt
+	url = https://github.com/nikhil-sethi/pythonqt.git
