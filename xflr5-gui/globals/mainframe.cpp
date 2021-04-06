@@ -99,6 +99,12 @@
 #include <xdirect/objects2d.h>
 #include <xinverse/xinverse.h>
 
+#include "PythonQt.h"
+#include "PythonQt_QtAll.h"
+#include <gui/PythonQtScriptingConsole.h>
+#include "pythonscripting.h"
+
+// #include "pyscriptexec.h"
 
 #ifdef Q_OS_MAC
 #include <CoreFoundation/CoreFoundation.h>
@@ -162,6 +168,11 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
     Settings::s_StyleSheetName = "";
 
     m_iApp = XFLR5::NOAPP;
+
+    PythonQt::init(PythonQt::IgnoreSiteModule | PythonQt::RedirectStdOut);
+    PythonQt_QtAll::init();
+    mainModule = PythonQt::self()->getMainModule();
+
     createDockWindows();
 
     m_ImageFormat = XFLR5::PNG;
@@ -562,6 +573,9 @@ void MainFrame::createActions()
     m_pCheckForUpdates = new QAction(tr("Check for updates"), this);
     connect(m_pCheckForUpdates, SIGNAL(triggered(bool)), this, SLOT(onCheckForUpdates()));
 
+    m_pExecPyScript = new QAction(tr("Execute python script"), this);
+    connect(m_pExecPyScript, SIGNAL(triggered(bool)), this, SLOT(onExecutePythonScript()));
+
     createGraphActions();
     createAFoilActions();
     createXDirectActions();
@@ -919,6 +933,17 @@ void MainFrame::createDockWindows()
     m_pctrlAFoilWidget->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     addDockWidget(Qt::BottomDockWidgetArea, m_pctrlAFoilWidget);
 
+
+    m_pctrlPyConsoleWidget = new QDockWidget(tr("Python console"), this);
+    m_pctrlPyConsoleWidget->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pctrlPyConsoleWidget);
+    
+    pyconsole = new PythonQtScriptingConsole(NULL, mainModule);
+    m_pctrlPyConsoleWidget->setWidget(pyconsole);
+    m_pctrlPyConsoleWidget->setFloating(false);
+    m_pctrlPyConsoleWidget->setVisible(true);
+
+
     m_p2dWidget = new InverseViewWidget(this);
     m_pgl3dMiarexView = new gl3dMiarexView(this);
 
@@ -939,8 +964,9 @@ void MainFrame::createDockWindows()
     m_pctrlXInverseWidget->setFloating(true);
     m_pctrlXInverseWidget->move(960,60);
 
-    m_pMiarex = new Miarex;
+    m_pMiarex = new Miarex(this);
     m_pctrlMiarexWidget->setWidget(m_pMiarex);
+    
     m_pctrlMiarexWidget->setVisible(false);
     m_pctrlMiarexWidget->setFloating(true);
     m_pctrlMiarexWidget->move(960,60);
@@ -1044,6 +1070,9 @@ void MainFrame::createMenus()
         m_pFileMenu->addSeparator();
         m_pFileMenu->addAction(m_pSaveAct);
         m_pFileMenu->addAction(m_pSaveProjectAsAct);
+        m_pFileMenu->addSeparator();
+
+        m_pFileMenu->addAction(m_pExecPyScript);
         m_pFileMenu->addSeparator();
 
         m_pFileMenu->addAction(m_pOnAFoilAct);
@@ -3902,6 +3931,7 @@ void MainFrame::onLogFile()
 
 void MainFrame::onNewProject()
 {
+    //m_pctrlPyConsoleWidget->
     if(!s_bSaved)
     {
         int resp = QMessageBox::question(this, tr("Question"), tr("Save the current project ?"),
@@ -6629,6 +6659,17 @@ void MainFrame::onExecuteScript()
     //    scriptExecutor.runScript();
 }
 
+void MainFrame::onExecutePythonScript()
+{
+    // PythonScriptExecutor scriptExecutor;
+    // scriptExecutor.loadScript();
+    // scriptExecutor.makeFoils();
+    // scriptExecutor.loadFoilPolarFiles();
+    // scriptExecutor.makePlanes();
+    // scriptExecutor.makePlaneAnalysisList();
+
+    //    scriptExecutor.runScript();
+}
 
 void MainFrame::showEvent(QShowEvent *pEvent)
 {

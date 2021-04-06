@@ -146,6 +146,7 @@ public slots:
     void onXInverseMixed();
     void onMiarex();
     void onExecuteScript();
+    void onExecutePythonScript();
     void onLoadLastProject();
 
 private slots:
@@ -285,7 +286,7 @@ private:
     MiarexTileWidget *m_pMiarexTileWidget;
     XDirectTileWidget *m_pXDirectTileWidget;
 
-    QDockWidget *m_pctrlXDirectWidget, *m_pctrlMiarexWidget, *m_pctrlAFoilWidget, *m_pctrlXInverseWidget;
+    QDockWidget *m_pctrlXDirectWidget, *m_pctrlMiarexWidget, *m_pctrlAFoilWidget, *m_pctrlXInverseWidget, *m_pctrlPyConsoleWidget;
     QDockWidget *m_pctrl3DScalesWidget, *m_pctrlStabViewWidget;
 
     QToolBar *m_pctrlXDirectToolBar;   /**< The tool bar container which holds the instance of the QXDirect application  */
@@ -341,6 +342,7 @@ private:
     QAction *m_pSeparatorAct;
     QAction *m_pSaveViewToImageFileAct, *m_pResetSettingsAct;
     QAction *m_pLoadLastProjectAction;
+    QAction *m_pExecPyScript;
 
     //Graph Actions
     QAction *m_pSingleGraph[MAXGRAPHS], *m_pTwoGraphs, *m_pFourGraphs, *m_pAllGraphs;
@@ -416,8 +418,8 @@ private:
     QAction *m_pImportXMLFoilAnalysis, *m_pExportXMLFoilAnalysis;
     QAction *m_pHighlightOppAct;
 
-    QComboBox *m_pctrlFoil, *m_pctrlPolar, * m_pctrlOpPoint;
-    QComboBox *m_pctrlPlane, *m_pctrlPlanePolar, * m_pctrlPlaneOpp;
+    QComboBox *m_pctrlFoil, *m_pctrlPolar, *m_pctrlOpPoint;
+    QComboBox *m_pctrlPlane, *m_pctrlPlanePolar, *m_pctrlPlaneOpp;
     QRadioButton *m_pctrlFullInverse, *m_pctrlMixedInverse;
     static QLabel *m_pctrlProjectName;
 

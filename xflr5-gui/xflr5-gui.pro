@@ -49,6 +49,12 @@ INCLUDEPATH += $$PWD/glcontextinfo
 # The path to the libraries' header files required by the code at compile time
 INCLUDEPATH += $$PWD/../XFoil-lib/
 INCLUDEPATH += $$PWD/../xflr5-engine/
+
+# PythonQt header files
+INCLUDEPATH += $$PWD/../../../pythonqt-master/src 
+INCLUDEPATH += $$PWD/../../../pythonqt-master/extensions/PythonQt_QtAll 
+INCLUDEPATH += /usr/include/python3.8
+
 # Forces re-build if a library header or source file has been modified
 DEPENDPATH += $$PWD/../XFoil-lib/
 DEPENDPATH += $$PWD/../xflr5-engine/
@@ -130,7 +136,9 @@ QMAKE_CFLAGS_WARN_ON += -W4
 
 LIBS += -L../xflr5-engine -lxflr5-engine
 LIBS += -L../XFoil-lib -lXFoil
-
+# python qt shared libs
+LIBS += -L/home/nikhil/Softwares/pythonqt-master/lib -lPythonQt-Qt5-Python3.8  
+LIBS += -L/home/nikhil/Softwares/pythonqt-master/lib -lPythonQt_QtAll-Qt5-Python3.8
 
 include(xflr5v6.pri)
 
