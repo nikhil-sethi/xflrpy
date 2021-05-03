@@ -91,6 +91,9 @@
 #include <viewwidgets/wingwidget.h>
 #include <xdirect/objects2d.h>
 
+#include <globals/pythonscripting.h>
+
+
 #ifdef Q_OS_WIN
 #include <windows.h> // for Sleep
 #endif
@@ -1895,7 +1898,7 @@ void Miarex::LLTAnalyze(double V0, double VMax, double VDelta, bool bSequence, b
     m_theTask.initializeTask(m_pCurPlane, m_pCurWPolar, V0, VMax, VDelta, bSequence);
     m_pLLTDlg->setTask(&m_theTask);
     m_pLLTDlg->initDialog();
-    m_pLLTDlg->show();
+    if(m_bShowAnalysisDlg) m_pLLTDlg->show();
 
     m_pLLTDlg->analyze();
 
@@ -5720,6 +5723,7 @@ void Miarex::onPanelForce()
 {
     m_bPanelForce     = m_pctrlPanelForce->isChecked();
     m_bResetTextLegend = true;
+    printf("clicked on panel force");
     if(m_bPanelForce)
     {
         m_b3DCp =false;
@@ -6469,7 +6473,7 @@ void Miarex::panelAnalyze(double V0, double VMax, double VDelta, bool bSequence)
     m_theTask.stitchSurfaces();
     m_pPanelAnalysisDlg->setTask(&m_theTask);
     m_pPanelAnalysisDlg->initDialog();
-    m_pPanelAnalysisDlg->show();
+    if(m_bShowAnalysisDlg) m_pPanelAnalysisDlg->show();
     m_pPanelAnalysisDlg->analyze();
 
     if(!s_bLogFile || !PanelAnalysis::s_bWarning)
@@ -9397,4 +9401,254 @@ QString Miarex::WPolarVariableName(int iVar)
         default:
             return QString();
     }
+}
+
+
+Wing* Miarex::getWing(){
+    return m_pCurPlane->wing();
+}
+
+void Miarex::setWingRootChord(double chord){
+    m_pCurPlane->wing()->m_WingSection.first()->m_Chord = chord;
+    setPlane(m_pCurPlane->planeName());
+    // s_pMainFrame->updatePlaneListBox();
+    // m_bIs2DScaleSet = false;
+
+    // onAdjustToWing();
+    // setControls();
+    // updateView();
+    
+    m_pgl3dMiarexView->update();
+    s_pMainFrame->setMainFrameCentralWidget();
+    // s_pMainFrame->setFocus();
+}
+
+
+MiarexWrapper::MiarexWrapper(Miarex *miarexObj)
+{
+    miarexObj->show();
+    m_pMiarex = miarexObj;
+    // m_pCurPlane =nullptr;
+
+    m_pMainModule = m_pMiarex->s_pMainFrame->mainModule;
+}
+
+
+
+void MiarexWrapper::setSurfaces()
+{
+    // return m_pMiarex;
+    // onSurfaces();
+    
+}
+
+void MiarexWrapper::setPanel()
+{
+    // return m_pMiarex;
+    // m_pMiarex->updateView();
+
+    m_pMiarex->onPanelForce();
+    // update();
+}
+
+QString MiarexWrapper::getPlaneName()
+{
+    return m_pMiarex->m_pCurPlane->planeName();
+}
+
+PlaneWrapper* MiarexWrapper::get_plane(QString planeName)
+{
+    Plane *pPlane = Objects3d::getPlane(planeName);
+    if(pPlane){
+        // m_pMiarex->setPlane(planeName);
+        
+        return new PlaneWrapper(pPlane, m_pMiarex);
+    }
+}
+
+
+void MiarexWrapper::delete_plane(QString planeName){
+    Plane *pPlane = Objects3d::getPlane(planeName);
+    if(pPlane){
+        Objects3d::deletePlane(pPlane);
+        }
+}
+
+bool MiarexWrapper::getPanelState()
+{
+    return m_pMiarex->m_bPanelForce;
+}
+
+
+// void Worker::worker()
+// {
+//     while(1){
+//         mainModule.evalScript("print(\"in qt thread\")\n");
+//         sleep(1);
+//     }
+// }
+void MiarexWrapper::startThread()
+{
+//     pThread = new QThread;
+//     Worker *m_worker = new Worker;
+//     m_worker->moveToThread(pThread);
+//     connect(pThread,    SIGNAL(started()),        m_worker, SLOT(Worker::worker()));
+//     // connect(pThread,    SIGNAL(finished()),       pThread,    SLOT(deleteLater()));
+//     pThread->start();
+//     // pThread->setPriority(QThread::LowPriority);*/
+}
+
+void MiarexWrapper::stopThread()
+{
+    // pThread->quit();
+    // pThread->wait();
+}
+// void Miarex::setWing(){
+//     m_pMiarex -> 
+// }
+
+
+
+xflrpyPackage::xflrpyPackage(MainFrame* pMainFrame){
+     s_mainframe = pMainFrame;
+}
+
+
+void xflrpyPackage::updateView(){   
+    
+    s_mainframe->updateFoilListBox();
+    s_mainframe->updatePolarListBox();
+    s_mainframe->updateOppListBox();
+    s_mainframe->updateRecentFileActions();
+    s_mainframe->updatePlaneListBox();
+    s_mainframe->updateView();
+    s_mainframe->updateWPolarListBox();
+    s_mainframe->updatePOppListBox();
+    }
+
+PlaneWrapper::PlaneWrapper(Plane *pPlane, Miarex* pMiarex){
+    m_pPlane = pPlane;
+    m_pMiarex = pMiarex;
+}
+
+void PlaneWrapper::update()
+{
+    // m_pMiarex->m_pCurPlane = Objects3d::setModPlane(pPlane);
+    
+    // reset polars and plane
+    // m_pMiarex->m_pCurPlane->duplicate(pPlane);
+    Objects3d::deletePlaneResults(m_pPlane, false);
+    // m_pMiarex->m_pCurPlane = Objects3d::setModPlane(pPlane);
+    m_pMiarex->m_pCurWPolar = nullptr;
+    m_pMiarex->m_pCurPOpp = nullptr;
+
+    m_pMiarex->setPlane(m_pPlane->planeName());
+    m_pMiarex->s_pMainFrame->updatePlaneListBox();
+    m_pMiarex->updateView();
+}
+
+double PlaneWrapper::getChord(int iw, int is){
+    return m_pPlane->wing(iw)->Chord(is)*Units::mtoUnit();
+}
+
+void PlaneWrapper::setChord(double chord, int iw, int is )
+{
+    Plane* pModPlane= new Plane;
+    pModPlane->duplicate(m_pPlane);
+    
+    pModPlane->wing(iw)->Chord(is) = chord/Units::mtoUnit();
+    pModPlane->wing(iw)->computeGeometry();
+    // // have to froce this. doesn't update automatically
+    m_pMiarex->m_pCurWPolar->setReferenceChordLength(pModPlane->mac()/Units::mtoUnit());
+
+    m_pPlane->duplicate(pModPlane);
+    update();
+}
+void PlaneWrapper::setSpan(double span, int iw, int is){
+    Plane* pModPlane= new Plane;
+    pModPlane->duplicate(m_pPlane);
+    pModPlane->wing(iw)->YPosition(is) = span/Units::mtoUnit();
+    pModPlane->wing(iw)->computeGeometry();
+    m_pPlane->duplicate(pModPlane);
+    // m_pMiarex->pWing(iw)->m_WingSection.first()->m_Chord = chord/Units::mtoUnit();
+    update();
+}
+
+void PlaneWrapper::setOpp(double opp){
+    m_pMiarex->setPlaneOpp(false, opp);
+    m_pMiarex->updateView();
+}
+
+AnalysisWrapper* PlaneWrapper::getAnalysis(QString polarName){
+    
+    for(int i; i<Objects3d::s_oaWPolar.size();i++){
+        if(Objects3d::s_oaWPolar.at(i)->polarName()==polarName)
+        {
+            WPolar* pPolar = Objects3d::s_oaWPolar.at(i);
+            return new AnalysisWrapper(pPolar, m_pPlane, m_pMiarex);
+        }
+    }
+    
+}
+
+AnalysisWrapper* PlaneWrapper::getAnalysis(int i){
+    WPolar* pPolar = Objects3d::s_oaWPolar.at(i);
+    return new AnalysisWrapper(pPolar,m_pPlane,  m_pMiarex);
+}
+
+AnalysisWrapper::AnalysisWrapper( WPolar* pPolar,Plane* pPlane, Miarex* pMiarex){
+    m_pMiarex = pMiarex; // allows us to set alpha limits etc. as we don't have direct pointers for them.
+    m_pPolar = pPolar;
+    m_pPlane = pPlane;
+}
+
+void AnalysisWrapper:: setSeq(double v0, double vmax, double vdel)
+{
+    if(m_pPolar->polarType()==XFLR5::FIXEDAOAPOLAR)
+    {
+        m_pMiarex->m_QInfMin = v0;
+        m_pMiarex->m_QInfMax = vmax;
+        m_pMiarex->m_QInfDelta = vdel;
+    }
+    else if(m_pPolar->polarType()==XFLR5::STABILITYPOLAR)
+    {
+        m_pMiarex->m_ControlMin = v0;
+        m_pMiarex->m_ControlMax = vmax;
+        m_pMiarex->m_ControlDelta = vdel;
+    }
+    else if(m_pPolar->polarType()==XFLR5::BETAPOLAR)
+    {
+        m_pMiarex->m_BetaMin = v0;
+        m_pMiarex->m_BetaMax = vmax;
+        m_pMiarex->m_BetaDelta = vdel ;
+    }
+    else if(m_pPolar->polarType() <XFLR5::FIXEDAOAPOLAR)
+    {
+        m_pMiarex->m_AlphaMin = v0;
+        m_pMiarex->m_AlphaMax = vmax;
+        m_pMiarex->m_AlphaDelta = vdel;
+    }
+    m_pMiarex->setAnalysisParams();
+    m_pMiarex->setControls();
+    m_pMiarex->updateView();
+    // else
+    // {
+    //     V0 = VMax = VDelta = 0.0;
+    // }
+}
+
+PolarWrapper* AnalysisWrapper::analyze(){
+    m_pMiarex->m_bShowAnalysisDlg=false;
+    m_pMiarex->setWPolar(false, m_pPolar->polarName());
+    m_pMiarex->onAnalyze();
+    m_pMiarex->m_bShowAnalysisDlg=true;
+    return new PolarWrapper(m_pPolar);
+}
+
+PolarWrapper::PolarWrapper(WPolar* pPolar){
+    m_pPolar = pPolar;
+}
+
+double PolarWrapper::getCLCD(double alpha){
+    return m_pPolar->m_ClCd[m_pPolar->m_Alpha.indexOf(alpha)];
 }

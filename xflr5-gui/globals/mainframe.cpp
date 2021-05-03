@@ -102,7 +102,6 @@
 #include "PythonQt.h"
 #include "PythonQt_QtAll.h"
 #include <gui/PythonQtScriptingConsole.h>
-#include "pythonscripting.h"
 
 // #include "pyscriptexec.h"
 
@@ -172,6 +171,8 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
     PythonQt::init(PythonQt::IgnoreSiteModule | PythonQt::RedirectStdOut);
     PythonQt_QtAll::init();
     mainModule = PythonQt::self()->getMainModule();
+    // add path to libraries
+    PythonQt::self()->addSysPath("/home/nikhil/.local/lib/python3.8/site-packages");
 
     createDockWindows();
 
@@ -297,6 +298,31 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
     m_pUpdater = nullptr;
     if(Updater::bAutoCheck())
         onAutoCheckForUpdates();
+
+    
+    QObject *pxflrpyPackage = new xflrpyPackage(this);
+    // // PythonQtObjectPtr *xflrpyModule = p_xflrpyPackage;
+    // // m_pMiarex->show();
+    // // // MiarexPyWrapper example(m_pMiarex);
+    // // // example->setPanel();
+    // mainModule.addObject("xflrpyPackage", pxflrpyPackage);
+    // // PythonQtObjectPtr xflrpy = mainModule.evalScript("xflrpyPackage\n", Py_eval_input);
+    // PyObject *temp=mainModule;
+    // PythonQtObjectPtr xflrpy = PythonQt::self()->lookupObject(mainModule.object(),"xflrpyPackage");
+    
+
+    QObject *pMiarexWrapper = new MiarexWrapper(m_pMiarex);
+    mainModule.addObject("MiarexWrapper", pMiarexWrapper);
+    QObject *pPlaneWrapper = new PlaneWrapper(m_pMiarex->m_pCurPlane, m_pMiarex);
+    mainModule.addObject("PlaneWrapper", pPlaneWrapper);
+    QObject *pAnalysisWrapper = new AnalysisWrapper(m_pMiarex->m_pCurWPolar,m_pMiarex->m_pCurPlane,m_pMiarex);
+    mainModule.addObject("AnalysisWrapper", pAnalysisWrapper);
+    QObject *pPolarWrapper = new PolarWrapper(m_pMiarex->m_pCurWPolar);
+    mainModule.addObject("PolarWrapper", pPolarWrapper);
+    // PythonQt::self()->lookupObject(mainModule.object(),"xflrpyPackage");
+    // // mainModule.addObject("p", plane);
+    // PythonQt::self()->registerCPPClass("p","","example", PythonQtCreateObject<CustomObjectWrapper>);
+    // mainModule.addObject("example", m_pMiare);
 }
 
 
@@ -938,8 +964,8 @@ void MainFrame::createDockWindows()
     m_pctrlPyConsoleWidget->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     addDockWidget(Qt::BottomDockWidgetArea, m_pctrlPyConsoleWidget);
     
-    pyconsole = new PythonQtScriptingConsole(NULL, mainModule);
-    m_pctrlPyConsoleWidget->setWidget(pyconsole);
+    m_pConsole = new PythonQtScriptingConsole(NULL, mainModule);
+    m_pctrlPyConsoleWidget->setWidget(m_pConsole);
     m_pctrlPyConsoleWidget->setFloating(false);
     m_pctrlPyConsoleWidget->setVisible(true);
 

@@ -54,7 +54,7 @@ class MainFrame;
 #include <graph/graph.h>
 #include <graph/linestyle.h>
 
-
+#include "PythonQt.h" 
 
 //forward declarations
 class Body;
@@ -121,7 +121,7 @@ public:
 signals:
     void projectModified();
 
-private slots:
+public slots:
     void on3DCp();
     void on3DPrefs();
     void on3DResetScale();
@@ -227,6 +227,9 @@ private slots:
     void onWOppView();
     void onWPolarView();
     void onWPolarProperties();
+    Wing* getWing();
+    void setWingRootChord(double chord);
+    // void setWing(Wing* wing);
 
 public:
     //overrides
@@ -388,6 +391,7 @@ public:
     bool m_bXTop;                      /**< true if the transition on the top surface should be displayed in the operating point or in 3D view */
     bool m_bXPressed;                  /**< true if the X key is pressed */
     bool m_bYPressed;                  /**< true if the Y key is pressed */
+    bool m_bShowAnalysisDlg=true;
 
     static bool s_bLogFile;                   /**< true if the log file warning is turned on */
 
@@ -417,7 +421,7 @@ public:
     static QVector<PlaneOpp*> *m_poaPOpp;
 */
 
-    Plane * m_pCurPlane;          /**< the currently active Plane */
+    Plane * m_pCurPlane =nullptr;          /**< the currently active Plane */
     WPolar * m_pCurWPolar;        /**< the currently active WPolar */
 
     int m_StabilityResponseType;   /**< 0 = initial conditions, 1=forced response, 2=modal response */
@@ -485,3 +489,118 @@ public:
 };
 
 #endif // QMIAREX_H
+
+#ifndef POLARWRAP_H
+#define POLARWRAP_H
+
+class PolarWrapper:public QObject
+{
+    Q_OBJECT
+    private:
+        WPolar* m_pPolar;
+    public:
+        PolarWrapper(WPolar* pPolar);
+    
+    public Q_SLOTS:
+        double getCLCD(double alpha);
+};
+
+#endif
+
+#ifndef ANALYSISWRAP_H
+#define ANALYSISWRAP_H
+
+class AnalysisWrapper:public QObject
+{
+    Q_OBJECT
+    private:
+        Plane* m_pPlane;
+        Miarex* m_pMiarex;
+        WPolar* m_pPolar;
+    
+    public:
+        AnalysisWrapper(WPolar* pPolar,Plane* pPlane, Miarex* pMiarex);
+    
+    public Q_SLOTS:
+        // void createAnalysis();
+        void setSeq(double v0, double vmax, double vdel);
+        PolarWrapper* analyze();
+};
+
+#endif
+
+#ifndef PLANEWRAP_H
+#define PLANEWRAP_H
+class PlaneWrapper:public QObject{
+    Q_OBJECT
+    private:
+        Plane *m_pPlane;
+        Miarex *m_pMiarex;
+
+        void update();    
+    public:
+        PlaneWrapper(Plane *pPlane, Miarex *pMiarex);
+
+    public Q_SLOTS:
+
+        double getChord(int iw=0, int is=0);
+        AnalysisWrapper* getAnalysis(QString polarName);
+        AnalysisWrapper* getAnalysis(int i=0);
+
+        void setChord(double chord, int iw=0 , int is=0);
+        void setSpan(double span, int iw=0 , int is=0);
+        void setOpp(double opp);
+};
+
+#endif
+
+
+#ifndef MIAREXWRAP_H
+#define MIAREXWRAP_H
+
+class MiarexWrapper: public QObject
+{
+    friend class Miarex;
+    friend class Objects3d;
+    Q_OBJECT
+
+private:
+    Plane* m_pCurPlane;
+public:
+    Miarex *m_pMiarex;
+    MiarexWrapper(Miarex *miarexObj);
+    // void delete_MiarexWrapper(){}
+    PythonQtObjectPtr m_pMainModule;
+    QThread *pThread;
+    
+
+public Q_SLOTS:
+    // void updateView();
+    void setSurfaces();
+    void setPanel();
+    QString getPlaneName();
+    void delete_plane(QString planeName);
+    bool getPanelState();
+    PlaneWrapper* get_plane(QString planeName);
+    void startThread();
+    void stopThread();
+    // void getRootChord();
+};
+
+#endif
+
+
+#ifndef XFLRPYPACK_H
+#define XFLRPYPACK_H
+class xflrpyPackage:public QObject{
+    Q_OBJECT
+    public:
+        xflrpyPackage(MainFrame* pMainFrame);
+
+    public Q_SLOTS:
+        void updateView();
+
+    private:
+        MainFrame* s_mainframe;
+};
+#endif

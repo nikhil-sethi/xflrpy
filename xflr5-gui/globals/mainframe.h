@@ -43,6 +43,9 @@
 
 #include <globals/gui_params.h>
 #include <globals/gui_enums.h>
+#include "PythonQt.h"
+#include "gui/PythonQtScriptingConsole.h"
+
 #include <analysis3d/analysis3d_enums.h>
 #include <graph/graph.h>
 #include <miarex/view/gllightdlg.h>
@@ -271,8 +274,9 @@ private:
     XInverse *m_pXInverse;  /**< A void pointer to the instance of the QXInverse application. The pointer will be cast to the QXInverse type at runtime. This is necessary to prevent loop includes of header files. */
     XDirect *m_pXDirect;   /**< A void pointer to the instance of the QXDirect application. The pointer will be cast to the QXDirect type at runtime. This is necessary to prevent loop includes of header files. */
     StabViewDlg *m_pStabView;  /** < A void pointer to the instance of the StabViewDlg window. */
+    PythonQtScriptingConsole *m_pConsole;
 
-    GLLightDlg m_glLightDlg;
+    
     GL3DScales *m_pGL3DScales;
 
 
@@ -462,6 +466,8 @@ private:
     Updater *m_pUpdater;
 
 public:
+    PythonQtObjectPtr mainModule;
+    GLLightDlg m_glLightDlg;
     static bool s_bTrace;
     static bool s_bShowMousePos;
     static bool s_bOpenGL;

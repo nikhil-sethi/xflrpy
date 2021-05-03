@@ -2,10 +2,10 @@
 TEMPLATE = subdirs
 
 
-SUBDIRS = xflr5-engine \
-    XFoil-lib \
-    xflr5-gui \
-    pythonqt \
+SUBDIRS = xflr5-gui \
+     XFoil-lib \
+     xflr5-engine \
+     pythonqt \
 
 TRANSLATIONS = translations/xflr5v6.ts \
     translations/xflr5v6_fr.ts \
