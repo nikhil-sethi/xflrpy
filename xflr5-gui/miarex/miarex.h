@@ -524,6 +524,7 @@ class AnalysisWrapper:public QObject
     public Q_SLOTS:
         // void createAnalysis();
         void setSeq(double v0, double vmax, double vdel);
+        void showDialog(bool showDlgFlag) {m_pMiarex->m_bShowAnalysisDlg=showDlgFlag;}
         PolarWrapper* analyze();
 };
 

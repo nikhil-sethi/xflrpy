@@ -9603,7 +9603,10 @@ AnalysisWrapper::AnalysisWrapper( WPolar* pPolar,Plane* pPlane, Miarex* pMiarex)
 }
 
 void AnalysisWrapper:: setSeq(double v0, double vmax, double vdel)
-{
+{   
+    m_pMiarex->m_bSequence=true;
+    if(v0==vmax) m_pMiarex->m_bSequence=false;
+
     if(m_pPolar->polarType()==XFLR5::FIXEDAOAPOLAR)
     {
         m_pMiarex->m_QInfMin = v0;
@@ -9638,10 +9641,8 @@ void AnalysisWrapper:: setSeq(double v0, double vmax, double vdel)
 }
 
 PolarWrapper* AnalysisWrapper::analyze(){
-    m_pMiarex->m_bShowAnalysisDlg=false;
     m_pMiarex->setWPolar(false, m_pPolar->polarName());
     m_pMiarex->onAnalyze();
-    m_pMiarex->m_bShowAnalysisDlg=true;
     return new PolarWrapper(m_pPolar);
 }
 

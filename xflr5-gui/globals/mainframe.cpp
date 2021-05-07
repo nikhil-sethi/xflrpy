@@ -172,8 +172,8 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
     PythonQt_QtAll::init();
     mainModule = PythonQt::self()->getMainModule();
     // add path to libraries
-    PythonQt::self()->addSysPath("/home/nikhil/.local/lib/python3.8/site-packages");
-
+    PythonQt::self()->addSysPath("~/.local/lib/python3.8/site-packages");
+    PythonQt::self()->addSysPath(QDir::currentPath());
     createDockWindows();
 
     m_ImageFormat = XFLR5::PNG;
