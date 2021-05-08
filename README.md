@@ -7,6 +7,8 @@ xflrpy is an attempt to generate python bindings for the powerful software calle
 by André Deperrois. The original software is capable of the design and low-fidelity analysis of airfoils and 
 model aircraft and is hosted at [sourceforge](https://sourceforge.net/projects/xflr5/).
 
+![Optimizing a BWB UAV](https://github.com/nikhil-sethi/xflrpy/blob/pythonqt/xflrpy.gif)
+
 # Why?
 I undertook this project while learning a bit of C++. This repository is aimed at exposing a neat
 and equally powerful python API for the original project to make it easier for scripting/automation 
