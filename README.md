@@ -73,8 +73,8 @@ A brief sketch:
 ```
 import random
 miarex = MiarexWrapper  # exposes the "wing & plane" module
-plane = miarex.get_plane('api_test')
-analysis = plane.get_analysis(0)    # use either name or index
+plane = miarex.getPlane('api_test')
+analysis = plane.getAnalysis(0)    # use either name or index
 analysis.setSeq(0,10,0.5)   # signature:(alpha_start, alpha_end, alpha_delta)
 analysis.showDialog(False) # hides the progress +log  window
 
@@ -98,3 +98,4 @@ These are more features I have in mind. Please feel free to add/subtract/correct
 2. Add more wrappers for geometry including other modules like airfoil. Inverse might be very helpful
 3. Cleanup and move each wrapper to separate files
 4. Use an RPC library to make calls from outside the program
+5. Make the structure better and add deeper abstractions.

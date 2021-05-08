@@ -7005,8 +7005,7 @@ void Miarex::setPlane(QString PlaneName)
     }
 
     s_pMainFrame->m_glLightDlg.setModelSize(m_pCurPlane->planformSpan());
-
-    setScale();
+    if (m_bSetScale) setScale();
     setWGraphScale();
 
     s_bResetCurves = true;
@@ -9428,8 +9427,6 @@ MiarexWrapper::MiarexWrapper(Miarex *miarexObj)
 {
     miarexObj->show();
     m_pMiarex = miarexObj;
-    // m_pCurPlane =nullptr;
-
     m_pMainModule = m_pMiarex->s_pMainFrame->mainModule;
 }
 
@@ -9456,8 +9453,9 @@ QString MiarexWrapper::getPlaneName()
     return m_pMiarex->m_pCurPlane->planeName();
 }
 
-PlaneWrapper* MiarexWrapper::get_plane(QString planeName)
+PlaneWrapper* MiarexWrapper::getPlane(QString planeName)
 {
+    if(planeName=="None") return new PlaneWrapper(m_pMiarex->m_pCurPlane, m_pMiarex);
     Plane *pPlane = Objects3d::getPlane(planeName);
     if(pPlane){
         // m_pMiarex->setPlane(planeName);
@@ -9547,36 +9545,83 @@ void PlaneWrapper::update()
     m_pMiarex->updateView();
 }
 
-double PlaneWrapper::getChord(int iw, int is){
+void PlaneWrapper::resetView(bool flag){
+    m_pMiarex->m_bSetScale = flag;
+}
+
+double PlaneWrapper::getChord(int is, int iw){
     return m_pPlane->wing(iw)->Chord(is)*Units::mtoUnit();
 }
 
-void PlaneWrapper::setChord(double chord, int iw, int is )
-{
-    Plane* pModPlane= new Plane;
-    pModPlane->duplicate(m_pPlane);
-    
-    pModPlane->wing(iw)->Chord(is) = chord/Units::mtoUnit();
-    pModPlane->wing(iw)->computeGeometry();
+void PlaneWrapper::setChord(double chord, int is, int iw )
+{   
+    m_pPlane->wing(iw)->Chord(is) = chord/Units::mtoUnit();
+    m_pPlane->wing(iw)->computeGeometry();
     // // have to froce this. doesn't update automatically
-    m_pMiarex->m_pCurWPolar->setReferenceChordLength(pModPlane->mac()/Units::mtoUnit());
-
-    m_pPlane->duplicate(pModPlane);
+    m_pMiarex->m_pCurWPolar->setReferenceChordLength(m_pPlane->mac()/Units::mtoUnit());
     update();
 }
-void PlaneWrapper::setSpan(double span, int iw, int is){
-    Plane* pModPlane= new Plane;
-    pModPlane->duplicate(m_pPlane);
-    pModPlane->wing(iw)->YPosition(is) = span/Units::mtoUnit();
-    pModPlane->wing(iw)->computeGeometry();
-    m_pPlane->duplicate(pModPlane);
-    // m_pMiarex->pWing(iw)->m_WingSection.first()->m_Chord = chord/Units::mtoUnit();
+
+void PlaneWrapper::setSpan(double span, int is, int iw){
+
+    m_pPlane->wing(iw)->YPosition(is) = span/Units::mtoUnit();
+    m_pPlane->wing(iw)->computeGeometry();
     update();
 }
 
 void PlaneWrapper::setOpp(double opp){
     m_pMiarex->setPlaneOpp(false, opp);
     m_pMiarex->updateView();
+}
+
+void PlaneWrapper::scaleSweep(double sweep, int iw){
+    Plane* pModPlane= new Plane;
+    pModPlane->duplicate(m_pPlane);
+    pModPlane->wing(iw)->scaleSweep(sweep);
+    pModPlane->wing(iw)->computeGeometry();
+    m_pPlane->duplicate(pModPlane);
+    // m_pMiarex->pWing(iw)->m_WingSection.first()->m_Chord = chord/Units::mtoUnit();
+    update(); 
+}
+
+void PlaneWrapper::setSweep(double sweep, int is, int iw)
+{
+    Wing* wing = m_pPlane->wing(iw);
+    if(is<0 || is>wing->NWingSection()-1) return;  
+    double sec_span = wing->YPosition(is+1)- wing->YPosition(is);
+    double del_offset = tan(sweep*PI/180.0)*sec_span -(wing->Offset(is+1)- wing->Offset(is));
+    for(int isec=is; isec<wing->NWingSection()-1; isec++)
+    {
+        wing->Offset(isec+1) += del_offset;
+    }
+    wing->computeGeometry();
+    update();
+}
+
+void PlaneWrapper::setTaper(double ratio, int is, int iw)
+{
+    Wing* wing = m_pPlane->wing(iw);
+    if(is<0 || is>wing->NWingSection()-1) return;
+
+    double del_chord = wing->Chord(is+1) - ratio*wing->Chord(is);
+    for(int isec=is; isec<wing->NWingSection()-1; isec++)
+    {
+        
+        wing->Offset(isec+1) += del_chord;
+        wing->Chord(isec+1) = wing->Chord(isec+1) - del_chord; 
+    }
+    wing->computeGeometry();
+    update();
+}
+
+void PlaneWrapper::scaleTwist(double twist, int iw){
+    Plane* pModPlane= new Plane;
+    pModPlane->duplicate(m_pPlane);
+    pModPlane->wing(iw)->scaleTwist(twist);
+    pModPlane->wing(iw)->computeGeometry();
+    m_pPlane->duplicate(pModPlane);
+    // m_pMiarex->pWing(iw)->m_WingSection.first()->m_Chord = chord/Units::mtoUnit();
+    update(); 
 }
 
 AnalysisWrapper* PlaneWrapper::getAnalysis(QString polarName){

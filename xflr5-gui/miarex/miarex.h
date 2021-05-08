@@ -392,6 +392,7 @@ public:
     bool m_bXPressed;                  /**< true if the X key is pressed */
     bool m_bYPressed;                  /**< true if the Y key is pressed */
     bool m_bShowAnalysisDlg=true;
+    bool m_bSetScale=true;
 
     static bool s_bLogFile;                   /**< true if the log file warning is turned on */
 
@@ -539,18 +540,28 @@ class PlaneWrapper:public QObject{
         Miarex *m_pMiarex;
 
         void update();    
+
     public:
         PlaneWrapper(Plane *pPlane, Miarex *pMiarex);
 
     public Q_SLOTS:
+        //Controls
+        void resetView(bool flag);
 
-        double getChord(int iw=0, int is=0);
+        //getters
+        double getChord(int is=0, int iw=0);
         AnalysisWrapper* getAnalysis(QString polarName);
         AnalysisWrapper* getAnalysis(int i=0);
 
-        void setChord(double chord, int iw=0 , int is=0);
-        void setSpan(double span, int iw=0 , int is=0);
+        //setters
+        void setChord(double chord, int is=0 , int iw=0);
+        void setSpan(double span, int is=0 , int iw=0);
         void setOpp(double opp);
+        void scaleSweep(double sweep, int iw=0);
+        void setSweep(double sweep, int is=0, int iw=0);
+        void setTaper(double taper, int is=0, int iw=0);
+        void scaleTwist(double twist, int iw=0);
+
 };
 
 #endif
@@ -565,8 +576,6 @@ class MiarexWrapper: public QObject
     friend class Objects3d;
     Q_OBJECT
 
-private:
-    Plane* m_pCurPlane;
 public:
     Miarex *m_pMiarex;
     MiarexWrapper(Miarex *miarexObj);
@@ -579,10 +588,12 @@ public Q_SLOTS:
     // void updateView();
     void setSurfaces();
     void setPanel();
+
+
     QString getPlaneName();
     void delete_plane(QString planeName);
     bool getPanelState();
-    PlaneWrapper* get_plane(QString planeName);
+    PlaneWrapper* getPlane(QString planeName="None");
     void startThread();
     void stopThread();
     // void getRootChord();

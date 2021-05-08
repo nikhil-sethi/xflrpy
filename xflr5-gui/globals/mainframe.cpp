@@ -6695,6 +6695,18 @@ void MainFrame::onExecutePythonScript()
     // scriptExecutor.makePlaneAnalysisList();
 
     //    scriptExecutor.runScript();
+    QString PathName;
+
+    PathName = QFileDialog::getOpenFileName(this, tr("Open Python File"),
+                                              Settings::lastDirName(),
+                                              "Python file (*.py *.txt )");
+    if(!PathName.length()) return;
+    if(PathName.endsWith(".py")) {
+        std::cout<<"check";
+        mainModule.evalFile(PathName);
+    }
+    m_pConsole->appendCommandPrompt();    
+
 }
 
 void MainFrame::showEvent(QShowEvent *pEvent)
