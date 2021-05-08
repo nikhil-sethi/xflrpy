@@ -540,9 +540,10 @@ class PlaneWrapper:public QObject{
         Miarex *m_pMiarex;
 
         void update();    
-
+        QVector<WPolar*> m_pPolars;
     public:
         PlaneWrapper(Plane *pPlane, Miarex *pMiarex);
+        
 
     public Q_SLOTS:
         //Controls

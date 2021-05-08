@@ -90,6 +90,7 @@ for i in range(10):
 
 ```
 You can adapt the above sketch to have your own optimization class and whatnot.
+There is also an "Execute Python script button" for offline scripts
 
 ## TODO
 These are more features I have in mind. Please feel free to add/subtract/correct:

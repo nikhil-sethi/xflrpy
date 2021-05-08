@@ -5723,7 +5723,6 @@ void Miarex::onPanelForce()
 {
     m_bPanelForce     = m_pctrlPanelForce->isChecked();
     m_bResetTextLegend = true;
-    printf("clicked on panel force");
     if(m_bPanelForce)
     {
         m_b3DCp =false;
@@ -9527,6 +9526,14 @@ void xflrpyPackage::updateView(){
 PlaneWrapper::PlaneWrapper(Plane *pPlane, Miarex* pMiarex){
     m_pPlane = pPlane;
     m_pMiarex = pMiarex;
+        
+    for (int i=0; i<Objects3d::s_oaWPolar.size(); i++)
+    {
+        WPolar* pWPolar = Objects3d::s_oaWPolar[i];
+        std::cout<< pWPolar->planeName().toStdString()<<std::endl;
+        if(pWPolar->planeName() == m_pPlane->planeName()) m_pPolars.append(pWPolar);
+    }
+
 }
 
 void PlaneWrapper::update()
@@ -9637,7 +9644,7 @@ AnalysisWrapper* PlaneWrapper::getAnalysis(QString polarName){
 }
 
 AnalysisWrapper* PlaneWrapper::getAnalysis(int i){
-    WPolar* pPolar = Objects3d::s_oaWPolar.at(i);
+    WPolar* pPolar = m_pPolars[i];
     return new AnalysisWrapper(pPolar,m_pPlane,  m_pMiarex);
 }
 
@@ -9696,5 +9703,5 @@ PolarWrapper::PolarWrapper(WPolar* pPolar){
 }
 
 double PolarWrapper::getCLCD(double alpha){
-    return m_pPolar->m_ClCd[m_pPolar->m_Alpha.indexOf(alpha)];
+    return m_pPolar->m_ClCd.at(m_pPolar->m_Alpha.indexOf(alpha));
 }
