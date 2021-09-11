@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=XFLR5
-Comment=XFLR5 is an analysis tool for airfoils, wings and planes operating at low Reynolds Numbers.
-Exec=/usr/local/bin/xflr5
-Icon=/opt/xflr5/xflr5-gui/images/xflr5_128.png
-Terminal=false
-Categories=Science; Education;
