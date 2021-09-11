@@ -1,33 +1,24 @@
 # XFLR5 for Ubuntu
 
-*This repo provides the latest [XFLR5](http://www.xflr5.com/xflr5.htm) (currently v6.47) patched for Ubuntu 18.04 LTS using Qt 5.13*
+*This repo provides the latest [XFLR5](http://www.xflr5.com/xflr5.htm) (currently v6.50) patched for Ubuntu 20.04 LTS*
 
 ## Installation
 
-**1** First of all, start by installing the required dependencies:
+**1.** First of all, start by installing the required dependencies:
 ```
-sudo apt install build-essential mesa-common-dev mesa-utils libgl1-mesa-dev libglu1-mesa-dev
+sudo apt install build-essential libgl1-mesa-dev qt5-default
 ```
 
-**2** Next, head over to [Qt.io](https://www.qt.io/download-qt-installer) and download the Linux installer. Run it and make sure to install Qt 5.13.0 for GCC 64-bit.
-If you don't change the default options, it will be installed in `~/Qt/5.13.0`.
-
-**3** Download the files from this repo and extract them:
+**2.** Download the files from this repo and extract them:
 ```
-cd /path/to/repo
+cd /path/to/repo/
 git clone https://github.com/polmes/xflr5-ubuntu.git
 ```
 
-**4** Move the main `xflr5` folder to your preferred install location:
+**3.** Follow the standard install procedure:
 ```
-cd /path/to/repo
-sudo mv xflr5/ /opt/
-```
-
-**5** Follow the standard install procedure:
-```
-cd /opt/xflr5/
-~/Qt/5.13.0/gcc_64/bin/qmake
+cd /path/to/repo/xflr5/
+qmake
 make # will take a while
 sudo make install # create executable
 sudo ldconfig # make the new shared libraries available
@@ -38,10 +29,9 @@ At this point, you should be all ready to go. You can check by running XFLR5 fro
 /usr/local/bin/xflr5
 ```
 
-**6** Finally, in order to run the software more easily, move the provided `*.desktop` file to your preferred location:
+**4.** Finally, in order to run the software more easily, link the provided `*.desktop` file to your preferred location:
 ```
-cd /path/to/repo
-mv xflr5.desktop ~/.local/share/applications/
+ln -s /usr/local/share/xflr5/xflr5.desktop ~/.local/share/applications/
 ```
 And now you should be able to launch *XFLR5* from the Activities Overview.
 
