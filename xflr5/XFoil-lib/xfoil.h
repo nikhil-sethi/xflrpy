@@ -2,7 +2,7 @@
 
     XFoil Class
     Copyright (C) 2000 Mark Drela 
-    Andre Deperrois techwinder@gmail.com - translation to C - 2003
+    André Deperrois - translation to C - 2003
 
     
     This program is free software; you can redistribute it and/or modify
@@ -42,7 +42,7 @@ See http://raphael.mit.edu/xfoil for more information.
 #include "xfoil-lib_global.h"
 
 #include <QTextStream>
-#include <math.h>
+
 #include <complex>
 
 #include <xfoil_params.h>
@@ -75,7 +75,6 @@ struct blData
 
 class XFOILLIBSHARED_EXPORT XFoil
 {
-
 public:
     XFoil();
     virtual ~XFoil();
@@ -323,6 +322,7 @@ public:
     bool lalfa, lvisc, lvconv, lwake;
     double qgamm[IBX+1];
     double hmom;
+    double hfx,hfy;
     bool lcpxx;
     int niterq;
     double xbf,ybf;
@@ -367,7 +367,6 @@ private:
     int retyp, matyp;
     double rlx;
 
-    double hfx,hfy;
     double minf_cl, reinf_cl;
     double angtol;
 
@@ -405,7 +404,7 @@ private:
     double w1[6*IQX], w2[6*IQX], w3[6*IQX], w4[6*IQX];
     double w5[6*IQX], w6[6*IQX], w7[6*IQX], w8[6*IQX];
     int nsys;
-    double isys[IVX][ISX];
+    int isys[IVX][ISX];
     double xbp[IBX],ybp[IBX],sb[IBX],snew[4*IBX];
     double xof,yof,sble,chordb;
 //    double xbmin,xbmax,ybmin,ybmax;

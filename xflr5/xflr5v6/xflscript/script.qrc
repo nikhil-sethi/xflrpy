@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/foil_script.xml</file>
+    </qresource>
+</RCC>

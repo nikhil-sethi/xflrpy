@@ -92,7 +92,7 @@
     <message>
         <location filename="../xflr5-gui/design/afoil.cpp" line="1258"/>
         <source>Discard changes to Splines ?</source>
-        <translation>Abandonner les modifications des splines ?</translation>
+        <translation>Abandonner les modifications des splines ?</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/design/afoil.cpp" line="1292"/>
@@ -1435,7 +1435,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
     <message>
         <location filename="../xflr5-gui/miarex/design/editbodydlg.cpp" line="524"/>
         <source>Save the changes ?</source>
-        <translation>Enregistrer les modifications ?</translation>
+        <translation>Enregistrer les modifications ?</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/design/editbodydlg.cpp" line="525"/>
@@ -1613,7 +1613,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
     <message>
         <location filename="../xflr5-gui/miarex/design/editplanedlg.cpp" line="621"/>
         <source>Save the changes ?</source>
-        <translation>Enregistrer les modifications ?</translation>
+        <translation>Enregistrer les modifications ?</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/design/editplanedlg.cpp" line="622"/>
@@ -2343,7 +2343,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
     <message>
         <location filename="../xflr5-gui/miarex/design/gl3dbodydlg.cpp" line="1373"/>
         <source>Description:</source>
-        <translation>Description :</translation>
+        <translation>Description :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/design/gl3dbodydlg.cpp" line="113"/>
@@ -2429,7 +2429,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
     <message>
         <location filename="../xflr5-gui/miarex/design/gl3dbodydlg.cpp" line="1036"/>
         <source>Save the Body ?</source>
-        <translation>Enregistrer le fuselage ?</translation>
+        <translation>Enregistrer le fuselage ?</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/design/gl3dbodydlg.cpp" line="1242"/>
@@ -2809,7 +2809,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
     <message>
         <location filename="../xflr5-gui/miarex/design/gl3dwingdlg.cpp" line="1439"/>
         <source>Description:</source>
-        <translation>Description :</translation>
+        <translation>Description :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/design/gl3dwingdlg.cpp" line="1520"/>
@@ -2819,7 +2819,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
     <message>
         <location filename="../xflr5-gui/miarex/design/gl3dwingdlg.cpp" line="1129"/>
         <source>Save the changes ?</source>
-        <translation>Enregistrer les modifications ?</translation>
+        <translation>Enregistrer les modifications ?</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/design/gl3dwingdlg.cpp" line="136"/>
@@ -3494,7 +3494,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
     <message>
         <location filename="../xflr5-gui/miarex/design/inertiadlg.cpp" line="378"/>
         <source>Wing Mass:</source>
-        <translation>Masse de l&apos;aile :</translation>
+        <translation>Masse de l&apos;aile :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/design/inertiadlg.cpp" line="380"/>
@@ -3506,7 +3506,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
     <message>
         <location filename="../xflr5-gui/miarex/design/inertiadlg.cpp" line="390"/>
         <source>Body Mass:</source>
-        <translation>Masse du fuselage :</translation>
+        <translation>Masse du fuselage :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/design/inertiadlg.cpp" line="409"/>
@@ -3914,7 +3914,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
     <message>
         <location filename="../xflr5-gui/misc/lengthunitdlg.cpp" line="33"/>
         <source>Select units for this project :</source>
-        <translation>Sélection des unités pour ce projet :</translation>
+        <translation>Sélection des unités pour ce projet :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/misc/lengthunitdlg.cpp" line="34"/>
@@ -3985,7 +3985,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
     <message>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="404"/>
         <source>Save the project before exit ?</source>
-        <translation>Enregistrer le projet avant de quitter ?</translation>
+        <translation>Enregistrer le projet avant de quitter ?</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="449"/>
@@ -4153,7 +4153,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="582"/>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="586"/>
         <source>Define parameters for the splines : degree, number of out points</source>
-        <translation>Définir les paramètres des splines : degré, nombre de points de sortie</translation>
+        <translation>Définir les paramètres des splines : degré, nombre de points de sortie</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="585"/>
@@ -5503,7 +5503,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
     <message>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="2432"/>
         <source>Tip : you don&apos;t want to use that option...</source>
-        <translation>Astuce : ne pas utiliser cette option...</translation>
+        <translation>Astuce : ne pas utiliser cette option...</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="2435"/>
@@ -5703,7 +5703,7 @@ Désactiver pour une plus grande rapidité d&apos;exécution.</translation>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="3633"/>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="3910"/>
         <source>Save the current project ?</source>
-        <translation>Faut-il enregistrer le projet actuel ?</translation>
+        <translation>Faut-il enregistrer le projet actuel ?</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="3733"/>
@@ -5853,7 +5853,7 @@ XFLR5 ne foncitonnera pas correctement</translation>
     <message>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="4528"/>
         <source>Obsolete format, cannot read</source>
-        <translation>Format dépassé : lecture impossible</translation>
+        <translation>Format dépassé : lecture impossible</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="4620"/>
@@ -5914,7 +5914,7 @@ XFLR5 ne foncitonnera pas correctement</translation>
     <message>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="3953"/>
         <source>Are you sure you want to reset the default settings ?</source>
-        <translation>Êtes-vous certain de vouloir réinitialiser les paramètres à leurs valeurs par défaut ?</translation>
+        <translation>Êtes-vous certain de vouloir réinitialiser les paramètres à leurs valeurs par défaut ?</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/globals/mainframe.cpp" line="3957"/>
@@ -6092,7 +6092,7 @@ XFLR5 ne foncitonnera pas correctement</translation>
     <message>
         <location filename="../xflr5-gui/miarex/mgt/manageplanesdlg.cpp" line="176"/>
         <source>Description:</source>
-        <translation>Description :</translation>
+        <translation>Description :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/mgt/manageplanesdlg.cpp" line="300"/>
@@ -6286,7 +6286,7 @@ Abandon des calculs</translation>
         <location filename="../xflr5-gui/miarex/miarex.cpp" line="3330"/>
         <source>Are you sure you want to delete the polar :
 </source>
-        <translation>Êtes-vous certain de vouloir supprimer la polaire :
+        <translation>Êtes-vous certain de vouloir supprimer la polaire :
 </translation>
     </message>
     <message>
@@ -6299,7 +6299,7 @@ Abandon des calculs</translation>
         <source>The modification will erase all results associated to this Plane.
 Continue ?</source>
         <translation>La modification va supprimer toues les résultats associés à cet avion.
-Poursuivre néanmoins ?</translation>
+Poursuivre néanmoins ?</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/miarex.cpp" line="4032"/>
@@ -6462,7 +6462,7 @@ could be found. The polar(s) will not be stored</source>
         <location filename="../xflr5-gui/miarex/miarex.cpp" line="5464"/>
         <source>Are you sure you want to reset the content of the polar :
 </source>
-        <translation>Êtes-vous certain de vouloir réinitialiser le contenu de la polaire :
+        <translation>Êtes-vous certain de vouloir réinitialiser le contenu de la polaire :
 </translation>
     </message>
     <message>
@@ -7163,7 +7163,7 @@ les changement au style des profils seront répercutés aux polaires et aux poin
     <message>
         <location filename="../xflr5-gui/miarex/design/planedlg.cpp" line="730"/>
         <source>Save the changes ?</source>
-        <translation>Enregistrer les modifications ?</translation>
+        <translation>Enregistrer les modifications ?</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/design/planedlg.cpp" line="453"/>
@@ -7373,7 +7373,7 @@ Se référer aux guidelines pour plus d&apos;explications.</translation>
     <message>
         <location filename="../xflr5-gui/miarex/design/planedlg.cpp" line="843"/>
         <source>Description:</source>
-        <translation>Description :</translation>
+        <translation>Description :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/design/planedlg.cpp" line="836"/>
@@ -7795,7 +7795,7 @@ Se référer aux guidelines pour plus d&apos;explications.</translation>
     <message>
         <location filename="../xflr5-gui/miarex/design/gl3dbodydlg.cpp" line="587"/>
         <source>Choose the length unit to read this file :</source>
-        <translation>Choisir l&apos;unité de longueur pour lire ce fichier :</translation>
+        <translation>Choisir l&apos;unité de longueur pour lire ce fichier :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/design/gl3dbodydlg.cpp" line="598"/>
@@ -8290,7 +8290,7 @@ CpCalc: local speed too large
     <message>
         <location filename="../xflr5-gui/miarex/objects3d.cpp" line="551"/>
         <source>Enter the new name for the Plane :</source>
-        <translation>Entrer un nouveau nom pour l&apos;avion :</translation>
+        <translation>Entrer un nouveau nom pour l&apos;avion :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/miarex/mgt/xmlplanereader.cpp" line="85"/>
@@ -8465,7 +8465,7 @@ CpCalc: local speed too large
     <message>
         <location filename="../xflr5-gui/misc/renamedlg.cpp" line="62"/>
         <source>Existing Names:</source>
-        <translation>Noms existants :</translation>
+        <translation>Noms existants :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/misc/renamedlg.cpp" line="180"/>
@@ -8648,7 +8648,7 @@ CpCalc: local speed too large
     <message>
         <location filename="../xflr5-gui/misc/options/saveoptions.cpp" line="59"/>
         <source>Save:</source>
-        <translation>Enregistrer :</translation>
+        <translation>Enregistrer :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/misc/options/saveoptions.cpp" line="60"/>
@@ -10416,7 +10416,7 @@ of the surfaces.This may reduce the display speed.
         <location filename="../xflr5-gui/xdirect/xdirect.cpp" line="1917"/>
         <source>Are you sure you want to delete the polar :
   </source>
-        <translation>Êtes-vous certain de vouloir supprimer la polaire :
+        <translation>Êtes-vous certain de vouloir supprimer la polaire :
   </translation>
     </message>
     <message>
@@ -10424,7 +10424,7 @@ of the surfaces.This may reduce the display speed.
         <source>
  and all the associated OpPoints ?</source>
         <translation>
- et les OpPoints associés ?</translation>
+ et les OpPoints associés ?</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/xdirect/xdirect.cpp" line="2028"/>
@@ -10575,7 +10575,7 @@ n&apos;a pu être trouvé. Les polaires ne seront pas enregistrées</translation
     <message>
         <location filename="../xflr5-gui/xdirect/xdirect.cpp" line="3586"/>
         <source>Enter the new name for the foil polar :</source>
-        <translation>Enter le nouveau nom pour la polaire du profil :</translation>
+        <translation>Enter le nouveau nom pour la polaire du profil :</translation>
     </message>
     <message>
         <location filename="../xflr5-gui/xdirect/xdirect.cpp" line="3689"/>
@@ -11240,23 +11240,23 @@ deux points sur la courbe de spécification</translation>
 <context>
     <name>gl3dMiarexView</name>
     <message>
-        <location filename="../xflr5-gui/viewwidgets/glWidgets/gl3dmiarexview.cpp" line="110"/>
+        <location filename="../xflr5-gui/xfl3d/gl3dmiarexview.cpp" line="110"/>
         <source>Time =</source>
         <translation>Temps = </translation>
     </message>
     <message>
-        <location filename="../xflr5-gui/viewwidgets/glWidgets/gl3dmiarexview.cpp" line="416"/>
+        <location filename="../xflr5-gui/xfl3d/gl3dmiarexview.cpp" line="416"/>
         <source>Streamlines calculation</source>
         <translation>Calcul des lignes de courant</translation>
     </message>
     <message>
-        <location filename="../xflr5-gui/viewwidgets/glWidgets/gl3dmiarexview.cpp" line="416"/>
-        <location filename="../xflr5-gui/viewwidgets/glWidgets/gl3dmiarexview.cpp" line="765"/>
+        <location filename="../xflr5-gui/xfl3d/gl3dmiarexview.cpp" line="416"/>
+        <location filename="../xflr5-gui/xfl3d/gl3dmiarexview.cpp" line="765"/>
         <source>Abort</source>
         <translation>Interrompre</translation>
     </message>
     <message>
-        <location filename="../xflr5-gui/viewwidgets/glWidgets/gl3dmiarexview.cpp" line="765"/>
+        <location filename="../xflr5-gui/xfl3d/gl3dmiarexview.cpp" line="765"/>
         <source>Velocities calculation</source>
         <translation>Calcul des vitesses</translation>
     </message>
