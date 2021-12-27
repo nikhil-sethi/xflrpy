@@ -2,7 +2,7 @@
 
     XFLR5 Application
 
-    Copyright (C) 2008-2019 Andre Deperrois techwinder@users.sourceforge.net
+    Copyright (C) 2008-2019 Andre Deperrois techwinder@users.sourceforge.net; 2021-2022 Nikhil Sethi github.com/nikhil-sethi
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 #include "xflr5application.h"
 #include <globals/mainframe.h>
-
+#include <xflrServer.h>
 
 
 /**
@@ -95,7 +95,10 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     XFLR5Application app(argc, argv);
-
+    
+    xflrServer* server = new xflrServer(8080);
+    server->start();
+    
     return app.exec();
 }
 

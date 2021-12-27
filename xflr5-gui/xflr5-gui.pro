@@ -49,10 +49,12 @@ INCLUDEPATH += $$PWD/glcontextinfo
 # The path to the libraries' header files required by the code at compile time
 INCLUDEPATH += $$PWD/../XFoil-lib/
 INCLUDEPATH += $$PWD/../xflr5-engine/
+INCLUDEPATH += $$PWD/../xflr-server/
+
 # Forces re-build if a library header or source file has been modified
 DEPENDPATH += $$PWD/../XFoil-lib/
 DEPENDPATH += $$PWD/../xflr5-engine/
-
+DEPENDPATH += $$PWD/../xflr-server/
 
 OBJECTS_DIR = ./objects
 MOC_DIR     = ./moc
@@ -130,6 +132,7 @@ QMAKE_CFLAGS_WARN_ON += -W4
 
 LIBS += -L../xflr5-engine -lxflr5-engine
 LIBS += -L../XFoil-lib -lXFoil
+LIBS += -L../xflr-server -lxflr-server
 
 
 include(xflr5v6.pri)

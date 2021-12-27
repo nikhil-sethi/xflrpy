@@ -1,0 +1,13 @@
+*.o
+*.so*
+xflr5-gui/moc/*
+xflr-server/moc/*
+xflr5-engine/moc/*
+xflr5-gui/rcc/*
+testing/*
+*.mp4
+*.json
+*.whl
+*.tar.gz
+*.pyc
+Makefile

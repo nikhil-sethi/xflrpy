@@ -1,7 +1,7 @@
 /****************************************************************************
 
     MainFrame  Class
-    Copyright (C) 2008-2019 Andre Deperrois
+    Copyright (C) 2008-2019 Andre Deperrois techwinder@users.sourceforge.net; 2021-2022 Nikhil Sethi github.com/nikhil-sethi
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -99,6 +99,7 @@
 #include <xdirect/objects2d.h>
 #include <xinverse/xinverse.h>
 
+#include <xflrServer.h>
 
 #ifdef Q_OS_MAC
 #include <CoreFoundation/CoreFoundation.h>
@@ -901,7 +902,7 @@ void MainFrame::createDockWindows()
     gl3dView::s_pMainFrame         = this;
     GraphWidget::s_pMainFrame      = this;
     OpPointWidget::s_pMainFrame    = this;
-
+    xflrServer::s_pMainFrame    = this;
 
     m_pctrlXDirectWidget = new QDockWidget(tr("Direct foil analysis"), this);
     m_pctrlXDirectWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
@@ -3890,6 +3891,86 @@ void MainFrame::onLoadFile()
 }
 
 
+void MainFrame::onLoadFileHeadless(QStringList PathNames)
+{
+    QString PathName;
+    XFLR5::enumApp App  = XFLR5::NOAPP;
+    bool warn_non_airfoil_multiload = false;
+
+    if(!PathNames.size()) return;
+    if(PathNames.size() > 1)
+    {
+        for (int i=0; i<PathNames.size(); i++)
+        {
+            PathName = PathNames.at(i);
+            if (PathName.endsWith(".dat"))
+            {
+                App = loadXFLR5File(PathName);
+            } else {
+                warn_non_airfoil_multiload = true;
+            }
+        }
+        if (warn_non_airfoil_multiload) {
+            QMessageBox::warning(this, QObject::tr("Warning"), QObject::tr("Multiple file loading only available for airfoil files.\nNon *.dat files will be ignored."));
+        }
+    }
+    else
+    {
+        PathName = PathNames.at(0);
+        if(!PathName.length()) return;
+
+        PathName.replace(QDir::separator(), "/"); // Qt sometimes uses the windows \ separator
+
+        int pos = PathName.lastIndexOf("/");
+        if(pos>0) Settings::setLastDirName(PathName.left(pos));
+
+        App = loadXFLR5File(PathName);
+    }
+
+    if(m_iApp==XFLR5::NOAPP)
+    {
+        m_iApp = App;
+
+        if(m_iApp==XFLR5::MIAREX) onMiarex();
+        else                      onXDirect();
+    }
+
+    if(App==0)
+    {
+    }
+    else if(m_iApp==XFLR5::XFOILANALYSIS)
+    {
+        if(Objects2d::polarCount())
+        {
+            if(m_pXDirect->m_bPolarView) m_pXDirect->createPolarCurves();
+            else                         m_pXDirect->createOppCurves();
+        }
+        updateFoilListBox();
+        updateView();
+    }
+    else if(m_iApp==XFLR5::MIAREX)
+    {
+        updatePlaneListBox();
+        m_pMiarex->setPlane();
+        m_pMiarex->setScale();
+        m_pMiarex->m_bIs2DScaleSet = false;
+        m_pMiarex->setControls();
+        updateView();
+    }
+    else if(m_iApp==XFLR5::DIRECTDESIGN)
+    {
+        m_pAFoil->setAFoilParams();
+        m_pAFoil->selectFoil(XDirect::curFoil());
+        updateView();
+    }
+    else if(m_iApp==XFLR5::INVERSEDESIGN)
+    {
+        onXInverse();
+        updateView();
+    }
+}
+
+
 void MainFrame::onLogFile()
 {
     QString FileName = QDir::tempPath() + "/XFLR5.log";
@@ -3936,6 +4017,13 @@ void MainFrame::onNewProject()
     updateView();
 }
 
+void MainFrame::onNewProjectHeadless(){
+    deleteProject();
+    m_pMiarex->    m_PixText.fill(Qt::transparent);
+    m_pgl3dMiarexView->m_bArcball = false;
+    s_bSaved=false;
+    updateView();
+}
 
 void MainFrame::onOpenGLInfo()
 {

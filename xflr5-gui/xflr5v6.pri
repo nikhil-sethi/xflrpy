@@ -130,7 +130,8 @@ SOURCES += \
     xinverse/foilselectiondlg.cpp \
     xinverse/inverseoptionsdlg.cpp \
     xinverse/pertdlg.cpp \
-    xinverse/xinverse.cpp
+    xinverse/xinverse.cpp \
+    ../xflr-server/xflrServer.cpp \
 
 
 HEADERS += \
@@ -267,7 +268,9 @@ HEADERS += \
     xinverse/foilselectiondlg.h \
     xinverse/inverseoptionsdlg.h \
     xinverse/pertdlg.h \
-    xinverse/xinverse.h
+    xinverse/xinverse.h \
+    ../xflr-server/xflrServer.h \
+
 
 
 RESOURCES += \

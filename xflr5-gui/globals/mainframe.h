@@ -2,7 +2,7 @@
 
     MainFrame Class
 
-    Copyright (C) 2008-2017 Andre Deperrois
+    Copyright (C) 2008-2019 Andre Deperrois techwinder@users.sourceforge.net; 2021-2022 Nikhil Sethi github.com/nikhil-sethi
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -47,6 +47,8 @@
 #include <graph/graph.h>
 #include <miarex/view/gllightdlg.h>
 #include <misc/voidwidget.h>
+
+#include <xflrServer.h>
 
 class AFoil;
 class FoilDesignWt;
@@ -127,6 +129,7 @@ class MainFrame : public QMainWindow
     friend class gl3dMiarexView;
     friend class gl3dView;
     friend class LanguageWt;
+    friend class xflrServer;
 
     Q_OBJECT
 
@@ -157,7 +160,9 @@ private slots:
     void onInsertProject();
     void onHighlightOperatingPoint();
     void onNewProject();
+    void onNewProjectHeadless();
     void onLoadFile();
+    void onLoadFileHeadless(QStringList fileNames);
     void onLogFile();
     void onOpenGLInfo();
     void onPreferences();
