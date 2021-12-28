@@ -97,7 +97,7 @@ xflrServer::xflrServer(int port) : server(port)
         s_pMainFrame->setProjectName(QString::fromStdString(projectPath));
         });
     server.bind("setApp",[&](int app){
-        if (app==XFLR5::enumApp::XFOILANALYSIS){
+        if (app==XFLR5::enumApp::NOAPP){
             return;
         }
         else if (app==XFLR5::enumApp::XFOILANALYSIS){
@@ -109,7 +109,7 @@ xflrServer::xflrServer(int port) : server(port)
         else if (app==XFLR5::enumApp::MIAREX){
             emit onMiarex();
         }
-        else if (app==XFLR5::enumApp::XFOILANALYSIS){
+        else if (app==XFLR5::enumApp::INVERSEDESIGN){
             emit onXInverse();
         }
         });
