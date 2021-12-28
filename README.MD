@@ -58,6 +58,7 @@ These instructions are basic and just an extension of [this](https://github.com/
 Setup
 ```
 git clone https://github.com/nikhil-sethi/xflrpy.git
+cd xflrpy
 git submodule update --init --recursive
 
 sudo apt install build-essential mesa-common-dev mesa-utils libgl1-mesa-dev libglu1-mesa-dev

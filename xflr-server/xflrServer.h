@@ -23,7 +23,7 @@
 #define XFLRSERVER_H
 
 #include <globals/mainframe.h>
-#include <rpc/server.h>
+#include "rpc/server.h"
 #include <QThread>
 #include <QObject>
 #include <iostream>

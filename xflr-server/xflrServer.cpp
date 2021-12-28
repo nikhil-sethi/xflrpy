@@ -21,7 +21,7 @@
 
 #include "xflrServer.h"
 #include <globals/mainframe.h>
-#include <rpc/server.h>
+#include "rpc/server.h"
 
 #include <iostream>
 #include <stdlib.h>

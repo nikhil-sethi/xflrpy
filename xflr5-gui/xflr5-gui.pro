@@ -50,6 +50,7 @@ INCLUDEPATH += $$PWD/glcontextinfo
 INCLUDEPATH += $$PWD/../XFoil-lib/
 INCLUDEPATH += $$PWD/../xflr5-engine/
 INCLUDEPATH += $$PWD/../xflr-server/
+INCLUDEPATH += $$PWD/../rpclib/include/
 
 # Forces re-build if a library header or source file has been modified
 DEPENDPATH += $$PWD/../XFoil-lib/
@@ -133,7 +134,7 @@ QMAKE_CFLAGS_WARN_ON += -W4
 LIBS += -L../xflr5-engine -lxflr5-engine
 LIBS += -L../XFoil-lib -lXFoil
 LIBS += -L../xflr-server -lxflr-server
-
+LIBS += -L../rpclib/build -lrpc
 
 include(xflr5v6.pri)
 
