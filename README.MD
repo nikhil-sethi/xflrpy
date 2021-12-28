@@ -1,9 +1,8 @@
 ## Note
 This repository is under initial development phase. As a result there are not many features or refined code practices as of yet. There might be breaking changes without updating the major version until the first release. Any and every contribution/constructive criticism is welcome. Use github issues to roast me.
 
-# xflrpy
-xflrpy is a python enabled version for design optimization and scripting for the powerful software called [xflr5](http://www.xflr5.tech/xflr5.htm) created by André Deperrois. The original software is capable of the design and low-fidelity analysis of airfoils and 
-model aircraft and is hosted at [sourceforge](https://sourceforge.net/projects/xflr5/).
+# xflrpy v0.1.0
+xflrpy is a python enabled version of [xflr5](http://www.xflr5.tech/xflr5.htm). It comes with a [python package](https://pypi.org/project/xflrpy/) and is useful for design optimization and scripting. The [original software](https://sourceforge.net/projects/xflr5/) is capable of the design and low-fidelity analysis of airfoils and model aircraft and was created by created by André Deperrois.
 
 ![Optimizing a BWB UAV](https://github.com/nikhil-sethi/xflrpy/blob/pythonqt/xflrpy.gif)
 
@@ -35,7 +34,7 @@ Demerits:
 - It is difficult to use external optimization libraries within the interpreter.
 
 ### rpc:
-This is the stuff I started working on recently. The approach uses the very light and very fast [rpclib](https://github.com/rpclib/rpclib) library to establish a local server which can communicate with and external python process. This means that we finally have an ["xflrpy" python librayr] (). The structure on the python side is similar to [MS AirSim](https://github.com/microsoft/AirSim) but still naive. 
+This is the stuff I started working on recently. The approach uses the very light and very fast [rpclib](https://github.com/rpclib/rpclib) library to establish a local server which can communicate with and external python process. This means that we finally have an ["xflrpy" python library](https://pypi.org/project/xflrpy/). The structure on the python side is similar to [MS AirSim](https://github.com/microsoft/AirSim) but still naive. 
 
 Merits:
 - Solves everything wrong with pythonqt.
@@ -57,7 +56,7 @@ These instructions are basic and just an extension of [this](https://github.com/
 
 Setup
 ```
-git clone https://github.com/nikhil-sethi/xflrpy.git
+git clone https://github.com/nikhil-sethi/xflrpy.git -b bug_compile
 cd xflrpy
 git submodule update --init --recursive
 
@@ -75,9 +74,16 @@ cmake --build .
 Build xflrpy 
 (You will need Qt>=5. Check out their page for installing it)
 ```
-cd ..
+cd ../..
 qmake # or give the complete path to your qmake location
-make all -j8 (replace 8 with the number of cores you want)
+make all -j8 (replace 8 with the number of cores you want) 
+```
+
+Install and link some libraries
+```
+xflrpy_path = </path/to/xflrpy>
+echo -e "$xflrpy_path/xflr5-gui \n$xflrpy_path/xflr5-engine \n$xflrpy_path/xflr-server \n$xflrpy_path/XFoil-lib" | sudo tee -a /etc/ld.so.conf.d/xflrpy.conf
+sudo ldconfig
 ```
 
 If everything worked correctly, you should be able to start xflr5.
