@@ -19,7 +19,7 @@ Boost and [PyBind11](https://github.com/pybind/pybind11). Luckily for us, xflr5 
 which means there exist even more tools like [shiboken](https://github.com/pyside/Shiboken)
 and [PythonQt](https://github.com/MeVisLab/pythonqt) to make life easier. 
 
-There are two branches: 
+There are two approaches that I explored: 
 ### pythonqt:
 This version comes with an embedded python interpreter within xflr5 itself. 
 
@@ -35,7 +35,7 @@ Demerits:
 - It is difficult to use external optimization libraries within the interpreter.
 
 ### rpc:
-This is the stuff I started working on recently. The branch uses the very light and very fast [rpclib](https://github.com/rpclib/rpclib) library to establish a local server which can communicate with and external python process. This means that we finally have an "xflrpy" python library. The structure on the python side is similar to [MS AirSim](https://github.com/microsoft/AirSim) but still naive. 
+This is the stuff I started working on recently. The approach uses the very light and very fast [rpclib](https://github.com/rpclib/rpclib) library to establish a local server which can communicate with and external python process. This means that we finally have an ["xflrpy" python librayr] (). The structure on the python side is similar to [MS AirSim](https://github.com/microsoft/AirSim) but still naive. 
 
 Merits:
 - Solves everything wrong with pythonqt.
@@ -48,8 +48,8 @@ Demerits:
 - The entire server and client had to be deployed on a different thread to make non-blocking calls. This is actually a merit but can fall on it's face sometimes. It requires responsibility on the user's part to make sure that variables are updated in their own custom script. But it's a very small price to pay for better functionality. Hopefully it will become better as the architecture evolves.
 
 
-Because of the above reasons, I won't be maintaining the pythonqt branch but it will be long-lived to help people learn something/anything from it.
-Note that as of 28/12/21 v0.1.0, the pythonqt branch has more and better features than rpc. If you want to whip up something quick, I reccommend you use that. But this will change soon enough. I will be adding more features to rpc and hope to remove this statement ASAP :)
+Because of the above reasons, I won't be maintaining the pythonqt approach but it will be long-lived to help people learn something/anything from it. The rpc approach has been merged to the master branch.
+Note that as of 28/12/21 v0.1.0, the pythonqt branch has more and better features than rpc. If you want to whip up something quick, I reccommend you use that. But this will change soon enough. I will be adding more features to rpc and hope to move this statement to the changelog ASAP :) 
 
 ## So..How to build it?
 For Linux (tested on Ubuntu 20.04, Python 3.8.10, Qt 5.13.2, msgpack-rpc-python 0.40.1, rpclib 2.3.0):
@@ -61,8 +61,9 @@ git clone https://github.com/nikhil-sethi/xflrpy.git
 git submodule update --init --recursive
 
 sudo apt install build-essential mesa-common-dev mesa-utils libgl1-mesa-dev libglu1-mesa-dev
-
+```
 Build rpclib (If you already have rpclib, you can skip these steps and link the appropriate libraries in xflr-server.pro)
+```
 cd rpclib
 mkdir build
 cd build
@@ -90,7 +91,7 @@ First install the python package xflrpy
 pip3 install xflrpy
 ```
 
-The current version (v0.1.0) has very limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/rpc/CHANGELOG.MD). Currently you can:
+The current version (v0.1.1) has very limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/rpc/CHANGELOG.MD). Currently you can:
 - Create or load new projects
 - Save projects
 - Set and get apps (xfoil, plane-design, foil-design, inverse-design)
