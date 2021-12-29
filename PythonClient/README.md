@@ -11,7 +11,7 @@ There might be:
 Any contributions/constructive criticism is welcome. Use github issues to roast me.
 
 ## How to Use
-See [examples](https://github.com/nikhil-sethi/xflrpy/blob/rpc/PythonClient/examples)
+See [examples](https://github.com/nikhil-sethi/xflrpy/tree/master/PythonClient/examples)
 
 ## Dependencies
 This package depends on `msgpack` and would automatically install `msgpack-rpc-python` (this may need administrator/sudo prompt):

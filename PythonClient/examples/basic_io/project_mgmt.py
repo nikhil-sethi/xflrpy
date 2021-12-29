@@ -1,13 +1,3 @@
-"""
-TODO
-1. Separate files  
-2. Add types
-    - Application handler
-3. create readme 
-4. create package
-5. make newproject save state common on both platforms
-"""
-
 from xflrpy import xflrClient, enumApp
 import time
 

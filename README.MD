@@ -1,7 +1,7 @@
 ## Note
 This repository is under initial development phase. As a result there are not many features or refined code practices as of yet. There might be breaking changes without updating the major version until the first release. Any and every contribution/constructive criticism is welcome. Use github issues to roast me.
 
-# xflrpy v0.1.0
+# xflrpy v0.1.2
 xflrpy is a python enabled version of [xflr5](http://www.xflr5.tech/xflr5.htm). It comes with a [python package](https://pypi.org/project/xflrpy/) and is useful for design optimization and scripting. The [original software](https://sourceforge.net/projects/xflr5/) is capable of the design and low-fidelity analysis of airfoils and model aircraft and was created by created by André Deperrois.
 
 ![Optimizing a BWB UAV](https://github.com/nikhil-sethi/xflrpy/blob/pythonqt/xflrpy.gif)
@@ -136,4 +136,3 @@ These are more features I have in mind. Please feel free to add/subtract/correct
 2. Add structs for geometry including other modules like airfoil. Inverse might be very helpful.
 3. Cleanup and have give an xflrServer pointer to separate files
 4. Make the structure better and add deeper abstractions.
-5. Figure out better way of dealing with multithreading state update. Currently it's a while loop which works great but stresses out the user :|
