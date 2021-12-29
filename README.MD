@@ -30,7 +30,7 @@ Demerits:
 - The main library is not well-maintained/documented and has been replaced by better tools like PySide6 (this doesn't have an embedded option tho).
 - It requires PythonQt as dependency which is a fairly large library.
 - Everything has to be exposed under the __main__ function which means there is little to no chance of multithreading, doing complex loops or IO operations. (These might be critical for optimization)
-- The above problem also means there is no abstraction and well-defined objects which make code readable and easier to extend.
+- The above problem also means there is no abstraction and well-defined objects which make the code difficult to read and extend.
 - It is difficult to use external optimization libraries within the interpreter.
 
 ### rpc:
