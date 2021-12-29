@@ -44,7 +44,7 @@ Merits:
 
 Demerits:
 - More code to write.
-- The entire server and client had to be deployed on a different thread to make non-blocking calls. This is actually a merit but can fall on it's face sometimes. It requires responsibility on the user's part to make sure that variables are updated in their own custom script. But it's a very small price to pay for better functionality. Hopefully it will become better as the architecture evolves.
+- There might be concurrency problems in the future as I add more features.
 
 
 Because of the above reasons, I won't be maintaining the pythonqt approach but it will be long-lived to help people learn something/anything from it. The rpc approach has been merged to the master branch.

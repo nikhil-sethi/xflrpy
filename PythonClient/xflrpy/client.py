@@ -45,10 +45,7 @@ class xflrClient:
             Currently open pointer to an application object.
         """
         if save_current:
-            t = time.time() + self.poll_timeout
-            while not self.state.saved or time.time() > t:
-                self.saveProject()
-                time.sleep(0.01)
+            self.saveProject()
         if type(files) == str:
             files = [files]
         if files is None:
@@ -67,18 +64,12 @@ class xflrClient:
             Currently open pointer to an application object.
         """
         if save_current:
-            t = time.time() + self.poll_timeout
-            while not self.state.saved or time.time() > t:
-                self.saveProject()
-                time.sleep(0.01)
+            self.saveProject()
         self._client.call("newProject")
         if projectPath != "":
             if projectPath[-4:]!=".xfl": 
                 projectPath += ".xfl"
-            t = time.time() + self.poll_timeout
-            while self.state.projectPath != projectPath or time.time() > t:
-                self.saveProject(projectPath)
-                time.sleep(0.01)
+            self.saveProject(projectPath)
         return self.getApp()
     
     def saveProject(self, projectPath = "")->None:
@@ -125,7 +116,7 @@ class xflrClient:
         elif app == enumApp.INVERSEDESIGN:
             return XInverse(self._client)
     
-    def setApp(self, app)->None:
+    def setApp(self, app:enumApp)->None:
         """
         Set the required application on the gui
 
@@ -137,9 +128,8 @@ class xflrClient:
         """
         if type(app) == enumApp:
             app = app.value
-        while self.state.app != app:
-            self._client.call("setApp", app)
-
+        self._client.call("setApp", app)
+            
     def close(self):
         """
         Cleanly exit the server thread and close the gui as well. 

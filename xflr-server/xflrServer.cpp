@@ -64,13 +64,13 @@ namespace adapters
 
 xflrServer::xflrServer(int port) : server(port)
 {
-    QObject::connect(this, &xflrServer::onNewProject, s_pMainFrame, &MainFrame::onNewProjectHeadless);
-    QObject::connect(this, &xflrServer::onSaveProject, s_pMainFrame, &MainFrame::onSaveProject);
-    QObject::connect(this, &xflrServer::onLoadProject, s_pMainFrame, &MainFrame::onLoadFileHeadless);
-    QObject::connect(this, &xflrServer::onXDirect, s_pMainFrame, &MainFrame::onXDirect);
-    QObject::connect(this, &xflrServer::onAFoil, s_pMainFrame, &MainFrame::onAFoil);
-    QObject::connect(this, &xflrServer::onMiarex, s_pMainFrame, &MainFrame::onMiarex);
-    QObject::connect(this, &xflrServer::onXInverse, s_pMainFrame, &MainFrame::onXInverse);
+    QObject::connect(this, &xflrServer::onNewProject, s_pMainFrame, &MainFrame::onNewProjectHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflrServer::onSaveProject, s_pMainFrame, &MainFrame::onSaveProject, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflrServer::onLoadProject, s_pMainFrame, &MainFrame::onLoadFileHeadless,Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflrServer::onXDirect, s_pMainFrame, &MainFrame::onXDirect, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflrServer::onAFoil, s_pMainFrame, &MainFrame::onAFoil, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflrServer::onMiarex, s_pMainFrame, &MainFrame::onMiarex, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflrServer::onXInverse, s_pMainFrame, &MainFrame::onXInverse, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflrServer::onClose, s_pMainFrame, &MainFrame::close);
     
     using namespace std;
