@@ -29,6 +29,7 @@
 #include <iostream>
 #include <QString>
 
+// #include <xdirect/objects2d.h>
 
 class xflrServer: public QThread
 {   

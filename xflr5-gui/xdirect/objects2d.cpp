@@ -384,7 +384,20 @@ void Objects2d::deletePolarAt(int index)
     delete pPolar;
 }
 
+bool Objects2d::foilExists(QString foilName)
+{
+    Foil *pOldFoil = nullptr;
 
+    for (int i=0; i<s_oaFoil.size(); i++)
+    {
+        pOldFoil = s_oaFoil.at(i);
+        if (pOldFoil->foilName() == foilName)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 /**
  * The foil exists in the array.
  * Rename it with the specified new name, and rename its children Polar and OpPoint objects

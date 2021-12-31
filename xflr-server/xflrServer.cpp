@@ -21,46 +21,18 @@
 
 #include "xflrServer.h"
 #include <globals/mainframe.h>
+
 #include "rpc/server.h"
-
+#include "RpcLibAdapters.h"
+#include <xdirect/objects2d.h>
 #include <iostream>
-#include <stdlib.h>
-
 #include <QObject>
 #include <QString>
 #include <QVector>
 
+#include "utils.h"
+
 MainFrame* xflrServer::s_pMainFrame = nullptr;
-
-QVector<QString> QStrlVecFromPyList(std::vector<std::string> list){
-    QVector<QString> out;
-    for (uint i=0;i<list.size();i++){
-        out.push_back(QString::fromStdString(list.at(i)));
-    };
-    return out;
-};
-
-namespace adapters
-{   
-    struct StateAdapter{
-        std::string projectPath;
-        std::string projectName;
-        int app;
-        bool saved;
-        bool display;
-        MSGPACK_DEFINE_MAP(projectPath, projectName, app, saved, display);
-
-        StateAdapter(QString _projectPath, QString _projectName, XFLR5::enumApp _app, bool _saved, bool _display=true){
-            projectPath = _projectPath.toStdString();
-            projectName = _projectName.toStdString();
-            app = _app;
-            saved = _saved;
-            display=_display;
-
-        }
-    };
-} // namespace adapters
-
 
 xflrServer::xflrServer(int port) : server(port)
 {
@@ -81,7 +53,7 @@ xflrServer::xflrServer(int port) : server(port)
         return true;
         });
     server.bind("loadProject", [&](vector<string> files){
-        emit onLoadProject(QStringList::fromVector(QStrlVecFromPyList(files)));
+        emit onLoadProject(QStringList::fromVector(QStrQVecFromStrVec(files)));
         });
     server.bind("newProject", [&](){
         emit onNewProject();
@@ -90,10 +62,10 @@ xflrServer::xflrServer(int port) : server(port)
     server.bind("saveProject", [&](){
         emit onSaveProject();
         });    
-    server.bind("getState", [&](){
-        return adapters::StateAdapter(s_pMainFrame->m_FileName,s_pMainFrame->s_ProjectName,s_pMainFrame->m_iApp,s_pMainFrame->s_bSaved);
+    server.bind("getState", [&]()->RpcLibAdapters::StateAdapter{
+        return RpcLibAdapters::StateAdapter(s_pMainFrame->m_FileName,s_pMainFrame->s_ProjectName,s_pMainFrame->m_iApp,s_pMainFrame->s_bSaved);
         });
-    server.bind("setProjectPath",[&](std::string projectPath){
+    server.bind("setProjectPath",[&](string projectPath){
         s_pMainFrame->setProjectName(QString::fromStdString(projectPath));
         });
     server.bind("setApp",[&](int app){
@@ -113,6 +85,19 @@ xflrServer::xflrServer(int port) : server(port)
             emit onXInverse();
         }
         });
+    
+    server.bind("foilExists", [&](string name)->bool{
+        return Objects2d::foilExists(QString::fromStdString(name));
+    });
+
+    server.bind("getFoil",[&](string name)->RpcLibAdapters::FoilAdapter{
+        return RpcLibAdapters::FoilAdapter(*Objects2d::foil(QString::fromStdString(name)));
+    });
+
+    server.bind("foilList", [&]()->vector<RpcLibAdapters::FoilAdapter>{
+        return FoilVecFromQFoilQVec(*Objects2d::pOAFoil());
+    });
+    
     server.bind("exit",[&]{
         stop();
         emit onClose();
