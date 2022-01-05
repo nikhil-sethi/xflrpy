@@ -43,13 +43,11 @@ class RpcLibAdapters
                 thickness_x = out.thickness();
                 n = out.n;            
                 }
-
-            // static Foil from(FoilAdapter& in){
-            //     std::vector<Foil> foil; 
-            //     for (const auto& item : in)
-            //         foil.push_back(item.to());
-            //     return foil;
-            // }
+        
+        };
+        struct Coord{
+            double x,y;
+            MSGPACK_DEFINE_ARRAY(x,y);
         };
 
 

@@ -34,12 +34,14 @@ class State(MsgpackMixin):
 class Polar(MsgpackMixin):
     alpha=list()
     Cl=list()
-   
+
 class Foil(MsgpackMixin):
     name = ""
     camber = 0.0
     camber_x = 0.0
     thickness = 0.0
+    thickness_x = 0.0
+    n = 0
 
     def __init__(self, client) -> None:
         self._client=client

@@ -34,6 +34,8 @@
 
 MainFrame* xflrServer::s_pMainFrame = nullptr;
 
+using namespace std;
+
 xflrServer::xflrServer(int port) : server(port)
 {
     QObject::connect(this, &xflrServer::onNewProject, s_pMainFrame, &MainFrame::onNewProjectHeadless, Qt::BlockingQueuedConnection);
@@ -45,8 +47,6 @@ xflrServer::xflrServer(int port) : server(port)
     QObject::connect(this, &xflrServer::onXInverse, s_pMainFrame, &MainFrame::onXInverse, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflrServer::onClose, s_pMainFrame, &MainFrame::close);
     
-    using namespace std;
-    {
     cout << "Starting Xflr server at port: "<< port << endl;
 
     server.bind("ping", []()->bool{
@@ -98,11 +98,22 @@ xflrServer::xflrServer(int port) : server(port)
         return FoilVecFromQFoilQVec(*Objects2d::pOAFoil());
     });
     
+    server.bind("foilCoords", [&](string name){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+        vector<RpcLibAdapters::Coord> v;
+
+        double(&x)[IBX] = pFoil->x;
+        double(&y)[IBX] = pFoil->y;
+        for (int i=0; i<pFoil->n; i++){
+            v.push_back({x[i],y[i]});
+        }
+        return v;
+    });
+
     server.bind("exit",[&]{
         stop();
         emit onClose();
         });
-    } // namespace std   
 }
 
 void xflrServer::run(){
