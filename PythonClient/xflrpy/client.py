@@ -23,6 +23,7 @@ class xflrClient:
             State()
         """
         state_raw = self._client.call("getState")
+        state_raw['app'] = enumApp(state_raw['app'])
         return State.from_msgpack(state_raw)
 
     def ping(self):
@@ -121,14 +122,12 @@ class xflrClient:
         Set the required application on the gui
 
         Args:
-            app: (enumApp/int) Required enum or integer for application
+            app: (enumApp/int) Required enum for application
 
         Returns:
             None
         """
-        if type(app) == enumApp:
-            app = app.value
-        self._client.call("setApp", app)
+        self._client.call("setApp", int(app))
             
     def close(self):
         """
