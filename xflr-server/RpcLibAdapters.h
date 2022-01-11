@@ -40,7 +40,7 @@ class RpcLibAdapters
                 camber = out.camber();
                 camber_x = out.xCamber();
                 thickness = out.thickness();
-                thickness_x = out.thickness();
+                thickness_x = out.xThickness();
                 n = out.n;            
                 }
         

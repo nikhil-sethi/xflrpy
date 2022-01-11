@@ -21,7 +21,9 @@
 
 #include "xflrServer.h"
 #include <globals/mainframe.h>
-
+#include <viewwidgets/foildesignwt.h>
+#include <design/afoil.h>
+#include <objects/objects2d/foil.h>
 #include "rpc/server.h"
 #include "RpcLibAdapters.h"
 #include <xdirect/objects2d.h>
@@ -46,6 +48,7 @@ xflrServer::xflrServer(int port) : server(port)
     QObject::connect(this, &xflrServer::onMiarex, s_pMainFrame, &MainFrame::onMiarex, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflrServer::onXInverse, s_pMainFrame, &MainFrame::onXInverse, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflrServer::onClose, s_pMainFrame, &MainFrame::close);
+    QObject::connect(this, &xflrServer::onFoilGeom, s_pMainFrame->m_pAFoil, &AFoil::onAFoilFoilGeomHeadless, Qt::BlockingQueuedConnection);
     
     cout << "Starting Xflr server at port: "<< port << endl;
 
@@ -109,6 +112,49 @@ xflrServer::xflrServer(int port) : server(port)
         }
         return v;
     });
+    
+    server.bind("setCamber", [&](double val, string name){
+        QString qname = QString::fromStdString(name);
+        Foil* pFoil = new Foil();
+        Foil* currFoil = Objects2d::foil(qname);
+        pFoil->copyFoil(currFoil);
+        pFoil->m_fCamber = val;
+        emit onFoilGeom(pFoil, qname);
+        pFoil->normalizeGeometry();
+    });
+    server.bind("setThickness", [&](double val, string name){
+        QString qname = QString::fromStdString(name);
+        Foil* pFoil = new Foil();
+        Foil* currFoil = Objects2d::foil(qname);
+        pFoil->copyFoil(currFoil);
+        pFoil->m_fThickness = val;
+        emit onFoilGeom(pFoil, qname);
+        pFoil->normalizeGeometry();
+    });
+    server.bind("setCamberX", [&](double val, string name){
+        QString qname = QString::fromStdString(name);
+        Foil* pFoil = new Foil();
+        Foil* currFoil = Objects2d::foil(qname);
+        pFoil->copyFoil(currFoil);
+        pFoil->m_fXCamber = val;
+        emit onFoilGeom(pFoil, qname);
+        pFoil->normalizeGeometry();
+
+    });
+    server.bind("setThickX", [&](double val, string name){
+        QString qname = QString::fromStdString(name);
+        Foil* pFoil = new Foil();
+        Foil* currFoil = Objects2d::foil(qname);
+        pFoil->copyFoil(currFoil);
+        pFoil->m_fXThickness = val;
+        emit onFoilGeom(pFoil, qname);
+        pFoil->normalizeGeometry();
+
+    });
+    // server.bind("showFoil", [&](bool val, string name){
+    //     Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+    //     // s_pMainFrame->m_pDirect2dWidget->showFoil(pFoil, val);
+    // });
 
     server.bind("exit",[&]{
         stop();

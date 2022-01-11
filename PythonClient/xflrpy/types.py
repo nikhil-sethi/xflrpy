@@ -49,7 +49,7 @@ class Foil(MsgpackMixin):
     @property
     def coords(self):
         return self._client.call("foilCoords", self.name)
-         
+
     # def getPolar(self, polar_name):
     #     polar_raw = self.client.call('getPolar', self.name, polar_name) 
     #     return Polar.from_msgpack(polar_raw)
@@ -107,12 +107,14 @@ class FoilManager:
             print("Please provide a valid .dat file")
             return
         self._client.call("loadFoils", paths)
+    
 
 class Afoil:
     """
     Manage the direct design GUI.
     """
     def __init__(self, client) -> None:
+        self._client = client
         self.foil_mgr = FoilManager(client)
 
     @property
@@ -134,6 +136,18 @@ class Afoil:
     
     def setFoil(self, foil):
         pass
+
+    def setCamber(self, val, name = None):
+        self._client.call("setCamber", val, name)
+        
+    def setThickness(self, val, name = None):
+        self._client.call("setThickness", val, name)
+
+    def setCamberX(self, val, name = None):
+        self._client.call("setCamberX", val, name)
+        
+    def setThicknessX(self, val, name = None):
+        self._client.call("setThicknessX", val, name)
 
 class Miarex(MsgpackMixin):
     """

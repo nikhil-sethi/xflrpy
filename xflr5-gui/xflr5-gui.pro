@@ -31,7 +31,7 @@ else
 #message($$OUT_PWD)
 
 VERSION = 6.44
-QMAKE_CXXFLAGS += -Wno-deprecated-copy -Wno-deprecated-declaration
+
 
 CONFIG += qt
 QT += opengl network xml
@@ -131,7 +131,7 @@ macx{
 
 QMAKE_CFLAGS_WARN_ON -= -W3
 QMAKE_CFLAGS_WARN_ON -= -W4
-
+QMAKE_CXXFLAGS += -Wno-deprecated -Wno-deprecated-declarations -Wno-deprecated-copy
 LIBS += -L../xflr5-engine -lxflr5-engine
 LIBS += -L../XFoil-lib -lXFoil
 LIBS += -L../xflr-server -lxflr-server

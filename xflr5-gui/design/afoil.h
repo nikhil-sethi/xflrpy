@@ -79,13 +79,14 @@ public:
 
     void setupLayout();
     void initDialog(FoilDesignWt *p2DWidget, QVector<Foil *> *poaFoil, XFoil *pXFoil);
-
+    
+    Foil* addNewFoilHeadless(Foil* foil, QString name);
 signals:
     void projectModified();
 
 public slots:
     void onUpdateFoilTable();
-
+    void onAFoilFoilGeomHeadless(Foil* foil, QString name);
 private slots:
     void onAFoilCadd();
     void onAFoilDerotateFoil();
