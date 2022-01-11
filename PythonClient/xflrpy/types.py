@@ -146,8 +146,8 @@ class Afoil:
     def setCamberX(self, val, name = None):
         self._client.call("setCamberX", val, name)
         
-    def setThicknessX(self, val, name = None):
-        self._client.call("setThicknessX", val, name)
+    def setThickX(self, val, name = None):
+        self._client.call("setThickX", val, name)
 
 class Miarex(MsgpackMixin):
     """
