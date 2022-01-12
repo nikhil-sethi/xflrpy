@@ -52,7 +52,7 @@ public:
     static void      insertThisFoil(Foil *pFoil);
     static Foil *    addFoil(Foil *pFoil);
     static void      appendFoil(Foil *pFoil) {s_oaFoil.append(pFoil);}
-    static bool      FoilExists(QString FoilName);
+    static bool      foilExists(QString FoilName);
     static void      renameFoil(QString FoilName);
     static void      renameThisFoil(Foil *pFoil, QString newFoilName);
     static Foil *    setModFoil(Foil *pModFoil);

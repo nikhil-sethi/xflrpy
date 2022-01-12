@@ -731,6 +731,24 @@ void AFoil::onAFoilFoilGeom()
     m_p2DWidget->update();;
 }
 
+void AFoil::onAFoilFoilGeomHeadless(Foil* pFoil, QString newName){
+    FoilGeomDlg fgeDlg(s_pMainFrame);
+    fgeDlg.m_pMemFoil    = XDirect::curFoil();
+    fgeDlg.m_pBufferFoil = pFoil;
+    fgeDlg.initDialog();
+    fgeDlg.applyHeadless(pFoil);
+    if(addNewFoilHeadless(pFoil, newName))
+    {
+        fillFoilTable();
+        selectFoil(pFoil);
+    }
+    else
+    {
+        delete pFoil;
+    }
+    m_p2DWidget->update();
+    // s_pMainFrame->update();
+}
 
 /**
  * The user has requested the launch of the interface to modify the gap at the Foil's trailing edge.
@@ -1831,6 +1849,15 @@ Foil* AFoil::addNewFoil(Foil *pFoil)
     return nullptr;
 }
 
+Foil* AFoil::addNewFoilHeadless(Foil *pFoil, QString newName)
+{
+    if(!pFoil) return nullptr;
+
+    pFoil->setFoilName(newName);
+    Objects2d::insertThisFoil(pFoil);
+    emit projectModified();
+    return pFoil;
+}
 
 void AFoil::initDialog(FoilDesignWt *p2DWidget, QVector<Foil*> *poaFoil, XFoil *pXFoil)
 {

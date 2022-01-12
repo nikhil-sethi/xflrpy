@@ -131,7 +131,6 @@ SOURCES += \
     xinverse/inverseoptionsdlg.cpp \
     xinverse/pertdlg.cpp \
     xinverse/xinverse.cpp \
-    ../xflr-server/xflrServer.cpp \
 
 
 HEADERS += \
@@ -269,7 +268,7 @@ HEADERS += \
     xinverse/inverseoptionsdlg.h \
     xinverse/pertdlg.h \
     xinverse/xinverse.h \
-    ../xflr-server/xflrServer.h \
+
 
 
 

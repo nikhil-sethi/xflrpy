@@ -21,46 +21,22 @@
 
 #include "xflrServer.h"
 #include <globals/mainframe.h>
+#include <viewwidgets/foildesignwt.h>
+#include <design/afoil.h>
+#include <objects/objects2d/foil.h>
 #include "rpc/server.h"
-
+#include "RpcLibAdapters.h"
+#include <xdirect/objects2d.h>
 #include <iostream>
-#include <stdlib.h>
-
 #include <QObject>
 #include <QString>
 #include <QVector>
 
+#include "utils.h"
+
 MainFrame* xflrServer::s_pMainFrame = nullptr;
 
-QVector<QString> QStrlVecFromPyList(std::vector<std::string> list){
-    QVector<QString> out;
-    for (uint i=0;i<list.size();i++){
-        out.push_back(QString::fromStdString(list.at(i)));
-    };
-    return out;
-};
-
-namespace adapters
-{   
-    struct StateAdapter{
-        std::string projectPath;
-        std::string projectName;
-        int app;
-        bool saved;
-        bool display;
-        MSGPACK_DEFINE_MAP(projectPath, projectName, app, saved, display);
-
-        StateAdapter(QString _projectPath, QString _projectName, XFLR5::enumApp _app, bool _saved, bool _display=true){
-            projectPath = _projectPath.toStdString();
-            projectName = _projectName.toStdString();
-            app = _app;
-            saved = _saved;
-            display=_display;
-
-        }
-    };
-} // namespace adapters
-
+using namespace std;
 
 xflrServer::xflrServer(int port) : server(port)
 {
@@ -72,16 +48,15 @@ xflrServer::xflrServer(int port) : server(port)
     QObject::connect(this, &xflrServer::onMiarex, s_pMainFrame, &MainFrame::onMiarex, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflrServer::onXInverse, s_pMainFrame, &MainFrame::onXInverse, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflrServer::onClose, s_pMainFrame, &MainFrame::close);
+    QObject::connect(this, &xflrServer::onFoilGeom, s_pMainFrame->m_pAFoil, &AFoil::onAFoilFoilGeomHeadless, Qt::BlockingQueuedConnection);
     
-    using namespace std;
-    {
     cout << "Starting Xflr server at port: "<< port << endl;
 
     server.bind("ping", []()->bool{
         return true;
         });
     server.bind("loadProject", [&](vector<string> files){
-        emit onLoadProject(QStringList::fromVector(QStrlVecFromPyList(files)));
+        emit onLoadProject(QStringList::fromVector(QStrQVecFromStrVec(files)));
         });
     server.bind("newProject", [&](){
         emit onNewProject();
@@ -90,10 +65,10 @@ xflrServer::xflrServer(int port) : server(port)
     server.bind("saveProject", [&](){
         emit onSaveProject();
         });    
-    server.bind("getState", [&](){
-        return adapters::StateAdapter(s_pMainFrame->m_FileName,s_pMainFrame->s_ProjectName,s_pMainFrame->m_iApp,s_pMainFrame->s_bSaved);
+    server.bind("getState", [&]()->RpcLibAdapters::StateAdapter{
+        return RpcLibAdapters::StateAdapter(s_pMainFrame->m_FileName,s_pMainFrame->s_ProjectName,s_pMainFrame->m_iApp,s_pMainFrame->s_bSaved);
         });
-    server.bind("setProjectPath",[&](std::string projectPath){
+    server.bind("setProjectPath",[&](string projectPath){
         s_pMainFrame->setProjectName(QString::fromStdString(projectPath));
         });
     server.bind("setApp",[&](int app){
@@ -113,11 +88,78 @@ xflrServer::xflrServer(int port) : server(port)
             emit onXInverse();
         }
         });
+    
+    server.bind("foilExists", [&](string name)->bool{
+        return Objects2d::foilExists(QString::fromStdString(name));
+    });
+
+    server.bind("getFoil",[&](string name)->RpcLibAdapters::FoilAdapter{
+        return RpcLibAdapters::FoilAdapter(*Objects2d::foil(QString::fromStdString(name)));
+    });
+
+    server.bind("foilList", [&]()->vector<RpcLibAdapters::FoilAdapter>{
+        return FoilVecFromQFoilQVec(*Objects2d::pOAFoil());
+    });
+    
+    server.bind("foilCoords", [&](string name){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+        vector<RpcLibAdapters::Coord> v;
+
+        double(&x)[IBX] = pFoil->x;
+        double(&y)[IBX] = pFoil->y;
+        for (int i=0; i<pFoil->n; i++){
+            v.push_back({x[i],y[i]});
+        }
+        return v;
+    });
+    
+    server.bind("setCamber", [&](double val, string name){
+        QString qname = QString::fromStdString(name);
+        Foil* pFoil = new Foil();
+        Foil* currFoil = Objects2d::foil(qname);
+        pFoil->copyFoil(currFoil);
+        pFoil->m_fCamber = val;
+        emit onFoilGeom(pFoil, qname);
+        pFoil->normalizeGeometry();
+    });
+    server.bind("setThickness", [&](double val, string name){
+        QString qname = QString::fromStdString(name);
+        Foil* pFoil = new Foil();
+        Foil* currFoil = Objects2d::foil(qname);
+        pFoil->copyFoil(currFoil);
+        pFoil->m_fThickness = val;
+        emit onFoilGeom(pFoil, qname);
+        pFoil->normalizeGeometry();
+    });
+    server.bind("setCamberX", [&](double val, string name){
+        QString qname = QString::fromStdString(name);
+        Foil* pFoil = new Foil();
+        Foil* currFoil = Objects2d::foil(qname);
+        pFoil->copyFoil(currFoil);
+        pFoil->m_fXCamber = val;
+        emit onFoilGeom(pFoil, qname);
+        pFoil->normalizeGeometry();
+
+    });
+    server.bind("setThickX", [&](double val, string name){
+        QString qname = QString::fromStdString(name);
+        Foil* pFoil = new Foil();
+        Foil* currFoil = Objects2d::foil(qname);
+        pFoil->copyFoil(currFoil);
+        pFoil->m_fXThickness = val;
+        emit onFoilGeom(pFoil, qname);
+        pFoil->normalizeGeometry();
+
+    });
+    // server.bind("showFoil", [&](bool val, string name){
+    //     Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+    //     // s_pMainFrame->m_pDirect2dWidget->showFoil(pFoil, val);
+    // });
+
     server.bind("exit",[&]{
         stop();
         emit onClose();
         });
-    } // namespace std   
 }
 
 void xflrServer::run(){

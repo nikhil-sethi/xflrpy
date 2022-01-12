@@ -20,7 +20,7 @@ else
 # any feature of Qt which as been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS
+# DEFINES = QT_DEPRECATED_WARNINGS
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -31,6 +31,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #message($$OUT_PWD)
 
 VERSION = 6.44
+
 
 CONFIG += qt
 QT += opengl network xml
@@ -129,8 +130,8 @@ macx{
 }
 
 QMAKE_CFLAGS_WARN_ON -= -W3
-QMAKE_CFLAGS_WARN_ON += -W4
-
+QMAKE_CFLAGS_WARN_ON -= -W4
+QMAKE_CXXFLAGS += -Wno-deprecated -Wno-deprecated-declarations -Wno-deprecated-copy
 LIBS += -L../xflr5-engine -lxflr5-engine
 LIBS += -L../XFoil-lib -lXFoil
 LIBS += -L../xflr-server -lxflr-server

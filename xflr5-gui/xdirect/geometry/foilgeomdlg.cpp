@@ -303,6 +303,45 @@ void FoilGeomDlg::apply()
     m_pParent->update();
 }
 
+void FoilGeomDlg::applyHeadless(Foil* m_pBufferFoil){
+
+    s_pXFoil->initXFoilGeometry(m_pBufferFoil->n, m_pBufferFoil->x, m_pBufferFoil->y, m_pBufferFoil->nx, m_pBufferFoil->ny);
+    double thickness = m_pBufferFoil->thickness();
+    double camber    = m_pBufferFoil->camber();
+    s_pXFoil->tcset(camber, thickness);
+
+
+    double Xthickness = m_pBufferFoil->xThickness();
+    double Xcamber    = m_pBufferFoil->xCamber();
+    s_pXFoil->hipnt(Xcamber, Xthickness);
+
+
+    if(s_pXFoil->nb>IQX)
+    {
+        QMessageBox::information(window(), tr("Warning"), tr("Panel number cannot exceed 300"));
+        //reset everything and retry
+        for (int i=0; i< m_pMemFoil->nb; i++)
+        {
+            s_pXFoil->x[i+1] = m_pMemFoil->xb[i];
+            s_pXFoil->y[i+1] = m_pMemFoil->yb[i];
+        }
+        s_pXFoil->n = m_pMemFoil->nb;
+    }
+    else
+    {
+        for (int j=0; j< s_pXFoil->nb; j++)
+        {
+            m_pBufferFoil->xb[j] = s_pXFoil->xb[j+1];
+            m_pBufferFoil->yb[j] = s_pXFoil->yb[j+1];
+        }
+        m_pBufferFoil->nb = s_pXFoil->nb;
+        m_pBufferFoil->initFoil();
+        m_pBufferFoil->setFlap();
+    }
+    m_bModified = true;
+
+    m_pParent->update();
+}
 
 void FoilGeomDlg::keyPressEvent(QKeyEvent *event)
 {

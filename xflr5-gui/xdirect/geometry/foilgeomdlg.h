@@ -60,7 +60,7 @@ private:
     void keyPressEvent(QKeyEvent *event);
     void setupLayout();
     void apply();
-
+    void applyHeadless(Foil* foil);
 private:
     QSlider    *m_pctrlCamberSlide, *m_pctrlThickSlide, *m_pctrlXThickSlide, *m_pctrlXCamberSlide;
     DoubleEdit *m_pctrlXCamber;

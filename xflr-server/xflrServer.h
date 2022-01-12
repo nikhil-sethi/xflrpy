@@ -29,6 +29,9 @@
 #include <iostream>
 #include <QString>
 
+class Foil;
+class AFoil;
+class FoilDesignWt;
 
 class xflrServer: public QThread
 {   
@@ -56,6 +59,7 @@ class xflrServer: public QThread
         void onMiarex();
         void onXInverse();
         void onClose();
+        void onFoilGeom(Foil* foil, QString name);
 
 };
 
