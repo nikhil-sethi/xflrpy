@@ -1,8 +1,15 @@
 ## Note
 This repository is under initial development phase. As a result there are not many features or refined code practices as of yet. There might be breaking changes without updating the major version until the first release. Any and every contribution/constructive criticism is welcome. Use github issues to roast me.
 
-# xflrpy v0.1.2
+# xflrpy v0.2.0
 xflrpy is a python enabled version of [xflr5](http://www.xflr5.tech/xflr5.htm). It comes with a [python package](https://pypi.org/project/xflrpy/) and is useful for design optimization and scripting. The [original software](https://sourceforge.net/projects/xflr5/) is capable of the design and low-fidelity analysis of airfoils and model aircraft and was created by created by André Deperrois.
+
+The current version (v0.2.0) has limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.MD) and [Todo](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.MD). Currently you can:
+- Create or load new projects
+- Save projects
+- Set and get apps (xfoil, plane-design, foil-design, inverse-design)
+- Set and get airfoils from direct design
+- Set geometry properties for airfoils
 
 ![Optimizing a BWB UAV](https://github.com/nikhil-sethi/xflrpy/blob/pythonqt/xflrpy.gif)
 
@@ -48,7 +55,7 @@ Demerits:
 
 
 Because of the above reasons, I won't be maintaining the pythonqt approach but it will be long-lived to help people learn something/anything from it. The rpc approach has been merged to the master branch.
-Note that as of 28/12/21 v0.1.0, the pythonqt branch has more and better features than rpc. If you want to whip up something quick, I reccommend you use that. But this will change soon enough. I will be adding more features to rpc and hope to move this statement to the changelog ASAP :) 
+Note that as of 28/12/21 v0.2.0, the pythonqt branch has more and better features than rpc. If you want to whip up something quick, I reccommend you use that. But this will change soon enough. I will be adding more features to rpc and hope to move this statement to the changelog ASAP :) 
 
 ## So..How to build it?
 For Linux (tested on Ubuntu 20.04, Python 3.8.10, Qt 5.13.2, msgpack-rpc-python 0.40.1, rpclib 2.3.0):
@@ -56,13 +63,13 @@ These instructions are basic and just an extension of [this](https://github.com/
 
 Setup
 ```
-git clone https://github.com/nikhil-sethi/xflrpy.git -b bug_compile
+git clone https://github.com/nikhil-sethi/xflrpy.git 
 cd xflrpy
 git submodule update --init --recursive
 
 sudo apt install build-essential mesa-common-dev mesa-utils libgl1-mesa-dev libglu1-mesa-dev
 ```
-Build rpclib (If you already have rpclib, you can skip these steps and link the appropriate libraries in xflr-server.pro)
+Build rpclib (If you already have rpclib, you can skip these steps and link the appropriate libraries in xflr5-gui.pro)
 ```
 cd rpclib
 mkdir build
@@ -98,13 +105,8 @@ First install the python package xflrpy
 pip3 install xflrpy
 ```
 
-The current version (v0.1.1) has very limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/rpc/CHANGELOG.MD). Currently you can:
-- Create or load new projects
-- Save projects
-- Set and get apps (xfoil, plane-design, foil-design, inverse-design)
-
 A brief sketch:
-```
+```python
 from xflrpy import xflrClient
 
 # Change these values accordingly
@@ -125,14 +127,22 @@ xp.setApp(enumApp.DIRECTDESIGN)
 print(xp.state)
 
 # get a useable object for the current class
-app = xp.getApp()
+afoil = xp.getApp(enumApp.DIRECTDESIGN)
+
+# get a specific airfoil from a dictionary of all airfoils
+foilDict = afoil.foilDict["MH 60  10.08%"] 
+
+# you can also get the airfoil through a straight function. This is faster
+foil = afoil.getFoil("MH 60  10.08%")
+
+# show some airfoil properties
+print(foil) 
+
+# Get airfoil coordinates and play with them (what?)
+print(foil.coords)
+
+# Modify foil properties
+afoil.setCamber(0.03, foil.name)
+afoil.setThickness(0.03, foil.name)
 
 ```
-
-## TODO
-These are more features I have in mind. Please feel free to add/subtract/correct:
-
-1. Write the optimization class and wrappers
-2. Add structs for geometry including other modules like airfoil. Inverse might be very helpful.
-3. Cleanup and have give an xflrServer pointer to separate files
-4. Make the structure better and add deeper abstractions.
