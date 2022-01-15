@@ -1,0 +1,37 @@
+Metadata-Version: 2.1
+Name: xflrpy
+Version: 0.2.0
+Summary: A python client for design optimization and scripting with XFLR5
+Home-page: https://github.com/nikhil-sethi/xflrpy
+Author: Nikhil Sethi
+Author-email: sethi.nirvil@gmail.com
+License: GPLv3
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+
+# Python API for XFLR5
+
+This is the python package for running scripts and interfacing with [xflrpy](https://github.com/nikhil-sethi/xflrpy).
+
+Note: This repository is in intial development phase. 
+There might be:
+- Some instability 
+- Breaking changes without updating major versions until the first release. 
+
+Any contributions/constructive criticism is welcome. Use github issues to roast me.
+
+## How to Use
+See [examples](https://github.com/nikhil-sethi/xflrpy/tree/master/PythonClient/examples)
+
+## Dependencies
+This package depends on `msgpack` and would automatically install `msgpack-rpc-python` (this may need administrator/sudo prompt):
+```
+pip install msgpack-rpc-python
+```
+
+

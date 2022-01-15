@@ -1,10 +1,10 @@
 ## Note
 This repository is under initial development phase. As a result there are not many features or refined code practices as of yet. There might be breaking changes without updating the major version until the first release. Any and every contribution/constructive criticism is welcome. Use github issues to roast me.
 
-# xflrpy v0.2.0
+# xflrpy v0.3.0
 xflrpy is a python enabled version of [xflr5](http://www.xflr5.tech/xflr5.htm). It comes with a [python package](https://pypi.org/project/xflrpy/) and is useful for design optimization and scripting. The [original software](https://sourceforge.net/projects/xflr5/) is capable of the design and low-fidelity analysis of airfoils and model aircraft and was created by created by André Deperrois.
 
-The current version (v0.2.0) has limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.MD) and [Todo](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.MD). Currently you can:
+The current version (v0.2.0) has limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.md) and [Todo](https://github.com/nikhil-sethi/xflrpy/blob/master/TODO.md). Currently you can:
 - Create or load new projects
 - Save projects
 - Set and get apps (xfoil, plane-design, foil-design, inverse-design)
@@ -58,7 +58,7 @@ Because of the above reasons, I won't be maintaining the pythonqt approach but i
 Note that as of 28/12/21 v0.2.0, the pythonqt branch has more and better features than rpc. If you want to whip up something quick, I reccommend you use that. But this will change soon enough. I will be adding more features to rpc and hope to move this statement to the changelog ASAP :) 
 
 ## So..How to build it?
-For Linux (tested on Ubuntu 20.04, Python 3.8.10, Qt 5.13.2, msgpack-rpc-python 0.40.1, rpclib 2.3.0):
+For Linux (tested on Ubuntu 20.04, Python 3.8.10, Qt 5.15.2, msgpack-rpc-python 0.40.1, rpclib 2.3.0):
 These instructions are basic and just an extension of [this](https://github.com/polmes/xflr5-ubuntu) repo.
 
 Setup
@@ -79,7 +79,7 @@ cmake --build .
 ```
 
 Build xflrpy 
-(You will need Qt>=5. Check out their page for installing it)
+(You will need Qt>=5.14. Check out their page for installing it)
 ```
 cd ../..
 qmake # or give the complete path to your qmake location
@@ -88,14 +88,15 @@ make all -j8 (replace 8 with the number of cores you want)
 
 Install and link some libraries
 ```
-xflrpy_path=</path/to/xflrpy>
-echo -e "$xflrpy_path/xflr5-gui \n$xflrpy_path/xflr5-engine \n$xflrpy_path/xflr-server \n$xflrpy_path/XFoil-lib" | sudo tee -a /etc/ld.so.conf.d/xflrpy.conf
+cd XFoil-lib
+sudo make install
 sudo ldconfig
 ```
 
 If everything worked correctly, you should be able to start xflr5.
 ```
-./xfr5-gui/xflr5
+cd ..
+./xfr5v6/xflr5
 ```
 
 ## Test
@@ -143,6 +144,6 @@ print(foil.coords)
 
 # Modify foil properties
 afoil.setCamber(0.03, foil.name)
-afoil.setThickness(0.03, foil.name)
+afoil.setThickness(0.3, foil.name)
 
 ```

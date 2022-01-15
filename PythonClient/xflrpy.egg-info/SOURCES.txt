@@ -1,0 +1,12 @@
+LICENSE
+README.md
+setup.py
+xflrpy/__init__.py
+xflrpy/client.py
+xflrpy/types.py
+xflrpy/utils.py
+xflrpy.egg-info/PKG-INFO
+xflrpy.egg-info/SOURCES.txt
+xflrpy.egg-info/dependency_links.txt
+xflrpy.egg-info/requires.txt
+xflrpy.egg-info/top_level.txt
