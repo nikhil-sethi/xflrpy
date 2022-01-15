@@ -41,6 +41,7 @@ TARGET = xflr5
 
 # The path to the libraries' header files required by the code at compile time
 INCLUDEPATH += $$PWD/../XFoil-lib/
+INCLUDEPATH += $$PWD/../rpclib/include
 # Forces re-build if a library header or source file has been modified
 DEPENDPATH += $$PWD/../XFoil-lib/
 
@@ -126,7 +127,7 @@ QMAKE_CFLAGS_WARN_ON -= -W3
 QMAKE_CFLAGS_WARN_ON += -W4
 
 LIBS += -L../XFoil-lib -lXFoil
-
+LIBS += -L../rpclib/build -lrpc
 
 include(xflr5v6.pri)
 include(xfl3d/xfl3d.pri)
@@ -137,7 +138,7 @@ include(xflobjects/xflobjects.pri)
 include(xflscript/xflscript.pri)
 include(xflwidgets/xflwidgets.pri)
 include(xflanalysis/xflanalysis.pri)
-
+include(xflserver/xflserver.pri)
 
 
 

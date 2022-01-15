@@ -76,12 +76,13 @@ class AFoil : public QFrame
         void setupLayout();
         void initDialog(FoilDesignWt *p2DWidget, XFoil *pXFoil);
 
+        Foil* addNewFoilHeadless(Foil* foil, QString name);
     signals:
         void projectModified();
 
     public slots:
         void onUpdateFoilTable();
-
+        void onAFoilFoilGeomHeadless(Foil* foil, QString name);
     private slots:
         void onAFoilCadd();
         void onAFoilDerotateFoil();

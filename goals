@@ -1,8 +1,0 @@
-XFLRPY goals
-
-1. Very natural and self explanatory API (ex. numpy) --InProcess
-2. Remote procedure calls with python library --InProcess
-3. As little changes to original code as possible. If possible, create an extension and don't change the original code at all. --NotInProcess(tuff)
-4. Only calls and design loops in python, all computation in C++ --MaybeInProcess
-5. Highly object oriented --InProcess
-

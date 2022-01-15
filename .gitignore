@@ -12,10 +12,10 @@ testing/*
 *.pyc
 Makefile
 # Ignore all compilation and binary files
-xflr5/.qmake.stash
-xflr5/**/Makefile
-xflr5/**/objects/
-xflr5/XFoil-lib/*.so*
-xflr5/xflr5v6/moc/
-xflr5/xflr5v6/rcc/
-xflr5/xflr5v6/xflr5
+.qmake.stash
+Makefile
+./**/objects/
+XFoil-lib/*.so*
+xflr5v6/moc/
+xflr5v6/rcc/
+xflr5v6/xflr5

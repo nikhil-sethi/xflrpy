@@ -46,6 +46,8 @@
 #include <xflgraph/graph.h>
 #include <xflwidgets/voidwidget.h>
 
+#include <xflserver/xflserver.h>
+
 class AFoil;
 class Foil;
 class FoilDesignWt;
@@ -85,6 +87,7 @@ class MainFrame : public QMainWindow
     friend class gl3dMiarexView;
     friend class PlaneTreeView;
     friend class FoilTreeView;
+    friend class xflServer;
 
     Q_OBJECT
 
@@ -141,6 +144,8 @@ class MainFrame : public QMainWindow
         void onSaveTimer();
         void onSaveViewToImageFile();
         void onSetNoApp();
+        void onNewProjectHeadless();
+        void onLoadFileHeadless(QStringList fileNames);
 
     private:
         void keyPressEvent(QKeyEvent *pEvent);

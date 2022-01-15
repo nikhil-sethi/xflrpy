@@ -27,6 +27,7 @@
 #include <globals/mainframe.h>
 #include <xflcore/trace.h>
 #include <xfl3d/views/gl3dview.h>
+#include <xflserver/xflserver.h>
 
 void customLogHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
@@ -183,6 +184,9 @@ int main(int argc, char *argv[])
     setOGLDefaultFormat(version);
     qInstallMessageHandler(&customLogHandler);
     XFLR5App app(argc, argv);
+        
+    xflServer* server = new xflServer(8080);
+    server->start();
 
     if(app.done())	return 0;
     else            return app.exec();

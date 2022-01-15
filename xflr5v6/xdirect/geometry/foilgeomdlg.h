@@ -61,6 +61,7 @@ class FoilGeomDlg : public QDialog
         void keyPressEvent(QKeyEvent *pEvent) override;
         void setupLayout();
         void apply();
+        void applyHeadless(Foil* foil);
         void setFoilDisplayStayle();
         bool isXFoilOk () const;
 

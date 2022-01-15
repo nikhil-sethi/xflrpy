@@ -846,6 +846,7 @@ void MainFrame::createDockWindows()
     XInverse::s_pMainFrame        = this;
     Miarex::s_pMainFrame          = this;
     gl3dXflView::s_pMainFrame     = this;
+    xflServer::s_pMainFrame    = this;
 
     m_pdwXDirect = new QDockWidget(tr("Direct foil analysis"), this);
     m_pdwXDirect->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
@@ -6393,4 +6394,91 @@ void MainFrame::setDefaultStaticFonts()
     CPTableView::setTableFontStruct(DisplayOptions::tableFontStruct());
     PlainTextOutput::setTableFontStruct(DisplayOptions::tableFontStruct());
     LineBtn::setBackgroundColor(DisplayOptions::backgroundColor());
+}
+
+void MainFrame::onLoadFileHeadless(QStringList PathNames)
+{
+    QString PathName;
+    xfl::enumApp App  = xfl::NOAPP;
+    bool warn_non_airfoil_multiload = false;
+
+    if(!PathNames.size()) return;
+    if(PathNames.size() > 1)
+    {
+        for (int i=0; i<PathNames.size(); i++)
+        {
+            PathName = PathNames.at(i);
+            if (PathName.endsWith(".dat"))
+            {
+                App = loadXFLR5File(PathName);
+            } else {
+                warn_non_airfoil_multiload = true;
+            }
+        }
+        if (warn_non_airfoil_multiload) {
+            QMessageBox::warning(this, QObject::tr("Warning"), QObject::tr("Multiple file loading only available for airfoil files.\nNon *.dat files will be ignored."));
+        }
+    }
+    else
+    {
+        PathName = PathNames.at(0);
+        if(!PathName.length()) return;
+
+        PathName.replace(QDir::separator(), "/"); // Qt sometimes uses the windows \ separator
+
+        int pos = PathName.lastIndexOf("/");
+        if(pos>0) xfl::setLastDirName(PathName.left(pos));
+
+        App = loadXFLR5File(PathName);
+    }
+
+    if(m_iApp==xfl::NOAPP)
+    {
+        m_iApp = App;
+
+        if(m_iApp==xfl::MIAREX) onMiarex();
+        else                      onXDirect();
+    }
+
+    if(App==0)
+    {
+    }
+    else if(m_iApp==xfl::XFOILANALYSIS)
+    {
+        if(Objects2d::polarCount())
+        {
+            if(m_pXDirect->m_bPolarView) m_pXDirect->createPolarCurves();
+            else                         m_pXDirect->createOppCurves();
+        }
+        m_pXDirect->m_pFoilTreeView->fillModelView();
+        updateView();
+    }
+    else if(m_iApp==xfl::MIAREX)
+    {
+        m_pMiarex->m_pPlaneTreeView->fillModelView();
+        m_pMiarex->setPlane();
+        m_pMiarex->setScale();
+        m_pMiarex->m_bIs2DScaleSet = false;
+        m_pMiarex->setControls();
+        updateView();
+    }
+    else if(m_iApp==xfl::DIRECTDESIGN)
+    {
+        m_pAFoil->setAFoilParams();
+        m_pAFoil->selectFoil(XDirect::curFoil());
+        updateView();
+    }
+    else if(m_iApp==xfl::INVERSEDESIGN)
+    {
+        onXInverse();
+        updateView();
+    }
+}
+
+void MainFrame::onNewProjectHeadless(){
+    deleteProject();
+    m_pMiarex->    m_PixText.fill(Qt::transparent);
+    m_pgl3dMiarexView->m_bArcball = false;
+    s_bSaved=false;
+    updateView();
 }

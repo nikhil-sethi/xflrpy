@@ -1623,3 +1623,31 @@ void AFoil::initDialog(FoilDesignWt *p2DWidget, XFoil *pXFoil)
     m_p2dWidget->setObjects(m_pBufferFoil, m_pSF);
 }
 
+Foil* AFoil::addNewFoilHeadless(Foil *pFoil, QString newName)
+{
+    if(!pFoil) return nullptr;
+
+    pFoil->setName(newName);
+    Objects2d::insertThisFoil(pFoil);
+    emit projectModified();
+    return pFoil;
+}
+
+void AFoil::onAFoilFoilGeomHeadless(Foil* pFoil, QString newName){
+    FoilGeomDlg fgeDlg(s_pMainFrame);
+    fgeDlg.m_pMemFoil    = XDirect::curFoil();
+    fgeDlg.m_pBufferFoil = pFoil;
+    fgeDlg.initDialog();
+    fgeDlg.applyHeadless(pFoil);
+    if(addNewFoilHeadless(pFoil, newName))
+    {
+        fillFoilTable();
+        selectFoil(pFoil);
+    }
+    else
+    {
+        delete pFoil;
+    }
+    m_p2dWidget->update();
+    // s_pMainFrame->update();
+}
