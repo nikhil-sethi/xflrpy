@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qss/default.qss</file>
+        <file>qss/xflr5_dark.qss</file>
+    </qresource>
+</RCC>

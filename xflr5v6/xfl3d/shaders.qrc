@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/shaders/line/line_FS.glsl</file>
+        <file>resources/shaders/line/line_FS_120.glsl</file>
+        <file>resources/shaders/line/line_VS.glsl</file>
+        <file>resources/shaders/line/line_VS_120.glsl</file>
+        <file>resources/shaders/surface/surface_FS.glsl</file>
+        <file>resources/shaders/surface/surface_FS_120.glsl</file>
+        <file>resources/shaders/surface/surface_VS.glsl</file>
+        <file>resources/shaders/surface/surface_VS_120.glsl</file>
+        <file>resources/shaders/line/line_GS.glsl</file>
+        <file>resources/shaders/shadow/depth_FS.glsl</file>
+        <file>resources/shaders/shadow/depth_VS.glsl</file>
+        <file>resources/shaders/fractal/fractal_FS.glsl</file>
+        <file>resources/shaders/fractal/fractal_VS.glsl</file>
+        <file>resources/shaders/point/point_FS.glsl</file>
+        <file>resources/shaders/point/point_GS.glsl</file>
+        <file>resources/shaders/point/point_VS.glsl</file>
+    </qresource>
+</RCC>

@@ -11096,23 +11096,23 @@ on the QSpec curve.</source>
 <context>
     <name>gl3dMiarexView</name>
     <message>
-        <location filename="../xflr5-gui/viewwidgets/glWidgets/gl3dmiarexview.cpp" line="110"/>
+        <location filename="../xflr5-gui/xfl3d/gl3dmiarexview.cpp" line="110"/>
         <source>Time =</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../xflr5-gui/viewwidgets/glWidgets/gl3dmiarexview.cpp" line="416"/>
+        <location filename="../xflr5-gui/xfl3d/gl3dmiarexview.cpp" line="416"/>
         <source>Streamlines calculation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../xflr5-gui/viewwidgets/glWidgets/gl3dmiarexview.cpp" line="416"/>
-        <location filename="../xflr5-gui/viewwidgets/glWidgets/gl3dmiarexview.cpp" line="765"/>
+        <location filename="../xflr5-gui/xfl3d/gl3dmiarexview.cpp" line="416"/>
+        <location filename="../xflr5-gui/xfl3d/gl3dmiarexview.cpp" line="765"/>
         <source>Abort</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../xflr5-gui/viewwidgets/glWidgets/gl3dmiarexview.cpp" line="765"/>
+        <location filename="../xflr5-gui/xfl3d/gl3dmiarexview.cpp" line="765"/>
         <source>Velocities calculation</source>
         <translation type="unfinished"></translation>
     </message>
