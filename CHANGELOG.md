@@ -1,8 +1,9 @@
 # What's new
 There will be occassional updates here when I feel changes should be grouped. Hopefully these fall in line with version releases.
-Currently the repository in under intial develpopment phase. I will be maintaining version 0.x.y for all features until the first release.
+Currently the repository in under intial develpopment phase. I will be maintaining version 0.x.y until the first release.
 
 ### January 2022
+- Updated base xflr5 version to 6.50 (v0.3.0)
 - Added foil geometry examples
 - Fixed some enumApp problems
 - Added foil geometry modelling API (v0.2.0)
