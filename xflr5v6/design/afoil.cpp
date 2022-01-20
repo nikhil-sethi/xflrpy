@@ -1651,3 +1651,42 @@ void AFoil::onAFoilFoilGeomHeadless(Foil* pFoil, QString newName){
     m_p2dWidget->update();
     // s_pMainFrame->update();
 }
+
+/**
+ * Creates a new NACA foil with:
+ * @param s_Digits NACA airfoil digits (4/5).
+ * @param name Airfoil name.
+ */
+void AFoil::onAFoilNacaFoilsHeadless(int s_Digits, QString name){
+    NacaFoilDlg nacaDlg(s_pMainFrame);
+    nacaDlg.m_pBufferFoil = m_pBufferFoil;
+    nacaDlg.s_Digits = s_Digits;
+    nacaDlg.onOK();     // mimics the acceptance signal
+    
+    //then duplicate the buffer foil and add it
+    QString str;
+
+    if(nacaDlg.s_Digits>0 && log10(double(nacaDlg.s_Digits))<4)
+        str = QString("%1").arg(nacaDlg.s_Digits,4,10,QChar('0'));
+    else
+        str = QString("%1").arg(nacaDlg.s_Digits);
+
+    Foil *pNewFoil    = new Foil();
+    pNewFoil->copyFoil(m_pBufferFoil);
+    xfl::setRandomFoilColor(pNewFoil, !DisplayOptions::isLightTheme());
+    pNewFoil->setLineStipple(Line::SOLID);
+    pNewFoil->setLineWidth(1);
+    pNewFoil->setPointStyle(Line::NOSYMBOL);
+
+    if(addNewFoilHeadless(pNewFoil, name))
+    {
+        fillFoilTable();
+        selectFoil(pNewFoil);
+    }
+    else delete pNewFoil;
+
+    setControls();
+    m_pBufferFoil->setVisible(false);
+    m_p2dWidget->update();
+}
+

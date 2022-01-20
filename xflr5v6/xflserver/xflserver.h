@@ -59,5 +59,6 @@ class xflServer: public QThread
         void onXInverse();
         void onClose();
         void onFoilGeom(Foil* foil, QString name);
+        void onAFoilNacaFoils(int s_Digits, QString name);
 
 };

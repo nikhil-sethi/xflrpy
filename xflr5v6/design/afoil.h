@@ -83,6 +83,7 @@ class AFoil : public QFrame
     public slots:
         void onUpdateFoilTable();
         void onAFoilFoilGeomHeadless(Foil* foil, QString name);
+        void onAFoilNacaFoilsHeadless(int s_Digits, QString name);
     private slots:
         void onAFoilCadd();
         void onAFoilDerotateFoil();

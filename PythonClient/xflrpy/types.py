@@ -66,10 +66,13 @@ class Objects2d:
     def __init__(self, client) -> None:
         self._client = client
     
-    def getFoil(self, name) -> Foil:
+    def _currFoil(self):
+        self._client.call("getCurrFoil");
+
+    def getFoil(self, name = None) -> Foil:
         if not self.foilExists(name):
             print(f"Airfoil with name {name} does not exist.")
-            return    
+            return
         foil_raw = self._client.call("getFoil", name)  
         return Foil.from_msgpack(foil_raw, self._client)
         
@@ -91,7 +94,7 @@ class FoilManager:
     def __init__(self, client) -> None:
         self.objects2d = Objects2d(client)
 
-    def getFoil(self, name) -> Foil:
+    def getFoil(self, name = None) -> Foil:
         return self.objects2d.getFoil(name)
 
     def foilExists(self, name) -> bool:
@@ -125,7 +128,7 @@ class Afoil:
     def foilDict(self)->dict:
         return self.foil_mgr.foilDict()
 
-    def getFoil(self, name) -> Foil:
+    def getFoil(self, name = None) -> Foil:
         return self.foil_mgr.getFoil(name)
 
     def foilExists(self, name) -> bool:
@@ -148,6 +151,9 @@ class Afoil:
         
     def setThickX(self, val, name = None):
         self._client.call("setThickX", val, name)
+    
+    def createNACAFoil(self, digits, name):
+        self._client.call("createNACAFoil", digits, name)
 
 class Miarex(MsgpackMixin):
     """

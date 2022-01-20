@@ -49,6 +49,7 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onXInverse, s_pMainFrame, &MainFrame::onXInverse, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onClose, s_pMainFrame, &MainFrame::close);
     QObject::connect(this, &xflServer::onFoilGeom, s_pMainFrame->m_pAFoil, &AFoil::onAFoilFoilGeomHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onAFoilNacaFoils, s_pMainFrame->m_pAFoil, &AFoil::onAFoilNacaFoilsHeadless, Qt::BlockingQueuedConnection);
     
     cout << "Starting Xflr server at port: "<< port << endl;
 
@@ -93,8 +94,14 @@ xflServer::xflServer(int port) : server(port)
         return Objects2d::foilExists(QString::fromStdString(name));
     });
 
-    server.bind("getFoil",[&](string name)->RpcLibAdapters::FoilAdapter{
-        return RpcLibAdapters::FoilAdapter(*Objects2d::foil(QString::fromStdString(name)));
+    server.bind("getFoil",[&](string name = "")->RpcLibAdapters::FoilAdapter{
+        if (name ==""){
+            pFoil = Objects2d::curFoil();
+        }
+        else{
+            pFoil = Objects2d::foil(QString::fromStdString(name))
+        }
+        return RpcLibAdapters::FoilAdapter(*pFoil);
     });
 
     server.bind("foilList", [&]()->vector<RpcLibAdapters::FoilAdapter>{
@@ -151,6 +158,10 @@ xflServer::xflServer(int port) : server(port)
         pFoil->normalizeGeometry();
 
     });
+    server.bind("createNACAFoil", [&](int digits, string name){
+        emit onAFoilNacaFoils(digits, QString::fromStdString(name));
+    });
+
     // server.bind("showFoil", [&](bool val, string name){
     //     Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
     //     // s_pMainFrame->m_pDirect2dWidget->showFoil(pFoil, val);
