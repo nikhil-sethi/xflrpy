@@ -1690,3 +1690,16 @@ void AFoil::onAFoilNacaFoilsHeadless(int s_Digits, QString name){
     m_p2dWidget->update();
 }
 
+void AFoil::onDuplicateHeadless(QString fromName, QString toName)
+{   Foil* fromFoil = Objects2d::foil(fromName); 
+    if(!fromFoil) return;
+    Foil *pNewFoil = new Foil;
+    pNewFoil->copyFoil(fromFoil);
+    xfl::setRandomFoilColor(pNewFoil, !DisplayOptions::isLightTheme());
+    pNewFoil->initFoil();
+
+    addNewFoilHeadless(pNewFoil, toName);
+    fillFoilTable();
+    selectFoil(pNewFoil);
+}
+

@@ -25,6 +25,10 @@ class xflrClient:
         state_raw = self._client.call("getState")
         state_raw['app'] = enumApp(state_raw['app'])
         return State.from_msgpack(state_raw)
+    
+    @property
+    def client(self):
+        return self._client
 
     def ping(self):
         """

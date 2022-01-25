@@ -24,6 +24,31 @@ class enumApp(enum.IntEnum):
     INVERSEDESIGN = 3
     MIAREX = 4
 
+class enumLineStipple(enum.IntEnum):
+    SOLID = 0
+    DASH = 1
+    DOT = 2
+    DASHDOT = 3
+    DASHDOTDOT = 4
+    NOLINE = 5
+
+class enumPointStyle(enum.IntEnum):
+    NOSYMBOL = 0
+    LITTLECIRCLE = 1  
+    BIGCIRCLE = 2 
+    LITTLESQUARE = 3
+    BIGSQUARE = 4
+    TRIANGLE = 5
+    TRIANGLE_INV = 6
+    LITTLECIRCLE_F = 7
+    BIGCIRCLE_F = 8
+    LITTLESQUARE_F = 9
+    BIGSQUARE_F = 10
+    TRIANGLE_F = 11
+    TRIANGLE_INV_F = 12
+    LITTLECROSS = 13
+    BIGCROSS = 14
+
 class State(MsgpackMixin):
     projectPath = ""
     projectName = ""
@@ -35,73 +60,64 @@ class Polar(MsgpackMixin):
     alpha=list()
     Cl=list()
 
+class FoilStyle(MsgpackMixin):
+    colour = ""
+
+
 class Foil(MsgpackMixin):
-    name = ""
-    camber = 0.0
-    camber_x = 0.0
-    thickness = 0.0
-    thickness_x = 0.0
+    name = ""   # Name of the airfoil 
+    camber = 0.0   # Maximum camber range(0,1) 
+    camber_x = 0.0  # Location of maximum camber
+    thickness = 0.0 # Maximum thickness
+    thickness_x = 0.0 
     n = 0
 
     def __init__(self, client) -> None:
         self._client=client
-    
+
     @property
-    def coords(self):
+    def coords(self) -> list:
         return self._client.call("foilCoords", self.name)
-
-    # def getPolar(self, polar_name):
-    #     polar_raw = self.client.call('getPolar', self.name, polar_name) 
-    #     return Polar.from_msgpack(polar_raw)
-
-    # def getCurrPolar(self, polar_name):
-    #     polar_raw = self.client.call('getCurrPolar', self.name) 
-    #     return Polar.from_msgpack(polar_raw)
-
-class Objects2d:
-    """
-    All 2D object management: Foils, Polars, Operating points
-    All functions are just a replica of xflr5 Objects2d
-    """
-    def __init__(self, client) -> None:
-        self._client = client
     
-    def _currFoil(self):
-        self._client.call("getCurrFoil");
+    def setGeom(self, camber = 0., camber_x = 0., thickness=0., thickness_x=0.):
+        # set on python side
+        if camber != 0.:
+            self.camber = camber
+        if camber_x != 0.:
+            self.camber_x = camber_x
+        if thickness != 0.:
+            self.thickness = thickness
+        if thickness_x != 0.:
+            self.thickness_x = thickness_x
+        # set on cpp side
+        self._client.call("setGeom", self.name, camber, camber_x, thickness, thickness_x)
 
-    def getFoil(self, name = None) -> Foil:
-        if not self.foilExists(name):
-            print(f"Airfoil with name {name} does not exist.")
-            return
-        foil_raw = self._client.call("getFoil", name)  
-        return Foil.from_msgpack(foil_raw, self._client)
-        
-    def foilExists(self, name) -> bool:
-        return self._client.call("foilExists", name)
-    
-    def foilList(self) -> list:
-        foil_list_raw = self._client.call("foilList") 
-        return [Foil.from_msgpack(item, self._client) for item in foil_list_raw]
+    def duplicate(self, toName):
+        """
+        toName: new name for duplicated airfoil
+        """
+        return self._client.call("duplicateFoil", self.name, toName)
 
-    def deleteFoil(self, foil:Foil) -> None:
-        self._client.call("deleteFoil", foil.__dict__)
+    def delete(self) -> None:
+        self._client.call("deleteFoil")
 
 class FoilManager:
     """
-    Manager for airfoils. 
-    This class can be inherited to perform global operaions on airfoils.
+    Manager for airfoils.
     """
     def __init__(self, client) -> None:
-        self.objects2d = Objects2d(client)
+        self._client = client
 
-    def getFoil(self, name = None) -> Foil:
-        return self.objects2d.getFoil(name)
+    def getFoil(self, name=""):
+        foil_raw = self._client.call("getFoil", name)
+        return Foil.from_msgpack(foil_raw, self._client)
 
     def foilExists(self, name) -> bool:
-        return self.objects2d.foilExists(name)
+        return self._client.call("foilExists", name)
     
     def foilDict(self) -> dict:
-        return {foil.name: foil for foil in self.objects2d.foilList()}
+        foil_list_raw = self._client.call("foilList") 
+        return {item["name"]:Foil.from_msgpack(item, self._client) for item in foil_list_raw}
     
     def loadFoils(self, paths):
         if type(paths) == str:
@@ -110,7 +126,6 @@ class FoilManager:
             print("Please provide a valid .dat file")
             return
         self._client.call("loadFoils", paths)
-    
 
 class Afoil:
     """
@@ -120,40 +135,20 @@ class Afoil:
         self._client = client
         self.foil_mgr = FoilManager(client)
 
-    @property
-    def currFoil(self)->Foil:
-        return self.foil_mgr.getFoil()
-
-    @property
-    def foilDict(self)->dict:
-        return self.foil_mgr.foilDict()
-
-    def getFoil(self, name = None) -> Foil:
-        return self.foil_mgr.getFoil(name)
-
-    def foilExists(self, name) -> bool:
-        return self.foil_mgr.foilExists(name)
-
-    def loadFoils(self, paths) -> list:
-        return self.foil_mgr.loadFoils(paths)
-    
-    def setFoil(self, foil):
-        pass
-
-    def setCamber(self, val, name = None):
-        self._client.call("setCamber", val, name)
-        
-    def setThickness(self, val, name = None):
-        self._client.call("setThickness", val, name)
-
-    def setCamberX(self, val, name = None):
-        self._client.call("setCamberX", val, name)
-        
-    def setThickX(self, val, name = None):
-        self._client.call("setThickX", val, name)
-    
-    def createNACAFoil(self, digits, name):
+    def createNACAFoil(self, digits, name=None):
+        if name == None:
+            name  = "NACA" + str(digits)
         self._client.call("createNACAFoil", digits, name)
+
+    def selectFoil(self, name):
+        self._client.call("selectFoil", name)
+
+    def showFoil(self, foilName, flag):
+        self._client.call("showFoil", foilName, flag)
+    
+    def setFoilStyle(self, foil_style:FoilStyle):
+        self._client.call("setFoilStyle", foil_style)
+    
 
 class Miarex(MsgpackMixin):
     """

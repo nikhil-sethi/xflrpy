@@ -58,7 +58,10 @@ class xflServer: public QThread
         void onMiarex();
         void onXInverse();
         void onClose();
+        void onAddNewFoil(Foil* foil, QString name);
         void onFoilGeom(Foil* foil, QString name);
         void onAFoilNacaFoils(int s_Digits, QString name);
+        void onSelectFoil(Foil* foil);
+        void onDuplicateFoil(QString fromName, QString toName);
 
 };

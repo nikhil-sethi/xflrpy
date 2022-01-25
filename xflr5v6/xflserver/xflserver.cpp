@@ -50,6 +50,9 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onClose, s_pMainFrame, &MainFrame::close);
     QObject::connect(this, &xflServer::onFoilGeom, s_pMainFrame->m_pAFoil, &AFoil::onAFoilFoilGeomHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onAFoilNacaFoils, s_pMainFrame->m_pAFoil, &AFoil::onAFoilNacaFoilsHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onDuplicateFoil, s_pMainFrame->m_pAFoil, &AFoil::onDuplicateHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onSelectFoil, s_pMainFrame->m_pAFoil, &AFoil::selectFoil, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onAddNewFoil, s_pMainFrame->m_pAFoil, &AFoil::addNewFoilHeadless, Qt::BlockingQueuedConnection);
     
     cout << "Starting Xflr server at port: "<< port << endl;
 
@@ -94,14 +97,21 @@ xflServer::xflServer(int port) : server(port)
         return Objects2d::foilExists(QString::fromStdString(name));
     });
 
-    server.bind("getFoil",[&](string name = "")->RpcLibAdapters::FoilAdapter{
+    server.bind("getFoil",[&](string name)->RpcLibAdapters::FoilAdapter{
+        Foil* pFoil;
         if (name ==""){
             pFoil = Objects2d::curFoil();
+            if (pFoil!=nullptr) {   // if the current foil is not the default splinefoil
+                return RpcLibAdapters::FoilAdapter(*pFoil);
+            }
+            else {
+                return RpcLibAdapters::FoilAdapter(); // return garbage foil if it's the spline foil
+            }
+        } 
+        else {
+            pFoil = Objects2d::foil(QString::fromStdString(name));
+            return RpcLibAdapters::FoilAdapter(*pFoil);
         }
-        else{
-            pFoil = Objects2d::foil(QString::fromStdString(name))
-        }
-        return RpcLibAdapters::FoilAdapter(*pFoil);
     });
 
     server.bind("foilList", [&]()->vector<RpcLibAdapters::FoilAdapter>{
@@ -119,52 +129,44 @@ xflServer::xflServer(int port) : server(port)
         }
         return v;
     });
-    
-    server.bind("setCamber", [&](double val, string name){
-        QString qname = QString::fromStdString(name);
-        Foil* pFoil = new Foil();
-        Foil* currFoil = Objects2d::foil(qname);
-        pFoil->copyFoil(currFoil);
-        pFoil->m_fCamber = val;
-        emit onFoilGeom(pFoil, qname);
-        pFoil->normalizeGeometry();
-    });
-    server.bind("setThickness", [&](double val, string name){
-        QString qname = QString::fromStdString(name);
-        Foil* pFoil = new Foil();
-        Foil* currFoil = Objects2d::foil(qname);
-        pFoil->copyFoil(currFoil);
-        pFoil->m_fThickness = val;
-        emit onFoilGeom(pFoil, qname);
-        pFoil->normalizeGeometry();
-    });
-    server.bind("setCamberX", [&](double val, string name){
-        QString qname = QString::fromStdString(name);
-        Foil* pFoil = new Foil();
-        Foil* currFoil = Objects2d::foil(qname);
-        pFoil->copyFoil(currFoil);
-        pFoil->m_fXCamber = val;
-        emit onFoilGeom(pFoil, qname);
-        pFoil->normalizeGeometry();
 
-    });
-    server.bind("setThickX", [&](double val, string name){
+    server.bind("setGeom", [&](string name, double camber, double camberX, double thick, double thickX){
         QString qname = QString::fromStdString(name);
-        Foil* pFoil = new Foil();
-        Foil* currFoil = Objects2d::foil(qname);
-        pFoil->copyFoil(currFoil);
-        pFoil->m_fXThickness = val;
+        Foil* pFoil = Objects2d::foil(qname);
+        
+        if (camber !=0.0)
+            pFoil->m_fCamber = camber;
+        if (camberX !=0.0)
+            pFoil->m_fXCamber = camberX;
+        if (thick !=0.0)
+            pFoil->m_fThickness = thick;
+        if (thickX !=0.0)
+            pFoil->m_fXThickness = thickX;
+        
         emit onFoilGeom(pFoil, qname);
         pFoil->normalizeGeometry();
-
     });
+
+    // server.bind("setName", [&](string name, string newName){
+    //     Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+    //     emit onAddNewFoil(pFoil, newName);
+    // });
+
     server.bind("createNACAFoil", [&](int digits, string name){
         emit onAFoilNacaFoils(digits, QString::fromStdString(name));
     });
 
-    // server.bind("showFoil", [&](bool val, string name){
+    server.bind("selectFoil", [&](string name){
+        emit onSelectFoil(Objects2d::foil(QString::fromStdString(name)));
+    });
+
+    server.bind("duplicateFoil", [&](string fromName, string toName){
+        emit onDuplicateFoil(QString::fromStdString(fromName), QString::fromStdString(toName));
+    });
+
+    // server.bind("showFoil", [&](bool flag, string name){
     //     Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
-    //     // s_pMainFrame->m_pDirect2dWidget->showFoil(pFoil, val);
+    //     s_pMainFrame->m_pDirect2dWidget->showFoil(pFoil, val);
     // });
 
     server.bind("exit",[&]{

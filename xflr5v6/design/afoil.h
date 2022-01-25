@@ -36,7 +36,7 @@
 
 
 #include <twodwidgets/foildesignwt.h>
-
+#include <xflserver/xflserver.h>
 
 class FoilTableDelegate;
 class MainFrame;
@@ -68,6 +68,7 @@ class AFoil : public QFrame
     friend class LECircleDlg;
     friend class FoilCoordDlg;
     friend class CAddDlg;
+    friend class xflServer;
 
     public:
         AFoil(QWidget *parent = nullptr);
@@ -82,8 +83,7 @@ class AFoil : public QFrame
 
     public slots:
         void onUpdateFoilTable();
-        void onAFoilFoilGeomHeadless(Foil* foil, QString name);
-        void onAFoilNacaFoilsHeadless(int s_Digits, QString name);
+
     private slots:
         void onAFoilCadd();
         void onAFoilDerotateFoil();
@@ -118,6 +118,11 @@ class AFoil : public QFrame
         void onStoreSplines();
         void onSplinesModified();
         void onUndo();
+
+        // Headless slots for API
+        void onAFoilFoilGeomHeadless(Foil* foil, QString name);
+        void onAFoilNacaFoilsHeadless(int s_Digits, QString name);
+        void onDuplicateHeadless(QString fromName, QString toName);
 
     private:
         Foil* addNewFoil(Foil *pFoil);

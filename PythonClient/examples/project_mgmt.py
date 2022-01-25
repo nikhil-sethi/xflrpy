@@ -15,9 +15,6 @@ print(xp.state)
 # returns the relevant app: Xfoil/ Airfoil-design/ plane-design/ inverse-design 
 app = xp.loadProject(files = project_path + project_name, save_current = False)
 
-# You might need this for the state information to be updated properly
-# This is becuase of the non-blocking client-server architecture
-time.sleep(0.1)    
 print(xp.state)
 # The current project is empty. Nothing to return
 # <State> {   'app': 1,
