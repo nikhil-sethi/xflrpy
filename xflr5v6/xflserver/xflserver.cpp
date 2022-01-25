@@ -40,6 +40,9 @@ using namespace std;
 
 xflServer::xflServer(int port) : server(port)
 {
+    cout << "Starting Xflr server at port: "<< port << endl;
+
+    //========================= Mainframe slots =========================//
     QObject::connect(this, &xflServer::onNewProject, s_pMainFrame, &MainFrame::onNewProjectHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onSaveProject, s_pMainFrame, &MainFrame::onSaveProject, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onLoadProject, s_pMainFrame, &MainFrame::onLoadFileHeadless,Qt::BlockingQueuedConnection);
@@ -48,13 +51,6 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onMiarex, s_pMainFrame, &MainFrame::onMiarex, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onXInverse, s_pMainFrame, &MainFrame::onXInverse, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onClose, s_pMainFrame, &MainFrame::close);
-    QObject::connect(this, &xflServer::onFoilGeom, s_pMainFrame->m_pAFoil, &AFoil::onAFoilFoilGeomHeadless, Qt::BlockingQueuedConnection);
-    QObject::connect(this, &xflServer::onAFoilNacaFoils, s_pMainFrame->m_pAFoil, &AFoil::onAFoilNacaFoilsHeadless, Qt::BlockingQueuedConnection);
-    QObject::connect(this, &xflServer::onDuplicateFoil, s_pMainFrame->m_pAFoil, &AFoil::onDuplicateHeadless, Qt::BlockingQueuedConnection);
-    QObject::connect(this, &xflServer::onSelectFoil, s_pMainFrame->m_pAFoil, &AFoil::selectFoil, Qt::BlockingQueuedConnection);
-    QObject::connect(this, &xflServer::onAddNewFoil, s_pMainFrame->m_pAFoil, &AFoil::addNewFoilHeadless, Qt::BlockingQueuedConnection);
-    
-    cout << "Starting Xflr server at port: "<< port << endl;
 
     server.bind("ping", []()->bool{
         return true;
@@ -92,6 +88,15 @@ xflServer::xflServer(int port) : server(port)
             emit onXInverse();
         }
         });
+
+
+    //====================== AFoil slots =======================// 
+    QObject::connect(this, &xflServer::onFoilGeom, s_pMainFrame->m_pAFoil, &AFoil::onAFoilFoilGeomHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onAFoilNacaFoils, s_pMainFrame->m_pAFoil, &AFoil::onAFoilNacaFoilsHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onDuplicateFoil, s_pMainFrame->m_pAFoil, &AFoil::onDuplicateHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onSelectFoil, s_pMainFrame->m_pAFoil, &AFoil::selectFoil, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onShowFoil, s_pMainFrame->m_pAFoil, &AFoil::onShowFoilHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onRenameFoil, s_pMainFrame->m_pAFoil, &AFoil::onRenameFoilHeadless, Qt::BlockingQueuedConnection);
     
     server.bind("foilExists", [&](string name)->bool{
         return Objects2d::foilExists(QString::fromStdString(name));
@@ -130,27 +135,27 @@ xflServer::xflServer(int port) : server(port)
         return v;
     });
 
-    server.bind("setGeom", [&](string name, double camber, double camberX, double thick, double thickX){
+    server.bind("setGeom", [&](string name, double camber, double camber_x, double thickness, double thickness_x){
         QString qname = QString::fromStdString(name);
         Foil* pFoil = Objects2d::foil(qname);
         
         if (camber !=0.0)
             pFoil->m_fCamber = camber;
-        if (camberX !=0.0)
-            pFoil->m_fXCamber = camberX;
-        if (thick !=0.0)
-            pFoil->m_fThickness = thick;
-        if (thickX !=0.0)
-            pFoil->m_fXThickness = thickX;
+        if (camber_x !=0.0)
+            pFoil->m_fXCamber = camber_x;
+        if (thickness !=0.0)
+            pFoil->m_fThickness = thickness;
+        if (thickness_x !=0.0)
+            pFoil->m_fXThickness = thickness_x;
         
         emit onFoilGeom(pFoil, qname);
         pFoil->normalizeGeometry();
     });
 
-    // server.bind("setName", [&](string name, string newName){
-    //     Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
-    //     emit onAddNewFoil(pFoil, newName);
-    // });
+    server.bind("renameFoil", [&](string name, string newName){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+        emit onRenameFoil(pFoil, QString::fromStdString(newName));
+    });
 
     server.bind("createNACAFoil", [&](int digits, string name){
         emit onAFoilNacaFoils(digits, QString::fromStdString(name));
@@ -161,13 +166,14 @@ xflServer::xflServer(int port) : server(port)
     });
 
     server.bind("duplicateFoil", [&](string fromName, string toName){
-        emit onDuplicateFoil(QString::fromStdString(fromName), QString::fromStdString(toName));
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(fromName));
+        emit onDuplicateFoil(pFoil, QString::fromStdString(toName));
     });
 
-    // server.bind("showFoil", [&](bool flag, string name){
-    //     Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
-    //     s_pMainFrame->m_pDirect2dWidget->showFoil(pFoil, val);
-    // });
+    server.bind("showFoil", [&](string name, bool flag){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+        emit onShowFoil(pFoil, flag);
+    });
 
     server.bind("exit",[&]{
         stop();

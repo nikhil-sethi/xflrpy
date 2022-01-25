@@ -1,3 +1,8 @@
+# ======================= examples/afoil.py ====================== #
+
+# This example file introduces the various GUI control features
+# available in the direct design module 
+
 from xflrpy import xflrClient, enumApp
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,20 +23,7 @@ afoil = xp.loadProject([project_path+'mh60.dat',project_path+'fuselage center.da
 
 afoil = xp.getApp() # Get the current application
 
-print(afoil.foil_mgr.foilDict)  # a Dictonary of all airfoils present in the project
+afoil.selectFoil("MH 60  10.08%")   # change the current airfoil selection
+foil = afoil.foil_mgr.getFoil()    # get the current airfoil i.e. mh60
 
-foil = afoil.foil_mgr.getFoil("fuselage center")
-print(foil) # Show the foil object and it's properties
-
-foil.rename("new fuselage center")  # rename the airfoil
-print(foil) # check that shit
-
-coord_arr = np.array(foil.coords) 
-print(coord_arr)
-
-# Display the current airfoil
-fig, ax = plt.subplots()
-ax.set_aspect(1)
-
-ax.plot(coord_arr[:,0], coord_arr[:,1], '-k')
-plt.show()
+afoil.showFoil("fuselage center", False) # hide the "fuselage center" airfoil

@@ -101,6 +101,10 @@ class Foil(MsgpackMixin):
     def delete(self) -> None:
         self._client.call("deleteFoil")
 
+    def rename(self, name):
+        self.name = name    # python side
+        self._client.call("renameFoil", self.name, name)    # cpp side
+
 class FoilManager:
     """
     Manager for airfoils.
@@ -143,8 +147,8 @@ class Afoil:
     def selectFoil(self, name):
         self._client.call("selectFoil", name)
 
-    def showFoil(self, foilName, flag):
-        self._client.call("showFoil", foilName, flag)
+    def showFoil(self, name, flag):
+        self._client.call("showFoil", name, flag)
     
     def setFoilStyle(self, foil_style:FoilStyle):
         self._client.call("setFoilStyle", foil_style)

@@ -1690,8 +1690,8 @@ void AFoil::onAFoilNacaFoilsHeadless(int s_Digits, QString name){
     m_p2dWidget->update();
 }
 
-void AFoil::onDuplicateHeadless(QString fromName, QString toName)
-{   Foil* fromFoil = Objects2d::foil(fromName); 
+void AFoil::onDuplicateHeadless(Foil* fromFoil, QString toName) 
+{
     if(!fromFoil) return;
     Foil *pNewFoil = new Foil;
     pNewFoil->copyFoil(fromFoil);
@@ -1701,5 +1701,24 @@ void AFoil::onDuplicateHeadless(QString fromName, QString toName)
     addNewFoilHeadless(pNewFoil, toName);
     fillFoilTable();
     selectFoil(pNewFoil);
+}
+
+
+/**
+ * The user has requested to rename the Foil object
+ */
+void AFoil::onRenameFoilHeadless(Foil* pFoil, QString newName)
+{
+    if(!pFoil) return;
+    Objects2d::renameThisFoil(pFoil, newName);
+
+    fillFoilTable();
+    m_p2dWidget->update();
+}
+
+void AFoil::onShowFoilHeadless(Foil* foil, bool flag)
+{   if (!foil) return;
+    showFoil(foil, flag);
+    m_p2dWidget->update();
 }
 
