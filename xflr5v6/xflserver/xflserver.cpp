@@ -88,7 +88,10 @@ xflServer::xflServer(int port) : server(port)
             emit onXInverse();
         }
         });
-
+    server.bind("exit",[&]{
+        stop();
+        emit onClose();
+        });
 
     //====================== AFoil slots =======================// 
     QObject::connect(this, &xflServer::onFoilGeom, s_pMainFrame->m_pAFoil, &AFoil::onAFoilFoilGeomHeadless, Qt::BlockingQueuedConnection);
@@ -97,6 +100,9 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onSelectFoil, s_pMainFrame->m_pAFoil, &AFoil::selectFoil, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onShowFoil, s_pMainFrame->m_pAFoil, &AFoil::onShowFoilHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onRenameFoil, s_pMainFrame->m_pAFoil, &AFoil::onRenameFoilHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onDeleteFoil, s_pMainFrame->m_pAFoil, &AFoil::onDeleteFoilHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onNormalizeFoil, s_pMainFrame->m_pAFoil, &AFoil::onAFoilNormalizeFoil, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onDerotateFoil, s_pMainFrame->m_pAFoil, &AFoil::onAFoilDerotateFoil, Qt::BlockingQueuedConnection);
     
     server.bind("foilExists", [&](string name)->bool{
         return Objects2d::foilExists(QString::fromStdString(name));
@@ -165,9 +171,10 @@ xflServer::xflServer(int port) : server(port)
         emit onSelectFoil(Objects2d::foil(QString::fromStdString(name)));
     });
 
-    server.bind("duplicateFoil", [&](string fromName, string toName){
+    server.bind("duplicateFoil", [&](string fromName, string toName)->RpcLibAdapters::FoilAdapter{
         Foil* pFoil = Objects2d::foil(QString::fromStdString(fromName));
-        emit onDuplicateFoil(pFoil, QString::fromStdString(toName));
+        Foil* newFoil = emit onDuplicateFoil(pFoil, QString::fromStdString(toName));
+        return RpcLibAdapters::FoilAdapter(*newFoil);
     });
 
     server.bind("showFoil", [&](string name, bool flag){
@@ -175,10 +182,22 @@ xflServer::xflServer(int port) : server(port)
         emit onShowFoil(pFoil, flag);
     });
 
-    server.bind("exit",[&]{
-        stop();
-        emit onClose();
-        });
+    server.bind("normalizeFoil", [&](string name){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+        emit onSelectFoil(pFoil);
+        emit onNormalizeFoil();
+    });
+
+    server.bind("derotateFoil", [&](string name){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+        emit onSelectFoil(pFoil);
+        emit onDerotateFoil();
+    });
+
+    server.bind("deleteFoil", [&](string name){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+        emit onDeleteFoil(pFoil);
+    });
 }
 
 void xflServer::run(){

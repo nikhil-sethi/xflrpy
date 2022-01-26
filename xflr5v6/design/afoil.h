@@ -122,9 +122,10 @@ class AFoil : public QFrame
         // Headless slots for API
         void onAFoilFoilGeomHeadless(Foil* foil, QString name);
         void onAFoilNacaFoilsHeadless(int s_Digits, QString name);
-        void onDuplicateHeadless(Foil* foil, QString toName);
+        Foil* onDuplicateHeadless(Foil* foil, QString toName);
         void onRenameFoilHeadless(Foil* foil, QString name);
         void onShowFoilHeadless(Foil* foil, bool flag);
+        void onDeleteFoilHeadless(Foil* foil);
 
     private:
         Foil* addNewFoil(Foil *pFoil);

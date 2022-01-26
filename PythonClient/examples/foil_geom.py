@@ -24,4 +24,8 @@ foil.setGeom(camber = 0.018,thickness_x = 0.27)
 # Set Thickess to 10%
 foil.setGeom(thickness = 0.10) 
 
+# Normalize and derotate the airfoil
+foil.normalize()
+foil.derotate()
+
 print(afoil.foil_mgr.getFoil("fuselage center"))

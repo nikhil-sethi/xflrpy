@@ -62,6 +62,9 @@ class xflServer: public QThread
         void onFoilGeom(Foil* foil, QString name);
         void onAFoilNacaFoils(int s_Digits, QString name);
         void onSelectFoil(Foil* foil);
-        void onDuplicateFoil(Foil* foil, QString toName);
+        Foil* onDuplicateFoil(Foil* foil, QString toName);
         void onShowFoil(Foil* foil, bool flag);
+        void onDeleteFoil(Foil* foil);
+        void onNormalizeFoil();
+        void onDerotateFoil();
 };

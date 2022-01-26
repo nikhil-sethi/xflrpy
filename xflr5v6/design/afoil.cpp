@@ -1690,9 +1690,9 @@ void AFoil::onAFoilNacaFoilsHeadless(int s_Digits, QString name){
     m_p2dWidget->update();
 }
 
-void AFoil::onDuplicateHeadless(Foil* fromFoil, QString toName) 
+Foil* AFoil::onDuplicateHeadless(Foil* fromFoil, QString toName) 
 {
-    if(!fromFoil) return;
+    if(!fromFoil) return nullptr;
     Foil *pNewFoil = new Foil;
     pNewFoil->copyFoil(fromFoil);
     xfl::setRandomFoilColor(pNewFoil, !DisplayOptions::isLightTheme());
@@ -1701,6 +1701,7 @@ void AFoil::onDuplicateHeadless(Foil* fromFoil, QString toName)
     addNewFoilHeadless(pNewFoil, toName);
     fillFoilTable();
     selectFoil(pNewFoil);
+    return pNewFoil;
 }
 
 
@@ -1722,3 +1723,16 @@ void AFoil::onShowFoilHeadless(Foil* foil, bool flag)
     m_p2dWidget->update();
 }
 
+/**
+ * The user has requested the deletion of the Foil object.
+ */
+void AFoil::onDeleteFoilHeadless(Foil* pFoil)
+{
+    if(!pFoil) return;
+    Foil*pNextFoil = Objects2d::deleteFoil(pFoil);
+
+    fillFoilTable();
+    selectFoil(pNextFoil);
+    m_p2dWidget->update();
+    emit projectModified();
+}

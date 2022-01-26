@@ -77,8 +77,12 @@ class Foil(MsgpackMixin):
 
     @property
     def coords(self) -> list:
-        return self._client.call("foilCoords", self.name)
+        return self._client.call("getFoilCoords", self.name)
     
+    @coords.setter
+    def coords(self, xy):
+        self._client.call("setFoilCoords", self.name, xy)
+
     def setGeom(self, camber = 0., camber_x = 0., thickness=0., thickness_x=0.):
         # set on python side
         if camber != 0.:
@@ -96,15 +100,26 @@ class Foil(MsgpackMixin):
         """
         toName: new name for duplicated airfoil
         """
-        return self._client.call("duplicateFoil", self.name, toName)
+        foil_raw = self._client.call("duplicateFoil", self.name, toName)
+        return self.from_msgpack(foil_raw, self._client)
 
     def delete(self) -> None:
-        self._client.call("deleteFoil")
+        self._client.call("deleteFoil", self.name)
 
     def rename(self, name):
         self.name = name    # python side
         self._client.call("renameFoil", self.name, name)    # cpp side
+    
+    def normalize(self):
+        self._client.call("normalizeFoil", self.name)
 
+    def derotate(self):
+        self._client.call("normalizeFoil", self.name)
+
+    def normalize(self):
+        self._client.call("normalizeFoil", self.name)
+
+        
 class FoilManager:
     """
     Manager for airfoils.

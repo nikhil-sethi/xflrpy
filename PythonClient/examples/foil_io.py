@@ -23,9 +23,15 @@ print(afoil.foil_mgr.foilDict)  # a Dictonary of all airfoils present in the pro
 foil = afoil.foil_mgr.getFoil("fuselage center")
 print(foil) # Show the foil object and it's properties
 
-foil.rename("new fuselage center")  # rename the airfoil
-print(foil) # check that shit
+# create a duplicate and receive it
+new_foil = foil.duplicate("duplicate fuselage center")   
 
+foil.rename("new fuselage center")  # rename the original airfoil
+
+print(foil) # check that shit
+print(new_foil) 
+
+foil.delete()   # delete the original foil
 coord_arr = np.array(foil.coords) 
 print(coord_arr)
 

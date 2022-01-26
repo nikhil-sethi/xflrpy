@@ -1,0 +1,11 @@
+moc*
+*.so*
+*.o
+Makefile
+*.mp4
+.vscode
+*.whl
+*.gz
+testing
+qrc*
+*pyc
