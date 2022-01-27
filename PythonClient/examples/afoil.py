@@ -3,7 +3,7 @@
 # This example file introduces the various GUI control features
 # available in the direct design module 
 
-from xflrpy import xflrClient, enumApp
+from xflrpy import xflrClient, enumApp, enumLineStipple, LineStyle, enumPointStyle
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -23,7 +23,27 @@ afoil = xp.loadProject([project_path+'mh60.dat',project_path+'fuselage center.da
 
 afoil = xp.getApp() # Get the current application
 
+# Manipulating controls on the GUI
+
 afoil.selectFoil("MH 60  10.08%")   # change the current airfoil selection
 foil = afoil.foil_mgr.getFoil()    # get the current airfoil i.e. mh60
 
 afoil.showFoil("fuselage center", False) # hide the "fuselage center" airfoil
+
+
+# Styling the airfoil
+# Done using the LineStyle class in types.py
+
+ls = afoil.getLineStyle(foil.name)  # get current linestyle
+
+# make some cute changes
+ls.color = [255,255,0,255]  # [r, g, b, a] yellow
+ls.width = 2
+ls.stipple = enumLineStipple.DASHDOT    # set a stipple style
+
+# update the style finally
+afoil.setLineStyle(foil.name, ls)
+
+# You can also create your style here
+ls = LineStyle(color = [255,0,255,255], point_style = enumPointStyle.TRIANGLE)
+afoil.setLineStyle(foil.name, ls)

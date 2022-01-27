@@ -88,6 +88,12 @@ xflServer::xflServer(int port) : server(port)
             emit onXInverse();
         }
         });
+    
+    server.bind("deleteFoil", [&](string name){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+        emit onDeleteFoil(pFoil);
+        });
+    
     server.bind("exit",[&]{
         stop();
         emit onClose();
@@ -103,6 +109,7 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onDeleteFoil, s_pMainFrame->m_pAFoil, &AFoil::onDeleteFoilHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onNormalizeFoil, s_pMainFrame->m_pAFoil, &AFoil::onAFoilNormalizeFoil, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onDerotateFoil, s_pMainFrame->m_pAFoil, &AFoil::onAFoilDerotateFoil, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onFoilStyle, s_pMainFrame->m_pAFoil, &AFoil::onFoilStyleHeadless, Qt::BlockingQueuedConnection);
     
     server.bind("foilExists", [&](string name)->bool{
         return Objects2d::foilExists(QString::fromStdString(name));
@@ -194,10 +201,19 @@ xflServer::xflServer(int port) : server(port)
         emit onDerotateFoil();
     });
 
-    server.bind("deleteFoil", [&](string name){
+    server.bind("getLineStyle", [&](string name) -> RpcLibAdapters::LineStyleAdapter{
         Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
-        emit onDeleteFoil(pFoil);
+        return RpcLibAdapters::LineStyleAdapter(pFoil->theStyle());
     });
+
+    server.bind("setLineStyle", [&](string name, RpcLibAdapters::LineStyleAdapter& line_style){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+        LineStyle ls = RpcLibAdapters::LineStyleAdapter::from_msgpack(line_style);
+        
+       emit onFoilStyle(pFoil, ls);
+
+    });
+
 }
 
 void xflServer::run(){

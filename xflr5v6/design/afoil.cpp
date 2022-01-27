@@ -1706,7 +1706,7 @@ Foil* AFoil::onDuplicateHeadless(Foil* fromFoil, QString toName)
 
 
 /**
- * The user has requested to rename the Foil object
+ * The client has requested to rename the Foil object
  */
 void AFoil::onRenameFoilHeadless(Foil* pFoil, QString newName)
 {
@@ -1724,7 +1724,7 @@ void AFoil::onShowFoilHeadless(Foil* foil, bool flag)
 }
 
 /**
- * The user has requested the deletion of the Foil object.
+ * The client has requested the deletion of the Foil object.
  */
 void AFoil::onDeleteFoilHeadless(Foil* pFoil)
 {
@@ -1736,3 +1736,19 @@ void AFoil::onDeleteFoilHeadless(Foil* pFoil)
     m_p2dWidget->update();
     emit projectModified();
 }
+/**
+ * The client has requested an edition of the style of a Foil.
+ */
+void AFoil::onFoilStyleHeadless(Foil* pFoil, LineStyle ls)
+{
+    pFoil->setTheStyle(ls);
+
+    if(DisplayOptions::isAlignedChildrenStyle())
+        Objects2d::setFoilChildrenStyle(pFoil);
+
+    m_p2dWidget->update();
+    emit projectModified();
+    setControls();
+    s_pMainFrame->update();  // needed to update the style in the table 
+}
+

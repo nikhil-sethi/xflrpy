@@ -24,6 +24,7 @@ class enumApp(enum.IntEnum):
     INVERSEDESIGN = 3
     MIAREX = 4
 
+# xflr5v6/xflcore/line_enums.h
 class enumLineStipple(enum.IntEnum):
     SOLID = 0
     DASH = 1
@@ -32,6 +33,7 @@ class enumLineStipple(enum.IntEnum):
     DASHDOTDOT = 4
     NOLINE = 5
 
+# xflr5v6/xflcore/line_enums.h
 class enumPointStyle(enum.IntEnum):
     NOSYMBOL = 0
     LITTLECIRCLE = 1  
@@ -49,6 +51,29 @@ class enumPointStyle(enum.IntEnum):
     LITTLECROSS = 13
     BIGCROSS = 14
 
+# will be a list not dict
+class QColor(MsgpackMixin, list):
+        red = 0
+        green = 0
+        blue = 0
+        alpha = 0
+
+class LineStyle(MsgpackMixin):
+    visible = True
+    stipple = enumLineStipple.SOLID
+    point_style = enumPointStyle.NOSYMBOL
+    width = 1
+    color = []
+    tag = ""
+
+    def __init__(self, visible = True, stipple =  enumLineStipple.SOLID, point_style = enumPointStyle.NOSYMBOL, width = 1, color = [], tag ="") -> None:
+        self.visible = visible
+        self.stipple = stipple
+        self.point_style = point_style
+        self.width = width
+        self.color = color
+        self.tag = tag
+
 class State(MsgpackMixin):
     projectPath = ""
     projectName = ""
@@ -59,9 +84,6 @@ class State(MsgpackMixin):
 class Polar(MsgpackMixin):
     alpha=list()
     Cl=list()
-
-class FoilStyle(MsgpackMixin):
-    colour = ""
 
 
 class Foil(MsgpackMixin):
@@ -114,7 +136,7 @@ class Foil(MsgpackMixin):
         self._client.call("normalizeFoil", self.name)
 
     def derotate(self):
-        self._client.call("normalizeFoil", self.name)
+        self._client.call("derotateFoil", self.name)
 
     def normalize(self):
         self._client.call("normalizeFoil", self.name)
@@ -165,8 +187,17 @@ class Afoil:
     def showFoil(self, name, flag):
         self._client.call("showFoil", name, flag)
     
-    def setFoilStyle(self, foil_style:FoilStyle):
-        self._client.call("setFoilStyle", foil_style)
+    def getLineStyle(self, name):
+        line_style_raw = self._client.call("getLineStyle", name)
+        line_style = LineStyle.from_msgpack(line_style_raw)
+        line_style.point_style = enumPointStyle(line_style.point_style)
+        line_style.stipple = enumLineStipple(line_style.stipple)
+        return line_style
+
+    def setLineStyle(self, name, line_style:LineStyle):
+        line_style.stipple = line_style.stipple.value
+        line_style.point_style = line_style.point_style.value
+        self._client.call("setLineStyle", name, line_style.to_msgpack())
     
 
 class Miarex(MsgpackMixin):

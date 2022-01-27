@@ -18,7 +18,7 @@ afoil = xp.loadProject([project_path+'mh60.dat',project_path+'fuselage center.da
 
 afoil = xp.getApp() # Get the current application
 
-print(afoil.foil_mgr.foilDict)  # a Dictonary of all airfoils present in the project
+print(afoil.foil_mgr.foilDict())  # a Dictonary of all airfoils present in the project
 
 foil = afoil.foil_mgr.getFoil("fuselage center")
 print(foil) # Show the foil object and it's properties

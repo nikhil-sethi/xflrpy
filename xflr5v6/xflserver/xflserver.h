@@ -67,4 +67,5 @@ class xflServer: public QThread
         void onDeleteFoil(Foil* foil);
         void onNormalizeFoil();
         void onDerotateFoil();
+        void onFoilStyle(Foil* foil, LineStyle ls);
 };

@@ -126,6 +126,7 @@ class AFoil : public QFrame
         void onRenameFoilHeadless(Foil* foil, QString name);
         void onShowFoilHeadless(Foil* foil, bool flag);
         void onDeleteFoilHeadless(Foil* foil);
+        void onFoilStyleHeadless(Foil* pFoil, LineStyle ls);
 
     private:
         Foil* addNewFoil(Foil *pFoil);
