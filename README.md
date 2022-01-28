@@ -1,23 +1,29 @@
 ## Note
 This repository is under initial development phase. As a result there are not many features or refined code practices as of yet. There might be breaking changes without updating the major version until the first release. Any and every contribution/constructive criticism is welcome. Use github issues to roast me.
 
-# xflrpy v0.3.0
-xflrpy is a python enabled version of [xflr5](http://www.xflr5.tech/xflr5.htm). It comes with a [python package](https://pypi.org/project/xflrpy/) and is useful for design optimization and scripting. The [original software](https://sourceforge.net/projects/xflr5/) is capable of the design and low-fidelity analysis of airfoils and model aircraft and was created by created by André Deperrois.
+# xflrpy v0.4.0
+xflrpy is a python enabled version of [xflr5](http://www.xflr5.tech/xflr5.htm) with support for scripting and design optimization using a [python package](https://pypi.org/project/xflrpy/). The [original software](https://sourceforge.net/projects/xflr5/) is capable of the design and low-fidelity analysis of airfoils and model aircraft and was created by created by André Deperrois.
 
-The current version (v0.2.0) has limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.md) and [Todo](https://github.com/nikhil-sethi/xflrpy/blob/master/TODO.md). Currently you can:
+The current version (v0.3.0) has limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.md) and [Todo](https://github.com/nikhil-sethi/xflrpy/blob/master/TODO.md). Currently you can:
 - Create or load new projects
 - Save projects
 - Set and get apps (xfoil, plane-design, foil-design, inverse-design)
 - Set and get airfoils from direct design
 - Set geometry properties for airfoils
+- Set and get linestyles
+- Set and get airfoil coordinates
+- Select, delete, rename, export airfoils
 
 ![Optimizing a BWB UAV](https://github.com/nikhil-sethi/xflrpy/blob/pythonqt/xflrpy.gif)
 
 # Why?
 I undertook this project while learning a bit of C++. This repository is aimed at exposing a neat
-and equally powerful python API for the original project to make it easier for scripting/automation 
-and design optimization applications. I understand that are already  software like
-openVSP/SUAVE which do similar stuff. But Hey. Making APIs is fun and there is a pandemic going around so I was bored.
+and equally powerful python API for xflr5 to make it easier for scripting/automation 
+and design optimization applications. 
+
+I understand that are already  software like openVSP/SUAVE which do similar stuff. But all these softwares either have good frontends or backends but not both. xflr5 has one of the most intuitive and responsive frontends while being feature rich at the same time. It would be very powerful with a good API and that is the goal of this project.
+
+Also. Making APIs is fun and there is a pandemic going around so I was bored.
 
 # How?
 Some standard ways of exposing C code to python include using wrappers like [SWIG](https://github.com/swig/swig), 
@@ -108,7 +114,7 @@ pip3 install xflrpy
 
 A brief sketch:
 ```python
-from xflrpy import xflrClient
+from xflrpy import xflrClient, enumApp, enumLineStipple
 
 # Change these values accordingly
 # Using a valid path is your responsibility
@@ -140,10 +146,21 @@ foil = afoil.getFoil("MH 60  10.08%")
 print(foil) 
 
 # Get airfoil coordinates and play with them (what?)
+coords = foil.coords
 print(foil.coords)
+coords[10] = [0.1, 0.01]  # change the 11th coordinate to something
+foil.coords = coords
 
-# Modify foil properties
-afoil.setCamber(0.03, foil.name)
-afoil.setThickness(0.3, foil.name)
+# Modify foil geometry
+foil.setGeom(camber = 0.03)
+foil.setGeom(thickness = 0.15, camber_x = 0.27)
 
+# change styles
+ls = afoil.getLineStyle(foil.name)
+ls.color = [255,0,0,255] # r,g,b,a  make it completely red
+ls.stipple = enumLineStipple.DASHDOT
+afoil.setLineStyle(foil.name, ls)   # set the style finally
+
+# delete foil. why not. what's the point of all this. why are we here.
+foil.delete()
 ```

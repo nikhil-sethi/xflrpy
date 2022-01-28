@@ -3,6 +3,10 @@ There will be occassional updates here when I feel changes should be grouped. Ho
 Currently the repository in under intial develpopment phase. I will be maintaining version 0.x.y until the first release.
 
 ### January 2022
+- Added foil coordinate setters and getters (v 0.4.0)
+- Added NACA foil generation api 
+- Added foil export, delete, rename, normalize, derotate  
+- Added afoil visual features: show,select,linestyling
 - Updated base xflr5 version to 6.50 (v0.3.0)
 - Added foil geometry examples
 - Fixed some enumApp problems
