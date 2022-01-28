@@ -48,6 +48,10 @@ class RpcLibAdapters
         struct Coord{
             double x,y;
             MSGPACK_DEFINE_ARRAY(x,y);
+            
+            std::vector<double> toVec(){
+                return std::vector<double>{x,y}; 
+            }
         };
 
         struct QColorAdapter{

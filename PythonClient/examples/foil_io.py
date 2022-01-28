@@ -1,3 +1,4 @@
+from numpy import block
 from xflrpy import xflrClient, enumApp
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,6 +32,9 @@ foil.rename("new fuselage center")  # rename the original airfoil
 print(foil) # check that shit
 print(new_foil) 
 
+# Export foil to .dat file
+afoil.foil_mgr.exportFoil(foil.name, "/home/nikhil/foil.dat")
+
 foil.delete()   # delete the original foil
 coord_arr = np.array(foil.coords) 
 print(coord_arr)
@@ -40,4 +44,4 @@ fig, ax = plt.subplots()
 ax.set_aspect(1)
 
 ax.plot(coord_arr[:,0], coord_arr[:,1], '-k')
-plt.show()
+plt.show(block=False)

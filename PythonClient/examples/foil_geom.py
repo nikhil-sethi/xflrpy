@@ -29,3 +29,8 @@ foil.normalize()
 foil.derotate()
 
 print(afoil.foil_mgr.getFoil("fuselage center"))
+
+# Directly manipulate coordinates
+coords = foil.coords
+coords[-1][1] = 0.1  # change last y coordinate to 0.2
+foil.coords = coords # set and update

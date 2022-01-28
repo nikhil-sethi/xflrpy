@@ -51,6 +51,7 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onMiarex, s_pMainFrame, &MainFrame::onMiarex, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onXInverse, s_pMainFrame, &MainFrame::onXInverse, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onClose, s_pMainFrame, &MainFrame::close);
+    QObject::connect(this, &xflServer::onUpdate, s_pMainFrame, &MainFrame::updateView, Qt::BlockingQueuedConnection);
 
     server.bind("ping", []()->bool{
         return true;
@@ -110,6 +111,8 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onNormalizeFoil, s_pMainFrame->m_pAFoil, &AFoil::onAFoilNormalizeFoil, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onDerotateFoil, s_pMainFrame->m_pAFoil, &AFoil::onAFoilDerotateFoil, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onFoilStyle, s_pMainFrame->m_pAFoil, &AFoil::onFoilStyleHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onExportFoil, s_pMainFrame->m_pAFoil, &AFoil::onExportFoilHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onSetFoilCoords, s_pMainFrame->m_pAFoil, &AFoil::onSetFoilCoordsHeadless, Qt::BlockingQueuedConnection);
     
     server.bind("foilExists", [&](string name)->bool{
         return Objects2d::foilExists(QString::fromStdString(name));
@@ -136,7 +139,7 @@ xflServer::xflServer(int port) : server(port)
         return FoilVecFromQFoilQVec(*Objects2d::pOAFoil());
     });
     
-    server.bind("foilCoords", [&](string name){
+    server.bind("getFoilCoords", [&](string name){
         Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
         vector<RpcLibAdapters::Coord> v;
 
@@ -146,6 +149,21 @@ xflServer::xflServer(int port) : server(port)
             v.push_back({x[i],y[i]});
         }
         return v;
+    });
+
+    server.bind("setFoilCoords", [&](string name, vector<RpcLibAdapters::Coord> v){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+        // double x[v.size()];
+        // double y[v.size()];
+        for (uint i=0; i<v.size(); i++){
+            // vector<double> row = v[i].toVec();
+            pFoil->m_xb[i] = v[i].x;
+            pFoil->m_yb[i] = v[i].y;
+            pFoil->m_x[i] = v[i].x;
+            pFoil->m_y[i] = v[i].y;
+        }
+        // emit onSetFoilCoords(pFoil);
+        emit onUpdate();
     });
 
     server.bind("setGeom", [&](string name, double camber, double camber_x, double thickness, double thickness_x){
@@ -192,13 +210,13 @@ xflServer::xflServer(int port) : server(port)
     server.bind("normalizeFoil", [&](string name){
         Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
         emit onSelectFoil(pFoil);
-        emit onNormalizeFoil();
+        emit onNormalizeFoil(); // Operates on current foil
     });
 
     server.bind("derotateFoil", [&](string name){
         Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
         emit onSelectFoil(pFoil);
-        emit onDerotateFoil();
+        emit onDerotateFoil(); // Operates on current foil
     });
 
     server.bind("getLineStyle", [&](string name) -> RpcLibAdapters::LineStyleAdapter{
@@ -206,14 +224,18 @@ xflServer::xflServer(int port) : server(port)
         return RpcLibAdapters::LineStyleAdapter(pFoil->theStyle());
     });
 
-    server.bind("setLineStyle", [&](string name, RpcLibAdapters::LineStyleAdapter& line_style){
+    server.bind("setLineStyle", [&](string name, RpcLibAdapters::LineStyleAdapter& lineStyle){
         Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
-        LineStyle ls = RpcLibAdapters::LineStyleAdapter::from_msgpack(line_style);
+        LineStyle ls = RpcLibAdapters::LineStyleAdapter::from_msgpack(lineStyle);
         
        emit onFoilStyle(pFoil, ls);
 
     });
 
+    server.bind("exportFoil", [&](string foilName, string fileName){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(foilName));        
+        emit onExportFoil(pFoil, QString::fromStdString(fileName));
+    });
 }
 
 void xflServer::run(){

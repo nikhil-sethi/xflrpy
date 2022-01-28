@@ -127,6 +127,7 @@ class AFoil : public QFrame
         void onShowFoilHeadless(Foil* foil, bool flag);
         void onDeleteFoilHeadless(Foil* foil);
         void onFoilStyleHeadless(Foil* pFoil, LineStyle ls);
+        void onExportFoilHeadless(Foil* pFoil, QString FileName);
 
     private:
         Foil* addNewFoil(Foil *pFoil);

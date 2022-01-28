@@ -102,7 +102,7 @@ class Foil(MsgpackMixin):
         return self._client.call("getFoilCoords", self.name)
     
     @coords.setter
-    def coords(self, xy):
+    def coords(self, xy:list):
         self._client.call("setFoilCoords", self.name, xy)
 
     def setGeom(self, camber = 0., camber_x = 0., thickness=0., thickness_x=0.):
@@ -167,6 +167,14 @@ class FoilManager:
             print("Please provide a valid .dat file")
             return
         self._client.call("loadFoils", paths)
+
+    def exportFoil(self, name, file_name):
+        """
+        name: name of the airfoil to export
+        file_name: full path of the to be saved airfoil 
+        """
+        self._client.call("exportFoil", name, file_name)
+
 
 class Afoil:
     """

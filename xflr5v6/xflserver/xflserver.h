@@ -47,8 +47,9 @@ class xflServer: public QThread
         static MainFrame* s_pMainFrame;   
     // private:
     signals:
+
+        // Mainframe signals
         void onMiarexSig();
-        void onSetPlane(QString planeName);
         void onNewProject();
         void onSaveProject();
         void onCloseProject();
@@ -58,6 +59,9 @@ class xflServer: public QThread
         void onMiarex();
         void onXInverse();
         void onClose();
+        void onUpdate();
+        
+        // AFoil signals
         void onRenameFoil(Foil* foil, QString name);
         void onFoilGeom(Foil* foil, QString name);
         void onAFoilNacaFoils(int s_Digits, QString name);
@@ -68,4 +72,6 @@ class xflServer: public QThread
         void onNormalizeFoil();
         void onDerotateFoil();
         void onFoilStyle(Foil* foil, LineStyle ls);
+        void onExportFoil(Foil* foil, QString FileName);
+        void onSetFoilCoords(Foil* foil, double* x,  double* y);
 };

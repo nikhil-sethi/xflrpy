@@ -1623,8 +1623,8 @@ void AFoil::initDialog(FoilDesignWt *p2DWidget, XFoil *pXFoil)
     m_p2dWidget->setObjects(m_pBufferFoil, m_pSF);
 }
 
-Foil* AFoil::addNewFoilHeadless(Foil *pFoil, QString newName)
-{
+Foil* AFoil::addNewFoilHeadless(Foil *pFoil, QString newName){
+
     if(!pFoil) return nullptr;
 
     pFoil->setName(newName);
@@ -1634,6 +1634,7 @@ Foil* AFoil::addNewFoilHeadless(Foil *pFoil, QString newName)
 }
 
 void AFoil::onAFoilFoilGeomHeadless(Foil* pFoil, QString newName){
+
     FoilGeomDlg fgeDlg(s_pMainFrame);
     fgeDlg.m_pMemFoil    = XDirect::curFoil();
     fgeDlg.m_pBufferFoil = pFoil;
@@ -1690,8 +1691,8 @@ void AFoil::onAFoilNacaFoilsHeadless(int s_Digits, QString name){
     m_p2dWidget->update();
 }
 
-Foil* AFoil::onDuplicateHeadless(Foil* fromFoil, QString toName) 
-{
+Foil* AFoil::onDuplicateHeadless(Foil* fromFoil, QString toName) {
+
     if(!fromFoil) return nullptr;
     Foil *pNewFoil = new Foil;
     pNewFoil->copyFoil(fromFoil);
@@ -1708,8 +1709,8 @@ Foil* AFoil::onDuplicateHeadless(Foil* fromFoil, QString toName)
 /**
  * The client has requested to rename the Foil object
  */
-void AFoil::onRenameFoilHeadless(Foil* pFoil, QString newName)
-{
+void AFoil::onRenameFoilHeadless(Foil* pFoil, QString newName){
+
     if(!pFoil) return;
     Objects2d::renameThisFoil(pFoil, newName);
 
@@ -1717,8 +1718,8 @@ void AFoil::onRenameFoilHeadless(Foil* pFoil, QString newName)
     m_p2dWidget->update();
 }
 
-void AFoil::onShowFoilHeadless(Foil* foil, bool flag)
-{   if (!foil) return;
+void AFoil::onShowFoilHeadless(Foil* foil, bool flag){   
+    if (!foil) return;
     showFoil(foil, flag);
     m_p2dWidget->update();
 }
@@ -1726,8 +1727,8 @@ void AFoil::onShowFoilHeadless(Foil* foil, bool flag)
 /**
  * The client has requested the deletion of the Foil object.
  */
-void AFoil::onDeleteFoilHeadless(Foil* pFoil)
-{
+void AFoil::onDeleteFoilHeadless(Foil* pFoil){
+
     if(!pFoil) return;
     Foil*pNextFoil = Objects2d::deleteFoil(pFoil);
 
@@ -1739,8 +1740,8 @@ void AFoil::onDeleteFoilHeadless(Foil* pFoil)
 /**
  * The client has requested an edition of the style of a Foil.
  */
-void AFoil::onFoilStyleHeadless(Foil* pFoil, LineStyle ls)
-{
+void AFoil::onFoilStyleHeadless(Foil* pFoil, LineStyle ls){
+
     pFoil->setTheStyle(ls);
 
     if(DisplayOptions::isAlignedChildrenStyle())
@@ -1752,3 +1753,17 @@ void AFoil::onFoilStyleHeadless(Foil* pFoil, LineStyle ls)
     s_pMainFrame->update();  // needed to update the style in the table 
 }
 
+/**
+ * The client has requested the export of the Foil to a text file.
+ */
+void AFoil::onExportFoilHeadless(Foil* pFoil, QString FileName){
+
+    if(!pFoil)    return;
+    QFile XFile(FileName);
+
+    if (!XFile.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+    QTextStream out(&XFile);
+
+    Objects2d::curFoil()->exportFoil(out);
+    XFile.close();
+}
