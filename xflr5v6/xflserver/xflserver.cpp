@@ -23,7 +23,9 @@
 #include <globals/mainframe.h>
 #include <twodwidgets/foildesignwt.h>
 #include <design/afoil.h>
+#include <xdirect/xdirect.h>
 #include <xflobjects/objects2d/foil.h>
+#include <xflobjects/objects2d/oppoint.h>
 #include "rpc/server.h"
 #include "RpcLibAdapters.h"
 #include <xflobjects/objects2d/objects2d.h>
@@ -112,7 +114,7 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onDerotateFoil, s_pMainFrame->m_pAFoil, &AFoil::onAFoilDerotateFoil, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onFoilStyle, s_pMainFrame->m_pAFoil, &AFoil::onFoilStyleHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onExportFoil, s_pMainFrame->m_pAFoil, &AFoil::onExportFoilHeadless, Qt::BlockingQueuedConnection);
-    QObject::connect(this, &xflServer::onSetFoilCoords, s_pMainFrame->m_pAFoil, &AFoil::onSetFoilCoordsHeadless, Qt::BlockingQueuedConnection);
+    // QObject::connect(this, &xflServer::onSetFoilCoords, s_pMainFrame->m_pAFoil, &AFoil::onSetFoilCoordsHeadless, Qt::BlockingQueuedConnection);
     
     server.bind("foilExists", [&](string name)->bool{
         return Objects2d::foilExists(QString::fromStdString(name));
@@ -235,6 +237,21 @@ xflServer::xflServer(int port) : server(port)
     server.bind("exportFoil", [&](string foilName, string fileName){
         Foil* pFoil = Objects2d::foil(QString::fromStdString(foilName));        
         emit onExportFoil(pFoil, QString::fromStdString(fileName));
+    });
+
+    // ===================== XDirect ====================== //
+    QObject::connect(this, &xflServer::onAnalyzePolar, s_pMainFrame->m_pXDirect, &XDirect::onAnalyze, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onDefinePolar, s_pMainFrame->m_pXDirect, &XDirect::onDefinePolarHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onSetAnalysisSettings2D, s_pMainFrame->m_pXDirect, &XDirect::onSetAnalysisSettings2DHeadless, Qt::BlockingQueuedConnection);
+    
+    server.bind("defineAnalysis", [&](RpcLibAdapters::PolarAdapter polar){
+        // creates a new polar on the heap everytime. use carefully
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(polar.foil_name));                
+        emit onDefinePolar(RpcLibAdapters::PolarAdapter::from_msgpack(polar), pFoil);
+    });
+    server.bind("analyzePolar", [&](RpcLibAdapters::PolarAdapter polar, RpcLibAdapters::AnalysisSettings2DAdapter analysis_settings){
+        emit onSetAnalysisSettings2D(analysis_settings);
+        // emit onAnalyzePolar(polar);
     });
 }
 

@@ -42,7 +42,8 @@
 #include <xflcore/core_enums.h>
 #include <xflobjects/objects2d/oppoint.h>
 #include <xflgraph/graph.h>
-
+#include <xflserver/xflserver.h>
+#include <xflserver/RpcLibAdapters.h>
 #include <xfoil.h>
 
 class FoilTreeView;
@@ -76,6 +77,7 @@ class XDirect : public QWidget
     friend class XDirectTileWidget;
     friend class XFoilAnalysisDlg;
     friend class FoilTreeView;
+    friend class xflServer;
 
     Q_OBJECT
 
@@ -185,6 +187,9 @@ class XDirect : public QWidget
         void onViscous();
         void onXFoilAdvanced();
 
+        // Server headless slots
+        void onDefinePolarHeadless(Polar* polar, Foil* foil);
+        void onSetAnalysisSettings2DHeadless(RpcLibAdapters::AnalysisSettings2DAdapter analysis_settings);
 
     private:
         void keyPressEvent(QKeyEvent *event);

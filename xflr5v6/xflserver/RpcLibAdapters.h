@@ -1,5 +1,6 @@
 #pragma once
 #include <xflobjects/objects2d/foil.h>
+#include <xflobjects/objects2d/polar.h>
 #include <xflcore/linestyle.h>
 
 class RpcLibAdapters
@@ -104,6 +105,123 @@ class RpcLibAdapters
                 QString m_Tag = QString::fromStdString(in.tag);
                 return LineStyle(in.visible, m_Stipple, in.width, m_Color, m_Symbol, m_Tag);
             }
+        };
+
+        struct PolarSpecAdapter{
+            std::string polar_name;
+            int polar_type;
+            int re_type;
+            int ma_type;
+            double aoa;
+            double mach;
+            double ncrit;
+            double xtop;
+            double xbot;
+            double reynolds;
+
+            MSGPACK_DEFINE_MAP(polar_name, polar_type, re_type, ma_type, aoa, mach, ncrit, xtop, xbot, reynolds);
+
+            PolarSpecAdapter(){}
+            PolarSpecAdapter(Polar& out){
+                polar_name = out.name().toStdString();     
+                polar_type = out.m_PolarType;
+                re_type = out.m_ReType;
+                ma_type = out.m_MaType;
+                aoa =     out.m_ASpec;
+                mach =    out.m_Mach;
+                ncrit =   out.m_NCrit;
+                xtop =    out.m_XTop;
+                xbot =    out.m_XBot;
+                reynolds = out.m_Reynolds;
+            }
+            
+        };
+
+        struct PolarResultAdapter{
+            std::vector<double> alpha;
+            std::vector<double> Cl;
+            std::vector<double> XCp;
+            std::vector<double> Cd;
+            std::vector<double> Cdp;
+            std::vector<double> Cm;
+            std::vector<double> XTr1;
+            std::vector<double> XTr2;
+            std::vector<double> HMom;
+            std::vector<double> Cpmn;
+            std::vector<double> ClCd;
+            std::vector<double> Cl32Cd;
+            std::vector<double> RtCl;
+            std::vector<double> Re;
+
+            MSGPACK_DEFINE_MAP(alpha, Cl, XCp, Cd, Cdp, Cm, XTr1, XTr2, HMom, Cpmn, ClCd, Cl32Cd, RtCl, Re);
+
+            PolarResultAdapter(){}
+            PolarResultAdapter(Polar& out){
+                alpha = out.m_Alpha.toStdVector();
+                Cl = out.m_Cl.toStdVector();
+                XCp = out.m_XCp.toStdVector();
+                Cd = out.m_Cd.toStdVector();
+                Cdp = out.m_Cdp.toStdVector();
+                Cm = out.m_Cm.toStdVector();
+                XTr1 = out.m_XTr1.toStdVector();
+                XTr2 = out.m_XTr2.toStdVector();
+                HMom = out.m_HMom.toStdVector();
+                Cpmn = out.m_Cpmn.toStdVector();
+                ClCd = out.m_ClCd.toStdVector();
+                Cl32Cd = out.m_Cl32Cd.toStdVector();
+                RtCl = out.m_RtCl.toStdVector();
+                Re = out.m_Re.toStdVector();
+            }
+        };
+
+        struct PolarAdapter{
+            std::string name;
+            std::string foil_name;
+            PolarSpecAdapter spec;
+            PolarResultAdapter result;
+
+            MSGPACK_DEFINE_MAP(name, foil_name, spec, result);
+
+            PolarAdapter(){}
+
+            static Polar* from_msgpack(PolarAdapter& in){
+                Polar* pPolar = new Polar();
+                pPolar->setName(QString::fromStdString(in.name));
+                pPolar->setFoilName(QString::fromStdString(in.foil_name));
+                pPolar->m_PolarType = xfl::enumPolarType(in.spec.polar_type);
+                pPolar->m_ReType = in.spec.re_type; 
+                pPolar->m_MaType = in.spec.ma_type; 
+                pPolar->m_ASpec = in.spec.aoa; 
+                pPolar->m_Mach = in.spec.mach; 
+                pPolar->m_NCrit = in.spec.ncrit; 
+                pPolar->m_XTop = in.spec.xtop; 
+                pPolar->m_XBot = in.spec.xbot; 
+                pPolar->m_Reynolds = in.spec.reynolds; 
+
+                return pPolar;
+            }
+
+        };
+
+        struct SequenceAdapter{
+            double start;
+            double end;
+            double delta;
+            MSGPACK_DEFINE_ARRAY(start, end, delta);
+        };
+
+        struct AnalysisSettings2DAdapter{
+            int sequence_type;
+            SequenceAdapter sequence;
+            bool is_sequence;
+            bool init_BL;
+            bool store_opp;
+            bool viscous;
+            bool keep_open_on_error;
+
+            MSGPACK_DEFINE_MAP(sequence_type, sequence, is_sequence, init_BL, store_opp, viscous, keep_open_on_error);
+
+            
         };
 
 }; // namespace adapters

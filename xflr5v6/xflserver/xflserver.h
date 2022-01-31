@@ -27,10 +27,12 @@
 #include <QObject>
 #include <iostream>
 #include <QString>
+#include <xflserver/RpcLibAdapters.h>
 
 class Foil;
 class AFoil;
 class FoilDesignWt;
+class Polar;
 
 class xflServer: public QThread
 {   
@@ -74,4 +76,10 @@ class xflServer: public QThread
         void onFoilStyle(Foil* foil, LineStyle ls);
         void onExportFoil(Foil* foil, QString FileName);
         void onSetFoilCoords(Foil* foil, double* x,  double* y);
+
+        // XDirect signals
+        void onAnalyze();
+        void onDefinePolar(Polar* polar, Foil* foil);
+        void onAnalyzePolar();
+        void onSetAnalysisSettings2D(RpcLibAdapters::AnalysisSettings2DAdapter);
 };

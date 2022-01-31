@@ -4643,3 +4643,73 @@ void XDirect::onOptim2d()
     updateView();
 }
 
+
+/**
+ * The client has requested to define a new polar
+ */
+void XDirect::onDefinePolarHeadless(Polar* pPolar, Foil* pFoil)
+{
+    if(!pFoil) return;
+    setCurFoil(pFoil);
+    setCurPolar(pPolar);
+        
+    if (pPolar->name()== "")
+        pPolar->setAutoPolarName();
+    
+    if(DisplayOptions::isAlignedChildrenStyle())
+    {
+        Objects2d::curPolar()->setTheStyle(pFoil->theStyle());
+    }
+    else
+    {
+        QColor clr = xfl::randomColor(!DisplayOptions::isLightTheme());
+        Objects2d::curPolar()->setColor(clr.red(), clr.green(), clr.blue(), clr.alpha());
+    }
+
+    Objects2d::curPolar()->setVisible(true);
+    Objects2d::curPolar()->copySpecification(pPolar);
+
+    Objects2d::addPolar(Objects2d::curPolar());
+    setPolar(Objects2d::curPolar());
+
+    m_pFoilTreeView->insertPolar(Objects2d::curPolar());
+    m_pFoilTreeView->selectPolar(Objects2d::curPolar());
+    updateView();
+    emit projectModified();
+    
+    setControls();
+}
+
+void XDirect::onSetAnalysisSettings2DHeadless(RpcLibAdapters::AnalysisSettings2DAdapter analysis_settings){
+    m_pchInitBL->setChecked(analysis_settings.init_BL);
+    
+    m_pchStoreOpp->setChecked(analysis_settings.store_opp);
+    onStoreOpp();
+
+    m_pchSequence->setChecked(analysis_settings.is_sequence);
+    onSequence();
+    m_pdeAlphaMin->setValue(analysis_settings.sequence.start);
+    m_pdeAlphaMax->setValue(analysis_settings.sequence.end);
+    m_pdeAlphaDelta->setValue(analysis_settings.sequence.delta);
+    
+    switch (analysis_settings.sequence_type)
+    {
+    case 0:
+        m_prbSpec1->setChecked(true);
+        break;
+    case 1:
+        m_prbSpec2->setChecked(true);
+        break;
+    case 2:
+        m_prbSpec3->setChecked(true);
+        break;
+    default:
+        break;
+    }
+    onSpec();
+
+    m_pchViscous->setChecked(analysis_settings.viscous);
+    onViscous();
+    
+    s_bKeepOpenErrors = analysis_settings.keep_open_on_error;
+}

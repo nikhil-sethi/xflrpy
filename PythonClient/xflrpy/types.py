@@ -1,4 +1,8 @@
 import enum
+from os import name
+from pickle import FALSE
+
+from gym import spec
 
 class MsgpackMixin:
     def __repr__(self):
@@ -50,6 +54,19 @@ class enumPointStyle(enum.IntEnum):
     TRIANGLE_INV_F = 12
     LITTLECROSS = 13
     BIGCROSS = 14
+
+class enumPolarType(enum.IntEnum):
+    FIXEDSPEEDPOLAR = 0 
+    FIXEDLIFTPOLAR = 1
+    RUBBERCHORDPOLAR = 2
+    FIXEDAOAPOLAR = 3
+    STABILITYPOLAR = 4
+    BETAPOLAR = 5
+
+class enumSequenceType(enum.IntEnum):
+    ALPHA = 0
+    CL = 1
+    REYNOLDS = 2
 
 # will be a list not dict
 class QColor(MsgpackMixin, list):
@@ -141,7 +158,77 @@ class Foil(MsgpackMixin):
     def normalize(self):
         self._client.call("normalizeFoil", self.name)
 
+class PolarSpec(MsgpackMixin):
+    polar_type = enumPolarType
+    Re_type = 1
+    ma_type = 1
+    aoa = 0.0
+    mach = 0.0
+    ncrit = 9.0
+    xtop = 1.0
+    xbot = 1.0
+    reynolds = 100000.0
+
+    def __init__(self, polar_name = "", polar_type = enumPolarType.FIXEDSPEEDPOLAR, re_type = 1, ma_type = 1, aoa = 0.0, mach = 0.0, ncrit = 9.0, xtop = 1.0, xbot = 1.0, reynolds = 100000.0) -> None:
+        self.polar_name = polar_name
+        self.polar_type = polar_type
+        self.Re_type = re_type
+        self.ma_type = ma_type
+        self.aoa = aoa
+        self.mach = mach
+        self.ncrit = ncrit
+        self.xtop = xtop
+        self.xbot = xbot
+        self.reynolds = reynolds
+
+class PolarResult(MsgpackMixin):
+    alpha = []
+    Cl = []
+    XCp = []
+    Cd = []
+    Cdp = []
+    Cm = []
+    XTr1 = []
+    XTr2 = []
+    HMom = []
+    Cpmn = []
+    ClCd = []
+    Cl32Cd = []
+    RtCl = []
+    Re = []
+
+class Polar(MsgpackMixin):
+    name = ""
+    foil_name = ""
+    spec = PolarSpec()
+    result = PolarResult()
+
+    def __init__(self, name, foil_name, spec = PolarSpec(), result = PolarResult()) -> None:
+        self.name = name
+        self.foil_name = foil_name
+        self.spec = spec
+        self.result = result
+ 
+
+class AnalysisSettings2D(MsgpackMixin):
+    sequence_type = enumSequenceType.ALPHA
+    sequence = (0,0,0)
+    is_sequence = False
+    init_BL = True
+    store_opp = True
+    viscous = True
+    keep_open_on_error = False     
+
+    def __init__(self, sequence_type = enumSequenceType.ALPHA, sequence = (0.,0.,0.), is_sequence = False, init_BL =  True, store_opp = True, viscous = True, keep_open_on_error = False) -> None:
+        self.sequence_type = sequence_type
+        self.sequence = sequence
+        self.is_sequence = is_sequence
+        self.init_BL = init_BL
+        self.store_opp = store_opp
+        self.viscous = viscous
+        self.keep_open_on_error = keep_open_on_error
         
+
 class FoilManager:
     """
     Manager for airfoils.
@@ -208,7 +295,7 @@ class Afoil:
         self._client.call("setLineStyle", name, line_style.to_msgpack())
     
 
-class Miarex(MsgpackMixin):
+class Miarex:
     """
     to manage the plane design application
     """
@@ -221,6 +308,12 @@ class XDirect(MsgpackMixin):
     """
     def __init__(self, client) -> None:
         self._client = client
+
+    def define_analysis(self, polar:Polar):
+        self._client.call("defineAnalysis", polar.to_msgpack())
+
+    def analyze(self, polar, analysis_settings: AnalysisSettings2D):
+        return self._client.call("analyzePolar", polar, analysis_settings)
 
 class XInverse(MsgpackMixin):
     """
