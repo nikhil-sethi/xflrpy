@@ -1,8 +1,4 @@
 import enum
-from os import name
-from pickle import FALSE
-
-from gym import spec
 
 class MsgpackMixin:
     def __repr__(self):
@@ -21,15 +17,16 @@ class MsgpackMixin:
         #return cls(**msgpack.unpack(encoded))
         return obj
 
-class enumApp(enum.IntEnum):
-    NOAPP = 0
-    XFOILANALYSIS = 1
-    DIRECTDESIGN = 2
-    INVERSEDESIGN = 3
-    MIAREX = 4
+# ============= Miscellaneous =============== # 
+class QColor(MsgpackMixin, list):
+# will be a list not dict  
+        red = 0
+        green = 0
+        blue = 0
+        alpha = 0
 
-# xflr5v6/xflcore/line_enums.h
 class enumLineStipple(enum.IntEnum):
+# xflr5v6/xflcore/line_enums.h   
     SOLID = 0
     DASH = 1
     DOT = 2
@@ -37,8 +34,8 @@ class enumLineStipple(enum.IntEnum):
     DASHDOTDOT = 4
     NOLINE = 5
 
-# xflr5v6/xflcore/line_enums.h
 class enumPointStyle(enum.IntEnum):
+# xflr5v6/xflcore/line_enums.h
     NOSYMBOL = 0
     LITTLECIRCLE = 1  
     BIGCIRCLE = 2 
@@ -54,26 +51,6 @@ class enumPointStyle(enum.IntEnum):
     TRIANGLE_INV_F = 12
     LITTLECROSS = 13
     BIGCROSS = 14
-
-class enumPolarType(enum.IntEnum):
-    FIXEDSPEEDPOLAR = 0 
-    FIXEDLIFTPOLAR = 1
-    RUBBERCHORDPOLAR = 2
-    FIXEDAOAPOLAR = 3
-    STABILITYPOLAR = 4
-    BETAPOLAR = 5
-
-class enumSequenceType(enum.IntEnum):
-    ALPHA = 0
-    CL = 1
-    REYNOLDS = 2
-
-# will be a list not dict
-class QColor(MsgpackMixin, list):
-        red = 0
-        green = 0
-        blue = 0
-        alpha = 0
 
 class LineStyle(MsgpackMixin):
     visible = True
@@ -91,18 +68,7 @@ class LineStyle(MsgpackMixin):
         self.color = color
         self.tag = tag
 
-class State(MsgpackMixin):
-    projectPath = ""
-    projectName = ""
-    app = enumApp
-    saved = False
-    display = True
-
-class Polar(MsgpackMixin):
-    alpha=list()
-    Cl=list()
-
-
+# =========== AFoil classes ================ #
 class Foil(MsgpackMixin):
     name = ""   # Name of the airfoil 
     camber = 0.0   # Maximum camber range(0,1) 
@@ -158,6 +124,71 @@ class Foil(MsgpackMixin):
     def normalize(self):
         self._client.call("normalizeFoil", self.name)
 
+class FoilManager:
+    """
+    Manager for airfoils.
+    """
+    def __init__(self, client) -> None:
+        self._client = client
+
+    def getFoil(self, name=""):
+        foil_raw = self._client.call("getFoil", name)
+        return Foil.from_msgpack(foil_raw, self._client)
+
+    def foilExists(self, name) -> bool:
+        return self._client.call("foilExists", name)
+    
+    def foilDict(self) -> dict:
+        foil_list_raw = self._client.call("foilList") 
+        return {item["name"]:Foil.from_msgpack(item, self._client) for item in foil_list_raw}
+    
+    def loadFoils(self, paths):
+        if type(paths) == str:
+            paths = [paths] 
+        if paths[-4:]!=".dat": 
+            print("Please provide a valid .dat file")
+            return
+        self._client.call("loadFoils", paths)
+
+    def exportFoil(self, name, file_name):
+        """
+        name: name of the airfoil to export
+        file_name: full path of the to be saved airfoil 
+        """
+        self._client.call("exportFoil", name, file_name)
+
+# =========== XDirect classes ================ #
+class enumSequenceType(enum.IntEnum):
+    ALPHA = 0
+    CL = 1
+    REYNOLDS = 2
+
+class enumPolarType(enum.IntEnum):
+    FIXEDSPEEDPOLAR = 0 
+    FIXEDLIFTPOLAR = 1
+    RUBBERCHORDPOLAR = 2
+    FIXEDAOAPOLAR = 3
+    STABILITYPOLAR = 4
+    BETAPOLAR = 5
+
+class AnalysisSettings2D(MsgpackMixin):
+    sequence_type = enumSequenceType.ALPHA
+    sequence = (0,0,0)
+    is_sequence = False
+    init_BL = True
+    store_opp = True
+    viscous = True
+    keep_open_on_error = False     
+
+    def __init__(self, sequence_type = enumSequenceType.ALPHA, sequence = (0.,0.,0.), is_sequence = False, init_BL =  True, store_opp = True, viscous = True, keep_open_on_error = False) -> None:
+        self.sequence_type = sequence_type
+        self.sequence = sequence
+        self.is_sequence = is_sequence
+        self.init_BL = init_BL
+        self.store_opp = store_opp
+        self.viscous = viscous
+        self.keep_open_on_error = keep_open_on_error
+        
 class PolarSpec(MsgpackMixin):
     polar_type = enumPolarType
     Re_type = 1
@@ -209,59 +240,20 @@ class Polar(MsgpackMixin):
         self.spec = spec
         self.result = result
  
+# =========== Mainframe classes ============ #
+class enumApp(enum.IntEnum):
+    NOAPP = 0
+    XFOILANALYSIS = 1
+    DIRECTDESIGN = 2
+    INVERSEDESIGN = 3
+    MIAREX = 4
 
-class AnalysisSettings2D(MsgpackMixin):
-    sequence_type = enumSequenceType.ALPHA
-    sequence = (0,0,0)
-    is_sequence = False
-    init_BL = True
-    store_opp = True
-    viscous = True
-    keep_open_on_error = False     
-
-    def __init__(self, sequence_type = enumSequenceType.ALPHA, sequence = (0.,0.,0.), is_sequence = False, init_BL =  True, store_opp = True, viscous = True, keep_open_on_error = False) -> None:
-        self.sequence_type = sequence_type
-        self.sequence = sequence
-        self.is_sequence = is_sequence
-        self.init_BL = init_BL
-        self.store_opp = store_opp
-        self.viscous = viscous
-        self.keep_open_on_error = keep_open_on_error
-        
-
-class FoilManager:
-    """
-    Manager for airfoils.
-    """
-    def __init__(self, client) -> None:
-        self._client = client
-
-    def getFoil(self, name=""):
-        foil_raw = self._client.call("getFoil", name)
-        return Foil.from_msgpack(foil_raw, self._client)
-
-    def foilExists(self, name) -> bool:
-        return self._client.call("foilExists", name)
-    
-    def foilDict(self) -> dict:
-        foil_list_raw = self._client.call("foilList") 
-        return {item["name"]:Foil.from_msgpack(item, self._client) for item in foil_list_raw}
-    
-    def loadFoils(self, paths):
-        if type(paths) == str:
-            paths = [paths] 
-        if paths[-4:]!=".dat": 
-            print("Please provide a valid .dat file")
-            return
-        self._client.call("loadFoils", paths)
-
-    def exportFoil(self, name, file_name):
-        """
-        name: name of the airfoil to export
-        file_name: full path of the to be saved airfoil 
-        """
-        self._client.call("exportFoil", name, file_name)
-
+class State(MsgpackMixin):
+    projectPath = ""
+    projectName = ""
+    app = enumApp
+    saved = False
+    display = True
 
 class Afoil:
     """
@@ -294,7 +286,6 @@ class Afoil:
         line_style.point_style = line_style.point_style.value
         self._client.call("setLineStyle", name, line_style.to_msgpack())
     
-
 class Miarex:
     """
     to manage the plane design application
@@ -321,4 +312,3 @@ class XInverse(MsgpackMixin):
     """
     def __init__(self, client) -> None:
         self._client = client
-

@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: xflrpy
-Version: 0.2.0
+Version: 0.3.0
 Summary: A python client for design optimization and scripting with XFLR5
 Home-page: https://github.com/nikhil-sethi/xflrpy
 Author: Nikhil Sethi
