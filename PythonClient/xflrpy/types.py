@@ -1,5 +1,7 @@
 import enum
 
+from matplotlib.pyplot import polar
+
 class MsgpackMixin:
     def __repr__(self):
         from pprint import pformat
@@ -234,12 +236,23 @@ class Polar(MsgpackMixin):
     spec = PolarSpec()
     result = PolarResult()
 
-    def __init__(self, name, foil_name, spec = PolarSpec(), result = PolarResult()) -> None:
+    def __init__(self, name="", foil_name="", spec = PolarSpec(), result = PolarResult()) -> None:
         self.name = name
         self.foil_name = foil_name
         self.spec = spec
         self.result = result
- 
+
+class PolarManager:
+    """
+    Manager for polars.
+    """
+    def __init__(self, client) -> None:
+        self._client = client
+
+    def getPolar(self, foil_name:str, polar_name:str) -> Polar:
+        polar_raw = self._client.call("getPolar", foil_name, polar_name)
+        return Polar.from_msgpack(polar_raw)
+
 # =========== Mainframe classes ============ #
 class enumApp(enum.IntEnum):
     NOAPP = 0
@@ -299,6 +312,7 @@ class XDirect(MsgpackMixin):
     """
     def __init__(self, client) -> None:
         self._client = client
+        self.polar_mgr = PolarManager(client)
 
     def define_analysis(self, polar:Polar):
         self._client.call("defineAnalysis", polar.to_msgpack())

@@ -122,7 +122,7 @@ class RpcLibAdapters
             MSGPACK_DEFINE_MAP(polar_name, polar_type, re_type, ma_type, aoa, mach, ncrit, xtop, xbot, reynolds);
 
             PolarSpecAdapter(){}
-            PolarSpecAdapter(Polar& out){
+            PolarSpecAdapter(const Polar& out){
                 polar_name = out.name().toStdString();     
                 polar_type = out.m_PolarType;
                 re_type = out.m_ReType;
@@ -156,7 +156,7 @@ class RpcLibAdapters
             MSGPACK_DEFINE_MAP(alpha, Cl, XCp, Cd, Cdp, Cm, XTr1, XTr2, HMom, Cpmn, ClCd, Cl32Cd, RtCl, Re);
 
             PolarResultAdapter(){}
-            PolarResultAdapter(Polar& out){
+            PolarResultAdapter(const Polar& out){
                 alpha = out.m_Alpha.toStdVector();
                 Cl = out.m_Cl.toStdVector();
                 XCp = out.m_XCp.toStdVector();
@@ -184,7 +184,22 @@ class RpcLibAdapters
 
             PolarAdapter(){}
 
-            static Polar* from_msgpack(PolarAdapter& in){
+            /**
+             * Returns a client(python) usable Polar
+             * @param out outgoing polar from server
+             */
+            PolarAdapter(const Polar& out){
+                name = out.name().toStdString();
+                foil_name = out.m_FoilName.toStdString();
+                spec = PolarSpecAdapter(out);
+                result = PolarResultAdapter(out);
+            }
+
+            /**
+             * Returns a server(xflr) usable Polar
+             * @param in Incoming polar from client
+             */
+            static Polar* from_msgpack(const PolarAdapter& in){ 
                 Polar* pPolar = new Polar();
                 pPolar->setName(QString::fromStdString(in.name));
                 pPolar->setFoilName(QString::fromStdString(in.foil_name));

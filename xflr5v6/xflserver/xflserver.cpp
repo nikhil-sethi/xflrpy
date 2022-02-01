@@ -253,6 +253,11 @@ xflServer::xflServer(int port) : server(port)
         emit onSetAnalysisSettings2D(analysis_settings);
         // emit onAnalyzePolar(polar);
     });
+    server.bind("getPolar", [&](string foil_name, string polar_name){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(foil_name));  
+        Polar* pPolar = Objects2d::getPolar(pFoil, QString::fromStdString(polar_name));
+        return RpcLibAdapters::PolarAdapter(*pPolar); //argument is a const reference
+    });
 }
 
 void xflServer::run(){
