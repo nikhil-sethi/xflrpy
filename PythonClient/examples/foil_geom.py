@@ -1,3 +1,15 @@
+""" ==================== examples/foil_geom.py ====================== 
+This example file shows the various methods available for manipulating
+geometry of an airfoil in the direct design module.
+
+Prerequisites: project_mgmt.py, foil_io.py
+Features:
+    Set foil geometry (camber, thickness etc.)
+    Normalise, derotate eometry
+    Manipulate foil coordinates
+    
+================================================================= """
+
 from xflrpy import xflrClient, enumApp
 import random 
 
@@ -32,5 +44,5 @@ print(afoil.foil_mgr.getFoil("fuselage center"))
 
 # Directly manipulate coordinates
 coords = foil.coords
-coords[-1][1] = 0.1  # change last y coordinate to 0.2
+coords[-1][1] = 0.1  # change last y coordinate to 0.1
 foil.coords = coords # set and update

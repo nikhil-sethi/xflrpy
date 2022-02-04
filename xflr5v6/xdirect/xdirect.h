@@ -190,6 +190,7 @@ class XDirect : public QWidget
         // Server headless slots
         void onDefinePolarHeadless(Polar* polar, Foil* foil);
         void onSetAnalysisSettings2DHeadless(RpcLibAdapters::AnalysisSettings2DAdapter analysis_settings);
+        void onSetCurPolarHeadless(Polar* pPolar);
 
     private:
         void keyPressEvent(QKeyEvent *event);

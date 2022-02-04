@@ -1,4 +1,15 @@
-from numpy import block
+""" ==================== examples/foil_io.py ====================== 
+This example file shows the various methods available for manipulating
+geometry of an airfoil in the direct design module.
+
+Prerequisites: project_mgmt.py
+Features:
+    Set and get airfoils (camber, thickness etc.)
+    print foil properties
+    show and plot foil coordinates array
+    
+================================================================= """
+
 from xflrpy import xflrClient, enumApp
 import numpy as np
 import matplotlib.pyplot as plt

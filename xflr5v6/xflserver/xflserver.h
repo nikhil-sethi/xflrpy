@@ -78,8 +78,8 @@ class xflServer: public QThread
         void onSetFoilCoords(Foil* foil, double* x,  double* y);
 
         // XDirect signals
-        void onAnalyze();
         void onDefinePolar(Polar* polar, Foil* foil);
-        void onAnalyzePolar();
+        void onAnalyzeCurPolar();
         void onSetAnalysisSettings2D(RpcLibAdapters::AnalysisSettings2DAdapter);
+        void onSetCurPolar(Polar* polar);
 };

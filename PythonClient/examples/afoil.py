@@ -1,11 +1,15 @@
-# ======================= examples/afoil.py ====================== #
+""" ==================== examples/afoil.py ========================== 
+This example file introduces the various GUI control features
+available in the direct design module 
 
-# This example file introduces the various GUI control features
-# available in the direct design module 
+Prerequisites: project_mgmt.py
+Features: 
+    Select, show and hide foils
+    Change and create new styles for the airfoil
+
+================================================================= """
 
 from xflrpy import xflrClient, enumApp, enumLineStipple, LineStyle, enumPointStyle
-import numpy as np
-import matplotlib.pyplot as plt
 
 # Change these values accordingly
 # Using a valid path is your responsibility
@@ -22,6 +26,7 @@ xp.setApp(enumApp.DIRECTDESIGN) # set to airfoil design application
 afoil = xp.loadProject([project_path+'mh60.dat',project_path+'fuselage center.dat'])
 
 afoil = xp.getApp() # Get the current application
+
 
 # Manipulating controls on the GUI
 

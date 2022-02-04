@@ -1,3 +1,15 @@
+""" 
+==================== examples/project_mgmt.py ==========================
+This example file introduces the methods available to manage projects
+and shift between modules etc. 
+Features:
+  Load, save, create projects 
+  Set and get modules (AFoil, XFoil, Plane design etc.)
+  Get the current state of the project
+
+================================================================= 
+"""
+
 from xflrpy import xflrClient, enumApp
 import time
 

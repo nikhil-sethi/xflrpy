@@ -240,22 +240,30 @@ xflServer::xflServer(int port) : server(port)
     });
 
     // ===================== XDirect ====================== //
-    QObject::connect(this, &xflServer::onAnalyzePolar, s_pMainFrame->m_pXDirect, &XDirect::onAnalyze, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onAnalyzeCurPolar, s_pMainFrame->m_pXDirect, &XDirect::onAnalyze, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onDefinePolar, s_pMainFrame->m_pXDirect, &XDirect::onDefinePolarHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onSetAnalysisSettings2D, s_pMainFrame->m_pXDirect, &XDirect::onSetAnalysisSettings2DHeadless, Qt::BlockingQueuedConnection);
-    
+    QObject::connect(this, &xflServer::onSetCurPolar, s_pMainFrame->m_pXDirect, &XDirect::onSetCurPolarHeadless, Qt::BlockingQueuedConnection);
+
     server.bind("defineAnalysis", [&](RpcLibAdapters::PolarAdapter polar){
         // creates a new polar on the heap everytime. use carefully
         Foil* pFoil = Objects2d::foil(QString::fromStdString(polar.foil_name));                
         emit onDefinePolar(RpcLibAdapters::PolarAdapter::from_msgpack(polar), pFoil);
     });
-    server.bind("analyzePolar", [&](RpcLibAdapters::PolarAdapter polar, RpcLibAdapters::AnalysisSettings2DAdapter analysis_settings){
+
+    server.bind("analyzeCurPolar", [&]( RpcLibAdapters::AnalysisSettings2DAdapter analysis_settings){
         emit onSetAnalysisSettings2D(analysis_settings);
-        // emit onAnalyzePolar(polar);
+        emit onAnalyzeCurPolar();
+        return RpcLibAdapters::PolarResultAdapter(*Objects2d::curPolar());
     });
+
+    server.bind("setCurPolar", [&](string polar_name, string foil_name){
+        Polar* pPolar = Objects2d::getPolar(QString::fromStdString(foil_name), QString::fromStdString(polar_name));
+        emit onSetCurPolar(pPolar);
+    });
+
     server.bind("getPolar", [&](string foil_name, string polar_name){
-        Foil* pFoil = Objects2d::foil(QString::fromStdString(foil_name));  
-        Polar* pPolar = Objects2d::getPolar(pFoil, QString::fromStdString(polar_name));
+        Polar* pPolar = Objects2d::getPolar(QString::fromStdString(foil_name), QString::fromStdString(polar_name));
         return RpcLibAdapters::PolarAdapter(*pPolar); //argument is a const reference
     });
 }

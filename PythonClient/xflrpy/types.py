@@ -20,7 +20,7 @@ class MsgpackMixin:
         return obj
 
 # ============= Miscellaneous =============== # 
-class QColor(MsgpackMixin, list):
+class QColor(MsgpackMixin):
 # will be a list not dict  
         red = 0
         green = 0
@@ -202,8 +202,7 @@ class PolarSpec(MsgpackMixin):
     xbot = 1.0
     reynolds = 100000.0
 
-    def __init__(self, polar_name = "", polar_type = enumPolarType.FIXEDSPEEDPOLAR, re_type = 1, ma_type = 1, aoa = 0.0, mach = 0.0, ncrit = 9.0, xtop = 1.0, xbot = 1.0, reynolds = 100000.0) -> None:
-        self.polar_name = polar_name
+    def __init__(self,polar_type = enumPolarType.FIXEDSPEEDPOLAR, re_type = 1, ma_type = 1, aoa = 0.0, mach = 0.0, ncrit = 9.0, xtop = 1.0, xbot = 1.0, reynolds = 100000.0) -> None:
         self.polar_type = polar_type
         self.Re_type = re_type
         self.ma_type = ma_type
@@ -236,11 +235,18 @@ class Polar(MsgpackMixin):
     spec = PolarSpec()
     result = PolarResult()
 
-    def __init__(self, name="", foil_name="", spec = PolarSpec(), result = PolarResult()) -> None:
+    def __init__(self, name="", foil_name="", spec:PolarSpec = None, result:PolarResult = None) -> None:
         self.name = name
         self.foil_name = foil_name
-        self.spec = spec
-        self.result = result
+        if spec is None:
+            self.spec = PolarSpec()
+        else:
+            self.spec = spec
+
+        if result is None:
+            self.result = PolarResult()
+        else:
+            self.result = result
 
 class PolarManager:
     """
@@ -249,7 +255,7 @@ class PolarManager:
     def __init__(self, client) -> None:
         self._client = client
 
-    def getPolar(self, foil_name:str, polar_name:str) -> Polar:
+    def getPolar(self, polar_name:str, foil_name:str) -> Polar:
         polar_raw = self._client.call("getPolar", foil_name, polar_name)
         return Polar.from_msgpack(polar_raw)
 
@@ -313,12 +319,22 @@ class XDirect(MsgpackMixin):
     def __init__(self, client) -> None:
         self._client = client
         self.polar_mgr = PolarManager(client)
+        self.foil_mgr = FoilManager(client)
+
+    def setCurPolar(self, polar_name:str, foil_name:str):
+        """sets current polar and selects it on the gui"""
+        self._client.call("setCurPolar", polar_name, foil_name)
 
     def define_analysis(self, polar:Polar):
+        """Takes Polar as argument (and not polar.name) because we're creating a new Polar on the heap everytime"""
         self._client.call("defineAnalysis", polar.to_msgpack())
 
-    def analyze(self, polar, analysis_settings: AnalysisSettings2D):
-        return self._client.call("analyzePolar", polar, analysis_settings)
+    def analyze(self, analysis_settings: AnalysisSettings2D, polar_name:str = None):
+        """Sets the current polar and analyses it"""
+        if polar_name is not None:
+            self.setCurPolar(polar_name)
+        polar_result_raw = self._client.call("analyzeCurPolar", analysis_settings)
+        return PolarResult.from_msgpack(polar_result_raw)
 
 class XInverse(MsgpackMixin):
     """
