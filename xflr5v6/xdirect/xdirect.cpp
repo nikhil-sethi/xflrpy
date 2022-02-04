@@ -4726,6 +4726,17 @@ void XDirect::onSetDisplayHeadless(const RpcLibAdapters::XDirectDisplayState& ds
     setView(xfl::enumGraphView(dsp_state.graph_view));
     setGraphTiles();
 
+    if (dsp_state.show_cpgraph) onCpGraph();
+    else onQGraph();
 
+    m_pOpPointWidget->onShowBL(dsp_state.show_bl);
+    m_pchShowBL->setChecked(dsp_state.show_bl);
+
+    m_pOpPointWidget->onShowPressure(dsp_state.show_pressure);
+    m_pchShowPressure->setChecked(dsp_state.show_pressure);
+
+    m_bCurOppOnly = dsp_state.active_opp_only;
+    
+    setControls();
     updateView();
 }

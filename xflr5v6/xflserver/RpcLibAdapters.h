@@ -244,7 +244,7 @@ class RpcLibAdapters
             bool active_opp_only;
             bool show_bl;
             bool show_pressure;
-            bool show cpgraph; 
+            bool show_cpgraph; 
             
             MSGPACK_DEFINE_MAP(polar_view, graph_view, active_opp_only, show_bl, show_pressure, show_cpgraph);
 
