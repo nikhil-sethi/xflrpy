@@ -244,8 +244,9 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onDefinePolar, s_pMainFrame->m_pXDirect, &XDirect::onDefinePolarHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onSetAnalysisSettings2D, s_pMainFrame->m_pXDirect, &XDirect::onSetAnalysisSettings2DHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onSetCurPolar, s_pMainFrame->m_pXDirect, &XDirect::onSetCurPolarHeadless, Qt::BlockingQueuedConnection);
-
-    server.bind("defineAnalysis", [&](RpcLibAdapters::PolarAdapter polar){
+    QObject::connect(this, &xflServer::onSetXDirectDisplay, s_pMainFrame->m_pXDirect, &XDirect::onSetDisplayHeadless, Qt::BlockingQueuedConnection);
+    
+    server.bind("defineAnalysis2D", [&](RpcLibAdapters::PolarAdapter polar){
         // creates a new polar on the heap everytime. use carefully
         Foil* pFoil = Objects2d::foil(QString::fromStdString(polar.foil_name));                
         emit onDefinePolar(RpcLibAdapters::PolarAdapter::from_msgpack(polar), pFoil);
@@ -265,6 +266,16 @@ xflServer::xflServer(int port) : server(port)
     server.bind("getPolar", [&](string foil_name, string polar_name){
         Polar* pPolar = Objects2d::getPolar(QString::fromStdString(foil_name), QString::fromStdString(polar_name));
         return RpcLibAdapters::PolarAdapter(*pPolar); //argument is a const reference
+    });
+
+    server.bind("setXDirectDisplay", [&](RpcLibAdapters::XDirectDisplayState dsp_state){
+        emit onSetXDirectDisplay(dsp_state);
+    });
+
+    server.bind("getXDirectDisplay", [&]()-> RpcLibAdapters::XDirectDisplayState{
+        RpcLibAdapters::XDirectDisplayState dsp_state;
+        dsp_state.graph_view = s_pMainFrame->m_pXDirect->m_iPlrView;
+        return dsp_state;
     });
 }
 

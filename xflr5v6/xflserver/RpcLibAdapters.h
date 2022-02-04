@@ -236,7 +236,18 @@ class RpcLibAdapters
 
             MSGPACK_DEFINE_MAP(sequence_type, sequence, is_sequence, init_BL, store_opp, viscous, keep_open_on_error);
 
+        };
+
+        struct XDirectDisplayState{
+            bool polar_view; // m_bPolarView
+            int graph_view; // m_iPlrView
+            bool active_opp_only;
+            bool show_bl;
+            bool show_pressure;
+            bool show cpgraph; 
             
+            MSGPACK_DEFINE_MAP(polar_view, graph_view, active_opp_only, show_bl, show_pressure, show_cpgraph);
+
         };
 
 }; // namespace adapters

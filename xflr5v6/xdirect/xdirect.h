@@ -191,6 +191,7 @@ class XDirect : public QWidget
         void onDefinePolarHeadless(Polar* polar, Foil* foil);
         void onSetAnalysisSettings2DHeadless(RpcLibAdapters::AnalysisSettings2DAdapter analysis_settings);
         void onSetCurPolarHeadless(Polar* pPolar);
+        void onSetDisplayHeadless(const RpcLibAdapters::XDirectDisplayState& dsp_state);
 
     private:
         void keyPressEvent(QKeyEvent *event);

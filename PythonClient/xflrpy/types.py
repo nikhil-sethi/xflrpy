@@ -1,6 +1,7 @@
 import enum
 
 from matplotlib.pyplot import polar
+from scipy.__config__ import show
 
 class MsgpackMixin:
     def __repr__(self):
@@ -173,6 +174,22 @@ class enumPolarType(enum.IntEnum):
     STABILITYPOLAR = 4
     BETAPOLAR = 5
 
+class enumGraphView(enum.IntEnum):
+    ONEGRAPH = 0 
+    TWOGRAPHS = 1 
+    FOURGRAPHS = 2
+    ALLGRAPHS = 3
+    NOGRAPH = 4
+
+class XDirectDisplayState(MsgpackMixin):
+    polar_view = True  # False = OpPointView
+    graph_view = enumGraphView.ALLGRAPHS
+    # Display box settings on OpPointView
+    active_opp_only = True
+    show_bl = True
+    show_pressure = True
+    show_cpgraph = True # False = qgraph
+ 
 class AnalysisSettings2D(MsgpackMixin):
     sequence_type = enumSequenceType.ALPHA
     sequence = (0,0,0)
@@ -182,17 +199,8 @@ class AnalysisSettings2D(MsgpackMixin):
     viscous = True
     keep_open_on_error = False     
 
-    def __init__(self, sequence_type = enumSequenceType.ALPHA, sequence = (0.,0.,0.), is_sequence = False, init_BL =  True, store_opp = True, viscous = True, keep_open_on_error = False) -> None:
-        self.sequence_type = sequence_type
-        self.sequence = sequence
-        self.is_sequence = is_sequence
-        self.init_BL = init_BL
-        self.store_opp = store_opp
-        self.viscous = viscous
-        self.keep_open_on_error = keep_open_on_error
-        
 class PolarSpec(MsgpackMixin):
-    polar_type = enumPolarType
+    polar_type = enumPolarType.FIXEDSPEEDPOLAR
     Re_type = 1
     ma_type = 1
     aoa = 0.0
@@ -201,17 +209,6 @@ class PolarSpec(MsgpackMixin):
     xtop = 1.0
     xbot = 1.0
     reynolds = 100000.0
-
-    def __init__(self,polar_type = enumPolarType.FIXEDSPEEDPOLAR, re_type = 1, ma_type = 1, aoa = 0.0, mach = 0.0, ncrit = 9.0, xtop = 1.0, xbot = 1.0, reynolds = 100000.0) -> None:
-        self.polar_type = polar_type
-        self.Re_type = re_type
-        self.ma_type = ma_type
-        self.aoa = aoa
-        self.mach = mach
-        self.ncrit = ncrit
-        self.xtop = xtop
-        self.xbot = xbot
-        self.reynolds = reynolds
 
 class PolarResult(MsgpackMixin):
     alpha = []
@@ -235,19 +232,10 @@ class Polar(MsgpackMixin):
     spec = PolarSpec()
     result = PolarResult()
 
-    def __init__(self, name="", foil_name="", spec:PolarSpec = None, result:PolarResult = None) -> None:
+    def __init__(self, name="", foil_name="") -> None:
         self.name = name
         self.foil_name = foil_name
-        if spec is None:
-            self.spec = PolarSpec()
-        else:
-            self.spec = spec
-
-        if result is None:
-            self.result = PolarResult()
-        else:
-            self.result = result
-
+        
 class PolarManager:
     """
     Manager for polars.
@@ -327,7 +315,7 @@ class XDirect(MsgpackMixin):
 
     def define_analysis(self, polar:Polar):
         """Takes Polar as argument (and not polar.name) because we're creating a new Polar on the heap everytime"""
-        self._client.call("defineAnalysis", polar.to_msgpack())
+        self._client.call("defineAnalysis2D", polar.to_msgpack())
 
     def analyze(self, analysis_settings: AnalysisSettings2D, polar_name:str = None):
         """Sets the current polar and analyses it"""
@@ -335,6 +323,13 @@ class XDirect(MsgpackMixin):
             self.setCurPolar(polar_name)
         polar_result_raw = self._client.call("analyzeCurPolar", analysis_settings)
         return PolarResult.from_msgpack(polar_result_raw)
+
+    def setDisplayState(self, dsp_state:XDirectDisplayState):
+        self._client.call("setXDirectDisplay", dsp_state)
+    
+    def getDisplatState(self):
+        dsp_state_raw = self._client.call("getXDirectDisplay")
+        return XDirectDisplayState.from_msgpack(dsp_state_raw)
 
 class XInverse(MsgpackMixin):
     """

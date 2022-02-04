@@ -4719,3 +4719,13 @@ void XDirect::onSetCurPolarHeadless(Polar* pPolar){
     m_pFoilTreeView->selectPolar(pPolar);
     updateView();
 }
+
+void XDirect::onSetDisplayHeadless(const RpcLibAdapters::XDirectDisplayState& dsp_state){
+    
+    m_bPolarView = dsp_state.polar_view;
+    setView(xfl::enumGraphView(dsp_state.graph_view));
+    setGraphTiles();
+
+
+    updateView();
+}

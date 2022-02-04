@@ -82,4 +82,5 @@ class xflServer: public QThread
         void onAnalyzeCurPolar();
         void onSetAnalysisSettings2D(RpcLibAdapters::AnalysisSettings2DAdapter);
         void onSetCurPolar(Polar* polar);
+        void onSetXDirectDisplay(const RpcLibAdapters::XDirectDisplayState&);
 };
