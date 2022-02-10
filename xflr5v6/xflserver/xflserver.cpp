@@ -276,6 +276,9 @@ xflServer::xflServer(int port) : server(port)
         return RpcLibAdapters::XDirectDisplayState(*xdirect_ref);
     });
 
+    server.bind("polarList", [&](string foil_name){
+        return  PolarVecFromQPolarQVec(*Objects2d::pOAPolar(), QString::fromStdString(foil_name));
+    });
 }
 
 void xflServer::run(){

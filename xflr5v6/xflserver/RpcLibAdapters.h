@@ -112,7 +112,6 @@ namespace RpcLibAdapters
         };
 
         struct PolarSpecAdapter{
-            std::string polar_name;
             int polar_type;
             int re_type;
             int ma_type;
@@ -123,11 +122,10 @@ namespace RpcLibAdapters
             double xbot;
             double reynolds;
 
-            MSGPACK_DEFINE_MAP(polar_name, polar_type, re_type, ma_type, aoa, mach, ncrit, xtop, xbot, reynolds);
+            MSGPACK_DEFINE_MAP(polar_type, re_type, ma_type, aoa, mach, ncrit, xtop, xbot, reynolds);
 
             PolarSpecAdapter(){}
             PolarSpecAdapter(const Polar& out){
-                polar_name = out.name().toStdString();     
                 polar_type = out.m_PolarType;
                 re_type = out.m_ReType;
                 ma_type = out.m_MaType;

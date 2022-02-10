@@ -273,6 +273,13 @@ class PolarManager:
         polar_raw = self._client.call("getPolar", foil_name, polar_name)
         return Polar.from_msgpack(polar_raw)
 
+    def polarDict(self, foil_name:str):
+        """ Returns a dictionary of polars for the specified foil
+        use sparingly. there might be a lot of data
+        """
+        polar_list_raw = self._client.call("polarList", foil_name) 
+        return {item["name"]:Polar.from_msgpack(item) for item in polar_list_raw}
+ 
 # =========== Mainframe classes ============ #
 class enumApp(enum.IntEnum):
     NOAPP = 0
