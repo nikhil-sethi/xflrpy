@@ -244,8 +244,6 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onSetAnalysisSettings2D, s_pMainFrame->m_pXDirect, &XDirect::onSetAnalysisSettings2DHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onSetCurPolar, s_pMainFrame->m_pXDirect, &XDirect::onSetCurPolarHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onSetXDirectDisplay, s_pMainFrame->m_pXDirect, &XDirect::onSetDisplayHeadless, Qt::BlockingQueuedConnection);
-    QObject::connect(this, &xflServer::onXDirectAnimateSpeed, s_pMainFrame->m_pXDirect, &XDirect::onAnimateSpeed, Qt::BlockingQueuedConnection);
-    QObject::connect(this, &xflServer::onXDirectAnimate, s_pMainFrame->m_pXDirect, &XDirect::onAnimate, Qt::BlockingQueuedConnection);
 
     server.bind("defineAnalysis2D", [&](RpcLibAdapters::PolarAdapter polar){
         // creates a new polar on the heap everytime. use carefully
@@ -278,9 +276,6 @@ xflServer::xflServer(int port) : server(port)
         return RpcLibAdapters::XDirectDisplayState(*xdirect_ref);
     });
 
-    server.bind("animate", [](int val){
-
-    });
 }
 
 void xflServer::run(){

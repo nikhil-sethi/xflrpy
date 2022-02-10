@@ -4752,8 +4752,8 @@ void XDirect::onSetDisplayHeadless(RpcLibAdapters::XDirectDisplayState* dsp_stat
 
         onAnimate(dsp_state->animated);
         m_pchAnimate->setChecked(dsp_state->animated);
-        // m_pslAnimateSpeed->setSliderPosition(dsp_state->ani_speed);
-        // onAnimateSpeed(dsp_state->ani_speed);    
+        m_pslAnimateSpeed->setSliderPosition(dsp_state->ani_speed);
+        onAnimateSpeed(dsp_state->ani_speed);    
     }
     setGraphTiles();
     setControls();

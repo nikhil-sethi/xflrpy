@@ -258,7 +258,7 @@ namespace RpcLibAdapters
             bool animated;
             int ani_speed;
             
-            MSGPACK_DEFINE_MAP(polar_view, graph_view, which_graph, active_opp_only, show_bl, show_pressure, show_cpgraph);
+            MSGPACK_DEFINE_MAP(polar_view, graph_view, which_graph, active_opp_only, show_bl, show_pressure, show_cpgraph, animated, ani_speed);
             XDirectDisplayState(){}
             XDirectDisplayState(const XDirect& out){
                 polar_view = out.bPolarView();
