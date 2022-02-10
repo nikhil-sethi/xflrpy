@@ -1,7 +1,5 @@
+from doctest import FAIL_FAST
 import enum
-
-from matplotlib.pyplot import polar
-from scipy.__config__ import show
 
 class MsgpackMixin:
     def __repr__(self):
@@ -183,12 +181,31 @@ class enumGraphView(enum.IntEnum):
 
 class XDirectDisplayState(MsgpackMixin):
     polar_view = True  # False = OpPointView
+
+    # Polar View
     graph_view = enumGraphView.ALLGRAPHS
-    # Display box settings on OpPointView
+    which_graph = 1
+    
+    # OpPointView
     active_opp_only = True
     show_bl = True
     show_pressure = True
     show_cpgraph = True # False = qgraph
+    animated = False
+    ani_speed = 500 # (0, 1000)
+
+    # need this init method to allow creation of a custom display
+    # state in python and send it over to cpp
+    def __init__(self, polar_view = True, graph_view = enumGraphView.ALLGRAPHS, which_graph = 1, active_opp_only = True, show_bl = False, show_pressure = False, show_cpgraph = True, animated = False, ani_speed = 500) -> None:
+        self.polar_view = polar_view
+        self.graph_view = graph_view
+        self.which_graph = which_graph
+        self.active_opp_only = active_opp_only
+        self.show_bl = show_bl
+        self.show_pressure = show_pressure
+        self.show_cpgraph = show_cpgraph
+        self.animated = animated
+        self.ani_speed = ani_speed
  
 class AnalysisSettings2D(MsgpackMixin):
     sequence_type = enumSequenceType.ALPHA
@@ -198,6 +215,15 @@ class AnalysisSettings2D(MsgpackMixin):
     store_opp = True
     viscous = True
     keep_open_on_error = False     
+
+    def __init__(self, sequence_type = enumSequenceType.ALPHA, sequence = (0,0,0), is_sequence = False, init_BL = True, store_opp = True, viscous = True, keep_open_on_error = False) -> None:
+        self.sequence_type = sequence_type
+        self.sequence = sequence
+        self.is_sequence = is_sequence
+        self.init_BL = init_BL
+        self.store_opp = store_opp
+        self.viscous = viscous
+        self.keep_open_on_error = keep_open_on_error
 
 class PolarSpec(MsgpackMixin):
     polar_type = enumPolarType.FIXEDSPEEDPOLAR

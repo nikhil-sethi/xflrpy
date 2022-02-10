@@ -21,18 +21,24 @@
 
 #pragma once
 
-#include <globals/mainframe.h>
 #include "rpc/server.h"
 #include <QThread>
 #include <QObject>
 #include <iostream>
 #include <QString>
-#include <xflserver/RpcLibAdapters.h>
+#include <xflcore/linestyle.h>
+// #include <xflserver/RpcLibAdapters.h>   // need implementation to use as reference
 
-class Foil;
+class Foil; // only need pointer not actual implementation
 class AFoil;
-class FoilDesignWt;
 class Polar;
+class MainFrame; // need only pointer 
+
+namespace RpcLibAdapters{
+
+    class AnalysisSettings2D;
+    class XDirectDisplayState;
+}
 
 class xflServer: public QThread
 {   
@@ -80,7 +86,9 @@ class xflServer: public QThread
         // XDirect signals
         void onDefinePolar(Polar* polar, Foil* foil);
         void onAnalyzeCurPolar();
-        void onSetAnalysisSettings2D(RpcLibAdapters::AnalysisSettings2DAdapter);
+        void onSetAnalysisSettings2D(RpcLibAdapters::AnalysisSettings2D* analysis_settings);
         void onSetCurPolar(Polar* polar);
-        void onSetXDirectDisplay(const RpcLibAdapters::XDirectDisplayState&);
+        void onSetXDirectDisplay(RpcLibAdapters::XDirectDisplayState* dsp_state);
+        void onXDirectAnimate(bool flag);
+        void onXDirectAnimateSpeed(int val);
 };

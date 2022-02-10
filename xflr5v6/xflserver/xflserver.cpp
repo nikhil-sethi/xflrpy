@@ -21,13 +21,12 @@
 
 #include "xflserver.h"
 #include <globals/mainframe.h>
-#include <twodwidgets/foildesignwt.h>
 #include <design/afoil.h>
+#include "RpcLibAdapters.h" // redundant
 #include <xdirect/xdirect.h>
 #include <xflobjects/objects2d/foil.h>
-#include <xflobjects/objects2d/oppoint.h>
 #include "rpc/server.h"
-#include "RpcLibAdapters.h"
+
 #include <xflobjects/objects2d/objects2d.h>
 #include <iostream>
 #include <QObject>
@@ -102,7 +101,7 @@ xflServer::xflServer(int port) : server(port)
         emit onClose();
         });
 
-    //====================== AFoil slots =======================// 
+    // ====================== AFoil slots =======================// 
     QObject::connect(this, &xflServer::onFoilGeom, s_pMainFrame->m_pAFoil, &AFoil::onAFoilFoilGeomHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onAFoilNacaFoils, s_pMainFrame->m_pAFoil, &AFoil::onAFoilNacaFoilsHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onDuplicateFoil, s_pMainFrame->m_pAFoil, &AFoil::onDuplicateHeadless, Qt::BlockingQueuedConnection);
@@ -245,15 +244,17 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onSetAnalysisSettings2D, s_pMainFrame->m_pXDirect, &XDirect::onSetAnalysisSettings2DHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onSetCurPolar, s_pMainFrame->m_pXDirect, &XDirect::onSetCurPolarHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onSetXDirectDisplay, s_pMainFrame->m_pXDirect, &XDirect::onSetDisplayHeadless, Qt::BlockingQueuedConnection);
-    
+    QObject::connect(this, &xflServer::onXDirectAnimateSpeed, s_pMainFrame->m_pXDirect, &XDirect::onAnimateSpeed, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onXDirectAnimate, s_pMainFrame->m_pXDirect, &XDirect::onAnimate, Qt::BlockingQueuedConnection);
+
     server.bind("defineAnalysis2D", [&](RpcLibAdapters::PolarAdapter polar){
         // creates a new polar on the heap everytime. use carefully
         Foil* pFoil = Objects2d::foil(QString::fromStdString(polar.foil_name));                
         emit onDefinePolar(RpcLibAdapters::PolarAdapter::from_msgpack(polar), pFoil);
     });
 
-    server.bind("analyzeCurPolar", [&]( RpcLibAdapters::AnalysisSettings2DAdapter analysis_settings){
-        emit onSetAnalysisSettings2D(analysis_settings);
+    server.bind("analyzeCurPolar", [&](RpcLibAdapters::AnalysisSettings2D analysis_settings){
+        emit onSetAnalysisSettings2D(&analysis_settings);
         emit onAnalyzeCurPolar();
         return RpcLibAdapters::PolarResultAdapter(*Objects2d::curPolar());
     });
@@ -269,13 +270,16 @@ xflServer::xflServer(int port) : server(port)
     });
 
     server.bind("setXDirectDisplay", [&](RpcLibAdapters::XDirectDisplayState dsp_state){
-        emit onSetXDirectDisplay(dsp_state);
+        emit onSetXDirectDisplay(&dsp_state); // need to send pointers when dealing with custom rpc adapters
     });
 
-    server.bind("getXDirectDisplay", [&]()-> RpcLibAdapters::XDirectDisplayState{
-        RpcLibAdapters::XDirectDisplayState dsp_state;
-        dsp_state.graph_view = s_pMainFrame->m_pXDirect->m_iPlrView;
-        return dsp_state;
+    server.bind("getXDirectDisplay", [&](){
+        const XDirect* xdirect_ref = s_pMainFrame->m_pXDirect;
+        return RpcLibAdapters::XDirectDisplayState(*xdirect_ref);
+    });
+
+    server.bind("animate", [](int val){
+
     });
 }
 

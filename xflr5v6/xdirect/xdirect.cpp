@@ -68,6 +68,8 @@
 #include <xflwidgets/line/linepickerwt.h>
 #include <xinverse/foilselectiondlg.h>
 
+#include <xflserver/RpcLibAdapters.h> 
+
 
 bool XDirect::s_bViscous = true;
 bool XDirect::s_bAlpha = true;
@@ -4680,19 +4682,19 @@ void XDirect::onDefinePolarHeadless(Polar* pPolar, Foil* pFoil)
     setControls();
 }
 
-void XDirect::onSetAnalysisSettings2DHeadless(RpcLibAdapters::AnalysisSettings2DAdapter analysis_settings){
-    m_pchInitBL->setChecked(analysis_settings.init_BL);
+void XDirect::onSetAnalysisSettings2DHeadless(RpcLibAdapters::AnalysisSettings2D* analysis_settings){
+    m_pchInitBL->setChecked(analysis_settings->init_BL);
     
-    m_pchStoreOpp->setChecked(analysis_settings.store_opp);
+    m_pchStoreOpp->setChecked(analysis_settings->store_opp);
     onStoreOpp();
 
-    m_pchSequence->setChecked(analysis_settings.is_sequence);
+    m_pchSequence->setChecked(analysis_settings->is_sequence);
     onSequence();
-    m_pdeAlphaMin->setValue(analysis_settings.sequence.start);
-    m_pdeAlphaMax->setValue(analysis_settings.sequence.end);
-    m_pdeAlphaDelta->setValue(analysis_settings.sequence.delta);
+    m_pdeAlphaMin->setValue(analysis_settings->sequence.start);
+    m_pdeAlphaMax->setValue(analysis_settings->sequence.end);
+    m_pdeAlphaDelta->setValue(analysis_settings->sequence.delta);
     
-    switch (analysis_settings.sequence_type)
+    switch (analysis_settings->sequence_type)
     {
     case 0:
         m_prbSpec1->setChecked(true);
@@ -4708,10 +4710,10 @@ void XDirect::onSetAnalysisSettings2DHeadless(RpcLibAdapters::AnalysisSettings2D
     }
     onSpec();
 
-    m_pchViscous->setChecked(analysis_settings.viscous);
+    m_pchViscous->setChecked(analysis_settings->viscous);
     onViscous();
     
-    s_bKeepOpenErrors = analysis_settings.keep_open_on_error;
+    s_bKeepOpenErrors = analysis_settings->keep_open_on_error;
 }
 
 void XDirect::onSetCurPolarHeadless(Polar* pPolar){
@@ -4720,23 +4722,40 @@ void XDirect::onSetCurPolarHeadless(Polar* pPolar){
     updateView();
 }
 
-void XDirect::onSetDisplayHeadless(const RpcLibAdapters::XDirectDisplayState& dsp_state){
+void XDirect::onSetDisplayHeadless(RpcLibAdapters::XDirectDisplayState* dsp_state){
+    // argument is a pointer to allow forward declarations in header files and be consistent
+    // with already existing polar and foil pointers as arguments
+    // any custom adapter should be passed as pointer and forward declared in the namespace
+    //  at the top of the header file. 
     
-    m_bPolarView = dsp_state.polar_view;
-    setView(xfl::enumGraphView(dsp_state.graph_view));
+    m_bPolarView = dsp_state->polar_view;
+    
+    if (m_bPolarView){
+        m_iPlrGraph = dsp_state->which_graph;
+        m_iPlrView  = dsp_state->graph_view;
+        
+
+    }
+    else {
+        if (dsp_state->show_cpgraph) onCpGraph();
+        else onQGraph();
+
+        m_pOpPointWidget->onShowBL(dsp_state->show_bl);
+        m_pchShowBL->setChecked(dsp_state->show_bl); // not present in setControls
+
+        m_pOpPointWidget->onShowPressure(dsp_state->show_pressure);
+        m_pchShowPressure->setChecked(dsp_state->show_pressure); // not present in setControls
+
+        m_bCurOppOnly = dsp_state->active_opp_only;
+        
+        setControls(); // need one of these here for animation
+
+        onAnimate(dsp_state->animated);
+        m_pchAnimate->setChecked(dsp_state->animated);
+        // m_pslAnimateSpeed->setSliderPosition(dsp_state->ani_speed);
+        // onAnimateSpeed(dsp_state->ani_speed);    
+    }
     setGraphTiles();
-
-    if (dsp_state.show_cpgraph) onCpGraph();
-    else onQGraph();
-
-    m_pOpPointWidget->onShowBL(dsp_state.show_bl);
-    m_pchShowBL->setChecked(dsp_state.show_bl);
-
-    m_pOpPointWidget->onShowPressure(dsp_state.show_pressure);
-    m_pchShowPressure->setChecked(dsp_state.show_pressure);
-
-    m_bCurOppOnly = dsp_state.active_opp_only;
-    
     setControls();
     updateView();
 }

@@ -46,7 +46,6 @@
 #include <xflgraph/graph.h>
 #include <xflwidgets/voidwidget.h>
 
-#include <xflserver/xflserver.h>
 
 class AFoil;
 class Foil;
@@ -66,7 +65,7 @@ class XDirectTileWidget;
 class XInverse;
 class gl3dMiarexView;
 class inverseviewwt;
-
+class xflServer;
 /**
 *@class MainFrame
 *@brief The class associated to the application's main window.
@@ -87,7 +86,7 @@ class MainFrame : public QMainWindow
     friend class gl3dMiarexView;
     friend class PlaneTreeView;
     friend class FoilTreeView;
-    friend class xflServer;
+    friend class xflServer; // needed to access some private slots
 
     Q_OBJECT
 
@@ -144,6 +143,8 @@ class MainFrame : public QMainWindow
         void onSaveTimer();
         void onSaveViewToImageFile();
         void onSetNoApp();
+
+        // Headless slots
         void onNewProjectHeadless();
         void onLoadFileHeadless(QStringList fileNames);
 

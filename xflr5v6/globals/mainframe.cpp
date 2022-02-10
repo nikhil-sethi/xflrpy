@@ -123,6 +123,7 @@
 #include <xflwidgets/mvc/objecttreedelegate.h>
 #include <xinverse/xinverse.h>
 
+#include <xflserver/xflserver.h> // needs implementation in  MainFrame::createDockWindows()
 
 #ifdef Q_OS_MAC
 #include <CoreFoundation/CoreFoundation.h>

@@ -1,11 +1,15 @@
 #pragma once
+
 #include <xflobjects/objects2d/foil.h>
 #include <xflobjects/objects2d/polar.h>
+#include <xdirect/xdirect.h>
 #include <xflcore/linestyle.h>
+#include "rpc/msgpack.hpp"
+// class XDirect;
 
-class RpcLibAdapters
+namespace RpcLibAdapters
 {   
-    public:
+    // public:
         struct StateAdapter{
             std::string projectPath;
             std::string projectName;
@@ -157,20 +161,22 @@ class RpcLibAdapters
 
             PolarResultAdapter(){}
             PolarResultAdapter(const Polar& out){
-                alpha = out.m_Alpha.toStdVector();
-                Cl = out.m_Cl.toStdVector();
-                XCp = out.m_XCp.toStdVector();
-                Cd = out.m_Cd.toStdVector();
-                Cdp = out.m_Cdp.toStdVector();
-                Cm = out.m_Cm.toStdVector();
-                XTr1 = out.m_XTr1.toStdVector();
-                XTr2 = out.m_XTr2.toStdVector();
-                HMom = out.m_HMom.toStdVector();
-                Cpmn = out.m_Cpmn.toStdVector();
-                ClCd = out.m_ClCd.toStdVector();
-                Cl32Cd = out.m_Cl32Cd.toStdVector();
-                RtCl = out.m_RtCl.toStdVector();
-                Re = out.m_Re.toStdVector();
+                // TODO these operations might be the bottleneck.
+                //  think of separating them according to need
+                alpha = std::vector<double>(out.m_Alpha.begin(), out.m_Alpha.end());
+                Cl = std::vector<double>(out.m_Cl.begin(), out.m_Cl.end());
+                XCp = std::vector<double>(out.m_XCp.begin(), out.m_XCp.end());
+                Cd = std::vector<double>(out.m_Cd.begin(), out.m_Cd.end());
+                Cdp = std::vector<double>(out.m_Cdp.begin(), out.m_Cdp.end());
+                Cm = std::vector<double>(out.m_Cm.begin(), out.m_Cm.end());
+                XTr1 = std::vector<double>(out.m_XTr1.begin(), out.m_XTr1.end());
+                XTr2 = std::vector<double>(out.m_XTr2.begin(), out.m_XTr2.end());
+                HMom = std::vector<double>(out.m_HMom.begin(), out.m_HMom.end());
+                Cpmn = std::vector<double>(out.m_Cpmn.begin(), out.m_Cpmn.end());
+                ClCd = std::vector<double>(out.m_ClCd.begin(), out.m_ClCd.end());
+                Cl32Cd = std::vector<double>(out.m_Cl32Cd.begin(), out.m_Cl32Cd.end());
+                RtCl = std::vector<double>(out.m_RtCl.begin(), out.m_RtCl.end());
+                Re = std::vector<double>(out.m_Re.begin(), out.m_Re.end());
             }
         };
 
@@ -225,7 +231,7 @@ class RpcLibAdapters
             MSGPACK_DEFINE_ARRAY(start, end, delta);
         };
 
-        struct AnalysisSettings2DAdapter{
+        struct AnalysisSettings2D{
             int sequence_type;
             SequenceAdapter sequence;
             bool is_sequence;
@@ -240,14 +246,32 @@ class RpcLibAdapters
 
         struct XDirectDisplayState{
             bool polar_view; // m_bPolarView
-            int graph_view; // m_iPlrView
+            // Polar View
+            xfl::enumGraphView graph_view; // m_iPlrView
+            int which_graph;
+
+            //OpPoint View
             bool active_opp_only;
             bool show_bl;
             bool show_pressure;
             bool show_cpgraph; 
+            bool animated;
+            int ani_speed;
             
-            MSGPACK_DEFINE_MAP(polar_view, graph_view, active_opp_only, show_bl, show_pressure, show_cpgraph);
-
+            MSGPACK_DEFINE_MAP(polar_view, graph_view, which_graph, active_opp_only, show_bl, show_pressure, show_cpgraph);
+            XDirectDisplayState(){}
+            XDirectDisplayState(const XDirect& out){
+                polar_view = out.bPolarView();
+                graph_view = out.iPlrView();
+                which_graph = out.iPlrGraph();
+                active_opp_only = out.bActiveOppOnly();
+                show_bl = out.bShowBL();
+                show_pressure = out.bShowPressure();
+                show_cpgraph = out.bCpGraph();
+                animated = out.bAnimate();
+                ani_speed = out.slAnimateSpeed();
+            }
         };
-
 }; // namespace adapters
+
+MSGPACK_ADD_ENUM(xfl::enumGraphView);

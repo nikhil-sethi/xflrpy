@@ -36,7 +36,6 @@
 
 
 #include <twodwidgets/foildesignwt.h>
-#include <xflserver/xflserver.h>
 
 class FoilTableDelegate;
 class MainFrame;
