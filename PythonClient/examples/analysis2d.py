@@ -6,11 +6,11 @@ Features:
     Set current polar
     Introduce AnalysisSettings2D class
     Define polar analysis
-    Run analysis and get results
+    Run analysis and get custom results
 
 ================================================================= """
 
-from xflrpy import xflrClient, enumApp, Polar, enumPolarType, AnalysisSettings2D, enumSequenceType
+from xflrpy import xflrClient, enumApp, Polar, enumPolarType, AnalysisSettings2D, enumSequenceType, enumPolarResult
 
 # Change these values accordingly
 # Using a valid path is your responsibility
@@ -48,5 +48,8 @@ settings.sequence = (0.0, 10.0, 0.5) # start, end, delta
 settings.init_BL = True
 # Again, it's your responsibility to set logical settings
 
-# analyze and store results
+# analyze but don't receive results to make it faster
 polar.result = xdirect.analyze(settings)
+
+# You can configure what results the function receives
+polar.result = xdirect.analyze(settings, result_list=[enumPolarResult.ALPHA, enumPolarResult.CL])

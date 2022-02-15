@@ -4717,6 +4717,7 @@ void XDirect::onSetAnalysisSettings2DHeadless(RpcLibAdapters::AnalysisSettings2D
 }
 
 void XDirect::onSetCurPolarHeadless(Polar* pPolar){
+    if (!pPolar) return;
     setCurPolar(pPolar);
     m_pFoilTreeView->selectPolar(pPolar);
     updateView();

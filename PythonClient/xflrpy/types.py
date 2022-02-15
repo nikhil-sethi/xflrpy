@@ -1,4 +1,8 @@
-from doctest import FAIL_FAST
+# ======================= types.py =================== #
+# All data structures required to work with xflr5
+# Notes:
+# - if a class has an __init__ method you can create your own at runtime or get an existing one as well. Otherwise it's just a getter.
+
 import enum
 
 class MsgpackMixin:
@@ -179,6 +183,22 @@ class enumGraphView(enum.IntEnum):
     ALLGRAPHS = 3
     NOGRAPH = 4
 
+class enumPolarResult(enum.IntEnum):
+    ALPHA = 0
+    CL = 1
+    XCP = 2 
+    CD = 3
+    CDP = 4
+    CM = 5
+    XTR1 = 6
+    XTR2 = 7
+    HMOM = 8
+    CPMN = 9
+    CLCD = 10
+    CL32CD = 11
+    RTCL = 12
+    RE = 13
+
 class XDirectDisplayState(MsgpackMixin):
     polar_view = True  # False = OpPointView
 
@@ -225,6 +245,13 @@ class AnalysisSettings2D(MsgpackMixin):
         self.viscous = viscous
         self.keep_open_on_error = keep_open_on_error
 
+class OpPoint(MsgpackMixin):
+    """A raw single point result"""
+    name = ""
+    polar_name = ""
+    foil_name = ""
+    prop_name = "" # The property to 
+
 class PolarSpec(MsgpackMixin):
     polar_type = enumPolarType.FIXEDSPEEDPOLAR
     Re_type = 1
@@ -236,7 +263,23 @@ class PolarSpec(MsgpackMixin):
     xbot = 1.0
     reynolds = 100000.0
 
+    def __init__(self,polar_type = enumPolarType.FIXEDSPEEDPOLAR, re_type = 1, ma_type = 1, aoa = 0.0, mach = 0.0, ncrit = 9.0, xtop = 1.0, xbot = 1.0, reynolds = 100000.0) -> None:
+        self.polar_type = polar_type
+        self.Re_type = re_type
+        self.ma_type = ma_type
+        self.aoa = aoa
+        self.mach = mach
+        self.ncrit = ncrit
+        self.xtop = xtop
+        self.xbot = xbot
+        self.reynolds = reynolds
+
+
 class PolarResult(MsgpackMixin):
+    """ 
+    A custom simplified data structure for the polar result.
+    Filling this is slow so you might want to avoid it when running optimizations
+    """
     alpha = []
     Cl = []
     XCp = []
@@ -261,6 +304,8 @@ class Polar(MsgpackMixin):
     def __init__(self, name="", foil_name="") -> None:
         self.name = name
         self.foil_name = foil_name
+        self.spec = PolarSpec()
+        self.result = PolarResult()
         
 class PolarManager:
     """
@@ -350,11 +395,11 @@ class XDirect(MsgpackMixin):
         """Takes Polar as argument (and not polar.name) because we're creating a new Polar on the heap everytime"""
         self._client.call("defineAnalysis2D", polar.to_msgpack())
 
-    def analyze(self, analysis_settings: AnalysisSettings2D, polar_name:str = None):
+    def analyze(self, analysis_settings: AnalysisSettings2D, polar_name:str = None, result_list = []):
         """Sets the current polar and analyses it"""
         if polar_name is not None:
             self.setCurPolar(polar_name)
-        polar_result_raw = self._client.call("analyzeCurPolar", analysis_settings)
+        polar_result_raw = self._client.call("analyzeCurPolar", analysis_settings, result_list)
         return PolarResult.from_msgpack(polar_result_raw)
 
     def setDisplayState(self, dsp_state:XDirectDisplayState):

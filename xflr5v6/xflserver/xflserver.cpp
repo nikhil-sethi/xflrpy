@@ -251,10 +251,10 @@ xflServer::xflServer(int port) : server(port)
         emit onDefinePolar(RpcLibAdapters::PolarAdapter::from_msgpack(polar), pFoil);
     });
 
-    server.bind("analyzeCurPolar", [&](RpcLibAdapters::AnalysisSettings2D analysis_settings){
+    server.bind("analyzeCurPolar", [&](RpcLibAdapters::AnalysisSettings2D analysis_settings, vector<RpcLibAdapters::PolarResultAdapter::enumPolarResult> result_list){
         emit onSetAnalysisSettings2D(&analysis_settings);
         emit onAnalyzeCurPolar();
-        return RpcLibAdapters::PolarResultAdapter(*Objects2d::curPolar());
+        return RpcLibAdapters::PolarResultAdapter(*Objects2d::curPolar(), result_list);
     });
 
     server.bind("setCurPolar", [&](string polar_name, string foil_name){

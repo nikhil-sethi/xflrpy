@@ -154,27 +154,62 @@ namespace RpcLibAdapters
             std::vector<double> Cl32Cd;
             std::vector<double> RtCl;
             std::vector<double> Re;
-
+            enum enumPolarResult{ALPHA, CL, XCP, CD, CDP, CM, XTR1, XTR2, HMOM, CPMN, CLCD, CL32CD, RTCL, RE};
+            
             MSGPACK_DEFINE_MAP(alpha, Cl, XCp, Cd, Cdp, Cm, XTr1, XTr2, HMom, Cpmn, ClCd, Cl32Cd, RtCl, Re);
 
             PolarResultAdapter(){}
-            PolarResultAdapter(const Polar& out){
-                // TODO these operations might be the bottleneck.
-                //  think of separating them according to need
-                alpha = std::vector<double>(out.m_Alpha.begin(), out.m_Alpha.end());
-                Cl = std::vector<double>(out.m_Cl.begin(), out.m_Cl.end());
-                XCp = std::vector<double>(out.m_XCp.begin(), out.m_XCp.end());
-                Cd = std::vector<double>(out.m_Cd.begin(), out.m_Cd.end());
-                Cdp = std::vector<double>(out.m_Cdp.begin(), out.m_Cdp.end());
-                Cm = std::vector<double>(out.m_Cm.begin(), out.m_Cm.end());
-                XTr1 = std::vector<double>(out.m_XTr1.begin(), out.m_XTr1.end());
-                XTr2 = std::vector<double>(out.m_XTr2.begin(), out.m_XTr2.end());
-                HMom = std::vector<double>(out.m_HMom.begin(), out.m_HMom.end());
-                Cpmn = std::vector<double>(out.m_Cpmn.begin(), out.m_Cpmn.end());
-                ClCd = std::vector<double>(out.m_ClCd.begin(), out.m_ClCd.end());
-                Cl32Cd = std::vector<double>(out.m_Cl32Cd.begin(), out.m_Cl32Cd.end());
-                RtCl = std::vector<double>(out.m_RtCl.begin(), out.m_RtCl.end());
-                Re = std::vector<double>(out.m_Re.begin(), out.m_Re.end());
+            PolarResultAdapter(const Polar& out, const vector<enumPolarResult>& result_list = vector<enumPolarResult>{}){
+                if (result_list.size()==0) return;
+                for (auto const& key: result_list){ //iterating once to avoid using find at every comparison
+                    switch (key)
+                    {
+                    case ALPHA:
+                        alpha = std::vector<double>(out.m_Alpha.begin(), out.m_Alpha.end());
+                        break;
+                    case CL:
+                        Cl = std::vector<double>(out.m_Cl.begin(), out.m_Cl.end());
+                        break;
+                    case XCP:
+                        XCp = std::vector<double>(out.m_XCp.begin(), out.m_XCp.end());
+                        break;
+                    case CD:
+                        Cd = std::vector<double>(out.m_Cd.begin(), out.m_Cd.end());
+                        break;
+                    case CDP:
+                        Cdp = std::vector<double>(out.m_Cdp.begin(), out.m_Cdp.end());
+                        break;
+                    case CM:
+                        Cm = std::vector<double>(out.m_Cm.begin(), out.m_Cm.end());
+                        break;
+                    case XTR1:
+                        XTr1 = std::vector<double>(out.m_XTr1.begin(), out.m_XTr1.end());
+                        break;
+                    case XTR2:
+                        XTr2 = std::vector<double>(out.m_XTr2.begin(), out.m_XTr2.end());
+                        break;
+                    case HMOM:
+                        HMom = std::vector<double>(out.m_HMom.begin(), out.m_HMom.end());
+                        break;
+                    case CPMN:
+                        Cpmn = std::vector<double>(out.m_Cpmn.begin(), out.m_Cpmn.end());
+                        break;
+                    case CLCD:
+                        ClCd = std::vector<double>(out.m_ClCd.begin(), out.m_ClCd.end());
+                        break;
+                    case CL32CD:
+                        Cl32Cd = std::vector<double>(out.m_Cl32Cd.begin(), out.m_Cl32Cd.end());
+                        break;
+                    case RTCL:
+                        RtCl = std::vector<double>(out.m_RtCl.begin(), out.m_RtCl.end());
+                        break;
+                    case RE:
+                        Re = std::vector<double>(out.m_Re.begin(), out.m_Re.end());
+                        break;
+                    default:
+                        break;
+                    }
+                }
             }
         };
 
@@ -273,3 +308,4 @@ namespace RpcLibAdapters
 }; // namespace adapters
 
 MSGPACK_ADD_ENUM(xfl::enumGraphView);
+MSGPACK_ADD_ENUM(RpcLibAdapters::PolarResultAdapter::enumPolarResult);
