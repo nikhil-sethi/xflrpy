@@ -2,10 +2,12 @@
 
 #include <xflobjects/objects2d/foil.h>
 #include <xflobjects/objects2d/polar.h>
+#include <xflobjects/objects2d/oppoint.h>
 #include <xdirect/xdirect.h>
 #include <xflcore/linestyle.h>
 #include "rpc/msgpack.hpp"
 // class XDirect;
+#include <iostream>
 
 namespace RpcLibAdapters
 {   
@@ -304,6 +306,45 @@ namespace RpcLibAdapters
                 animated = out.bAnimate();
                 ani_speed = out.slAnimateSpeed();
             }
+        };
+
+        struct OpPointAdapter{
+            string polar_name;
+            string foil_name;
+            double alpha;
+            double Cl;
+            double XCp;
+            double Cd;
+            double Cdp;
+            double Cm;
+            double XTr1;
+            double XTr2;
+            double HMom;
+            double Cpmn;
+            double Re;
+            double mach;
+
+            MSGPACK_DEFINE_MAP(polar_name, foil_name, alpha, Cl, XCp, Cd, Cdp, Cm, XTr1, XTr2, HMom, Cpmn, Re, mach);
+
+            OpPointAdapter(){}
+
+            OpPointAdapter(const OpPoint& out){
+                polar_name = out.polarName().toStdString();
+                foil_name = out.foilName().toStdString();
+                alpha = out.m_Alpha;
+                Cl = out.Cl;
+                XCp = out.m_XCP;
+                Cd = out.Cd;
+                Cdp = out.Cdp;
+                Cm = out.Cm;
+                XTr1 = out.Xtr1;
+                XTr2 = out.Xtr2;
+                HMom = out.m_TEHMom;  // LEHMom is not really used 
+                Cpmn = out.Cpmn;
+                Re = out.m_Reynolds;
+                mach = out.m_Mach;
+            }
+
         };
 }; // namespace adapters
 

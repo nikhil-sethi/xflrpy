@@ -162,6 +162,9 @@ class FoilManager:
         """
         self._client.call("exportFoil", name, file_name)
 
+    def setCurFoil(self, name, select = False):
+        self._client.call("setCurFoil", name, select)
+
 # =========== XDirect classes ================ #
 class enumSequenceType(enum.IntEnum):
     ALPHA = 0
@@ -247,10 +250,20 @@ class AnalysisSettings2D(MsgpackMixin):
 
 class OpPoint(MsgpackMixin):
     """A raw single point result"""
-    name = ""
+    alpha = ""
     polar_name = ""
     foil_name = ""
-    prop_name = "" # The property to 
+    Cl = 0.0
+    XCp = 0.0
+    Cd = 0.0
+    Cdp = 0.0
+    Cm = 0.0
+    XTr1 = 0.0
+    XTr2 = 0.0
+    HMom = 0.0
+    Cpmn = 0.0
+    Re = 0.0
+    mach = 0.0
 
 class PolarSpec(MsgpackMixin):
     polar_type = enumPolarType.FIXEDSPEEDPOLAR
@@ -273,7 +286,6 @@ class PolarSpec(MsgpackMixin):
         self.xtop = xtop
         self.xbot = xbot
         self.reynolds = reynolds
-
 
 class PolarResult(MsgpackMixin):
     """ 
@@ -324,7 +336,19 @@ class PolarManager:
         """
         polar_list_raw = self._client.call("polarList", foil_name) 
         return {item["name"]:Polar.from_msgpack(item) for item in polar_list_raw}
- 
+
+    def setCurPolar(self, polar_name:str, foil_name:str):
+        """sets current polar and selects it on the gui"""
+        self._client.call("setCurPolar", polar_name, foil_name)
+
+class OpPointManager:
+    def __init__(self, client) -> None:
+        self._client = client
+
+    def getOpPoint(self, alpha, polar_name=" ", foil_name=""):
+        opp_raw = self._client.call("getOpPoint", alpha, polar_name, foil_name)
+        return OpPoint.from_msgpack(opp_raw)
+
 # =========== Mainframe classes ============ #
 class enumApp(enum.IntEnum):
     NOAPP = 0
@@ -353,8 +377,6 @@ class Afoil:
             name  = "NACA" + str(digits)
         self._client.call("createNACAFoil", digits, name)
 
-    def selectFoil(self, name):
-        self._client.call("selectFoil", name)
 
     def showFoil(self, name, flag):
         self._client.call("showFoil", name, flag)
@@ -384,21 +406,16 @@ class XDirect(MsgpackMixin):
     """
     def __init__(self, client) -> None:
         self._client = client
+        self.opp_mgr = OpPointManager(client)
         self.polar_mgr = PolarManager(client)
         self.foil_mgr = FoilManager(client)
-
-    def setCurPolar(self, polar_name:str, foil_name:str):
-        """sets current polar and selects it on the gui"""
-        self._client.call("setCurPolar", polar_name, foil_name)
 
     def define_analysis(self, polar:Polar):
         """Takes Polar as argument (and not polar.name) because we're creating a new Polar on the heap everytime"""
         self._client.call("defineAnalysis2D", polar.to_msgpack())
 
-    def analyze(self, analysis_settings: AnalysisSettings2D, polar_name:str = None, result_list = []):
-        """Sets the current polar and analyses it"""
-        if polar_name is not None:
-            self.setCurPolar(polar_name)
+    def analyze(self, analysis_settings: AnalysisSettings2D, result_list = []):
+        """Analyses the current polar"""
         polar_result_raw = self._client.call("analyzeCurPolar", analysis_settings, result_list)
         return PolarResult.from_msgpack(polar_result_raw)
 

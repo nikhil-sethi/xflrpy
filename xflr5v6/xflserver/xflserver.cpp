@@ -193,8 +193,11 @@ xflServer::xflServer(int port) : server(port)
         emit onAFoilNacaFoils(digits, QString::fromStdString(name));
     });
 
-    server.bind("selectFoil", [&](string name){
-        emit onSelectFoil(Objects2d::foil(QString::fromStdString(name)));
+    server.bind("setCurFoil", [&](string name, bool select){
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(name));
+        Objects2d::setCurFoil(pFoil);
+        if (select) emit onSelectFoil(pFoil);
+        
     });
 
     server.bind("duplicateFoil", [&](string fromName, string toName)->RpcLibAdapters::FoilAdapter{
@@ -242,13 +245,18 @@ xflServer::xflServer(int port) : server(port)
     QObject::connect(this, &xflServer::onAnalyzeCurPolar, s_pMainFrame->m_pXDirect, &XDirect::onAnalyze, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onDefinePolar, s_pMainFrame->m_pXDirect, &XDirect::onDefinePolarHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onSetAnalysisSettings2D, s_pMainFrame->m_pXDirect, &XDirect::onSetAnalysisSettings2DHeadless, Qt::BlockingQueuedConnection);
-    QObject::connect(this, &xflServer::onSetCurPolar, s_pMainFrame->m_pXDirect, &XDirect::onSetCurPolarHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onSelectPolar, s_pMainFrame->m_pXDirect, &XDirect::onSelectPolarHeadless, Qt::BlockingQueuedConnection);
     QObject::connect(this, &xflServer::onSetXDirectDisplay, s_pMainFrame->m_pXDirect, &XDirect::onSetDisplayHeadless, Qt::BlockingQueuedConnection);
 
     server.bind("defineAnalysis2D", [&](RpcLibAdapters::PolarAdapter polar){
         // creates a new polar on the heap everytime. use carefully
-        Foil* pFoil = Objects2d::foil(QString::fromStdString(polar.foil_name));                
-        emit onDefinePolar(RpcLibAdapters::PolarAdapter::from_msgpack(polar), pFoil);
+        Foil* pFoil = Objects2d::foil(QString::fromStdString(polar.foil_name));
+        Polar* pPolar = RpcLibAdapters::PolarAdapter::from_msgpack(polar); 
+        
+        Objects2d::setCurFoil(pFoil);   // need to set these for posterity
+        
+        Objects2d::setCurPolar(pPolar);
+        emit onDefinePolar(pPolar, pFoil);
     });
 
     server.bind("analyzeCurPolar", [&](RpcLibAdapters::AnalysisSettings2D analysis_settings, vector<RpcLibAdapters::PolarResultAdapter::enumPolarResult> result_list){
@@ -257,9 +265,10 @@ xflServer::xflServer(int port) : server(port)
         return RpcLibAdapters::PolarResultAdapter(*Objects2d::curPolar(), result_list);
     });
 
-    server.bind("setCurPolar", [&](string polar_name, string foil_name){
+    server.bind("setCurPolar", [&](string polar_name, string foil_name, bool select = false){
         Polar* pPolar = Objects2d::getPolar(QString::fromStdString(foil_name), QString::fromStdString(polar_name));
-        emit onSetCurPolar(pPolar);
+        Objects2d::setCurPolar(pPolar);
+        if (select) emit onSelectPolar(pPolar);
     });
 
     server.bind("getPolar", [&](string foil_name, string polar_name){
@@ -278,6 +287,22 @@ xflServer::xflServer(int port) : server(port)
 
     server.bind("polarList", [&](string foil_name){
         return  PolarVecFromQPolarQVec(*Objects2d::pOAPolar(), QString::fromStdString(foil_name));
+    });
+
+    server.bind("getOpPoint", [&](double alpha, string polar_name, string foil_name){
+        Foil* pFoil;  // preassigned here to create memory on stack. As it might point to null after below functions
+        Polar* pPolar;
+
+        pFoil = Objects2d::foil(QString::fromStdString(foil_name));
+        if (pFoil==nullptr)  pFoil = Objects2d::curFoil();
+
+        pPolar = Objects2d::getPolar(pFoil->name(), QString::fromStdString(polar_name));
+        if (pPolar==nullptr) pPolar = Objects2d::curPolar();  
+        
+        OpPoint* pOpPoint = Objects2d::getOpp(pFoil, pPolar, alpha);
+        if (!pOpPoint) OpPoint* pOpPoint = Objects2d::curOpp();
+        
+        return  RpcLibAdapters::OpPointAdapter(*pOpPoint);
     });
 }
 

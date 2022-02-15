@@ -87,7 +87,7 @@ class xflServer: public QThread
         void onDefinePolar(Polar* polar, Foil* foil);
         void onAnalyzeCurPolar();
         void onSetAnalysisSettings2D(RpcLibAdapters::AnalysisSettings2D* analysis_settings);
-        void onSetCurPolar(Polar* polar);
+        void onSelectPolar(Polar* polar);
         void onSetXDirectDisplay(RpcLibAdapters::XDirectDisplayState* dsp_state);
         void onXDirectAnimate(bool flag);
         void onXDirectAnimateSpeed(int val);

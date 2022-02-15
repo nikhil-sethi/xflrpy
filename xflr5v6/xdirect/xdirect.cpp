@@ -4716,9 +4716,8 @@ void XDirect::onSetAnalysisSettings2DHeadless(RpcLibAdapters::AnalysisSettings2D
     s_bKeepOpenErrors = analysis_settings->keep_open_on_error;
 }
 
-void XDirect::onSetCurPolarHeadless(Polar* pPolar){
+void XDirect::onSelectPolarHeadless(Polar* pPolar){
     if (!pPolar) return;
-    setCurPolar(pPolar);
     m_pFoilTreeView->selectPolar(pPolar);
     updateView();
 }
