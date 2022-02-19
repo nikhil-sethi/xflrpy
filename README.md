@@ -1,18 +1,24 @@
 ## Note
 This repository is under initial development phase. As a result there are not many features or refined code practices as of yet. There might be breaking changes without updating the major version until the first release. Any and every contribution/constructive criticism is welcome. Use github issues to roast me.
 
-# xflrpy v0.4.0
+# xflrpy v0.5.0
+![](https://github.com/nikhil-sethi/xflrpy/tree/master/xflr5v6/resources/images/xp_github.jpeg)
+
 xflrpy is a python enabled version of [xflr5](http://www.xflr5.tech/xflr5.htm) with support for scripting and design optimization using a [python package](https://pypi.org/project/xflrpy/). The [original software](https://sourceforge.net/projects/xflr5/) is capable of the design and low-fidelity analysis of airfoils and model aircraft and was created by created by André Deperrois.
 
-The current version (v0.3.0) has limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.md) and [Todo](https://github.com/nikhil-sethi/xflrpy/blob/master/TODO.md). Currently you can:
-- Create or load new projects
-- Save projects
+The current version (v0.5.0) has limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.md) and [Todo](https://github.com/nikhil-sethi/xflrpy/blob/master/TODO.md). Currently you can:
+- Create, load and save projects
 - Set and get apps (xfoil, plane-design, foil-design, inverse-design)
 - Set and get airfoils from direct design
-- Set geometry properties for airfoils
-- Set and get linestyles
-- Set and get airfoil coordinates
+- Set geometry properties for airfoils including individual coordinates
+- Changes display styles for airfoils
 - Select, delete, rename, export airfoils
+
+New in v0.5.0! 
+- Set and get polars from XDirect module 
+- Analyse polars
+- Get targeted results from operating points
+- Set analysis and display settings including animation
 
 ![Optimizing a BWB UAV](https://github.com/nikhil-sethi/xflrpy/blob/pythonqt/xflrpy.gif)
 
@@ -47,7 +53,7 @@ Demerits:
 - It is difficult to use external optimization libraries within the interpreter.
 
 ### rpc:
-This is the stuff I started working on recently. The approach uses the very light and very fast [rpclib](https://github.com/rpclib/rpclib) library to establish a local server which can communicate with and external python process. This means that we finally have an ["xflrpy" python library](https://pypi.org/project/xflrpy/). The structure on the python side is similar to [MS AirSim](https://github.com/microsoft/AirSim) but still naive. 
+This is the stuff I started working on recently. The approach uses the very light and very fast [rpclib](https://github.com/rpclib/rpclib) library to establish a local server which can communicate with and external python process. This means that we finally have an ["xflrpy" python library](https://pypi.org/project/xflrpy/).
 
 Merits:
 - Solves everything wrong with pythonqt.
@@ -102,7 +108,7 @@ sudo ldconfig
 If everything worked correctly, you should be able to start xflr5.
 ```
 cd ..
-./xfr5v6/xflr5
+./xfr5v6/xflrpy
 ```
 
 ## Test

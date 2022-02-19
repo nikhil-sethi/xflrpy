@@ -30,7 +30,7 @@
 
 AboutQ5::AboutQ5(QWidget *parent) : QDialog(parent)
 {
-    setWindowTitle(tr("About XFLR5"));
+    setWindowTitle(tr("About XFLRPY"));
     setupLayout();
 }
 
@@ -41,20 +41,20 @@ void AboutQ5::setupLayout()
     {
         QLabel *LabIconQ5 = new QLabel;
         LabIconQ5->setObjectName("iconXFLR5");
-        LabIconQ5->setPixmap(QPixmap(QString::fromUtf8(":/images/xflr5_64.png")));
+        LabIconQ5->setPixmap(QPixmap(QString::fromUtf8(":/images/xp_icon_.png")));
         QLabel *lab1  = new QLabel(VERSIONNAME);
         lab1->setAlignment(Qt::AlignVCenter| Qt::AlignLeft);
-        QLabel *XFLR5Link = new QLabel;
-        XFLR5Link->setText("<a href=http://www.xflr5.tech>http://www.xflr5.tech</a>");
-        XFLR5Link->setOpenExternalLinks(true);
-        XFLR5Link->setTextInteractionFlags(Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse);
-        XFLR5Link->setAlignment(Qt::AlignVCenter| Qt::AlignLeft);
+        QLabel *XFLRPYLink = new QLabel;
+        XFLRPYLink->setText("<a href=http://www.github.com/nikhil-sethi/xflrpy>github.com/nikhil-sethi/xflrpy</a>");
+        XFLRPYLink->setOpenExternalLinks(true);
+        XFLRPYLink->setTextInteractionFlags(Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse);
+        XFLRPYLink->setAlignment(Qt::AlignVCenter| Qt::AlignLeft);
 
         pLogoLayout->setColumnStretch(1,1);
         pLogoLayout->setColumnStretch(2,2);
         pLogoLayout->addWidget(LabIconQ5,1,1,2,1);
         pLogoLayout->addWidget(lab1,1,2);
-        pLogoLayout->addWidget(XFLR5Link,2,2);
+        pLogoLayout->addWidget(XFLRPYLink,2,2);
     }
 
     QLabel *pLab2  = new QLabel(tr("Copyright (C) M. Drela and H. Youngren 2000 - XFoil v6.94"));
@@ -71,7 +71,7 @@ void AboutQ5::setupLayout()
     QLabel *pLab13 = new QLabel(tr("Japanese translation by IKUSU, Koichi Akabe, Misatus, dynamicsoar, hide253"));
     QLabel *pLab14 = new QLabel(tr("icchy_07, ina111, ohayo_cycling, ohisa_64, ozawa64."));
     QLabel *pLab15 = new QLabel(tr("French translation by Jean-Luc Coulon"));
-
+    QLabel *pLab16  = new QLabel(tr("Copyright (C) Nikhil Sethi 2022"));
 
     QDialogButtonBox *pButtonBox = new QDialogButtonBox(QDialogButtonBox::Close);
     connect(pButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -84,6 +84,7 @@ void AboutQ5::setupLayout()
         pMainLayout->addWidget(pLab2);
         pMainLayout->addWidget(pLab3);
         pMainLayout->addWidget(pLab4);
+        pMainLayout->addWidget(pLab16);
         pMainLayout->addStretch(1);
         pMainLayout->addWidget(pLab11);
         pMainLayout->addStretch(1);

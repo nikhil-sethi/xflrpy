@@ -2,6 +2,13 @@
 There will be occassional updates here when I feel changes should be grouped. Hopefully these fall in line with version releases.
 Currently the repository in under intial develpopment phase. I will be maintaining version 0.x.y until the first release.
 
+### Februaruy 2022 
+- Added xdirect module classes
+- Added polars and operating points
+- Added analysis + diplay settings
+- Added analysis polar and targeted results
+- Changed some names and added pretty stuffs (0.5.0)
+
 ### January 2022
 - Added foil coordinate setters and getters (v 0.4.0)
 - Added NACA foil generation api 

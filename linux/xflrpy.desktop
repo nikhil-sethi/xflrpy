@@ -1,14 +1,14 @@
 [Desktop Entry]
 Categories=Science;Math
-Comment[en_GB]=xflr5 - Airfoil and plane analysis tool
-Comment=xflr5 - Airfoil and plane analysis tool
-Exec=/usr/local/bin/xflr5
+Comment[en_GB]=xflrpy - Airfoil and plane analysis tool with Python APIs
+Comment=xflrpy - Airfoil and plane analysis tool with Python APIs
+Exec=/usr/local/bin/xflrpy
 GenericName[en_GB]=
 GenericName=
-Icon=/usr/local/share/xflr5/xflr5.png
+Icon=/usr/local/share/xflrpy/xflrpy.png
 MimeType=
-Name[en_GB]=xflr5
-Name=xflr5
+Name[en_GB]=xflrpy
+Name=xflrpy
 NoDisplay=false
 Path=
 StartupNotify=true

@@ -146,7 +146,7 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle(VERSIONNAME);
-    setWindowIcon(QIcon(":/images/xflr5_64.png"));
+    setWindowIcon(QIcon(":/images/xp_icon.png"));
 
 //    testConfiguration();
 

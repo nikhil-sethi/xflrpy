@@ -1,6 +1,6 @@
 """ ==================== examples/polar_io.py ========================
-This example file introduces the various GUI control features
-available in the direct design module 
+This example file introduces the various input output classes
+available for 2d Analyses 
 
 Prerequisites: project_mgmt.py
 Features: 
