@@ -10,10 +10,10 @@
 
 #pragma once
 
-#define VERSIONNAME     "xflr5 v6.50"
+#define VERSIONNAME     "xflrpy v0.5.0"
 
-#define MAJOR_VERSION    6
-#define MINOR_VERSION    50
+#define MAJOR_VERSION    0
+#define MINOR_VERSION    5
 
 
 //General

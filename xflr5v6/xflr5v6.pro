@@ -36,7 +36,7 @@ CONFIG += qt
 QT += widgets opengl network xml
 
 TEMPLATE = app
-TARGET = xflr5
+TARGET = xflrpy
 
 
 # The path to the libraries' header files required by the code at compile time
@@ -64,7 +64,7 @@ win32 {
 
     LIBS += -lopenGL32
 
-    RC_FILE = ../win/xflr5.rc
+    RC_FILE = ../win/xflrpy.rc
 }
 
 
@@ -73,7 +73,7 @@ linux-g++{
     # VARIABLES
     isEmpty(PREFIX):PREFIX = /usr/local
     BINDIR = $$PREFIX/bin
-    DATADIR = $$PREFIX/share/xflr5
+    DATADIR = $$PREFIX/share/xflrpy
 
     desktop.path = $$DATADIR
     desktop.files += ../linux/$${TARGET}.desktop

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="xflrpy",
-    version="0.3.0",
+    version="0.4.0",
     author="Nikhil Sethi",
     author_email="sethi.nirvil@gmail.com",
     description="A python client for design optimization and scripting with XFLR5",
