@@ -1,7 +1,7 @@
 /****************************************************************************
 
     MiarexTileWidget Class
-        Copyright (C) 2015 André Deperrois
+        Copyright (C) André Deperrois
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,9 +19,7 @@
 
 *****************************************************************************/
 
-#ifndef MIAREXTILEWIDGET_H
-#define MIAREXTILEWIDGET_H
-
+#pragma once
 #include <QGridLayout>
 
 #include "graphtilewt.h"
@@ -30,29 +28,27 @@ class WingWidget;
 
 class MiarexTileWidget : public GraphTileWidget
 {
-    Q_OBJECT
+        Q_OBJECT
 
-public:
-    MiarexTileWidget(QWidget *pParent = nullptr);
-    ~MiarexTileWidget();
+    public:
+        MiarexTileWidget(QWidget *pParent = nullptr);
 
-public:
-    void connectSignals();
-    void adjustLayout();
-    void setMiarexGraphList(xfl::enumMiarexViews miarexView, QVector<Graph *> pGraphList, int nGraphs, int iGraphWidget=-1, Qt::Orientation orientation =Qt::Horizontal);
-    WingWidget *pWingWidget(){return m_pWingWidget;}
+    public:
+        void connectSignals();
+        void adjustLayout();
+        void setMiarexGraphList(xfl::enumMiarexViews miarexView, QVector<Graph *> pGraphList, int nGraphs, int iGraphWidget=-1, Qt::Orientation orientation =Qt::Horizontal);
+        WingWidget *pWingWidget(){return m_pWingWidget;}
 
-private:
-    void setupMainLayout();
+    private:
+        void setupMainLayout();
 
-private slots:
-    void onSplitterMoved(int pos, int index);
+    private slots:
+        void onSplitterMoved(int pos, int index);
 
-private:
-    xfl::enumMiarexViews &miarexView(){return m_MiarexView;}
+    private:
+        xfl::enumMiarexViews &miarexView(){return m_MiarexView;}
 
-    WingWidget *m_pWingWidget;
-    QGridLayout *m_pMainGridLayout;
+        WingWidget *m_pWingWidget;
+        QGridLayout *m_pMainGridLayout;
 };
 
-#endif // MIAREXTILEWIDGET_H

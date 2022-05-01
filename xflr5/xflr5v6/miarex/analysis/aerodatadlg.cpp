@@ -135,8 +135,6 @@ double AeroDataDlg::AirDensity()
 }
 
 
-
-
 void AeroDataDlg::setupLayout()
 {
     QLabel *pValid = new QLabel(tr("Applicable in the troposphere\n i.e. Altitude < 11000m"));
@@ -181,13 +179,13 @@ void AeroDataDlg::setupLayout()
         m_pcbTempUnit->addItem(QString::fromUtf8("  °F"));
         if(s_bCelsius) m_pcbTempUnit->setCurrentIndex(0);
         else           m_pcbTempUnit->setCurrentIndex(1);
-        connect(m_pcbTempUnit, SIGNAL(currentIndexChanged(int)), this, SLOT(onTempUnit()));
+        connect(m_pcbTempUnit, SIGNAL(currentIndexChanged(int)), SLOT(onTempUnit()));
 
         QLabel * pAltitudeUnitLabel = new QLabel("m");
         QLabel * pPressureUnitLabel = new QLabel("Pa");
-        QLabel * pDensUnitLabel     = new QLabel("kg/m3");
-        QLabel * pDynViscUnitLabel  = new QLabel(QString::fromUtf8("m/s²"));
-        QLabel * pKinViscUnitLabel  = new QLabel(QString::fromUtf8("m²/s"));
+        QLabel * pDensUnitLabel     = new QLabel("kg/m<sup>3</sup>");
+        QLabel * pDynViscUnitLabel  = new QLabel("m/s<sup>2</sup>");
+        QLabel * pKinViscUnitLabel  = new QLabel("m<sup>2</sup>/s");
         QLabel * pSpeedUnitLabel    = new QLabel("m/s");
         pAltitudeUnitLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         pPressureUnitLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);

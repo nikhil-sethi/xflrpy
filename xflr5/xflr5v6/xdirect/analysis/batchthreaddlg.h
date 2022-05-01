@@ -23,10 +23,14 @@
 #pragma once
 
 
+
+
 /** @file
  * This file implements the multi-threaded batch foil analysis
 */
 
+
+#include <QTimer>
 
 #include "batchabstractdlg.h"
 #include <xflcore/core_enums.h>
@@ -49,10 +53,8 @@ class BatchThreadDlg : public BatchAbstractDlg
     private:
         void cleanUp() override;
         void customEvent(QEvent *pEvent) override;
-        void handleXFoilTaskEvent(const XFoilTaskEvent *pEvent);
         void setupLayout();
-        void startAnalysis();
-        void startThread();
+
         void updateOutput(const QString &str);
 
     private slots:
@@ -64,9 +66,8 @@ class BatchThreadDlg : public BatchAbstractDlg
         int m_nTaskDone;            /**< the number of finished tasks */
         int m_nAnalysis;            /**< the number of analysis pairs to run */
 
-        QTimer *m_pTimer;
+        QTimer m_Timer;
 
         QVector<FoilAnalysis *> m_AnalysisPair;  /**< the list of all analysis to be performed. Once performed, an analysis is removed from the list. */
-
 };
 

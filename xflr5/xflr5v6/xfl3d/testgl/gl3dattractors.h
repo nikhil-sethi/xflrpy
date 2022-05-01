@@ -59,6 +59,8 @@ class gl3dAttractors : public gl3dTestGLView
         QVector<QVector<Vector3d>> m_Trace;
         QVector<QVector<double>> m_Velocity;
         double m_MaxVelocity;
+
+        QOpenGLBuffer m_vboPoints;
         QOpenGLBuffer m_vboTrace;
 
         bool m_bResetAttractor;
@@ -71,4 +73,3 @@ class gl3dAttractors : public gl3dTestGLView
         static LineStyle s_ls;
         static bool s_bDynColor;
 };
-

@@ -324,8 +324,8 @@ void Plane::computePlane(void)
     if(m_bStab)
     {
         double SLA = m_WingLE[2].x + m_Wing[2].Chord(0)/4.0 - m_WingLE[0].x - m_Wing[0].Chord(0)/4.0;
-        double area = m_Wing[0].m_ProjectedArea;
-        if(m_bBiplane) area += m_Wing[1].m_ProjectedArea;
+        double area = m_Wing[0].projectedArea();
+        if(m_bBiplane) area += m_Wing[1].projectedArea();
 
         double ProjectedArea = 0.0;
         for (int i=0;i<m_Wing[2].NWingSection()-1; i++)
@@ -335,7 +335,7 @@ void Plane::computePlane(void)
 
         }
         ProjectedArea *=2.0;
-        m_TailVolume = ProjectedArea * SLA / area/m_Wing[0].m_MAChord ;
+        m_TailVolume = ProjectedArea * SLA / area/m_Wing[0].MAC();
     }
     else m_TailVolume = 0.0;
 }
@@ -809,7 +809,7 @@ bool Plane::serializePlaneXFL(QDataStream &ar, bool bIsStoring)
             m_Body.serializeBodyXFL(ar, true);
         }
 
-        ar << m_PointMass.size();
+        ar << int(m_PointMass.count());
         for(int i=0; i<m_PointMass.size(); i++)
         {
             ar << m_PointMass.at(i).mass();

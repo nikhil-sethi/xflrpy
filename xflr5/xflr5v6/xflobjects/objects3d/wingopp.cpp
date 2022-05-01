@@ -194,9 +194,9 @@ void WingOpp::createWOpp(const Wing *pWing, const WPolar *pWPolar)
     m_Beta                = pWPolar->m_BetaSpec;
     m_Phi                 = pWPolar->m_BankAngle;
     m_Weight              = pWPolar->mass();
-    m_Span                = pWPolar->referenceSpanLength();
+    m_Span                = pWPolar->referenceSpan();
 
-    m_MAChord             = pWing->m_MAChord;
+    m_MAChord             = pWing->MAC();
     m_CL                  = pWing->m_WingCL;
     m_ICD                 = pWing->m_CDi;
     m_VCD                 = pWing->m_CDv;

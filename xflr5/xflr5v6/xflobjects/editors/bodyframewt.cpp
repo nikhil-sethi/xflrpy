@@ -69,17 +69,14 @@ void BodyFrameWt::setScale()
 *Overrides the resizeEvent function of the base class.
 *Dispatches the handling to the active child application.
 */
-void BodyFrameWt::resizeEvent (QResizeEvent *event)
+void BodyFrameWt::resizeEvent (QResizeEvent*)
 {
-    Q_UNUSED(event);
     setScale();
 }
 
 
-
-void BodyFrameWt::paintEvent(QPaintEvent *event)
+void BodyFrameWt::paintEvent(QPaintEvent*)
 {
-    Q_UNUSED(event);
     QPainter painter(this);
     painter.save();
     painter.fillRect(rect(), DisplayOptions::backgroundColor());
@@ -99,10 +96,9 @@ void BodyFrameWt::drawFrameLines()
 {
     if(!m_pBody) return;
 
-    int k;
     Vector3d Point;
-    double hinc, u, v;
-    int nh;
+    double hinc(0), u(0), v(0);
+    int nh(0);
 
     QPainter painter(this);
     painter.save();
@@ -123,7 +119,7 @@ void BodyFrameWt::drawFrameLines()
             u = m_pBody->getu(m_pBody->activeFrame()->m_Position.x);
 
             v = 0.0;
-            for (k=0; k<nh; k++)
+            for (int k=0; k<nh; k++)
             {
                 m_pBody->getPoint(u,v,true, Point);
                 rightPolyline.append(QPointF(Point.y*m_fScale+m_ptOffset.x(), Point.z* -m_fScale + m_ptOffset.y()));
@@ -137,7 +133,7 @@ void BodyFrameWt::drawFrameLines()
         Frame *pFrame = m_pBody->activeFrame();
         if(pFrame)
         {
-            for (k=0; k<m_pBody->sideLineCount();k++)
+            for (int k=0; k<m_pBody->sideLineCount();k++)
             {
                 rightPolyline.append(QPointF( pFrame->m_CtrlPoint[k].y*m_fScale+m_ptOffset.x(), pFrame->m_CtrlPoint[k].z* -m_fScale + m_ptOffset.y()));
                 leftPolyline.append( QPointF(-pFrame->m_CtrlPoint[k].y*m_fScale+m_ptOffset.x(), pFrame->m_CtrlPoint[k].z* -m_fScale + m_ptOffset.y()));
@@ -166,7 +162,7 @@ void BodyFrameWt::drawFrameLines()
                     u = m_pBody->getu(m_pBody->frame(j)->m_Position.x);
 
                     v = 0.0;
-                    for (k=0; k<nh; k++)
+                    for (int k=0; k<nh; k++)
                     {
                         m_pBody->getPoint(u,v,true, Point);
                         rightPolyline.append(QPointF(Point.y*m_fScale+m_ptOffset.x(), Point.z* -m_fScale + m_ptOffset.y()));
@@ -177,7 +173,7 @@ void BodyFrameWt::drawFrameLines()
                 }
                 else
                 {
-                    for (k=0; k<m_pBody->sideLineCount();k++)
+                    for (int k=0; k<m_pBody->sideLineCount();k++)
                     {
                         rightPolyline.append(QPointF( m_pBody->frame(j)->m_CtrlPoint[k].y*m_fScale+m_ptOffset.x(), m_pBody->frame(j)->m_CtrlPoint[k].z* -m_fScale + m_ptOffset.y()));
                         leftPolyline.append( QPointF(-m_pBody->frame(j)->m_CtrlPoint[k].y*m_fScale+m_ptOffset.x(), m_pBody->frame(j)->m_CtrlPoint[k].z* -m_fScale + m_ptOffset.y()));
@@ -352,7 +348,6 @@ void BodyFrameWt::drawScaleLegend(QPainter &painter)
 }
 
 
-
 void BodyFrameWt::createActions()
 {
     m_ActionList.clear();
@@ -401,9 +396,7 @@ void BodyFrameWt::createActions()
     QAction *pClearBackImage = new QAction(tr("Clear background image") +"\tCtrl+Shift+I", this);
     connect(pClearBackImage, SIGNAL(triggered()), this, SLOT(onClearBackImage()));
     m_ActionList.append(pClearBackImage);
-
 }
-
 
 
 void BodyFrameWt::onShowCurFrameOnly()

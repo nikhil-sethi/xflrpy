@@ -125,7 +125,7 @@ void CAddDlg::onApply()
     s_pXFoil->lflap = false;
     s_pXFoil->lbflap = false;
 
-    if(s_pXFoil->Preprocess())
+    if(s_pXFoil->PreProcess())
     {
         s_pXFoil->CheckAngles();
         /*        for (int k=0; k<pXFoil->n;k++){

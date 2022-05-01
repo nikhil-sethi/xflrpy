@@ -4,14 +4,17 @@ HEADERS += \
     xfl3d/controls/arcball.h \
     xfl3d/controls/gllightdlg.h \
     xfl3d/controls/light.h \
-    xfl3d/controls/w3dprefs.h \
-    xfl3d/gl_globals.h \
     xfl3d/glinfo/opengldlg.h \
+    xfl3d/globals/gl_globals.h \
+    xfl3d/globals/w3dprefs.h \
     xfl3d/testgl/gl2dfractal.h \
-    xfl3d/testgl/gl3dattractor.h \
+    xfl3d/testgl/gl2dnewton.h \
+    xfl3d/testgl/gl2dview.h \
     xfl3d/testgl/gl3dattractors.h \
     xfl3d/testgl/gl3dboids.h \
     xfl3d/testgl/gl3dhydrogen.h \
+    xfl3d/testgl/gl3dlorenz.h \
+    xfl3d/testgl/gl3dlorenz2.h \
     xfl3d/testgl/gl3doptim2d.h \
     xfl3d/testgl/gl3dsagittarius.h \
     xfl3d/testgl/gl3dshadow.h \
@@ -26,20 +29,24 @@ HEADERS += \
     xfl3d/views/gl3dview.h \
     xfl3d/views/gl3dwingview.h \
     xfl3d/views/gl3dxflview.h \
+    xfl3d/views/shadloc.h \
 
 
 
 SOURCES += \
     xfl3d/controls/arcball.cpp \
     xfl3d/controls/gllightdlg.cpp \
-    xfl3d/controls/w3dprefs.cpp \
-    xfl3d/gl_globals.cpp \
     xfl3d/glinfo/opengldlg.cpp \
+    xfl3d/globals/gl_globals.cpp \
+    xfl3d/globals/w3dprefs.cpp \
     xfl3d/testgl/gl2dfractal.cpp \
-    xfl3d/testgl/gl3dattractor.cpp \
+    xfl3d/testgl/gl2dnewton.cpp \
+    xfl3d/testgl/gl2dview.cpp \
     xfl3d/testgl/gl3dattractors.cpp \
     xfl3d/testgl/gl3dboids.cpp \
     xfl3d/testgl/gl3dhydrogen.cpp \
+    xfl3d/testgl/gl3dlorenz.cpp \
+    xfl3d/testgl/gl3dlorenz2.cpp \
     xfl3d/testgl/gl3doptim2d.cpp \
     xfl3d/testgl/gl3dsagittarius.cpp \
     xfl3d/testgl/gl3dshadow.cpp \
@@ -57,5 +64,6 @@ SOURCES += \
 
 
 RESOURCES += \
-    xfl3d/shaders.qrc \
-    xfl3d/text_files.qrc \
+    xfl3d/resources/shaders.qrc \
+    xfl3d/resources/text_files.qrc
+

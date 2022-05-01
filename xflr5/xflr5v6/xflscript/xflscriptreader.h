@@ -61,7 +61,6 @@ public:
 private:
     QString const &projectFileName()   const {return m_ProjectFileName;}
 
-    QStringList m_FoilList, m_PolarList;
 
     QVector<double> m_Reynolds, m_NCrit, m_Mach; /** Type 123 polars */
     QVector<double> m_Alpha; /** Type 4 polars */
@@ -79,6 +78,8 @@ private:
     QString m_datFoilDirPath, m_xmlAnalysisDirPath;
     QString m_PolarBinDirPath, m_XFoilPolarsDir;
     QString m_OutputDirPath;
+
+    QStringList m_FoilList;
     QStringList m_XmlFoilAnalysisList;         /**< The list of xml foil analysis files to load */
 
     bool m_bOutputPolarsBin;

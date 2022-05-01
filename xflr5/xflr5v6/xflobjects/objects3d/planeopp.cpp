@@ -79,8 +79,7 @@ PlaneOpp::PlaneOpp(Plane *pPlane, WPolar *pWPolar, int PanelArraySize)
 
     m_XNP = 0.0;
 
-    memset(m_EigenValue, 0, sizeof(m_EigenValue)); //four longitudinal and four lateral modes
-    memset(m_EigenVector, 0, sizeof(m_EigenVector));
+    for(int i=0; i<8; i++) m_EigenValue[i] = std::complex<double>(0.0,0.0);
 
     m_phiPH = std::complex<double>(0.0, 0.0);
     m_phiDR = std::complex<double>(0.0, 0.0);
@@ -108,8 +107,8 @@ PlaneOpp::PlaneOpp(Plane *pPlane, WPolar *pWPolar, int PanelArraySize)
     {
         m_PlaneName = pPlane->name();
         m_MAChord   = pPlane->mac();
-        m_Span      = pPlane->span();
-        m_NStation  = pPlane->m_Wing[0].m_NStation;
+        m_Span      = pPlane->planformSpan();
+        m_NStation  = pPlane->m_Wing[0].NStations();
     }
 
     if(pWPolar)

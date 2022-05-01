@@ -37,7 +37,7 @@ const QEvent::Type VPW_UPDATE_EVENT          = static_cast<QEvent::Type>(QEvent:
 const QEvent::Type OPTIM_ITER_EVENT          = static_cast<QEvent::Type>(QEvent::User + 109);
 const QEvent::Type OPTIM_END_EVENT           = static_cast<QEvent::Type>(QEvent::User + 110);
 
-
+class XFoilTask;
 class Foil;
 class Polar;
 class OpPoint;
@@ -60,16 +60,19 @@ class MessageEvent : public QEvent
 class XFoilTaskEvent : public QEvent
 {
     public:
-        XFoilTaskEvent(Foil const*pFoil, Polar *pPolar): QEvent(XFOIL_END_TASK_EVENT),
+        XFoilTaskEvent(XFoilTask *pTask, Foil const*pFoil, Polar *pPolar): QEvent(XFOIL_END_TASK_EVENT),
+            m_pXFoilTask(pTask),
             m_pFoil(pFoil),
             m_pPolar(pPolar)
         {
         }
 
+        XFoilTask*task() {return m_pXFoilTask;}
         Foil const*foil() const  {return m_pFoil;}
         Polar * polar() const    {return m_pPolar;}
 
     private:
+        XFoilTask *m_pXFoilTask = nullptr;
         Foil const*m_pFoil=nullptr;
         Polar *m_pPolar=nullptr;
 };

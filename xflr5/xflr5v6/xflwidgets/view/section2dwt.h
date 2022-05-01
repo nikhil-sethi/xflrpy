@@ -77,8 +77,10 @@ class Section2dWt : public QWidget
     protected:
         Vector3d mousetoReal(QPoint &point);
         virtual void setScale();
-        virtual void createActions();
         virtual void createContextMenu();
+
+        void createBaseActions();
+
         void drawScale(QPainter &painter, double scalex);
         void drawScaleLegend(QPainter &painter);
         void drawBackImage(QPainter &painter);

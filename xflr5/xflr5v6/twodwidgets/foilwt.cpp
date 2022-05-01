@@ -76,7 +76,6 @@ void FoilWt::paintEvent(QPaintEvent *)
 }
 
 
-
 /**
  * Draws the SplineFoil object.
  * @param painter a reference to the QPainter object with which to draw.
@@ -84,9 +83,6 @@ void FoilWt::paintEvent(QPaintEvent *)
 void FoilWt::paintSplines(QPainter &painter)
 {
     painter.save();
-
-    QPen CtrlPen;
-
     QBrush FillBrush(DisplayOptions::backgroundColor());
     painter.setBrush(FillBrush);
     painter.restore();

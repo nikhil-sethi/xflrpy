@@ -37,7 +37,7 @@ bool XmlPolarReader::readXMLPolarFile()
 {
     if (readNextStartElement())
     {
-        if (name() == "Foil_Polar" && attributes().value("version") == "1.0")
+        if (name().toString() == "Foil_Polar" && attributes().value("version").toString() == "1.0")
         {
             while(!atEnd() && !hasError() && readNextStartElement() )
             {
@@ -91,11 +91,11 @@ void XmlPolarReader::readPolar(Polar *pPolar)
         }
         else if (name().toString().compare(QString("Reynolds_Type"),Qt::CaseInsensitive) ==0)
         {
-            pPolar->setReType(readElementText().toInt());
+//            pPolar->setReType(readElementText().toInt());
         }
         else if (name().toString().compare(QString("Mach_Type"),Qt::CaseInsensitive) ==0)
         {
-            pPolar->setMaType(readElementText().toInt());
+//            pPolar->setMaType(readElementText().toInt());
         }
         else if (name().toString().compare(QString("NCrit"),Qt::CaseInsensitive) ==0)
         {

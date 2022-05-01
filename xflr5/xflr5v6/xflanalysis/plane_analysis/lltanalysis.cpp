@@ -138,7 +138,7 @@ void LLTAnalysis::setVelocity(double &QInf)
 */
 double LLTAnalysis::Eta(int m)
 {
-    return PI/2.0/double(m_pWing->m_NStation) * sin(double(m)*PI/double(m_pWing->m_NStation)) ;
+    return PI/2.0/double(m_pWing->NStations()) * sin(double(m)*PI/double(m_pWing->NStations()));
 }
 
 
@@ -150,9 +150,8 @@ double LLTAnalysis::Eta(int m)
 */
 double LLTAnalysis::Sigma(int m)
 {
-    return PI/8.0/double(m_pWing->m_NStation) * sin(2.*double(m)*PI/double(m_pWing->m_NStation)) ;
+    return PI/8.0/double(m_pWing->NStations()) * sin(2.*double(m)*PI/double(m_pWing->NStations()));
 }
-
 
 
 /**
@@ -164,10 +163,10 @@ double LLTAnalysis::Sigma(int m)
 */
 double LLTAnalysis::Beta(int m, int k)
 {
-    double b=0;
+    double b(0);
     double fk = double(k);
     double fm = double(m);
-    double fr = double(m_pWing->m_NStation);
+    double fr = double(m_pWing->NStations());
 
     if (m==k) b = 180.0*fr/8.0/PI/sin(fk*PI/fr);
     else if ((m+k)%2==0) b=0.0;
@@ -175,7 +174,7 @@ double LLTAnalysis::Beta(int m, int k)
     {
         double c1 = 180.0/4.0/PI/fr/sin(fk*PI/fr);
         double c2 =   1.0/(1.0-cos((fk+fm)*PI/fr))
-                - 1.0/(1.0-cos((fk-fm)*PI/fr));
+                    - 1.0/(1.0-cos((fk-fm)*PI/fr));
         b = c1 * c2;
     }
     return b;
@@ -190,28 +189,28 @@ double LLTAnalysis::Beta(int m, int k)
  */
 void LLTAnalysis::computeWing(double QInf, double Alpha, QString &ErrorMessage)
 {
-    Foil * pFoil0 = nullptr;
-    Foil * pFoil1 = nullptr;
+    Foil *pFoil0(nullptr);
+    Foil *pFoil1(nullptr);
 
     QString strange;
-    double yob=0, tau=0, c4=0, zpos=0;
+    double yob(0), tau=(0), c4=(0), zpos=(0);
 
-    double Integral0           = 0.0;
-    double Integral1           = 0.0;
-    double Integral2           = 0.0;
-    double Integral3           = 0.0;
-    double InducedDrag         = 0.0;
-    double ViscousDrag         = 0.0;
-    double InducedYawingMoment = 0.0;
-    double ViscousYawingMoment = 0.0;
-    double PitchingMoment      = 0.0;
-    double VCm                 = 0.0;
-    double ICm                 = 0.0;
-    double eta=0, sigma=0;
-    double Cm0=0;
+    double Integral0(0);
+    double Integral1(0);
+    double Integral2(0);
+    double Integral3(0);
+    double InducedDrag(0);
+    double ViscousDrag(0);
+    double InducedYawingMoment(0);
+    double ViscousYawingMoment(0);
+    double PitchingMoment(0);
+    double VCm(0);
+    double ICm(0);
+    double eta(0), sigma(0);
+    double Cm0(0);
 
-    bool bOutRe=false, bError=false;
-    bool bPointOutRe=false, bPointOutAlpha=false;
+    bool bOutRe(false), bError(false);
+    bool bPointOutRe(false), bPointOutAlpha(false);
     m_bWingOut = false;
 
     ErrorMessage.clear();
@@ -221,13 +220,13 @@ void LLTAnalysis::computeWing(double QInf, double Alpha, QString &ErrorMessage)
         bPointOutRe    = false;
         bPointOutAlpha = false;
         yob   = cos(double(m)*PI/double(s_NLLTStations));
-        m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->m_PlanformSpan/2.0, tau);
+        m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->planformSpan()/2.0, tau);
 
         m_Cl[m]     = getCl(pFoil0, pFoil1, m_Re[m], Alpha+m_Ai[m]+m_Twist[m], tau, bOutRe, bError);
         if(bOutRe) bPointOutRe = true;
         if(bError) bPointOutAlpha = true;
 
-        m_PCd[m]    = getCd(pFoil0, pFoil1, m_Re[m], Alpha+m_Ai[m]+m_Twist[m], tau, m_pWing->m_AR, bOutRe, bError);
+        m_PCd[m]    = getCd(pFoil0, pFoil1, m_Re[m], Alpha+m_Ai[m]+m_Twist[m], tau, m_pWing->aspectRatio(), bOutRe, bError);
         if(bOutRe) bPointOutRe = true;
         if(bError) bPointOutAlpha = true;
 
@@ -266,15 +265,15 @@ void LLTAnalysis::computeWing(double QInf, double Alpha, QString &ErrorMessage)
         // v6.48
         // added wingLE position to the calculation of lever arms - cf. Ticket 147
         c4   = m_pPlane->wingLE(0).x + m_pWing->C4(yob)                                - m_pWPolar->CoG().x; //m
-        zpos = m_pPlane->wingLE(0).z + m_pWing->zPos(yob*m_pWing->m_PlanformSpan/2.0)  - m_pWPolar->CoG().z; //m
+        zpos = m_pPlane->wingLE(0).z + m_pWing->zPos(yob*m_pWing->planformSpan()/2.0)  - m_pWPolar->CoG().z; //m
         Vector3d LeverArm(c4, 0, zpos); //m
         Vector3d Finv(m_ICd[m], 0.0, m_Cl[m]); // Inviscid force,  N/qS
         Vector3d Fvisc(m_PCd[m],0,0);          // Viscous force,   N/qS
         Vector3d Minv  = LeverArm * Finv;      // Inviscid moment, Nm/qS
         Vector3d Mvisc = LeverArm * Fvisc;     // Viscousmoment,   Nm/qS
 
-        double Cm_i = m_CmAirf[m] + Minv.y /m_pWing->mac();  // N.m/qSc
-        double Cm_v =               Mvisc.y/m_pWing->mac();  // N.m/qSc
+        double Cm_i = m_CmAirf[m] + Minv.y /m_pWing->MAC();  // N.m/qSc
+        double Cm_v =               Mvisc.y/m_pWing->MAC();  // N.m/qSc
 
         m_Cm[m] = Cm_i + Cm_v;                               // N.m/qSc
 
@@ -295,7 +294,7 @@ void LLTAnalysis::computeWing(double QInf, double Alpha, QString &ErrorMessage)
 
         if(bPointOutAlpha)
         {
-            ErrorMessage = QString("       Span pos = %1 ").arg(cos(m*PI/s_NLLTStations)*m_pWing->m_PlanformSpan/2.0*m_mtoUnit,9,'f',2);
+            ErrorMessage = QString("       Span pos = %1 ").arg(cos(m*PI/s_NLLTStations)*m_pWing->planformSpan()/2.0*m_mtoUnit,9,'f',2);
             ErrorMessage += m_LengthUnit;
             ErrorMessage += ",  Re = ";
             strange = QString::asprintf("%.0f", m_Re[m]);
@@ -309,7 +308,7 @@ void LLTAnalysis::computeWing(double QInf, double Alpha, QString &ErrorMessage)
         }
         else if(bPointOutRe)
         {
-            ErrorMessage = QString("       Span pos = %1 ").arg(cos(m*PI/s_NLLTStations)*m_pWing->m_PlanformSpan/2.0*m_mtoUnit,9,'f',2);
+            ErrorMessage = QString("       Span pos = %1 ").arg(cos(m*PI/s_NLLTStations)*m_pWing->planformSpan()/2.0*m_mtoUnit,9,'f',2);
             ErrorMessage += m_LengthUnit;
             ErrorMessage += ",  Re = ";
             strange = QString::asprintf("%.0f", m_Re[m]);
@@ -322,24 +321,24 @@ void LLTAnalysis::computeWing(double QInf, double Alpha, QString &ErrorMessage)
         }
     }
 
-    m_CL    =  Integral0   * m_pWing->m_AR /m_pWing->m_PlanformSpan;
-    m_CDi   =  InducedDrag * m_pWing->m_AR /m_pWing->m_PlanformSpan  * PI / 180.0;
-    m_CDv   =  ViscousDrag / m_pWing->m_GChord;
+    m_CL    =  Integral0   * m_pWing->aspectRatio() /m_pWing->planformSpan();
+    m_CDi   =  InducedDrag * m_pWing->aspectRatio() /m_pWing->planformSpan()  * PI / 180.0;
+    m_CDv   =  ViscousDrag / m_pWing->GChord();
 
-    m_VYm = ViscousYawingMoment /m_pWing->m_GChord;
-    m_IYm = InducedYawingMoment /m_pWing->m_PlanformSpan * PI * m_pWing->m_AR /180.0;
+    m_VYm = ViscousYawingMoment /m_pWing->GChord();
+    m_IYm = InducedYawingMoment /m_pWing->planformSpan() * PI * m_pWing->aspectRatio() /180.0;
     m_GYm = m_VYm + m_IYm;
     //    m_GCm = PitchingMoment / m_GChord / m_MAChord;
-    m_VCm = VCm / m_pWing->m_GChord / m_pWing->m_MAChord;
-    m_ICm = ICm / m_pWing->m_GChord / m_pWing->m_MAChord;
+    m_VCm = VCm / m_pWing->GChord() / m_pWing->MAC();
+    m_ICm = ICm / m_pWing->GChord() / m_pWing->MAC();
     m_GCm = m_VCm + m_ICm;
 
-    m_GRm = -Integral1   * m_pWing->m_AR /m_pWing->m_PlanformSpan;
+    m_GRm = -Integral1   * m_pWing->aspectRatio() /m_pWing->planformSpan();
 
     if(m_CL !=0.0)
     {
-        m_CP.x = Integral2 * m_pWing->m_AR /m_pWing->m_PlanformSpan/m_CL;
-        //        m_ZCP = Integral3 * m_pWing->m_AR /m_pWing->m_PlanformSpan/m_CL;
+        m_CP.x = Integral2 * m_pWing->aspectRatio() /m_pWing->planformSpan()/m_CL;
+        //        m_ZCP = Integral3 * m_pWing->m_AR /m_pWing->planformSpan()/m_CL;
         m_CP.z=0.0;//the ZCP position may make physical sense in 3D panel analysis, but not in LLT
 
     }
@@ -347,12 +346,11 @@ void LLTAnalysis::computeWing(double QInf, double Alpha, QString &ErrorMessage)
     {
         m_CP.set(0.0,0.0,0.0);
     }
-    if(m_pWing->m_bSymetric) m_CP.y = 0.0;
-    else                     m_CP.y = m_pWing->m_AR/m_CL * Integral1;
+    if(m_pWing->isSymetric()) m_CP.y = 0.0;
+    else                      m_CP.y = m_pWing->aspectRatio()/m_CL * Integral1;
 
     setBending(QInf);
 }
-
 
 
 /**
@@ -364,8 +362,8 @@ void LLTAnalysis::setBending(double QInf)
     //dynamic pressure, kg/m3
     double q = 0.5*m_pWPolar->density() * QInf * QInf;
 
-    double bm=0;
-    double y=0, yy=0;
+    double bm(0);
+    double y(0), yy(0);
 
     for (int j=1; j<s_NLLTStations; j++)
     {
@@ -392,7 +390,6 @@ void LLTAnalysis::setBending(double QInf)
 }
 
 
-
 /**
  * Calculates the linear solution to the Lifting line problem, for the given wing geometry and angle of attack.
  * This is the starting point for the non-linear iterations.
@@ -404,7 +401,6 @@ void LLTAnalysis::setBending(double QInf)
  */
 bool LLTAnalysis::setLinearSolution(double Alpha)
 {
-    QString strange;
     traceLog("Setting initial linear solution\n");
 
     QVector<double> aij(s_NLLTStations*s_NLLTStations);
@@ -417,9 +413,9 @@ bool LLTAnalysis::setLinearSolution(double Alpha)
 
     int size = s_NLLTStations-1;
     double dn  = double(s_NLLTStations);
-    double di=0, dj=0, t0=0, st0=0, snt0=0, ch=0, a0=0, slope=0, tau=0, yob=0, twist=0;
+    double di(0), dj(0), t0(0), st0(0), snt0(0), ch(0), a0(0), slope(0), tau(0), yob(0), twist(0);
     double cs = m_pWing->rootChord();
-    double b  = m_pWing->m_PlanformSpan;
+    double b  = m_pWing->planformSpan();
 
     for (int i=1; i<s_NLLTStations; i++)
     {
@@ -488,9 +484,9 @@ double LLTAnalysis::AlphaInduced(int k)
 {
     double ai = 0.0;
 
-    for (int m=1; m<m_pWing->m_NStation; m++)
+    for (int m=1; m<m_pWing->NStations(); m++)
     {
-        ai += Beta(m,k) * m_Cl[m] * m_Chord[m]/m_pWing->m_PlanformSpan;
+        ai += Beta(m,k) * m_Cl[m] * m_Chord[m]/m_pWing->planformSpan();
     }
     return ai;
 }
@@ -504,11 +500,11 @@ double LLTAnalysis::AlphaInduced(int k)
 */
 int LLTAnalysis::iterate(double &QInf, double Alpha)
 {
-    Foil* pFoil0  = nullptr;
-    Foil* pFoil1  = nullptr;
-    double  yob=0, tau=0, anext=0;
-    bool bOutRe=false, bError=false;
-    int iter = 0;
+    Foil *pFoil0(nullptr);
+    Foil *pFoil1(nullptr);
+    double yob(0), tau(0), anext(0);
+    bool bOutRe(false), bError(false);
+    int iter(0);
 
     while(iter<s_IterLim)
     {
@@ -527,7 +523,7 @@ int LLTAnalysis::iterate(double &QInf, double Alpha)
         for (int k=1; k<s_NLLTStations; k++)
         {
             yob     = cos(k*PI/s_NLLTStations);
-            m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->m_PlanformSpan/2.0, tau);
+            m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->planformSpan()/2.0, tau);
             m_Cl[k] = getCl( pFoil0, pFoil1, m_Re[k], Alpha + m_Ai[k]+ m_Twist[k], tau, bOutRe, bError);
             if (m_pWPolar->polarType()==xfl::FIXEDLIFTPOLAR)
             {
@@ -537,7 +533,7 @@ int LLTAnalysis::iterate(double &QInf, double Alpha)
 
         if(m_pWPolar->polarType()==xfl::FIXEDLIFTPOLAR)
         {
-            Lift *= m_pWing->m_AR / m_pWing->m_PlanformSpan;
+            Lift *= m_pWing->aspectRatio() / m_pWing->planformSpan();
             if(Lift<=0.0)  return -1;
 
             QInf  = m_QInf0 / sqrt(Lift);
@@ -546,7 +542,7 @@ int LLTAnalysis::iterate(double &QInf, double Alpha)
             {
                 m_Re[k] = m_Chord[k] * QInf /m_pWPolar->m_Viscosity;
                 yob     = cos(k*PI/s_NLLTStations);
-                m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->m_PlanformSpan/2.0, tau);
+                m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->planformSpan()/2.0, tau);
                 m_Cl[k] = getCl(pFoil0, pFoil1, m_Re[k], Alpha + m_Ai[k]+ m_Twist[k], tau, bOutRe, bError);
             }
         }
@@ -577,15 +573,15 @@ void LLTAnalysis::initializeGeom()
     m_bWingOut = false;
     m_bConverged = false;
 
-    if(m_pWPolar->isFixedLiftPolar()) m_QInf0 = sqrt(2.*m_pWPolar->mass()* 9.81 /m_pWPolar->density()/m_pWing->m_PlanformArea);
+    if(m_pWPolar->isFixedLiftPolar()) m_QInf0 = sqrt(2.*m_pWPolar->mass()* 9.81 /m_pWPolar->density()/m_pWing->planformArea());
     else                              m_QInf0 = 0.0;
 
     m_pWing->computeChords(s_NLLTStations, m_Chord, m_Offset, m_Twist);
 
     for (int k=0; k<=s_NLLTStations; k++)
     {
-        //        y   = cos(k*PI/s_NLLTStations)* m_pWing->m_PlanformSpan/2.0;
-        m_SpanPos[k] = m_pWing->m_PlanformSpan/2.0 * cos(double(k)*PI/double(s_NLLTStations));
+        //        y   = cos(k*PI/s_NLLTStations)* m_pWing->planformSpan()/2.0;
+        m_SpanPos[k] = m_pWing->planformSpan()/2.0 * cos(double(k)*PI/double(s_NLLTStations));
     }
 
     for (int j=1; j<s_NLLTStations; j++)
@@ -623,9 +619,9 @@ bool LLTAnalysis::alphaLoop()
 {
     QString str;
 
-    Foil *pFoil0=nullptr, *pFoil1=nullptr;
-    bool bOutRe=false, bError=false;
-    double tau = 0.0;
+    Foil *pFoil0(nullptr), *pFoil1(nullptr);
+    bool bOutRe(false), bError(false);
+    double tau(0);
 
     for (int i=0; i<=m_nPoints; i++)
     {
@@ -647,7 +643,7 @@ bool LLTAnalysis::alphaLoop()
         for (int k=1; k<s_NLLTStations; k++)
         {
             double yob   = cos(double(k)*PI/double(s_NLLTStations));
-            m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->m_PlanformSpan/2.0, tau);
+            m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->planformSpan()/2.0, tau);
             m_Cl[k] = getCl(pFoil0, pFoil1, m_Re[k], Alpha + m_Ai[k] + m_Twist[k], tau, bOutRe, bError);
         }
 
@@ -697,9 +693,9 @@ bool LLTAnalysis::alphaLoop()
 bool LLTAnalysis::QInfLoop()
 {
     QString str;
-    double tau=0.0;
-    Foil *pFoil0=nullptr, *pFoil1=nullptr;
-    bool bOutRe=false, bError=false;
+    double tau(0);
+    Foil *pFoil0(nullptr), *pFoil1(nullptr);
+    bool bOutRe(false), bError(false);
 
     str = "Initializing analysis...\n";
     traceLog(str);
@@ -724,7 +720,7 @@ bool LLTAnalysis::QInfLoop()
         for (int k=1; k<s_NLLTStations; k++)
         {
             double yob   = cos(k*PI/s_NLLTStations);
-            m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->m_PlanformSpan/2.0, tau);
+            m_pWing->getFoils(&pFoil0, &pFoil1, yob*m_pWing->planformSpan()/2.0, tau);
             m_Cl[k] = getCl(pFoil0, pFoil1, m_Re[k], Alpha + m_Ai[k] + m_Twist[k], tau, bOutRe, bError);
         }
 
@@ -955,17 +951,6 @@ void LLTAnalysis::onCancel()
 }
 
 
-bool LLTAnalysis::isCancelled() const
-{
-    return m_bCancel;
-}
-
-bool LLTAnalysis::hasWarnings() const
-{
-    return m_bError || m_bWarning;
-}
-
-
 /**
 *Interpolates the lift coefficient on the polar mesh, based on the geometrical position of a point between two sections on a wing.
 *@param pFoil0 the pointer to the left foil  of the wing's section.
@@ -979,9 +964,9 @@ bool LLTAnalysis::hasWarnings() const
 */
 double LLTAnalysis::getCl(const Foil *pFoil0, const Foil *pFoil1, double Re, double Alpha, double Tau, bool &bOutRe, bool &bError)
 {
-    double Cl0=0, Cl1=0;
-    bool IsOutRe = false;
-    bool IsError  = false;
+    double Cl0(0), Cl1(0);
+    bool IsOutRe(false);
+    bool IsError(false);
     bOutRe = false;
     bError = false;
 
@@ -1018,14 +1003,14 @@ double LLTAnalysis::getCl(const Foil *pFoil0, const Foil *pFoil1, double Re, dou
 double LLTAnalysis::getCm0(const Foil *pFoil0, const Foil *pFoil1, double Re, double Tau, bool &bOutRe, bool &bError)
 {
     //Find 0-lift angle for local foil
-    double Alpha=0;
-    double Cm0=0, Cm1=0;
-    double Cl0 = 1.0;
-    double Cl1=0;
+    double Alpha(0);
+    double Cm0(0), Cm1(0);
+    double Cl0(0);
+    double Cl1(0);
+    bool IsOutRe(false);
+    bool IsError(false);
     bOutRe = false;
     bError = false;
-    bool IsOutRe=false;
-    bool IsError=false;
 
     bOutRe = false;
     for (int i=-10; i<10; i++)
@@ -1071,9 +1056,9 @@ double LLTAnalysis::getCm0(const Foil *pFoil0, const Foil *pFoil1, double Re, do
 */
 double LLTAnalysis::getCm(const Foil *pFoil0, const Foil *pFoil1, double Re, double Alpha, double Tau, bool &bOutRe, bool &bError)
 {
-    double Cm0=0, Cm1=0;
-    bool IsOutRe = false;
-    bool IsError  = false;
+    double Cm0(0), Cm1(0);
+    bool IsOutRe(false);
+    bool IsError(false);
     bOutRe = false;
     bError = false;
 
@@ -1113,8 +1098,8 @@ double LLTAnalysis::getCd(Foil const*pFoil0, Foil const*pFoil1, double Re, doubl
 {
     //For LLT calculations
     //returns the interpolated viscous drag
-    bool IsOutRe = false;
-    bool IsError  = false;
+    bool IsOutRe(false);
+    bool IsError(false);
     bOutRe = false;
     bError = false;
 
@@ -1158,8 +1143,8 @@ double LLTAnalysis::getXCp(Foil const*pFoil0, Foil const*pFoil1, double Re, doub
     //For LLT calculations
     //returns the interpolated center of pressure position
 
-    bool IsOutRe = false;
-    bool IsError  = false;
+    bool IsOutRe(false);
+    bool IsError(false);
     bOutRe = false;
     bError = false;
 
@@ -1199,9 +1184,8 @@ double LLTAnalysis::getXTr(Foil const*pFoil0, Foil const*pFoil1, double Re, doub
     //For LLT calculations
     //returns the interpolated position of the transition on the  surface specified by bTop
 
-
-    bool IsOutRe = false;
-    bool IsError  = false;
+    bool IsOutRe(false);
+    bool IsError(false);
     bOutRe = false;
     bError = false;
 
@@ -1247,8 +1231,8 @@ double LLTAnalysis::getZeroLiftAngle(const Foil *pFoil0, const Foil *pFoil1, dou
 {
     //returns the 0-lift angle of the foil, at Reynolds=Re
     //if the polar doesn't reach to 0-lift, returns Alpha0 = 0;
-    double a01=0, a02=0;
-    double Alpha00=0, Alpha01=0;
+    double a01(0), a02(0);
+    double Alpha00(0), Alpha01(0);
 
     //Find the two polars which enclose Reynolds
     int size = 0;
@@ -1356,10 +1340,10 @@ double LLTAnalysis::getZeroLiftAngle(const Foil *pFoil0, const Foil *pFoil1, dou
 */
 double LLTAnalysis::getPlrPointFromAlpha(Foil const*pFoil, double Re, double Alpha, int PlrVar, bool &bOutRe, bool &bError)
 {
-    double amin=0, amax=0;
-    double Var1=0, Var2=0, u=0;
+    double amin(0), amax(0);
+    double Var1(0), Var2(0), u(0);
 
-    Polar *pPolar=nullptr;
+    Polar *pPolar(nullptr);
 
     bOutRe = false;
     bError = false;
@@ -1405,7 +1389,7 @@ double LLTAnalysis::getPlrPointFromAlpha(Foil const*pFoil, double Re, double Alp
             {
                 bOutRe = true;
                 //interpolate Alpha on this polar
-                QVector<double> const &pX = pPolar->getPlrVariable(PlrVar);
+                QVector<double> const &pX = pPolar->getVariable(PlrVar);
                 size = pPolar->m_Alpha.size();
                 if(Alpha<pPolar->m_Alpha.front())
                 {
@@ -1478,7 +1462,7 @@ double LLTAnalysis::getPlrPointFromAlpha(Foil const*pFoil, double Re, double Alp
             return 0.000;
         }
 
-        QVector<double> const &pX1 = pPolar1->getPlrVariable(PlrVar);
+        QVector<double> const &pX1 = pPolar1->getVariable(PlrVar);
         if (Alpha < pPolar1->m_Alpha.front())  return pX1.front();
         if (Alpha > pPolar1->m_Alpha.back())   return pX1.back();
         for (int i=0; i<size-1; i++)
@@ -1518,7 +1502,7 @@ double LLTAnalysis::getPlrPointFromAlpha(Foil const*pFoil, double Re, double Alp
             return 0.000;
         }
 
-        QVector<double> const &pX1 = pPolar1->getPlrVariable(PlrVar);
+        QVector<double> const &pX1 = pPolar1->getVariable(PlrVar);
         if(Alpha < pPolar1->m_Alpha.front())     Var1 = pX1.front();
         else if(Alpha > pPolar1->m_Alpha.back()) Var1 = pX1.back();
         else
@@ -1545,7 +1529,7 @@ double LLTAnalysis::getPlrPointFromAlpha(Foil const*pFoil, double Re, double Alp
             bError = true;
             return 0.000;
         }
-        QVector<double> const &pX2 = pPolar2->getPlrVariable(PlrVar);
+        QVector<double> const &pX2 = pPolar2->getVariable(PlrVar);
         if(Alpha < pPolar2->m_Alpha.front())
         {
             bOutRe = true;
@@ -1564,7 +1548,7 @@ double LLTAnalysis::getPlrPointFromAlpha(Foil const*pFoil, double Re, double Alp
                 if(pPolar2->m_Alpha.at(i)<=Alpha && Alpha<pPolar2->m_Alpha.at(i+1))
                 {
                     //interpolate
-                    QVector<double> const &pX2 = pPolar2->getPlrVariable(PlrVar);
+                    QVector<double> const &pX2 = pPolar2->getVariable(PlrVar);
                     if(pPolar2->m_Alpha.at(i+1)-pPolar2->m_Alpha.at(i) < 0.00001)//do not divide by zero
                         Var2 =pX2.at(i);
                     else
@@ -1599,13 +1583,13 @@ double LLTAnalysis::getPlrPointFromAlpha(Foil const*pFoil, double Re, double Alp
  */
 void LLTAnalysis::getLinearizedPolar(Foil *pFoil0, Foil *pFoil1, double Re, double Tau, double &Alpha0, double &Slope)
 {
-    double Alpha00=0, Alpha01=0;
-    double Slope0=0, Slope1=0;
-    double AlphaTemp1=0, AlphaTemp2=0, SlopeTemp1=0, SlopeTemp2=0;
+    double Alpha00(0), Alpha01(0);
+    double Slope0(0), Slope1(0);
+    double AlphaTemp1(0), AlphaTemp2(0), SlopeTemp1(0), SlopeTemp2(0);
 
     //Find the two polars which enclose the Reynolds number
     int size = 0;
-    Polar *pPolar=nullptr, *pPolar1=nullptr, *pPolar2=nullptr;
+    Polar *pPolar(nullptr), *pPolar1(nullptr), *pPolar2(nullptr);
 
     if(!pFoil0)
     {

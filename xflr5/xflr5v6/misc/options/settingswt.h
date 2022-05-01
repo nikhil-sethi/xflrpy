@@ -68,7 +68,7 @@ class Settings : public QWidget
         void onBackgroundColor2d();
         void onGraphSettings();
         void onReverseZoom();
-        void onStyleChanged(const QString &StyleName);
+        void onStyleChanged();
         void onTextColor();
         void onTableFont();
         void onTextFont();

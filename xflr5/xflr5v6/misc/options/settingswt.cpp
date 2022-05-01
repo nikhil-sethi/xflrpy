@@ -28,6 +28,7 @@
 #include <QMessageBox>
 #include <QFontDatabase>
 #include <QHBoxLayout>
+#include <QRegularExpression>
 
 #include "settingswt.h"
 #include <globals/mainframe.h>
@@ -69,8 +70,11 @@ Settings::Settings(QWidget *pParent) : QWidget(pParent)
 #endif
 
     setupLayout();
-
-    connect(m_pcbStyles,             SIGNAL(activated(QString)),         SLOT(onStyleChanged(QString)));
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+    connect(m_pcbStyles,             SIGNAL(activated(int)),         SLOT(onStyleChanged()));
+#else
+    connect(m_pcbStyles,             SIGNAL(activated(QString)),         SLOT(onStyleChanged()));
+#endif
 
     connect(m_pcbBackColor,          SIGNAL(clicked()),                  SLOT(onBackgroundColor2d()));
     connect(m_ppbGraphSettings,      SIGNAL(clicked()),                  SLOT(onGraphSettings()));
@@ -91,18 +95,8 @@ void Settings::setupLayout()
         QVBoxLayout *pWidgetStyleLayout = new QVBoxLayout;
         {
             m_pcbStyles = new QComboBox;
-
-            QRegExp regExp("Q(.*)Style");
-            QString defaultStyle = QApplication::style()->metaObject()->className();
-            if (defaultStyle == QLatin1String("QMacStyle"))
-                defaultStyle = QLatin1String("Macintosh (Aqua)");
-            else if (defaultStyle == QLatin1String("OxygenStyle"))
-                defaultStyle = QLatin1String("Oxygen");
-            else if (regExp.exactMatch(defaultStyle))
-                defaultStyle = regExp.cap(1);
-
             m_pcbStyles->addItems(QStyleFactory::keys());
-            m_pcbStyles->setCurrentIndex(m_pcbStyles->findText(defaultStyle));
+            m_pcbStyles->setCurrentIndex(m_pcbStyles->findText("Fusion"));
 
 
             m_pchStyleSheetOverride = new QCheckBox("Application dark mode override");
@@ -253,11 +247,11 @@ void Settings::initWidget()
 }
 
 
-void Settings::onStyleChanged(const QString &StyleName)
+void Settings::onStyleChanged()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    qApp->setStyle(StyleName);
-    s_StyleName = StyleName;
+    s_StyleName = m_pcbStyles->currentText();
+    qApp->setStyle(s_StyleName);
     QApplication::restoreOverrideCursor();
 }
 
@@ -337,12 +331,8 @@ void Settings::onTableFont()
 
 void Settings::onTreeFont()
 {
-    QFontDialog::FontDialogOptions dialogoptions = QFontDialog::MonospacedFonts;
-#ifdef Q_OS_MAC
-    if(s_bDontUseNativeDlg) dialogoptions |= QFontDialog::DontUseNativeDialog;
-#endif
     bool bOK(false);
-    QFont TreeFont = QFontDialog::getFont(&bOK, DisplayOptions::treeFont(), this, QString("Tree font"), dialogoptions);
+    QFont TreeFont = QFontDialog::getFont(&bOK, DisplayOptions::treeFont(), this, QString("Tree font"));
 
     if (bOK)
     {
@@ -411,6 +401,7 @@ void Settings::loadSettings(QSettings &settings)
         DisplayOptions::s_bAlignChildrenStyle = settings.value("AligneChildrenStyle", true).toBool();
 
         DisplayOptions::s_bShowMousePos = settings.value("ShowMousePos", true).toBool();
+        DisplayOptions::s_bShowMousePos = true;
 
         s_bStyleSheet   = settings.value("ShowStyleSheets", false).toBool();
         s_StyleSheetName = settings.value("StyleSheetName", "xflr5_style").toString();

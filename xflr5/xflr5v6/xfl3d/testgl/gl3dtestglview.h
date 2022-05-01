@@ -37,9 +37,11 @@ class gl3dTestGLView : public gl3dView
         void glRenderView() override;
         void glMake3dObjects() override {}
         void showEvent(QShowEvent *pEvent) override;
+        QSize sizeHint() const override {return QSize(1700,1100);}
+
 
     signals:
-        void ready() const;
+        void ready();
 
 
     protected:

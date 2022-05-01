@@ -63,9 +63,7 @@ class Panel;
 
 class Wing
 {
-    friend class Objects3D;
     friend class Miarex;
-    friend class MainFrame;
     friend class WPolar;
     friend class PlaneOpp;
     friend class WingOpp;
@@ -73,23 +71,12 @@ class Wing
     friend class Surface;
     friend class WingDlg;
     friend class PlaneTask;
-    friend class LLTAnalysisDlg;
-    friend class LLTAnalysis;
-    friend class PanelAnalysisDlg;
     friend class PanelAnalysis;
     friend class PlaneDlg;
     friend class ImportWingDlg;
-    friend class WPolarDlg;
-    friend class StabPolarDlg;
-    friend class GL3dWingDlg;
-    friend class ManageUFOsDlg;
     friend class InertiaDlg;
-    friend class StabViewDlg;
     friend class EditPlaneDlg;
-    friend class EditBodyDlg;
-    friend class gl3dXflView;
     friend class XMLPlaneReader;
-    friend class WingOpp;
 
 
     public:
@@ -97,8 +84,8 @@ class Wing
         Wing();
         ~Wing();
 
-        bool importDefinition(QString path_to_file, QString errorMessage);
-        bool exportDefinition(QString path_to_file, QString errorMessage);
+        bool importDefinition(const QString &path_to_file, QString &errorMessage);
+        bool exportDefinition(const QString &path_to_file, QString &errorMessage);
 
         void createSurfaces(Vector3d const &T, double XTilt, double YTilt);//generic surface, LLT, VLM or Panel
 
@@ -107,14 +94,14 @@ class Wing
 
         void panelComputeOnBody(double QInf, double Alpha, double *Cp, const double *Gamma, double &XCP, double &YCP, double &ZCP,
                                 double &GCm, double &VCm, double &ICm, double &GRm, double &GYm, double &VYm, double &IYm,
-                                const WPolar *pWPolar, const Vector3d &CoG, const Panel *pPanel);
+                                const WPolar *pWPolar, const Vector3d &CoG, const QVector<Panel> &pPanel);
 
 
         void panelComputeViscous(double QInf, WPolar const*pWPolar, double &WingVDrag, bool bViscous, QString &OutString);
-        void panelComputeBending(const Panel *pPanel, bool bThinSurface);
+        void panelComputeBending(const QVector<Panel> &pPanel, bool bThinSurface);
 
-        bool isWingPanel(int nPanel, Panel const *pPanel);
-        bool isWingNode(int nNode, Panel const *pPanel);
+        bool isWingPanel(int nPanel, const QVector<Panel> &pPanel);
+        bool isWingNode(int nNode, const QVector<Panel> &panel);
 
         void getFoils(Foil **pFoil0, Foil **pFoil1, double y, double &t);
         void duplicate(const Wing *pWing);
@@ -175,7 +162,13 @@ class Wing
         double tipPos()        const {return m_Section.last().m_YPosition;}
         double planformSpan()  const {return m_PlanformSpan;}
         double projectedSpan() const {return m_ProjectedSpan;}
+        double planformArea()  const {return m_PlanformArea;}
+        double projectedArea() const {return m_ProjectedArea;}
 
+        double MAC()           const {return m_MAChord;}
+        double GChord()        const {return m_GChord;}
+        double aspectRatio()   const {return m_PlanformSpan*m_PlanformSpan/m_PlanformArea;}
+        double taperRatio()    const {if(tipChord()>0.0)  return tipChord()/rootChord(); else return 99999.0;}
 
         double Offset(int iSection)    const {return m_Section.at(iSection).m_Offset;}
         double Dihedral(int iSection)  const {return m_Section.at(iSection).m_Dihedral;}
@@ -259,8 +252,6 @@ class Wing
         double IntegralC2(double y1, double y2, double c1, double c2) const;
         double IntegralCy(double y1, double y2, double c1, double c2) const;
 
-        double mac() const {return m_MAChord;}
-
         int surfaceCount() const {return m_Surface.size();}
         Surface const *surface(int is) const {if (is>=0 && is<m_Surface.size()) return &m_Surface.at(is); else return nullptr;}
         Surface *surface(int is) {if (is>=0 && is<m_Surface.size()) return &m_Surface[is]; else return nullptr;}
@@ -336,17 +327,11 @@ class Wing
         double m_BendingMoment[MAXSPANSTATIONS+1]; /**< the bending moment at stations */
         double m_SpanPos[MAXSPANSTATIONS+1];       /**< the span positions of LLT stations */
 
-        QVarLengthArray<double> m_xHinge;           /**< the chorwise position of flap hinges */
-        QVarLengthArray<double> m_xPanel;           /**< the chorwise distribution of VLM panels */
+        QVector<double> m_xHinge;           /**< the chorwise position of flap hinges */
+        QVector<double> m_xPanel;           /**< the chorwise distribution of VLM panels */
 
         Vector3d m_Vd[MAXSPANSTATIONS];             /**< the downwash vector at span stations */
         Vector3d m_F[MAXSPANSTATIONS];              /**< the lift vector at span stations */
-
-    public:
-        QVector<WingSection> m_Section;            /**< the array of wing sections. A WingSection extends between a foil and the next. */
-        QVector<PointMass> m_PointMass;            /**< the array of PointMass objects associated to this Wing object*/
-
-        QVector<Surface> m_Surface;                /**< the array of Surface objects associated to the wing */
 
         double m_MAChord;                          /**< the wing's mean aerodynamic chord */
         double m_PlanformSpan;                     /**< the planform span, i.e. if the dihedral was 0 at each junction */
@@ -354,7 +339,13 @@ class Wing
         double m_PlanformArea;                     /**< the planform wing area, i.e. if the dihedral was 0 at each junction */
         double m_ProjectedArea;                    /**< the wing area projected on the xy plane defined by z=0; */
         double m_AR;                               /**< the wing's aspect ratio */
-        double m_TR;                               /**< the wing's taper ratio */
+
+    public:
+        QVector<WingSection> m_Section;            /**< the array of wing sections. A WingSection extends between a foil and the next. */
+        QVector<PointMass> m_PointMass;            /**< the array of PointMass objects associated to this Wing object*/
+
+        QVector<Surface> m_Surface;                /**< the array of Surface objects associated to the wing */
+
         double m_CoGIxx;                           /**< the Ixx component of the inertia tensor, calculated at the CoG */
         double m_CoGIyy;                           /**< the Ixx component of the inertia tensor, calculated at the CoG */
         double m_CoGIzz;                           /**< the Ixx component of the inertia tensor, calculated at the CoG */

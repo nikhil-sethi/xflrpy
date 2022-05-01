@@ -24,6 +24,7 @@
 #include <QGridLayout>
 #include <QPushButton>
 
+#include <xflcore/xflcore.h>
 #include <xflcore/gui_params.h>
 #include "aboutq5.h"
 
@@ -42,7 +43,7 @@ void AboutQ5::setupLayout()
         QLabel *LabIconQ5 = new QLabel;
         LabIconQ5->setObjectName("iconXFLR5");
         LabIconQ5->setPixmap(QPixmap(QString::fromUtf8(":/images/xflr5_64.png")));
-        QLabel *lab1  = new QLabel(VERSIONNAME);
+        QLabel *lab1  = new QLabel(xfl::versionName());
         lab1->setAlignment(Qt::AlignVCenter| Qt::AlignLeft);
         QLabel *XFLR5Link = new QLabel;
         XFLR5Link->setText("<a href=http://www.xflr5.tech>http://www.xflr5.tech</a>");

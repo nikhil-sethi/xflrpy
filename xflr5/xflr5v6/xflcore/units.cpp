@@ -194,15 +194,27 @@ void Units::setupLayout()
     }
 
     setLayout(pMainLayout);
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+    connect(m_pcbLength,   SIGNAL(activated(int)),this, SLOT(onSelChanged()));
+    connect(m_pcbSurface,  SIGNAL(activated(int)),this, SLOT(onSelChanged()));
+    connect(m_pcbSpeed,    SIGNAL(activated(int)),this, SLOT(onSelChanged()));
+    connect(m_pcbWeight,   SIGNAL(activated(int)),this, SLOT(onSelChanged()));
+    connect(m_pcbForce,    SIGNAL(activated(int)),this, SLOT(onSelChanged()));
+    connect(m_pcbMoment,   SIGNAL(activated(int)),this, SLOT(onSelChanged()));
+    connect(m_pcbPressure, SIGNAL(activated(int)),this, SLOT(onSelChanged()));
+    connect(m_pcbInertia,  SIGNAL(activated(int)),this, SLOT(onSelChanged()));
+#else
+    connect(m_pcbLength,   SIGNAL(activated(QString)),this, SLOT(onSelChanged()));
+    connect(m_pcbSurface,  SIGNAL(activated(QString)),this, SLOT(onSelChanged()));
+    connect(m_pcbSpeed,    SIGNAL(activated(QString)),this, SLOT(onSelChanged()));
+    connect(m_pcbWeight,   SIGNAL(activated(QString)),this, SLOT(onSelChanged()));
+    connect(m_pcbForce,    SIGNAL(activated(QString)),this, SLOT(onSelChanged()));
+    connect(m_pcbMoment,   SIGNAL(activated(QString)),this, SLOT(onSelChanged()));
+    connect(m_pcbPressure, SIGNAL(activated(QString)),this, SLOT(onSelChanged()));
+    connect(m_pcbInertia,  SIGNAL(activated(QString)),this, SLOT(onSelChanged()));
+#endif
 
-    connect(m_pcbLength,   SIGNAL(activated(const QString &)),this, SLOT(onSelChanged(const QString &)));
-    connect(m_pcbSurface,  SIGNAL(activated(const QString &)),this, SLOT(onSelChanged(const QString &)));
-    connect(m_pcbSpeed,    SIGNAL(activated(const QString &)),this, SLOT(onSelChanged(const QString &)));
-    connect(m_pcbWeight,   SIGNAL(activated(const QString &)),this, SLOT(onSelChanged(const QString &)));
-    connect(m_pcbForce,    SIGNAL(activated(const QString &)),this, SLOT(onSelChanged(const QString &)));
-    connect(m_pcbMoment,   SIGNAL(activated(const QString &)),this, SLOT(onSelChanged(const QString &)));
-    connect(m_pcbPressure, SIGNAL(activated(const QString &)),this, SLOT(onSelChanged(const QString &)));
-    connect(m_pcbInertia, SIGNAL(activated(const QString &)),this, SLOT(onSelChanged(const QString &)));
+
 }
 
 
@@ -266,7 +278,7 @@ void Units::initWidget()
     m_pcbInertia->setCurrentIndex(s_InertiaUnitIndex);
 
     m_pcbLength->setFocus();
-    onSelChanged(" ");
+    onSelChanged();
 
     if(m_bLengthOnly)
     {
@@ -282,7 +294,7 @@ void Units::initWidget()
 }
 
 
-void Units::onSelChanged(const QString &)
+void Units::onSelChanged()
 {
     QString strUnitLabel, strange, strUnit;
     int len1 = 11;

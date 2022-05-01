@@ -26,8 +26,7 @@
 #include <QHBoxLayout>
 #include <QFontDatabase>
 #include <QThread>
-#include <QDebug>
-
+#include <QtConcurrent/QtConcurrentRun>
 
 #include "xfoilanalysisdlg.h"
 #include <misc/options/settingswt.h>
@@ -35,9 +34,12 @@
 #include <xflobjects/objects2d/objects2d.h>
 #include <xdirect/xdirect.h>
 #include <xflcore/gui_params.h>
+#include <xflcore/xflcore.h>
 #include <xflgraph/containers/graphwt.h>
 #include <xflgraph/curve.h>
 #include <xflgraph/graph.h>
+#include <xflwidgets/customwts/plaintextoutput.h>
+
 #include <xfoil.h>
 
 
@@ -51,6 +53,10 @@ double XFoilAnalysisDlg::s_AlphaDelta = 0.5;
 double XFoilAnalysisDlg::s_Cl         = 0.0;
 double XFoilAnalysisDlg::s_ClMax      = 1.0;
 double XFoilAnalysisDlg::s_ClDelta    = 0.1;
+
+double XFoilAnalysisDlg::s_ReMin   =  100000.0;
+double XFoilAnalysisDlg::s_ReMax   = 1000000.0;
+double XFoilAnalysisDlg::s_ReDelta =  100000.0;
 
 XFoilAnalysisDlg::XFoilAnalysisDlg(QWidget *pParent) : QDialog(pParent)
 {
@@ -66,7 +72,7 @@ XFoilAnalysisDlg::XFoilAnalysisDlg(QWidget *pParent) : QDialog(pParent)
     m_pGraphWt->setGraph(m_pRmsGraph);
 
     m_pRmsGraph->setXTitle(tr("Iter"));
-    m_pRmsGraph->setYTitle("");//Change from BL newton system solution
+    m_pRmsGraph->setYTitle(QString());//Change from BL newton system solution
 
     m_pRmsGraph->setXMajGrid(true, QColor(120,120,120),2,1);
     m_pRmsGraph->setYMajGrid(true, QColor(120,120,120),2,1);
@@ -93,9 +99,9 @@ XFoilAnalysisDlg::XFoilAnalysisDlg(QWidget *pParent) : QDialog(pParent)
     s_Cl      = 0.0;
     s_ClMax      = 1.0;
     s_ClDelta    = 0.1;
-    m_ReMin      =  10000.0;
-    m_ReMax      = 100000.0;
-    m_ReDelta    =  10000.0;
+    s_ReMin      =  10000.0;
+    s_ReMax      = 100000.0;
+    s_ReDelta    =  10000.0;
 }
 
 XFoilAnalysisDlg::~XFoilAnalysisDlg()
@@ -108,11 +114,9 @@ XFoilAnalysisDlg::~XFoilAnalysisDlg()
 
 void XFoilAnalysisDlg::setupLayout()
 {
-    m_pteTextOutput = new QTextEdit;
-    m_pteTextOutput->setReadOnly(true);
-    m_pteTextOutput->setLineWrapMode(QTextEdit::NoWrap);
-    m_pteTextOutput->setWordWrapMode(QTextOption::NoWrap);
-    m_pteTextOutput->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    m_ppto = new PlainTextOutput;
+    m_ppto->setReadOnly(true);
+
     m_pGraphWt = new GraphWt;
     m_pGraphWt->setMinimumHeight(350);
     m_pGraphWt->setMinimumWidth(600);
@@ -129,7 +133,7 @@ void XFoilAnalysisDlg::setupLayout()
 
     QVBoxLayout *pMainLayout = new QVBoxLayout;
     {
-        pMainLayout->addWidget(m_pteTextOutput);
+        pMainLayout->addWidget(m_ppto);
         pMainLayout->addWidget(m_pGraphWt);
         pMainLayout->addWidget(m_pButtonBox);
         setLayout(pMainLayout);
@@ -143,6 +147,8 @@ void XFoilAnalysisDlg::onButton(QAbstractButton *pButton)
         onCancelAnalysis();
     else if (m_ppbSkip == pButton)
         onSkipPoint();
+    else if (m_pchLogFile == pButton)
+        onLogFile();
 }
 
 
@@ -151,6 +157,13 @@ void XFoilAnalysisDlg::initDialog()
     m_pchLogFile->setChecked(XDirect::s_bKeepOpenErrors);
 
     QString FileName = QDir::tempPath() + "/XFLR5.log";
+
+    if(m_pXFile)
+    {
+        m_pXFile->close();
+        delete m_pXFile;
+    }
+
     m_pXFile = new QFile(FileName);
     if (!m_pXFile->open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -171,8 +184,9 @@ void XFoilAnalysisDlg::initDialog()
         else            m_pXFoilTask->setSequence(false, s_Cl, s_Cl, s_ClDelta);
     }
 
-    m_pXFoilTask->setReRange(m_ReMin, m_ReMax, m_ReDelta);
-    m_pXFoilTask->initializeXFoilTask(XDirect::curFoil(), XDirect::curPolar(),
+    if(s_bSequence)     m_pXFoilTask->setReRange(s_ReMin, s_ReMax, s_ReDelta);
+    else                m_pXFoilTask->setReRange(s_ReMin, s_ReMin, s_ReDelta);
+    m_pXFoilTask->initializeXFoilTask(XDirect::curFoil(), Objects2d::curPolar(),
                                       XDirect::s_bViscous, XDirect::s_bInitBL, false);
 
     setFileHeader();
@@ -199,7 +213,7 @@ void XFoilAnalysisDlg::initDialog()
 
 //    m_pXFoilTask->setGraphPointers(&pCurve0->m_x, &pCurve0->m_y, &pCurve1->m_x, &pCurve1->m_y);
 
-    m_pteTextOutput->clear();
+    m_ppto->clear();
 }
 
 
@@ -212,6 +226,7 @@ void XFoilAnalysisDlg::showEvent(QShowEvent *)
 void XFoilAnalysisDlg::hideEvent(QHideEvent *)
 {
     s_Geometry = saveGeometry();
+    XDirect::s_bKeepOpenErrors = m_pchLogFile->isChecked();
 }
 
 
@@ -220,9 +235,11 @@ void XFoilAnalysisDlg::onCancelAnalysis()
     XFoil::setCancel(true);
     XFoilTask::s_bCancel = true;
 
-    if(m_pXFoilTask->isFinished()) reject();
+    if(m_pXFoilTask->isFinished())
+    {
+        reject();
+    }
 }
-
 
 
 void XFoilAnalysisDlg::reject()
@@ -242,12 +259,15 @@ void XFoilAnalysisDlg::reject()
         m_pXFile->close();
     }
 
+    emit analysisFinished(Objects2d::curPolar());
+
     QDialog::reject();
 }
 
 
 void XFoilAnalysisDlg::accept()
 {
+
     XFoilTask::s_bCancel = true;
     XFoil::setCancel(true);
     if(m_pXFile)
@@ -256,13 +276,9 @@ void XFoilAnalysisDlg::accept()
         m_pXFile->close();
     }
 
+    emit analysisFinished(Objects2d::curPolar());
+
     QDialog::accept();
-}
-
-
-void XFoilAnalysisDlg::onLogFile()
-{
-    XDirect::s_bKeepOpenErrors = m_pchLogFile->isChecked();
 }
 
 
@@ -272,10 +288,15 @@ void XFoilAnalysisDlg::onSkipPoint()
 }
 
 
+void XFoilAnalysisDlg::onLogFile()
+{
+    XDirect::s_bKeepOpenErrors = m_pchLogFile->isChecked();
+}
+
+
 void XFoilAnalysisDlg::resetCurves()
 {
-    Curve*pCurve;
-    pCurve = m_pRmsGraph->curve(0);
+    Curve* pCurve = m_pRmsGraph->curve(0);
     if(pCurve) pCurve->clear();
     pCurve = m_pRmsGraph->curve(1);
     if(pCurve) pCurve->clear();
@@ -300,9 +321,9 @@ void XFoilAnalysisDlg::setCl(double ClMin, double ClMax, double DeltaCl)
 
 void XFoilAnalysisDlg::setRe(double ReMin, double ReMax, double DeltaRe)
 {
-    m_ReMin = ReMin;
-    m_ReMax = ReMax;
-    m_ReDelta = DeltaRe;
+    s_ReMin = ReMin;
+    s_ReMax = ReMax;
+    s_ReDelta = DeltaRe;
 }
 
 
@@ -312,13 +333,13 @@ void XFoilAnalysisDlg::setFileHeader()
     QTextStream out(m_pXFile);
 
     out << "\n";
-    out << VERSIONNAME;
+    out << xfl::versionName();
     out << "\n";
     out << XDirect::curFoil()->name();
     out << "\n";
-    if(XDirect::curPolar())
+    if(Objects2d::curPolar())
     {
-        out << XDirect::curPolar()->polarName();
+        out << Objects2d::curPolar()->polarName();
         out << "\n";
     }
 
@@ -338,58 +359,56 @@ void XFoilAnalysisDlg::analyze()
     //all set to launch the analysis
 
     //create a timer to update the output at regular intervals
-    QTimer *pTimer = new QTimer;
+/*    QTimer *pTimer = new QTimer;
     connect(pTimer, SIGNAL(timeout()), this, SLOT(onProgress()));
     pTimer->setInterval(XDirect::s_TimeUpdateInterval);
-    pTimer->start();
+    pTimer->start();*/
 
     //Launch the task
-    m_pXFoilTask->run();
+//    m_pXFoilTask->run();
 
-    pTimer->stop();
-    delete pTimer;
-
-    onProgress();
-    m_pXFoilTask->m_OutStream.flush();
-
-    m_bErrors = m_pXFoilTask->m_bErrors;
-    if(m_bErrors)
-    {
-        m_pteTextOutput->insertPlainText(tr(" ...some points are unconverged"));
-        m_pteTextOutput->ensureCursorVisible();
-    }
-
-    m_pButtonBox->button(QDialogButtonBox::Close)->setText(tr("Close"));
-    m_ppbSkip->setEnabled(false);
-    update();
-
-    qApp->processEvents(); // make sure that all custom events are received before exiting the dialog
-}
-
-
-void XFoilAnalysisDlg::onProgress()
-{
-    if(m_pXFoilTask)
-    {
-        if(m_pXFoilTask->m_OutMessage.length())
-        {
-            m_pteTextOutput->insertPlainText(m_pXFoilTask->m_OutMessage);
-            m_pteTextOutput->ensureCursorVisible();
-        }
-        m_pXFoilTask->m_OutMessage.clear();
-
-        repaint(); // not recommended
-
-        s_pXDirect->createPolarCurves();
-        s_pXDirect->updateView();
-    }
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+    QtConcurrent::run(&XFoilTask::run, m_pXFoilTask);
+#else
+    QtConcurrent::run(m_pXFoilTask, &XFoilTask::run);
+#endif
+//    pTimer->stop();
+//    delete pTimer;
+//    qApp->processEvents(); // make sure that all custom events are received before exiting the dialog
 }
 
 
 void XFoilAnalysisDlg::customEvent(QEvent * pEvent)
 {
-    if(pEvent->type() == XFOIL_END_TASK_EVENT)
+    if(pEvent->type()== MESSAGE_EVENT)
     {
+        MessageEvent *pMsgEvent = dynamic_cast<MessageEvent*>(pEvent);
+        m_ppto->onAppendThisPlainText(pMsgEvent->msg());
+    }
+    else if(pEvent->type() == XFOIL_END_TASK_EVENT)
+    {
+        m_pXFoilTask->m_OutStream.flush();
+
+        m_bErrors = m_pXFoilTask->m_bErrors;
+        if(m_bErrors)
+        {
+            m_ppto->onAppendThisPlainText(tr(" ...some points are unconverged"));
+        }
+
+        s_pXDirect->createPolarCurves();
+        s_pXDirect->updateView();
+
+        m_pButtonBox->button(QDialogButtonBox::Close)->setText(tr("Close"));
+        m_ppbSkip->setEnabled(false);
+        update();
+        if(m_bErrors && XDirect::s_bKeepOpenErrors)
+        {
+        }
+        else
+        {
+            emit analysisFinished(Objects2d::curPolar());
+            hide();
+        }
     }
     else if(pEvent->type() == XFOIL_ITER_EVENT)
     {
@@ -422,13 +441,20 @@ void XFoilAnalysisDlg::loadSettings(QSettings &settings)
     {
         s_Geometry = settings.value("WindowGeom", QByteArray()).toByteArray();
 
-        s_bSequence  = settings.value("Sequence", false).toBool();
-        s_Alpha      = settings.value("AlphaMin",   s_Alpha).toDouble();
-        s_AlphaMax   = settings.value("AlphaMax",   s_AlphaMax).toDouble();
-        s_AlphaDelta = settings.value("AlphaDelta", s_AlphaDelta).toDouble();
-        s_Cl         = settings.value("ClMin",      s_Cl).toDouble();
-        s_ClMax      = settings.value("ClMax",      s_ClMax).toDouble();
-        s_ClDelta    = settings.value("ClDelta",    s_ClDelta).toDouble();
+        s_bSequence  = settings.value("Sequence",      s_bSequence).toBool();
+
+        s_Alpha      = settings.value("AlphaMin",      s_Alpha).toDouble();
+        s_AlphaMax   = settings.value("AlphaMax",      s_AlphaMax).toDouble();
+        s_AlphaDelta = settings.value("AlphaDelta",    s_AlphaDelta).toDouble();
+
+        s_Cl         = settings.value("ClMin",         s_Cl).toDouble();
+        s_ClMax      = settings.value("ClMax",         s_ClMax).toDouble();
+        s_ClDelta    = settings.value("ClDelta",       s_ClDelta).toDouble();
+
+        s_ReMin      = settings.value("Reynolds",      s_ReMin).toDouble();
+        s_ReMax      = settings.value("ReynoldsMax",   s_ReMax).toDouble();
+        s_ReDelta    = settings.value("ReynoldsDelta", s_ReDelta).toDouble();
+
     }
     settings.endGroup();
 }
@@ -441,13 +467,19 @@ void XFoilAnalysisDlg::saveSettings(QSettings &settings)
     {
         settings.setValue("WindowGeom", s_Geometry);
 
-        settings.setValue("Sequence",   s_bSequence);
-        settings.setValue("AlphaMin",   s_Alpha);
-        settings.setValue("AlphaMax",   s_AlphaMax);
-        settings.setValue("AlphaDelta", s_AlphaDelta);
-        settings.setValue("ClMin",      s_Cl);
-        settings.setValue("ClMax",      s_ClMax);
-        settings.setValue("ClDelta",    s_ClDelta);
+        settings.setValue("Sequence",     s_bSequence);
+
+        settings.setValue("AlphaMin",     s_Alpha);
+        settings.setValue("AlphaMax",     s_AlphaMax);
+        settings.setValue("AlphaDelta",   s_AlphaDelta);
+
+        settings.setValue("ClMin",         s_Cl);
+        settings.setValue("ClMax",         s_ClMax);
+        settings.setValue("ClDelta",       s_ClDelta);
+
+        settings.setValue("Reynolds",      s_ReMin);
+        settings.setValue("ReynoldsMax",   s_ReMax);
+        settings.setValue("ReynoldsDelta", s_ReDelta);
     }
     settings.endGroup();
 }

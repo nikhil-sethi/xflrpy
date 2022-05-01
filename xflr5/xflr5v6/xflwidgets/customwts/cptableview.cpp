@@ -167,7 +167,7 @@ void CPTableView::pasteClipboard()
     if(dlg.bSemiColon())  regexp += "\\\\;+";
     regexp += "]";
 
-    QString tab = "\t";
+//    QString tab = "\t";
     QString eol = "\n";
 
     const QClipboard *pClip = QApplication::clipboard();
@@ -192,7 +192,7 @@ void CPTableView::pasteClipboard()
         QString strange = lines[iLine].trimmed();
 //        QStringList items = strange.split(QRegExp("[\\t+\\,+\\;+]"));
 #if QT_VERSION >= 0x050F00
-        QStringList items = strange.split(QRegExp(regexp), Qt::SkipEmptyParts);
+        QStringList items = strange.split(QRegularExpression(regexp), Qt::SkipEmptyParts);
 #else
         QStringList items = strange.split(QRegExp(regexp), QString::SkipEmptyParts);
 #endif
@@ -202,7 +202,7 @@ void CPTableView::pasteClipboard()
             if(items[it].isEmpty()) items.removeAt(it);
         }*/
 
-        maxColumns = std::max(maxColumns, items.size());
+        maxColumns = qMax(maxColumns, items.size());
         int col = col0;
         for(int p=0; p<items.size(); p++)
         {
@@ -259,10 +259,10 @@ void CPTableView::resizeEvent(QResizeEvent *pEvent)
 void CPTableView::contextMenuEvent(QContextMenuEvent *pEvent)
 {
     QAction *pCopyAction = new QAction("Copy", this);
-    pCopyAction->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_C));
+    pCopyAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
 
     QAction *pPasteAction = new QAction("Paste", this);
-    pPasteAction->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_V));
+    pPasteAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_V));
     pPasteAction->setEnabled(m_bIsEditable);
 
     connect(pCopyAction,  SIGNAL(triggered(bool)), this, SLOT(onCopySelection()));

@@ -43,12 +43,12 @@ class Polar;
 class IntEdit;
 class DoubleEdit;
 class XFoilTask;
-class XFoilTaskEvent;
 struct FoilAnalysis;
 class XDirect;
 class CPTableView;
 class ActionDelegate;
 class ActionItemModel;
+class PlainTextOutput;
 
 /**
  * @brief Abstract base class for BatchThreadDlg and BacthCtrlDlg
@@ -86,10 +86,10 @@ class BatchAbstractDlg : public QDialog
         void makeCommonWidgets();
         void outputReList();
         void setFileHeader();
-        void setPlrName(Polar *pNewPolar);
         void writeString(QString &strong);
         void fillReModel();
         void sortRe();
+        void setRowEnabled(int row, bool bEnabled);
 
         void readFoils(QVector<Foil *> &foils);
 
@@ -109,8 +109,13 @@ class BatchAbstractDlg : public QDialog
         void onCellChanged(QModelIndex topLeft, QModelIndex botRight);
         void onReTableClicked(QModelIndex index);
 
+        void onResizeColumns();
+
     protected:
         QListWidget *m_plwNameList;
+
+        QGroupBox *m_pgbPolarType;
+        QRadioButton *m_prbT1, *m_prbT2, *m_prbT3;
 
         QRadioButton *m_prbAlpha, *m_prbCl;
 
@@ -121,15 +126,16 @@ class BatchAbstractDlg : public QDialog
         QLabel *m_plabSpecVar;
         QLabel *m_plabMaType, *m_plabReType;
         QCheckBox *m_pchInitBL, *m_pchFromZero, *m_pchUpdatePolarView;
+        QCheckBox *m_pchStoreOpp;
 
-        QGroupBox *m_pRangeVarsGroupBox, *m_pTransVarsGroupBox;
-        QFrame *m_pOptionsFrame;
+        QGroupBox *m_pgbRangeVars, *m_pgbTransVars;
+        QFrame *m_pfrOptions;
 
         QDialogButtonBox *m_pButtonBox;
         QPushButton *m_ppbAnalyze, *m_ppbAdvancedSettings;
-        QPlainTextEdit *m_pteTextOutput;
+        PlainTextOutput *m_pteTextOutput;
 
-        QSplitter *m_pVSplitter;
+        QSplitter *m_pHSplitter, *m_pVSplitter;
 
         CPTableView *m_pcptReTable;
         ActionItemModel *m_pReModel;
@@ -147,6 +153,7 @@ class BatchAbstractDlg : public QDialog
         static bool s_bAlpha;              /**< true if the analysis should be performed for a range of aoa rather than lift coefficient */
         static bool s_bFromZero;           /**< true if the iterations should start from aoa=0 rather than aoa=alpha_min */
 
+        static QVector<bool> s_ActiveList;    /**< the vector list of active Re numbers */
         static QVector<double> s_ReList;        /**< the user-defined list of Re numbers, used for batch analysis */
         static QVector<double> s_MachList;      /**< the user-defined list of Mach numbers, used for batch analysis */
         static QVector<double> s_NCritList;     /**< the user-defined list of NCrit numbers, used for batch analysis */
@@ -170,7 +177,7 @@ class BatchAbstractDlg : public QDialog
         static bool s_bUpdatePolarView;    /**< true if the polar graphs should be updated during the analysis */
         static int s_nThreads;             /**< the number of available threads */
 
-        static QByteArray s_VSplitterSizes;
+        static QByteArray s_HSplitterSizes, s_VSplitterSizes;
 };
 
 

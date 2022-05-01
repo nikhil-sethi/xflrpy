@@ -42,7 +42,7 @@ bool XMLPlaneReader::readXMLPlaneFile()
 
     if (readNextStartElement())
     {
-        if (name() == "explane" && attributes().value("version") == "1.0")
+        if (name().toString() == "explane" && attributes().value("version").toString() == "1.0")
         {
             while(!atEnd() && !hasError() && readNextStartElement() )
             {
@@ -438,7 +438,7 @@ bool XMLPlaneReader::readBody(Body *pBody, Vector3d &position, double lengthUnit
         {
             while(!atEnd() && !hasError() && readNextStartElement() )
             {
-                if (name().contains("stripe", Qt::CaseInsensitive))
+                if (name().toString().contains("stripe", Qt::CaseInsensitive))
                 {
                     pBody->m_hPanels.append(readElementText().toInt());
                 }

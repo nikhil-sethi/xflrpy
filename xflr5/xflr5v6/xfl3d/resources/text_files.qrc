@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>resources/textfiles/galaxies.csv</file>
+        <file>textfiles/galaxies.csv</file>
     </qresource>
 </RCC>

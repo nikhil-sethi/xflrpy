@@ -26,7 +26,8 @@
 #include "wingwt.h"
 #include <miarex/miarex.h>
 
-#include <xfl3d/controls/w3dprefs.h>
+
+#include <xfl3d/globals/w3dprefs.h>
 #include <xflcore/displayoptions.h>
 #include <xflcore/xflcore.h>
 #include <xflgraph/graph.h>
@@ -92,7 +93,7 @@ void WingWidget::mouseMoveEvent(QMouseEvent *pEvent)
         m_ptOffset.ry() += Delta.y();
         update();
     }
-    else if ((pEvent->buttons() & Qt::MidButton) || pEvent->modifiers().testFlag(Qt::AltModifier))
+    else if ((pEvent->buttons() & Qt::MiddleButton) || pEvent->modifiers().testFlag(Qt::AltModifier))
     {
         //zoom the wing
 

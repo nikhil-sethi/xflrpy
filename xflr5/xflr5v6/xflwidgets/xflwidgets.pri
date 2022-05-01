@@ -21,6 +21,7 @@ HEADERS += \
     xflwidgets/customwts/cptableview.h \
     xflwidgets/customwts/crosscheckbox.h \
     xflwidgets/customwts/ctrltabledelegate.h \
+    xflwidgets/customwts/ctrltablemodel.h \
     xflwidgets/customwts/curveactiondelegate.h \
     xflwidgets/customwts/doubleedit.h \
     xflwidgets/customwts/exponentialslider.h \

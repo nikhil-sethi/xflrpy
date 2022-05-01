@@ -45,6 +45,9 @@ class W3dPrefs : public QDialog
         W3dPrefs(QWidget *pParent);
         void initDialog();
 
+        static bool bSpinAnimation() {return s_bSpinAnimation;}
+        static double spinDamping() {return s_SpinDamping;}
+
         static int chordwiseRes() {return s_iChordwiseRes;}
         static int bodyAxialRes() {return s_iBodyAxialRes;}
         static int bodyHoopRes() {return s_iBodyHoopRes;}
@@ -113,6 +116,8 @@ class W3dPrefs : public QDialog
         static bool s_bAnimateTransitions;
         static bool s_bEnableClipPlane;
 
+        static bool s_bSpinAnimation;
+        static double s_SpinDamping;
 };
 
 

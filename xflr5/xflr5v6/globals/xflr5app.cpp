@@ -37,13 +37,14 @@
 #include "xflr5app.h"
 #include <globals/mainframe.h>
 #include <xflcore/trace.h>
+#include <xflcore/xflcore.h>
 
 
 
 XFLR5App::XFLR5App(int &argc, char** argv) : QApplication(argc, argv)
 {
-    setApplicationDisplayName(VERSIONNAME);
-    setApplicationName(VERSIONNAME);
+    setApplicationDisplayName(xfl::versionName());
+    setApplicationName(xfl::versionName());
 //    setDesktopFileName(VERSIONNAME);
     setOrganizationName("Cere-Aero");
     setOrganizationDomain("cere-aero.tech");
@@ -63,7 +64,7 @@ XFLR5App::XFLR5App(int &argc, char** argv) : QApplication(argc, argv)
 #if defined Q_OS_MAC && defined MAC_NATIVE_PREFS
     QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #elif defined Q_OS_LINUX
-    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5v649");
+    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #else
     QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
 #endif
@@ -74,10 +75,9 @@ XFLR5App::XFLR5App(int &argc, char** argv) : QApplication(argc, argv)
     bool bOK= false;
     bool bSheet = false;
     int k=0;
-    settings.beginGroup("MainFrame");
+    if(QFile(settings.fileName()).exists())
     {
-        int SettingsFormat = settings.value("SettingsFormat").toInt();
-        if(SettingsFormat == SETTINGSFORMAT)
+        settings.beginGroup("MainFrame");
         {
             k = settings.value("FrameGeometryx").toInt(&bOK);
             if(bOK) a = k;
@@ -99,9 +99,8 @@ XFLR5App::XFLR5App(int &argc, char** argv) : QApplication(argc, argv)
 
             bSheet = settings.value("bStyleSheet", false).toBool();
         }
+        settings.endGroup();
     }
-    settings.endGroup();
-
     QTranslator xflr5Translator;
     if(LanguagePath.length())
     {
@@ -182,7 +181,6 @@ XFLR5App::XFLR5App(int &argc, char** argv) : QApplication(argc, argv)
         {
             bProjectFile = true;
             int iApp = pMainFrame->loadXFLR5File(PathName);
-
             if      (iApp == xfl::MIAREX)        pMainFrame->onMiarex();
             else if (iApp == xfl::XFOILANALYSIS) pMainFrame->onXDirect();
         }
@@ -215,24 +213,24 @@ XFLR5App::XFLR5App(int &argc, char** argv) : QApplication(argc, argv)
 
 void XFLR5App::addStandardBtnStrings()
 {
-    QT_TRANSLATE_NOOP("QPlatformTheme", "OK");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Save");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Save All");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Open");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "&Yes");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Yes to &All");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "&No");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "N&o to All");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Abort");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Retry");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Ignore");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Close");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Cancel");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Discard");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Help");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Apply");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Reset");
-    QT_TRANSLATE_NOOP("QPlatformTheme", "Restore Defaults");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "OK");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Save");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Save All");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Open");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "&Yes");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Yes to &All");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "&No");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "N&o to All");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Abort");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Retry");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Ignore");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Close");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Cancel");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Discard");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Help");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Apply");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Reset");
+    (void)QT_TRANSLATE_NOOP("QPlatformTheme", "Restore Defaults");
 }
 
 
@@ -244,7 +242,7 @@ bool XFLR5App::event(QEvent *pEvent)
         case QEvent::FileOpen:
         {
             iApp = MainFrame::self()->loadXFLR5File(static_cast<QFileOpenEvent *>(pEvent)->file());
-            if (iApp == xfl::MIAREX)             MainFrame::self()->onMiarex();
+            if      (iApp == xfl::MIAREX)        MainFrame::self()->onMiarex();
             else if (iApp == xfl::XFOILANALYSIS) MainFrame::self()->onXDirect();
 
             return true;
@@ -301,12 +299,12 @@ void XFLR5App::parseCmdLine(XFLR5App &xflapp,
     bScript = parser.isSet(ScriptOption);
     if(bScript)
     {
-        Trace("Processing option -s", true);
+        trace("Processing option -s", true);
     }
 
     if(parser.isSet(TraceOption))
     {
-        Trace("Processing option -t", true);
+        trace("Processing option -t", true);
         g_bTrace=true;
     }
 
@@ -316,7 +314,7 @@ void XFLR5App::parseCmdLine(XFLR5App &xflapp,
         bool bOK=false;
         int version = parser.value(OGLOption).toInt(&bOK);
         if(bOK) OGLVersion = version; else OGLVersion = -1;
-        Trace("Processing option -o", OGLVersion);
+        trace("Processing option -o", OGLVersion);
     }
     else
     {

@@ -63,7 +63,7 @@ class FoilPolarDlg : public QDialog
         void onPolarType();
         void onNameChanged();
         void editingFinished();
-        void onFluiUnit();
+        void onFluidUnit();
         void onCalcReynolds();
         void onButton(QAbstractButton *pButton);
 
@@ -87,7 +87,7 @@ class FoilPolarDlg : public QDialog
         QLabel *m_plabLengthUnit1, *m_plabLengthUnit2, *m_plabMassUnit;
 
         QRadioButton *m_prbFluidUnit1, *m_prbFluidUnit2;
-        QLabel *m_plabRho, *m_plabNu, *m_plabViscosityUnit, *m_plabDensityUnit;
+        QLabel *m_plabViscosityUnit, *m_plabDensityUnit;
         DoubleEdit *m_pdeDensity, *m_pdeViscosity;
 
         QDialogButtonBox *m_pButtonBox;

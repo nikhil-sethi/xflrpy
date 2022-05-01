@@ -33,6 +33,7 @@ void transpose33(double *l)
     temp=l[5];   l[5]=l[7];  l[7]=temp;
 }
 
+
 /** Inverts in place a 3x3 matrix */
 bool invert33(double *l)
 {
@@ -68,7 +69,7 @@ bool invert33(double *l)
 *@param b second complex number
 *@return 1 if Real(a) > Real(b), -1 if Real(a)<Real(b); if Real(a)=Real(b), returns 1 if Imag(a)>Image(b), -1 otherwise.
 */
-int Compare(complex<double> a, complex<double>b)
+int Compare(std::complex<double> a, std::complex<double>b)
 {
     if(a.real()>b.real())       return  1;
     else if (a.real()<b.real()) return -1;
@@ -86,10 +87,10 @@ int Compare(complex<double> a, complex<double>b)
 *@param array the array of complex numbers to sort
 *@param ub the size of the aray
 */
-void ComplexSort(complex<double>*array, int ub)
+void ComplexSort(std::complex<double>*array, int ub)
 {
     int indx=0, indx2=0;
-    complex<double> temp=0, temp2=0;
+    std::complex<double> temp=0, temp2=0;
     int flipped=0;
 
     if (ub <= 1) return;
@@ -227,10 +228,10 @@ bool Gauss(double *A, int n, double *B, int m, bool *pbCancel)
 *@param aout in output, a pointer to a one-dimensional array holding the 16 complex values of the inverted matrix
 *@return if the inversion was successful
 */
-bool Invert44(complex<double> const *ain, complex<double> *aout)
+bool Invert44(std::complex<double> const *ain, std::complex<double> *aout)
 {
     //small size, use the direct method
-    complex<double> det=0;
+    std::complex<double> det=0;
     double sign=0;
 
     det = det44(ain);
@@ -256,8 +257,6 @@ bool Invert44(complex<double> const *ain, complex<double> *aout)
 */
 double det33(double const *aij)
 {
-    //returns the determinant of a 3x3 matrix
-
     double det=0;
 
     det  = aij[0]*aij[4]*aij[8];
@@ -279,10 +278,10 @@ double det33(double const *aij)
 *@param aij a pointer to a one-dimensional array holding the 9 complex values of the matrix
 *@return the matrix's determinant
 */
-complex<double> det33(complex<double> const *aij)
+std::complex<double> det33(std::complex<double> const *aij)
 {
     //returns the determinant of a 3x3 matrix
-    complex<double> det=0;
+    std::complex<double> det=0;
 
     det  = aij[0]*aij[4]*aij[8];
     det -= aij[0]*aij[5]*aij[7];
@@ -307,6 +306,7 @@ double det44(double const *aij)
 //    returns the determinant of a 4x4 matrix
     double det=0, sign=0;
     double a33[16];
+    memset(a33, 0, 16*sizeof(double));
 
     det = 0.0;
     for(int i=0; i<4; i++)
@@ -339,10 +339,10 @@ double det44(double const *aij)
 *@param j the number of the element's column, starting at 0.
 *@return the cofactor of element (i,j).
 */
-complex<double> cofactor44(complex<double> const*aij, int &i, int &j)
+std::complex<double> cofactor44(std::complex<double> const*aij, int &i, int &j)
 {
     //returns the complex cofactor of element i,j, in the 4x4 matrix aij
-    complex<double> a33[9];
+    std::complex<double> a33[9];
 
     int p = 0;
     for(int k=0; k<4; k++)
@@ -369,11 +369,11 @@ complex<double> cofactor44(complex<double> const*aij, int &i, int &j)
 * @param aij a pointer to a one-dimensional array holding the 16 complex double values of the matrix
 * @return the matrix's determinant
 */
-complex<double> det44(complex<double> const *aij)
+std::complex<double> det44(std::complex<double> const *aij)
 {
 //    returns the determinant of a 4x4 matrix
     double sign=0;
-    complex<double> det=0, a33[16];
+    std::complex<double> det=0, a33[16];
     det = 0.0;
 
     int i=0;
@@ -688,19 +688,19 @@ void TestEigen()
     A[1][0] = 1.00; A[1][1] =  1.0;    A[1][2] =  2.0; A[1][3] = -1.0;
     A[2][0] = 3.00;    A[2][1] = -2.0;    A[2][2] =  1.0; A[2][3] =  1.0;
     A[3][0] = 1.00;    A[3][1] =  1.0;    A[3][2] =  2.0;    A[3][3] =  1.0;
-    complex<double> AC[16];
-//    complex<double> V[4];
+    std::complex<double> AC[16];
+//    std::complex<double> V[4];
     for(int i=0; i<4; i++)
     {
         for(int j=0; j<4;j++)
         {
-            AC[i*4+j] = complex<double>(A[i][j],0.0);
+            AC[i*4+j] = std::complex<double>(A[i][j],0.0);
         }
     }
 
     CharacteristicPol(A, p);
 
-    complex<double> roots[POLYNOMORDER];
+    std::complex<double> roots[POLYNOMORDER];
 
     if(LinBairstow(p, roots, 4))
     {
@@ -728,10 +728,10 @@ void TestEigen()
 *@param lambda the output array of four complex eigenvalues
 *@param V the eigenvector as a one-dimensional array of complex values
 *________________________________________________________________________ */
-bool Eigenvector(double a[][4], complex<double> lambda, complex<double> *V)
+bool Eigenvector(double a[][4], std::complex<double> lambda, std::complex<double> *V)
 {
-    complex<double> detm, detr;
-    complex<double> r[9], m[9];
+    std::complex<double> detm, detr;
+    std::complex<double> r[9], m[9];
     int ii, jj, i, j, kp;
 
     // first find a pivot for which the  associated n-1 determinant is not zero
@@ -775,7 +775,7 @@ bool Eigenvector(double a[][4], complex<double> lambda, complex<double> *V)
     jj=0;
     for(j=0; j<4; j++)
     {
-        memcpy(r,m, 9*sizeof(complex<double>));
+        memcpy(r,m, 9*sizeof(std::complex<double>));
         if(j!=kp)
         {
             ii= 0;
@@ -811,7 +811,7 @@ bool Eigenvector(double a[][4], complex<double> lambda, complex<double> *V)
 *@param n the polynom's order
 *@return true if the extraction was successful
 */
-bool LinBairstow(double *p, complex<double> *root, int n)
+bool LinBairstow(double *p, std::complex<double> *root, int n)
 {
     double b[POLYNOMORDER], c[POLYNOMORDER];
     int i, k, nn, iter;
@@ -862,14 +862,14 @@ bool LinBairstow(double *p, complex<double> *root, int n)
         if(Delta<0.0)
         {
             //complex roots
-            root[nn-1] = complex<double>(r/2.0,  sqrt(qAbs(Delta))/2.0);
-            root[nn-2] = complex<double>(r/2.0, -sqrt(qAbs(Delta))/2.0);
+            root[nn-1] = std::complex<double>(r/2.0,  sqrt(qAbs(Delta))/2.0);
+            root[nn-2] = std::complex<double>(r/2.0, -sqrt(qAbs(Delta))/2.0);
         }
         else
         {
             //real roots
-            root[nn-1] = complex<double>(r/2.0 + sqrt(Delta)/2.0, 0.0);
-            root[nn-2] = complex<double>(r/2.0 - sqrt(Delta)/2.0, 0.0);
+            root[nn-1] = std::complex<double>(r/2.0 + sqrt(Delta)/2.0, 0.0);
+            root[nn-2] = std::complex<double>(r/2.0 - sqrt(Delta)/2.0, 0.0);
         }
 
         //deflate polynom order
@@ -897,14 +897,14 @@ bool LinBairstow(double *p, complex<double> *root, int n)
                 if(Delta<0)
                 {
                     //complex roots
-                    root[nn-1] = complex<double>(-p[1]/2.0/p[2],  sqrt(qAbs(Delta))/2.0/p[2]);
-                    root[nn-2] = complex<double>(-p[1]/2.0/p[2], -sqrt(qAbs(Delta))/2.0/p[2]);
+                    root[nn-1] = std::complex<double>(-p[1]/2.0/p[2],  sqrt(qAbs(Delta))/2.0/p[2]);
+                    root[nn-2] = std::complex<double>(-p[1]/2.0/p[2], -sqrt(qAbs(Delta))/2.0/p[2]);
                 }
                 else
                 {
                     //real roots
-                    root[nn-1] = complex<double>((-p[1]+sqrt(Delta))/2.0/p[2],  0.0);
-                    root[nn-2] = complex<double>((-p[1]-sqrt(Delta))/2.0/p[2],  0.0);
+                    root[nn-1] = std::complex<double>((-p[1]+sqrt(Delta))/2.0/p[2],  0.0);
+                    root[nn-2] = std::complex<double>((-p[1]-sqrt(Delta))/2.0/p[2],  0.0);
                 }
             }
             break;

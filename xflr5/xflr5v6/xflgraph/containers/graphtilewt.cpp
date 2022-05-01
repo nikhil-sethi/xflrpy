@@ -1,7 +1,7 @@
 /****************************************************************************
 
     GraphTileWidget Class
-        Copyright (C) 2015 André Deperrois
+        Copyright (C) André Deperrois
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -49,7 +49,6 @@ XDirect* GraphTileWidget::s_pXDirect = nullptr;
 
 GraphTileWidget::GraphTileWidget(QWidget *parent) : QWidget(parent)
 {
-    //    setMouseTracking(true);
     m_pLegendWidget = nullptr;
     m_pMainSplitter = nullptr;
 
@@ -63,12 +62,8 @@ GraphTileWidget::GraphTileWidget(QWidget *parent) : QWidget(parent)
     m_iStabPolarIndex = m_iStabTimeIndex = 0;
 
     m_SingleGraphOrientation = Qt::Horizontal;
-}
 
-
-GraphTileWidget::~GraphTileWidget()
-{
-
+    setCursor(Qt::CrossCursor);
 }
 
 
@@ -86,7 +81,6 @@ GraphWt *GraphTileWidget::graphWidget(int iGraph)
 
     return m_GraphWidget.at(iGraph);
 }
-
 
 
 GraphWt *GraphTileWidget::graphWidget(Graph *pGraph)
@@ -114,15 +108,6 @@ void GraphTileWidget::setGraphList(QVector<Graph *> pGraphList, int nGraphs, int
     adjustLayout();
 
     update();
-}
-
-
-
-
-void GraphTileWidget::showEvent(QShowEvent *event)
-{
-    Q_UNUSED(event);
-    setCursor(Qt::CrossCursor);
 }
 
 

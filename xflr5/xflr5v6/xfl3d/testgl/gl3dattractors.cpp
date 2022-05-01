@@ -17,14 +17,14 @@
 #include <xflwidgets/wt_globals.h>
 #include <xflwidgets/line/linebtn.h>
 #include <xflwidgets/line/linemenu.h>
-#include <xfl3d/gl_globals.h>
+#include <xfl3d/globals/gl_globals.h>
 
 #define NATTRACTORS 13
 
 int gl3dAttractors::s_iAttractor(0);
 int gl3dAttractors::s_NTrace(11);
 int gl3dAttractors::s_TailSize  = 729;
-LineStyle gl3dAttractors::s_ls = {true, Line::SOLID, 1, QColor(205,92,92), Line::NOSYMBOL, QString()};
+LineStyle gl3dAttractors::s_ls = {true, Line::SOLID, 2, QColor(205,92,92), Line::NOSYMBOL, QString()};
 bool gl3dAttractors::s_bDynColor(true);
 
 
@@ -211,20 +211,30 @@ void gl3dAttractors::glRenderView()
 
     if(m_pchLeadingSphere->isChecked())
     {
-        QColor clr;
+/*        QColor clr;
         for(int i=0; i<m_Trace.size(); i++)
         {
             if(s_bDynColor)
             {
                 QVector<double> const &velocity = m_Velocity.at(i);
-                clr.setRedF(  xfl::GLGetRed(  velocity.at(m_iLead)/m_MaxVelocity));
-                clr.setGreenF(xfl::GLGetGreen(velocity.at(m_iLead)/m_MaxVelocity));
-                clr.setBlueF( xfl::GLGetBlue( velocity.at(m_iLead)/m_MaxVelocity));
+                clr.setRedF(  glGetRed(  velocity.at(m_iLead)/m_MaxVelocity));
+                clr.setGreenF(glGetGreen(velocity.at(m_iLead)/m_MaxVelocity));
+                clr.setBlueF( glGetBlue( velocity.at(m_iLead)/m_MaxVelocity));
             }
             else
                 clr = s_ls.m_Color;
 
             paintSphere(m_Trace.at(i).at(m_iLead), 0.0061f/m_glScalef, clr, true);
+        } */
+        if(!m_bUse120StyleShaders)
+        {
+            m_shadPoint.bind();
+            {
+                m_shadPoint.setUniformValue(m_locPoint.m_vmMatrix, m_matView*m_matModel);
+                m_shadPoint.setUniformValue(m_locPoint.m_pvmMatrix, m_matProj*m_matView);
+            }
+            m_shadPoint.release();
+            paintPoints(m_vboPoints, 1.0f, 0, false, s_ls.m_Color, 4);
         }
     }
     if (!m_bInitialized)
@@ -243,7 +253,7 @@ void gl3dAttractors::glMake3dObjects()
 
         int buffersize =  s_NTrace
                          *(s_TailSize-1)  // NSegments
-                         *2*(3+4);     // 2 vertices * (3 coordinates+ 4 color components)
+                         *2*(4+4);     // 2 vertices * (4 coordinates+ 4 color components)
         QVector<float> buffer(buffersize);
 
         int ip0(0), ip1(0);
@@ -260,11 +270,12 @@ void gl3dAttractors::glMake3dObjects()
                 buffer[iv++] = trace[ip0].xf();
                 buffer[iv++] = trace[ip0].yf();
                 buffer[iv++] = trace[ip0].zf();
+                buffer[iv++] = 1.0f;
                 if(s_bDynColor)
                 {
-                    buffer[iv++] = xfl::GLGetRed(  velocity.at(ip0)/m_MaxVelocity);
-                    buffer[iv++] = xfl::GLGetGreen(velocity.at(ip0)/m_MaxVelocity);
-                    buffer[iv++] = xfl::GLGetBlue( velocity.at(ip0)/m_MaxVelocity);
+                    buffer[iv++] = glGetRed(  velocity.at(ip0)/m_MaxVelocity);
+                    buffer[iv++] = glGetGreen(velocity.at(ip0)/m_MaxVelocity);
+                    buffer[iv++] = glGetBlue( velocity.at(ip0)/m_MaxVelocity);
                 }
                 else
                 {
@@ -272,17 +283,17 @@ void gl3dAttractors::glMake3dObjects()
                     buffer[iv++] = s_ls.m_Color.greenF();
                     buffer[iv++] = s_ls.m_Color.blueF();
                 }
-
                 buffer[iv++] = double(trace.size()-j+1)/double(trace.size()-1);
 
                 buffer[iv++] = trace[ip1].xf();
                 buffer[iv++] = trace[ip1].yf();
                 buffer[iv++] = trace[ip1].zf();
+                buffer[iv++] = 1.0f;
                 if(s_bDynColor)
                 {
-                    buffer[iv++] = xfl::GLGetRed(  velocity.at(ip1)/m_MaxVelocity);
-                    buffer[iv++] = xfl::GLGetGreen(velocity.at(ip1)/m_MaxVelocity);
-                    buffer[iv++] = xfl::GLGetBlue( velocity.at(ip1)/m_MaxVelocity);
+                    buffer[iv++] = glGetRed(  velocity.at(ip1)/m_MaxVelocity);
+                    buffer[iv++] = glGetGreen(velocity.at(ip1)/m_MaxVelocity);
+                    buffer[iv++] = glGetBlue( velocity.at(ip1)/m_MaxVelocity);
                 }
                 else
                 {
@@ -290,8 +301,6 @@ void gl3dAttractors::glMake3dObjects()
                     buffer[iv++] = s_ls.m_Color.greenF();
                     buffer[iv++] = s_ls.m_Color.blueF();
                 }
-
-
                 buffer[iv++] = double(trace.size()-j)/double(trace.size()-1);
             }
         }
@@ -302,8 +311,27 @@ void gl3dAttractors::glMake3dObjects()
         m_vboTrace.create();
         m_vboTrace.bind();
         m_vboTrace.allocate(buffer.data(), buffersize * int(sizeof(GLfloat)));
-
         m_vboTrace.release();
+
+        // leading points
+        buffersize =  s_NTrace * 4;
+        buffer.resize(buffersize);
+        iv = 0;
+        for(int i=0; i<m_Trace.size(); i++)
+        {
+            QVector<double> const &velocity = m_Velocity.at(i);
+            buffer[iv++] = m_Trace.at(i).at(m_iLead).xf();
+            buffer[iv++] = m_Trace.at(i).at(m_iLead).yf();
+            buffer[iv++] = m_Trace.at(i).at(m_iLead).zf();
+
+            if(s_bDynColor)      buffer[iv++] = velocity.at(m_iLead)/m_MaxVelocity;
+            else                 buffer[iv++] = -1.0f;
+        }
+        if(m_vboPoints.isCreated()) m_vboPoints.destroy();
+        m_vboPoints.create();
+        m_vboPoints.bind();
+        m_vboPoints.allocate(buffer.data(), buffersize * int(sizeof(GLfloat)));
+        m_vboPoints.release();
 
         m_bResetAttractor = false;
     }
@@ -350,13 +378,13 @@ void gl3dAttractors::onRandomSeed()
     switch(s_iAttractor)
     {
         default:
-        case 0:  xmin=ymin=-5; zmin=0.0; amp=20; break;
+        case 0:  xmin=ymin=-5; zmin=3.0; amp=10; break;
         case 1:  xmin=ymin=-15; amp = 30; break;
         case 2:  xmin = ymin = zmin = 0; amp = 3; break;
         case 3:  xmin = ymin = zmin = -5; amp = 10; break;
         case 4:  xmin=ymin=-5; zmin=3.0; amp=10; break;
         case 5:  xmin=ymin=-0.5; zmin=0; amp=1.0; break;
-        case 6:  xmin = ymin = -7.5; amp = 15; break;
+        case 6:  xmin = ymin = -5; amp = 10; break;
         case 7:  xmin = 0; ymin = zmin = -0.5; amp = 1.0; break;
         case 8:  xmin = ymin = zmin = -0.5; amp = 1.0; break;
         case 9:  xmin = ymin = zmin = -2.5; amp = 5; break;
@@ -372,8 +400,6 @@ void gl3dAttractors::onRandomSeed()
         pos.x = xmin + QRandomGenerator::global()->bounded(amp);
         pos.y = ymin + QRandomGenerator::global()->bounded(amp);
         pos.z = zmin + QRandomGenerator::global()->bounded(amp);
-        if(s_iAttractor==6) pos.z = 0;
-
         rmax = std::max(rmax, pos.norm());
         QVector<Vector3d> &trace = m_Trace[i];
         for(int jt=0; jt<s_TailSize; jt++)
@@ -407,10 +433,9 @@ double gl3dAttractors::f(double x, double y, double z)  const
         case 9:  return -1.89*x - 4*y - 4*z - y*y;
         case 10: return y*(z-1.0+x*x) + 0.1*x;
         case 11: return y;
-        case 12: return 40.0*(y-x)+0.5*x*z;
+        case 12: return 40*(y-x)+0.5*x*z;
     }
 }
-
 
 double gl3dAttractors::g(double x, double y, double z) const
 {
@@ -426,13 +451,12 @@ double gl3dAttractors::g(double x, double y, double z) const
         case 6:  return x+0.2*y;
         case 7:  return 1.0 - 1.79*x*x + y*z;
         case 8:  return 0.01*x - 0.4*y -x*z;
-        case 9:  return -1.89*y - 4*z - 4*x - z*z;
+        case 9: return -1.89*y - 4*z - 4*x - z*z;
         case 10: return x*(3.0*z+1.0-x*x) + 0.1*y;
         case 11: return -x+y*z;
-        case 12: return 20.0*y-x*z;
+        case 12: return 20*y-x*z;
     }
 }
-
 
 double gl3dAttractors::h(double x, double y, double z) const
 {
@@ -448,7 +472,7 @@ double gl3dAttractors::h(double x, double y, double z) const
         case 6:  return 0.2 + z*(x-5.7);
         case 7:  return x -x*x -y*y;
         case 8:  return -z - x*y;
-        case 9:  return -1.89*z - 4*x - 4*y - x*x;
+        case 9: return -1.89*z - 4*x - 4*y - x*x;
         case 10: return -2*z*(0.14+x*y);
         case 11: return (1.5-y*y);
         case 12: return 0.833*z+x*y-0.65*x*x;

@@ -28,8 +28,8 @@
 #include <QDir>
 
 #include "gl3dview.h"
-#include <xfl3d/gl_globals.h>
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/gl_globals.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xflcore/displayoptions.h>
 #include <xflcore/trace.h>
 #include <xflcore/xflcore.h>
@@ -51,17 +51,14 @@ Light gl3dView::s_Light;
 QColor gl3dView::s_TextColor = Qt::white;
 QColor gl3dView::s_BackgroundColor = QColor(5,10,17);
 
-bool gl3dView::s_bSpinAnimation = true;
-double gl3dView::s_SpinDamping = 0.01;
-
 bool gl3dView::s_bAnimateTransitions = true;
 int gl3dView::s_AnimationTime = 500; //ms
 
 gl3dView::gl3dView(QWidget *pParent) : QOpenGLWidget(pParent)
 {
-    setAutoFillBackground(false);
     setMouseTracking(true);
     setCursor(Qt::CrossCursor);
+    setFocusPolicy(Qt::WheelFocus);
 
     m_iTransitionInc = 0;
 
@@ -99,20 +96,6 @@ gl3dView::gl3dView(QWidget *pParent) : QOpenGLWidget(pParent)
 
     m_ZoomFactor = 1.0;
     m_iTimerInc=0;
-}
-
-
-#define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
-#define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
-void gl3dView::getMemoryStatus(int &total_mem_kb, int &cur_avail_mem_kb)
-{
-    total_mem_kb = 0;
-    glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX,
-                  &total_mem_kb);
-
-    cur_avail_mem_kb = 0;
-    glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX,
-                  &cur_avail_mem_kb);
 }
 
 
@@ -385,6 +368,8 @@ void gl3dView::mousePressEvent(QMouseEvent *pEvent)
                 m_bCrossPoint = true;
             }
         }
+        else
+            setFocus();
         update();
     }
 
@@ -467,7 +452,7 @@ void gl3dView::wheelEvent(QWheelEvent *pEvent)
     int dy = pEvent->pixelDelta().y();
     if(dy==0) dy = pEvent->angleDelta().y(); // pixeldelta usabel on macOS and angleDelta on win/linux; depends also on driver and hardware
 
-    if(s_bSpinAnimation && abs(dy)>120)
+    if(W3dPrefs::bSpinAnimation() && abs(dy)>120)
     {
         m_bDynScaling = true;
         m_ZoomFactor = dy;
@@ -511,7 +496,7 @@ void gl3dView::mouseReleaseEvent(QMouseEvent * pEvent )
     m_ArcBall.getRotationMatrix(m_MatOut, true);
     setViewportTranslation();
 
-    if(s_bSpinAnimation)
+    if(W3dPrefs::bSpinAnimation())
     {
         int movetime = m_MoveTime.elapsed();
         if(movetime<300 && !m_PressedPoint.isNull())
@@ -713,42 +698,42 @@ void gl3dView::getGLError()
     switch(glGetError())
     {
         case GL_NO_ERROR:
-            Trace("No error has been recorded. The value of this symbolic constant is guaranteed to be 0.");
+            trace("No error has been recorded. The value of this symbolic constant is guaranteed to be 0.");
             break;
 
         case GL_INVALID_ENUM:
-            Trace("An unacceptable value is specified for an enumerated argument. "
+            trace("An unacceptable value is specified for an enumerated argument. "
                   "The offending command is ignored and has no other side effect than to set the error flag.");
             break;
 
         case GL_INVALID_VALUE:
-            Trace("A numeric argument is out of range. The offending command is ignored and has no other "
+            trace("A numeric argument is out of range. The offending command is ignored and has no other "
                   "side effect than to set the error flag.");
             break;
 
         case GL_INVALID_OPERATION:
-            Trace("The specified operation is not allowed in the current state. The offending command is "
+            trace("The specified operation is not allowed in the current state. The offending command is "
                   "ignored and has no other side effect than to set the error flag.");
             break;
 
         case GL_INVALID_FRAMEBUFFER_OPERATION:
-            Trace("The command is trying to render to or read from the framebuffer while the currently "
+            trace("The command is trying to render to or read from the framebuffer while the currently "
                   "bound framebuffer is not framebuffer complete (i.e. the return value from glCheckFramebufferStatus "
                   "is not GL_FRAMEBUFFER_COMPLETE). The offending command is ignored and has no other side effect than "
                   "to set the error flag.");
             break;
 
         case GL_OUT_OF_MEMORY:
-            Trace("There is not enough memory left to execute the command. The state of the GL is "
+            trace("There is not enough memory left to execute the command. The state of the GL is "
                   "undefined, except for the state of the error flags, after this error is recorded.");
             break;
 
         case GL_STACK_UNDERFLOW:
-            Trace("An attempt has been made to perform an operation that would cause an internal stack to underflow.");
+            trace("An attempt has been made to perform an operation that would cause an internal stack to underflow.");
             break;
 
         case GL_STACK_OVERFLOW:
-            Trace("An attempt has been made to perform an operation that would cause an internal stack to overflow.");
+            trace("An attempt has been made to perform an operation that would cause an internal stack to overflow.");
             break;
     }
 }
@@ -857,7 +842,7 @@ void gl3dView::initializeGL()
     {
         QString log;
         printFormat(ctxtFormat, log);
-        Trace(log);
+        trace(log);
     }
 
     glMakeAxes();
@@ -871,31 +856,31 @@ void gl3dView::initializeGL()
     QString strange;
     QString vsrc, gsrc, fsrc;
     //--------- setup the shader to paint stippled thick lines -----------
-    vsrc = m_bUse120StyleShaders ? ":/resources/shaders/line/line_VS_120.glsl"   : ":/resources/shaders/line/line_VS.glsl";
+    vsrc = m_bUse120StyleShaders ? ":/shaders/line/line_VS_120.glsl"   : ":/shaders/line/line_VS.glsl";
     m_shadLine.addShaderFromSourceFile(QOpenGLShader::Vertex, vsrc);
     if(m_shadLine.log().length())
     {
         strange = QString::asprintf("%s", QString("Line vertex shader log:"+m_shadLine.log()).toStdString().c_str());
-        Trace(strange);
+        trace(strange);
     }
 
     if(!m_bUse120StyleShaders)
     {
-        gsrc = ":/resources/shaders/line/line_GS.glsl";
+        gsrc = ":/shaders/line/line_GS.glsl";
         m_shadLine.addShaderFromSourceFile(QOpenGLShader::Geometry, gsrc);
         if(m_shadLine.log().length())
         {
             strange = QString::asprintf("%s", QString("Line geometry shader log:"+m_shadLine.log()).toStdString().c_str());
-            Trace(strange);
+            trace(strange);
         }
     }
 
-    fsrc = m_bUse120StyleShaders? ":/resources/shaders/line/line_FS_120.glsl" : ":/resources/shaders/line/line_FS.glsl";
+    fsrc = m_bUse120StyleShaders? ":/shaders/line/line_FS_120.glsl" : ":/shaders/line/line_FS.glsl";
     m_shadLine.addShaderFromSourceFile(QOpenGLShader::Fragment, fsrc);
     if(m_shadLine.log().length())
     {
         strange = QString::asprintf("%s", QString("Stipple fragment shader log:"+m_shadLine.log()).toStdString().c_str());
-        Trace(strange);
+        trace(strange);
     }
 
     m_shadLine.link();
@@ -919,13 +904,13 @@ void gl3dView::initializeGL()
 
 
     //setup the shader to paint colored surfaces
-    vsrc = m_bUse120StyleShaders ? ":/resources/shaders/surface/surface_VS_120.glsl" : ":/resources/shaders/surface/surface_VS.glsl";
-    fsrc = m_bUse120StyleShaders ? ":/resources/shaders/surface/surface_FS_120.glsl" : ":/resources/shaders/surface/surface_FS.glsl";
+    vsrc = m_bUse120StyleShaders ? ":/shaders/surface/surface_VS_120.glsl" : ":/shaders/surface/surface_VS.glsl";
+    fsrc = m_bUse120StyleShaders ? ":/shaders/surface/surface_FS_120.glsl" : ":/shaders/surface/surface_FS.glsl";
     m_shadSurf.addShaderFromSourceFile(QOpenGLShader::Vertex, vsrc);
-    if(m_shadSurf.log().length()) Trace("Surface vertex shader log:"+m_shadSurf.log());
+    if(m_shadSurf.log().length()) trace("Surface vertex shader log:"+m_shadSurf.log());
 
     m_shadSurf.addShaderFromSourceFile(QOpenGLShader::Fragment, fsrc);
-    if(m_shadSurf.log().length()) Trace("Surface fragment shader log:"+m_shadSurf.log());
+    if(m_shadSurf.log().length()) trace("Surface fragment shader log:"+m_shadSurf.log());
 
     m_shadSurf.link();
     m_shadSurf.bind();
@@ -956,28 +941,28 @@ void gl3dView::initializeGL()
     //--------- setup the shader to paint stippled large points -----------
     if(!m_bUse120StyleShaders)
     {
-        vsrc = ":/resources/shaders/point/point_VS.glsl";
+        vsrc = ":/shaders/point/point_VS.glsl";
         m_shadPoint.addShaderFromSourceFile(QOpenGLShader::Vertex, vsrc);
         if(m_shadPoint.log().length())
         {
             strange = QString::asprintf("%s", QString("Point vertex shader log:"+m_shadPoint.log()).toStdString().c_str());
-            Trace(strange);
+            trace(strange);
         }
 
-        gsrc = ":/resources/shaders/point/point_GS.glsl";
+        gsrc = ":/shaders/point/point_GS.glsl";
         m_shadPoint.addShaderFromSourceFile(QOpenGLShader::Geometry, gsrc);
         if(m_shadPoint.log().length())
         {
             strange = QString::asprintf("%s", QString("Point geometry shader log:"+m_shadPoint.log()).toStdString().c_str());
-            Trace(strange);
+            trace(strange);
         }
 
-        fsrc = ":/resources/shaders/point/point_FS.glsl";
+        fsrc = ":/shaders/point/point_FS.glsl";
         m_shadPoint.addShaderFromSourceFile(QOpenGLShader::Fragment, fsrc);
         if(m_shadPoint.log().length())
         {
             strange = QString::asprintf("%s", QString("Point fragment shader log:"+m_shadPoint.log()).toStdString().c_str());
-            Trace(strange);
+            trace(strange);
         }
 
         m_shadPoint.link();
@@ -997,6 +982,37 @@ void gl3dView::initializeGL()
         }
         m_shadPoint.release();
     }
+
+    // setup the flat point shader
+    vsrc = m_bUse120StyleShaders? ":/shaders/point2/point2_VS_120.glsl" : ":/shaders/point2/point2_VS.glsl";
+    fsrc = m_bUse120StyleShaders? ":/shaders/point2/point2_FS_120.glsl" : ":/shaders/point2/point2_FS.glsl";
+
+    m_shadPoint2.addShaderFromSourceFile(QOpenGLShader::Vertex, vsrc);
+    if(m_shadPoint2.log().length())
+    {
+        strange = QString::asprintf("%s", QString("point2 vertex shader log:"+m_shadPoint2.log()).toStdString().c_str());
+        trace(strange);
+    }
+
+
+    m_shadPoint2.addShaderFromSourceFile(QOpenGLShader::Fragment, fsrc);
+    if(m_shadPoint2.log().length())
+    {
+        strange = QString::asprintf("%s", QString("point2 fragment shader log:"+m_shadPoint2.log()).toStdString().c_str());
+        trace(strange);
+    }
+
+    m_shadPoint2.link();
+    m_shadPoint2.bind();
+    {
+        m_locPt2.m_attrVertex = m_shadPoint2.attributeLocation("vertexPosition_modelSpace");
+        m_locPt2.m_attrColor  = m_shadPoint2.attributeLocation("vertexColor");
+        m_locPt2.m_vmMatrix   = m_shadPoint2.uniformLocation("vmMatrix");
+        m_locPt2.m_pvmMatrix  = m_shadPoint2.uniformLocation("pvmMatrix");
+        m_locPt2.m_ClipPlane  = m_shadPoint2.uniformLocation("clipPlane0");
+        m_locPt2.m_Shape      = m_shadPoint2.uniformLocation("pointsize");
+    }
+    m_shadPoint2.release();
 
     glSetupLight();
 }
@@ -1218,7 +1234,7 @@ void gl3dView::paintArcBall()
             m_shadLine.setUniformValue(m_locLine.m_pvmMatrix, m_matProj*m_matView*m_matModel);
             m_shadLine.setUniformValue(m_locLine.m_UniColor, QColor(43,43,43,175));
             m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(Line::SOLID));
-            m_shadLine.setUniformValue(m_locLine.m_Thickness, 2);
+            m_shadLine.setUniformValue(m_locLine.m_Thickness, 2.0f);
 
             if(m_bUse120StyleShaders) glLineWidth(2);
 
@@ -1241,7 +1257,7 @@ void gl3dView::paintArcBall()
                 m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex, GL_FLOAT, 0, 3, 0);
                 m_shadLine.setUniformValue(m_locLine.m_UniColor, QColor(70, 25, 40));
                 m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(Line::SOLID));
-                m_shadLine.setUniformValue(m_locLine.m_Thickness, 3);
+                m_shadLine.setUniformValue(m_locLine.m_Thickness, 3.0f);
                 if(m_bUse120StyleShaders) glLineWidth(5);
 
                 int nSegs = m_vboArcPoint.size()/2/3/int(sizeof(float)); // 2 vertices and (3 position components)
@@ -1266,7 +1282,7 @@ void gl3dView::paintAxes()
         m_shadLine.setUniformValue(m_locLine.m_HasUniColor, 1);
         m_shadLine.setUniformValue(m_locLine.m_UniColor, W3dPrefs::s_AxisStyle.m_Color);
         m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(W3dPrefs::s_AxisStyle.m_Stipple));
-        m_shadLine.setUniformValue(m_locLine.m_Thickness, W3dPrefs::s_AxisStyle.m_Width);
+        m_shadLine.setUniformValue(m_locLine.m_Thickness, float(W3dPrefs::s_AxisStyle.m_Width));
         m_shadLine.setUniformValue(m_locLine.m_Viewport, QVector2D(float(m_GLViewRect.width()), float(m_GLViewRect.height())));
         m_vboAxes.bind();
         {
@@ -1700,35 +1716,6 @@ void gl3dView::startResetTimer()
 }
 
 
-/** note: glLineStipple is deprecated since OpenGL 3.1 */
-void GLLineStipple(Line::enumLineStipple stipple)
-{
-    switch(stipple)
-    {
-        default:
-        case Line::SOLID:       glLineStipple (1, 0xFFFF);   break;
-        case Line::DASH:        glLineStipple (1, 0xCFCF);   break;
-        case Line::DOT:         glLineStipple (1, 0x6666);   break;
-        case Line::DASHDOT:     glLineStipple (1, 0xFF18);   break;
-        case Line::DASHDOTDOT:  glLineStipple (1, 0x7E66);   break;
-    }
-}
-
-
-GLushort GLStipple(Line::enumLineStipple stipple)
-{
-    switch(stipple)
-    {
-        default:
-        case Line::SOLID:       return 0xFFFF;
-        case Line::DASH:        return 0x1F1F;
-        case Line::DOT:         return 0x6666;
-        case Line::DASHDOT:     return 0xFF18;
-        case Line::DASHDOTDOT:  return 0x7E66;
-    }
-}
-
-
 /**
  * @brief since glLineStipple is deprecated, make an array of simple lines for all 3 axis
  */
@@ -1841,11 +1828,10 @@ void gl3dView::set3dRotationCenter(QPoint const &point)
 }
 
 
-
 void gl3dView::startDynamicTimer()
 {
     m_DynTimer.start(17);
-    setMouseTracking(false);
+//    setMouseTracking(false);
 }
 
 
@@ -1860,9 +1846,8 @@ void gl3dView::stopDynamicTimer()
         setViewportTranslation();
     }
     m_bDynTranslation = m_bDynRotation = m_bDynScaling = false;
-    setMouseTracking(true);
+//    setMouseTracking(true);
 }
-
 
 
 void gl3dView::setViewportTranslation()
@@ -2021,14 +2006,14 @@ void gl3dView::paintTriangle(QOpenGLBuffer &vbo, bool bHighlight, bool bBackgrou
     if(bHighlight)
     {
         if(m_bUse120StyleShaders) glLineWidth(W3dPrefs::s_OutlineStyle.m_Width+2);
-        else m_shadLine.setUniformValue(m_locLine.m_Thickness,W3dPrefs::s_OutlineStyle.m_Width+2);
+        else m_shadLine.setUniformValue(m_locLine.m_Thickness, float(W3dPrefs::s_OutlineStyle.m_Width+2));
 
         m_shadLine.setUniformValue(m_locLine.m_UniColor, Qt::red);
     }
     else
     {
         if(m_bUse120StyleShaders) glLineWidth(W3dPrefs::s_OutlineStyle.m_Width);
-        else m_shadLine.setUniformValue(m_locLine.m_Thickness, W3dPrefs::s_OutlineStyle.m_Width);
+        else m_shadLine.setUniformValue(m_locLine.m_Thickness, float(W3dPrefs::s_OutlineStyle.m_Width));
 
         m_shadLine.setUniformValue(m_locLine.m_UniColor, W3dPrefs::s_OutlineStyle.m_Color);
     }
@@ -2181,39 +2166,39 @@ void gl3dView::paintSegments(QOpenGLBuffer &vbo, LineStyle const &ls, bool bHigh
 void gl3dView::paintSegments(QOpenGLBuffer &vbo, QColor const &clr, int thickness, Line::enumLineStipple stip, bool bHigh)
 {
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
-
+    int stride = 4;
     m_shadLine.bind();
     {
         vbo.bind();
         {
             m_shadLine.enableAttributeArray(m_locLine.m_attrVertex);
-            m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex, GL_FLOAT, 0, 3, 3*sizeof(GLfloat));
+            m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex, GL_FLOAT, 0, 4, stride*sizeof(GLfloat));
 
-            int nSegs = vbo.size()/2/3/int(sizeof(float)); // 2 vertices and (3 position components)
+            int nSegs = vbo.size()/2/stride/int(sizeof(float)); // 2 vertices and (3 position components)
 
             if(bHigh)
             {
                 m_shadLine.setUniformValue(m_locLine.m_UniColor, Qt::red);
 
                 if(m_bUse120StyleShaders)glLineWidth(thickness+2);
-                else m_shadLine.setUniformValue(m_locLine.m_Thickness, thickness+2);
+                else m_shadLine.setUniformValue(m_locLine.m_Thickness, float(thickness)+2.0f);
             }
             else
             {
                 m_shadLine.setUniformValue(m_locLine.m_UniColor, clr);
-            }
-            if(m_bUse120StyleShaders)
-            {
-                glEnable(GL_LINE_STIPPLE);
-                glLineStipple(1, GLStipple(stip));
-                glLineWidth(float(thickness));
-            }
-            else
-            {
-                m_shadLine.setUniformValue(m_locLine.m_Thickness, thickness);
-                m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(stip));
-            }
 
+                if(m_bUse120StyleShaders)
+                {
+                    glEnable(GL_LINE_STIPPLE);
+                    glLineStipple(1, GLStipple(stip));
+                    glLineWidth(float(thickness));
+                }
+                else
+                {
+                    m_shadLine.setUniformValue(m_locLine.m_Thickness, float(thickness));
+                    m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(stip));
+                }
+            }
             glDrawArrays(GL_LINES, 0, nSegs*2);// 4 vertices defined but only 3 are used
             glDisable(GL_LINE_STIPPLE);
         }
@@ -2285,7 +2270,7 @@ void gl3dView::onDynamicIncrement()
             update();
             return;
         }
-        m_SpinInc = Quaternion(m_SpinInc.angle()*(1.0-s_SpinDamping), m_SpinInc.axis());
+        m_SpinInc = Quaternion(m_SpinInc.angle()*(1.0-W3dPrefs::spinDamping()), m_SpinInc.axis());
         m_ArcBall.applyRotation(m_SpinInc, false);
     }
 
@@ -2301,7 +2286,7 @@ void gl3dView::onDynamicIncrement()
         m_glRotCenter += m_Trans/10.0;
         setViewportTranslation();
 
-        m_Trans *= (1.0-s_SpinDamping);
+        m_Trans *= (1.0-W3dPrefs::spinDamping());
     }
 
     if(m_bDynScaling)
@@ -2316,7 +2301,7 @@ void gl3dView::onDynamicIncrement()
         double scalefactor(1.0-DisplayOptions::scaleFactor()/3.0 * m_ZoomFactor/120);
 
         m_glScalef *= scalefactor;
-        m_ZoomFactor *= (1.0-s_SpinDamping);
+        m_ZoomFactor *= (1.0-W3dPrefs::spinDamping());
     }
 
     update();
@@ -2325,35 +2310,39 @@ void gl3dView::onDynamicIncrement()
 
 void gl3dView::paintLineStrip(QOpenGLBuffer &vbo, LineStyle const &ls)
 {
-    paintLineStrip(vbo, ls.m_Color, ls.m_Width, ls.m_Stipple);
+    paintLineStrip(vbo, ls.m_Color, float(ls.m_Width), ls.m_Stipple);
 }
 
 
-void gl3dView::paintLineStrip(QOpenGLBuffer &vbo, QColor const &clr, int width, Line::enumLineStipple stipple)
+void gl3dView::paintLineStrip(QOpenGLBuffer &vbo, QColor const &clr, float width, Line::enumLineStipple stipple)
 {
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
+    int stride = 4;
     m_shadLine.bind();
-    m_shadLine.setUniformValue(m_locLine.m_UniColor, clr);
-    if(m_bUse120StyleShaders)
     {
-        glLineWidth(width);
-        glEnable(GL_LINE_STIPPLE);
-        glLineStipple(1, GLStipple(stipple));
+        m_shadLine.setUniformValue(m_locLine.m_UniColor, clr);
+        if(m_bUse120StyleShaders)
+        {
+            glLineWidth(width);
+            glEnable(GL_LINE_STIPPLE);
+            glLineStipple(1, GLStipple(stipple));
+        }
+
+        m_shadLine.setUniformValue(m_locLine.m_Thickness, width);
+        m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(stipple));
+
+        vbo.bind();
+        {
+            m_shadLine.enableAttributeArray(m_locLine.m_attrVertex);
+            m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex, GL_FLOAT, 0, 4, stride * sizeof(GLfloat));
+            int nPoints = vbo.size()/4/int(sizeof(float));
+            glDrawArrays(GL_LINE_STRIP, 0, nPoints);
+            m_shadLine.disableAttributeArray(m_locLine.m_attrVertex);
+        }
+        vbo.release();
+        if(m_bUse120StyleShaders) glDisable(GL_LINE_STIPPLE);
     }
-
-    m_shadLine.setUniformValue(m_locLine.m_Thickness, width);
-    m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(stipple));
-
-    vbo.bind();
-    m_shadLine.enableAttributeArray(m_locLine.m_attrVertex);
-    m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex, GL_FLOAT, 0, 3, 3 * sizeof(GLfloat));
-    int nPoints = vbo.size()/3/int(sizeof(float));
-    glDrawArrays(GL_LINE_STRIP, 0, nPoints);
-    m_shadLine.disableAttributeArray(m_locLine.m_attrVertex);
-    vbo.release();
-    if(m_bUse120StyleShaders) glDisable(GL_LINE_STIPPLE);
-
     m_shadLine.release();
 }
 
@@ -2363,22 +2352,23 @@ void gl3dView::paintColourSegments(QOpenGLBuffer &vbo, LineStyle const &ls)
 {
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
+    int stride = 8; // 4 coords + 4 color components
     m_shadLine.bind();
     {
         m_shadLine.enableAttributeArray(m_locLine.m_attrVertex);
         m_shadLine.enableAttributeArray(m_locLine.m_attrColor);
 
         m_shadLine.setUniformValue(m_locLine.m_HasUniColor, 0);
-        m_shadLine.setUniformValue(m_locLine.m_Thickness, ls.m_Width);
+        m_shadLine.setUniformValue(m_locLine.m_Thickness, float(ls.m_Width));
         m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(ls.m_Stipple));
 
         vbo.bind();
         {
-            // 2 vertices x (3 coords + 4 color components)
-            int nSegs = vbo.size() /2 /7 /int(sizeof(float));
+            // 2 vertices x stride
+            int nSegs = vbo.size() /2 /stride /int(sizeof(float));
 
-            m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex,    GL_FLOAT, 0,                  3, 7 * sizeof(GLfloat));
-            m_shadLine.setAttributeBuffer(m_locLine.m_attrColor, GL_FLOAT, 3* sizeof(GLfloat), 4, 7 * sizeof(GLfloat));
+            m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex, GL_FLOAT, 0,                  4, stride * sizeof(GLfloat));
+            m_shadLine.setAttributeBuffer(m_locLine.m_attrColor,  GL_FLOAT, 4* sizeof(GLfloat), 4, stride * sizeof(GLfloat));
 
             glDrawArrays(GL_LINES, 0, nSegs*2);
             vbo.release();

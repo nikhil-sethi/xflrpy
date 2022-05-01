@@ -106,7 +106,6 @@ void Triangle2d::initialize()
 {
     m_Neighbour[0] = m_Neighbour[1] = m_Neighbour[2] = -1;
     m_NodeIndex[0] = m_NodeIndex[1] = m_NodeIndex[2] = -1;
-    memset(m_S, 0, 3*sizeof(double));
 
     m_bNullTriangle = true;
     m_SignedArea  = 0.0;

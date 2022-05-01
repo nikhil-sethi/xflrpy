@@ -355,10 +355,10 @@ void EditPolarDefDlg::showWPolar()
         dataItem = prepareDoubleRow("", "Reference Area", m_pWPolar->referenceArea() * Units::m2toUnit(), Units::areaUnitLabel());
         refDimensionsFolder.first()->appendRow(dataItem);
 
-        dataItem = prepareDoubleRow("", "Reference Span Length", m_pWPolar->referenceSpanLength() * Units::mtoUnit(), Units::lengthUnitLabel());
+        dataItem = prepareDoubleRow("", "Reference Span Length", m_pWPolar->referenceSpan() * Units::mtoUnit(), Units::lengthUnitLabel());
         refDimensionsFolder.first()->appendRow(dataItem);
 
-        dataItem = prepareDoubleRow("", "Reference Chord Length", m_pWPolar->referenceChordLength() * Units::mtoUnit(), Units::lengthUnitLabel());
+        dataItem = prepareDoubleRow("", "Reference Chord Length", m_pWPolar->referenceMAC() * Units::mtoUnit(), Units::lengthUnitLabel());
         refDimensionsFolder.first()->appendRow(dataItem);
     }
 
@@ -476,7 +476,7 @@ void EditPolarDefDlg::readViewLevel(QModelIndex indexLevel)
         else
         {
             //no more children
-            QString object = indexLevel.sibling(indexLevel.row(),0).data().toString();
+//            QString object = indexLevel.sibling(indexLevel.row(),0).data().toString();
             QString field = indexLevel.sibling(indexLevel.row(),1).data().toString();
 
             QModelIndex dataIndex = indexLevel.sibling(indexLevel.row(),2);
@@ -503,7 +503,7 @@ void EditPolarDefDlg::readViewLevel(QModelIndex indexLevel)
             else if(field.compare("Area")==0)                    m_pWPolar->setReferenceDim(xfl::referenceDimension(value));
             else if(field.compare("Reference Area")==0)          m_pWPolar->setReferenceArea(dataIndex.data().toDouble()/Units::m2toUnit());
             else if(field.compare("Reference Span Length")==0)   m_pWPolar->setReferenceSpanLength(dataIndex.data().toDouble()/Units::mtoUnit());
-            else if(field.compare("Reference Chord Length")==0)  m_pWPolar->setReferenceChordLength(dataIndex.data().toDouble()/Units::mtoUnit());
+            else if(field.compare("Reference Chord Length")==0)  m_pWPolar->setReferenceMAC(dataIndex.data().toDouble()/Units::mtoUnit());
             else if(field.compare("Density")==0)                 m_pWPolar->setDensity(dataIndex.data().toDouble());
             else if(field.compare("Viscosity")==0)               m_pWPolar->setViscosity(dataIndex.data().toDouble());
             else if(field.compare("Ground effect")==0)           m_pWPolar->setGroundEffect(xfl::stringToBool(value));
@@ -525,8 +525,8 @@ void EditPolarDefDlg::readControlFields(QModelIndex indexLevel)
     do
     {
         QString object = indexLevel.sibling(indexLevel.row(),0).data().toString();
-        QString field  = indexLevel.sibling(indexLevel.row(),1).data().toString();
-        QString value  = indexLevel.sibling(indexLevel.row(),2).data().toString();
+//        QString field  = indexLevel.sibling(indexLevel.row(),1).data().toString();
+//        QString value  = indexLevel.sibling(indexLevel.row(),2).data().toString();
         QStandardItem *pItem = m_pModel->item(indexLevel.row());
 
         if(pItem->child(0,0))
@@ -538,9 +538,9 @@ void EditPolarDefDlg::readControlFields(QModelIndex indexLevel)
                 QModelIndex childIndex= pItem->child(0,0)->index();
                 do
                 {
-                    QString childObject = childIndex.sibling(childIndex.row(),0).data().toString();
+ //                   QString childObject = childIndex.sibling(childIndex.row(),0).data().toString();
                     QString childField = childIndex.sibling(childIndex.row(),1).data().toString();
-                    QString childValue = childIndex.sibling(childIndex.row(),2).data().toString();
+//                    QString childValue = childIndex.sibling(childIndex.row(),2).data().toString();
 
                     QModelIndex dataIndex = childIndex.sibling(childIndex.row(),2);
 

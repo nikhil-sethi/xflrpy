@@ -479,7 +479,7 @@ void InertiaDlg::onExportToAVL()
 
     if (!XFile.open(QIODevice::WriteOnly | QIODevice::Text)) return ;
     QTextStream out(&XFile);
-    out.setCodec("UTF-8");
+//    out.setCodec("UTF-8");
 
     double Lunit = 1./Units::mtoUnit();
     double Munit = 1./Units::kgtoUnit();

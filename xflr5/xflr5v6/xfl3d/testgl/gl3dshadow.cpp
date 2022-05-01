@@ -13,8 +13,8 @@
 
 
 #include <xfl3d/controls/gllightdlg.h>
-#include <xfl3d/controls/w3dprefs.h>
-#include <xfl3d/gl_globals.h>
+#include <xfl3d/globals/gl_globals.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xflcore/trace.h>
 #include <xflgeom/geom_globals.h>
 #include <xflgeom/geom3d/triangle3d.h>
@@ -67,21 +67,21 @@ gl3dShadow::gl3dShadow(QWidget *pParent) : gl3dTestGLView(pParent)
                     m_peslXObj->setMaximum(100);
                     m_peslXObj->setTickInterval(10);
                     m_peslXObj->setTickPosition(QSlider::TicksBelow);
-                    connect(m_peslXObj, SIGNAL(sliderMoved(int)), SLOT(onObjectPos()));
+                    connect(m_peslXObj, SIGNAL(valueChanged(int)), SLOT(onObjectPos()));
 
                     m_peslYObj = new ExponentialSlider(Qt::Horizontal);
                     m_peslYObj->setMinimum(0);
                     m_peslYObj->setMaximum(100);
                     m_peslYObj->setTickInterval(10);
                     m_peslYObj->setTickPosition(QSlider::TicksBelow);
-                    connect(m_peslYObj, SIGNAL(sliderMoved(int)), SLOT(onObjectPos()));
+                    connect(m_peslYObj, SIGNAL(valueChanged(int)), SLOT(onObjectPos()));
 
                     m_peslZObj  = new ExponentialSlider(false, 1, Qt::Horizontal);
                     m_peslZObj->setMinimum(0);
                     m_peslZObj->setMaximum(100);
                     m_peslZObj->setTickInterval(10);
                     m_peslZObj->setTickPosition(QSlider::TicksBelow);
-                    connect(m_peslZObj, SIGNAL(sliderMoved(int)), SLOT(onObjectPos()));
+                    connect(m_peslZObj, SIGNAL(valueChanged(int)), SLOT(onObjectPos()));
 
                     pObjectLayout->addWidget(plabX ,     2, 1);
                     pObjectLayout->addWidget(m_peslXObj, 2, 2);
@@ -185,20 +185,20 @@ void gl3dShadow::initializeGL()
 {
     gl3dView::initializeGL();
     //setup the depth shader
-    QString vsrc(":/resources/shaders/shadow/depth_VS.glsl");
-    QString fsrc(":/resources/shaders/shadow/depth_FS.glsl");
+    QString vsrc(":/shaders/shadow/depth_VS.glsl");
+    QString fsrc(":/shaders/shadow/depth_FS.glsl");
     m_shadDepth.addShaderFromSourceFile(QOpenGLShader::Vertex, vsrc);
     if(m_shadDepth.log().length())
     {
         QString strange = QString::asprintf("%s", QString("Depth vertex shader log:"+m_shadDepth.log()).toStdString().c_str());
-        Trace(strange);
+        trace(strange);
     }
 
     m_shadDepth.addShaderFromSourceFile(QOpenGLShader::Fragment, fsrc);
     if(m_shadDepth.log().length())
     {
         QString strange = QString::asprintf("%s", QString("Depth fragment shader log:"+m_shadDepth.log()).toStdString().c_str());
-        Trace(strange);
+        trace(strange);
     }
 
     m_shadDepth.link();

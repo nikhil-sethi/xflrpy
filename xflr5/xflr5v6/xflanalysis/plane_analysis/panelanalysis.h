@@ -49,7 +49,6 @@ class PanelAnalysis : QObject
 
     friend class PanelAnalysisDlg;
     friend class Wing;
-    friend class Objects3D;
     friend class Miarex;
     friend class PlaneTask;
     friend class XflScriptExec;
@@ -83,16 +82,16 @@ class PanelAnalysis : QObject
         void createUnitRHS();
         void createWakeContribution();
         void createWakeContribution(double *pWakeContrib, Vector3d const &WindDirection);
-        void getDoubletInfluence(Vector3d const &C, const Panel *pPanel, Vector3d &V, double &phi, bool bWake=false, bool bAll=true) const;
-        void getSourceInfluence(Vector3d const &C, Panel *pPanel, Vector3d &V, double &phi) const;
+        void getDoubletInfluence(Vector3d const &C, const Panel &panel, Vector3d &V, double &phi, bool bWake=false, bool bAll=true) const;
+        void getSourceInfluence(Vector3d const &C, const Panel &panel, Vector3d &V, double &phi) const;
         void scaleResultstoSpeed(int nval);
         void sumPanelForces(double const *Cp, double Alpha, double &Lift, double &Drag);
-        void VLMGetVortexInfluence(const Panel *pPanel, Vector3d const &C, Vector3d &V, bool bAll) const;
+        void VLMGetVortexInfluence(const Panel &panel, Vector3d const &C, Vector3d &V, bool bAll) const;
         void VLMCmn(Vector3d const &A, Vector3d const &B, Vector3d const &C, Vector3d &V, bool bAll) const;
         void VLMQmn(const Vector3d &LA, const Vector3d &LB, const Vector3d &TA, const Vector3d &TB, Vector3d const &C, Vector3d &V) const;
 
         void panelTrefftz(Wing *pWing, double QInf, double Alpha, const double *Mu, const double *Sigma, int pos, Vector3d &Force, double &WingIDrag,
-                          const WPolar *pWPolar, const Panel *pWakePanel, const Vector3d *pWakeNode) const;
+                          const WPolar *pWPolar, const QVector<Panel> &WakePanel, const QVector<Vector3d> &WakeNode) const;
         void getDoubletDerivative(const int &p, double const*Mu, double &Cp, Vector3d &VLocal, double QInf, double Vx, double Vy, double Vz) const;
         void getVortexCp(int p, const double *Gamma, double *Cp, const Vector3d &VInf) const;
 
@@ -114,13 +113,14 @@ class PanelAnalysis : QObject
         void rotateGeomY(double Alpha, Vector3d const &P, int NXWakePanels);
         void rotateGeomZ(double Beta, Vector3d const &P, int NXWakePanels);
 
-        void traceLog(QString str) const;
+        void traceLog(QString str);
 
         void setControlPositions(double t, int &NCtrls, QString &out, bool bBCOnly);
 
         void restorePanels();
-        void setArrayPointers(Panel *pPanel, Panel *pMemPanel, Panel *pWakePanel, Panel *pRefWakePanel, Vector3d *pNode, Vector3d *pMemNode, Vector3d *pWakeNode, Vector3d *pRefWakeNode, Vector3d *pTempWakeNode);
-        void setArraySize(int MatSize, int WakeSize, int nNodes, int nWakeNodes, int NWakeColumn);
+//        void setArrayPointers(Panel *pPanel, Panel *pMemPanel, Panel *pWakePanel, Panel *pRefWakePanel, Vector3d *pNode, Vector3d *pMemNode, Vector3d *pWakeNode, Vector3d *pRefWakeNode);
+        void setMesh(QVector<Panel>const &panels, QVector<Panel>const &wakePanels, QVector<Vector3d> const &nodes, QVector<Vector3d> const &wakenodes);
+        void setNWakeColumns(int NWakeColumn) {m_NWakeColumn = NWakeColumn;}
         void setInertia(double ctrl, double alpha, double beta);
         void setObjectPointers(Plane *pPlane, QVector<Surface *> *pSurfaceList);
         void setRange(double vMin, double VMax, double vDelta, bool bSequence);
@@ -128,7 +128,7 @@ class PanelAnalysis : QObject
         PlaneOpp* createPlaneOpp(double *Cp, const double *Gamma, const double *Sigma);
 
         void getSpeedVector(Vector3d const &C, const double *Mu, const double *Sigma, Vector3d &VT, bool bAll=true) const;
-        void computePhillipsFormulae();
+        void computePhillipsFormulae(double Alpha);
 
         void clearPOppList();
 
@@ -137,7 +137,7 @@ class PanelAnalysis : QObject
         static void setMaxWakeIter(int nMaxWakeIter) {s_MaxWakeIter = nMaxWakeIter;}
 
     signals:
-        void outputMsg(QString msg) const;
+        void outputMsg(QString msg);
 
     public slots:
         void onCancel();
@@ -158,10 +158,6 @@ class PanelAnalysis : QObject
         bool m_bSequence;           /**< true if the calculation is should be performed for a range of aoa */
 
         int m_nRHS;                 /**< the number of RHS to calculate; cannot be greater than VLMMAXRHS */
-        int m_nNodes;               /**< the number of nodes  */
-        int m_MatSize;              /**< the number of panels. Is also the size of the linear problem */
-        int m_nWakeNodes;           /**< the number of wake nodes */
-        int m_WakeSize;                /**< the number of wake elements */
         int m_NWakeColumn;          /**< the number of wake columns, which is also the number of panels in the spanwise direction */
 
 
@@ -174,9 +170,7 @@ class PanelAnalysis : QObject
         double m_QInf;              /**< The freestream velocity of the current calculation in m/s >*/
         double m_OpBeta;            /**< The sideslip angle of the current calculation, in degrees >*/
 
-        double m_CL;                /**< The lift coefficient */
-        double m_CX;                /**< The drag coefficient */
-        double m_CY;                /**< The side force coefficient */
+        Vector3d m_Force;
 
         double m_InducedDrag;       /**< The UFO's induced drag coefficient */
         double m_ViscousDrag;       /**< The UFO's viscous drag coefficient */
@@ -218,16 +212,15 @@ class PanelAnalysis : QObject
 
         // pointers to the geometry input data
         // these arrays are defined in the QMiarex handling class,
-        Panel *m_pPanel;            /**< the current working array of array of panels */
-        Panel *m_pWakePanel;        /**< the current working array of wake panel array */
-        Panel const *m_pRefWakePanel;     /**< a copy of the reference wake node array if wake needs to be reset */
-        Panel const *m_pMemPanel;         /**< a copy of the reference panel array if the panels need to be restored, for instance after control surfaces have been rotated*/
+        QVector<Panel> m_Panel;            /**< the current working array of array of panels */
+        QVector<Panel> m_WakePanel;        /**< the current working array of wake panel array */
+        QVector<Panel> m_RefWakePanel;     /**< a copy of the reference wake node array if wake needs to be reset */
+        QVector<Panel> m_MemPanel;         /**< a copy of the reference panel array if the panels need to be restored, for instance after control surfaces have been rotated*/
 
-        Vector3d *m_pNode;            /**< the working array of nodes  */
-        Vector3d const *m_pMemNode;        /**< a copy of the reference node array, if the nodes need to be restored */
-        Vector3d *m_pWakeNode;        /**< the current working wake node array */
-        Vector3d const *m_pRefWakeNode;   /**< a copy of the reference wake node array if the flat wake geometry needs to be restored */
-        Vector3d *m_pTempWakeNode;  /**< a temporary array to hold the calculations of wake roll-up */
+        QVector<Vector3d> m_Node;            /**< the working array of nodes  */
+        QVector<Vector3d> m_MemNode;        /**< a copy of the reference node array, if the nodes need to be restored */
+        QVector<Vector3d> m_WakeNode;        /**< the current working wake node array */
+        QVector<Vector3d> m_RefWakeNode;   /**< a copy of the reference wake node array if the flat wake geometry needs to be restored */
 
 
         // pointers to the object input data

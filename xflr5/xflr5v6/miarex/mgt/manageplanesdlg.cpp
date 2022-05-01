@@ -49,10 +49,10 @@ ManagePlanesDlg::ManagePlanesDlg(QWidget *pParent) : QDialog(pParent)
 
     setupLayout();
 
-    connect(m_ppbDelete, SIGNAL(clicked()),this, SLOT(onDelete()));
-    connect(m_ppbRename, SIGNAL(clicked()),this, SLOT(onRename()));
-    connect(m_ptvPlanes, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onDoubleClickTable(const QModelIndex &)));
-    connect(m_pteDescription, SIGNAL(textChanged()), this, SLOT(onDescriptionChanged()));
+    connect(m_ppbDelete,      SIGNAL(clicked()),                         SLOT(onDelete()));
+    connect(m_ppbRename,      SIGNAL(clicked()),                         SLOT(onRename()));
+    connect(m_ptvPlanes,      SIGNAL(doubleClicked(QModelIndex const&)), SLOT(onDoubleClickTable(QModelIndex const&)));
+    connect(m_pteDescription, SIGNAL(textChanged()),                     SLOT(onDescriptionChanged()));
 }
 
 
@@ -238,48 +238,46 @@ void ManagePlanesDlg::fillPlaneTable()
 }
 
 
-
-
 void ManagePlanesDlg::fillPlaneRow(int row)
 {
     QModelIndex ind;
 
-    if(row>=Objects3d::s_oaPlane.size()) return;
+    if(row>=Objects3d::planeCount()) return;
 
-    Plane *pPlane = Objects3d::s_oaPlane.at(row);
+    Plane const*pPlane = Objects3d::planeAt(row);
     if(!pPlane) return;
-    Wing *pWing = pPlane->wing();
+    Wing const*pWing = pPlane->wing();
 
     ind = m_pPlaneModel->index(row, 0, QModelIndex());
     m_pPlaneModel->setData(ind,pPlane->name());
     if(pPlane->description().length()) m_pPlaneModel->setData(ind, pPlane->description(), Qt::ToolTipRole);
 
     ind = m_pPlaneModel->index(row, 1, QModelIndex());
-    m_pPlaneModel->setData(ind, pWing->m_PlanformSpan*Units::mtoUnit());
+    m_pPlaneModel->setData(ind, pWing->planformSpan()*Units::mtoUnit());
 
     ind = m_pPlaneModel->index(row, 2, QModelIndex());
-    m_pPlaneModel->setData(ind, pWing->m_PlanformArea*Units::m2toUnit());
+    m_pPlaneModel->setData(ind, pWing->planformArea()*Units::m2toUnit());
 
     ind = m_pPlaneModel->index(row, 3, QModelIndex());
-    m_pPlaneModel->setData(ind, pWing->m_MAChord*Units::mtoUnit());
+    m_pPlaneModel->setData(ind, pWing->MAC()*Units::mtoUnit());
 
     ind = m_pPlaneModel->index(row, 4, QModelIndex());
-    m_pPlaneModel->setData(ind, pWing->m_AR);
+    m_pPlaneModel->setData(ind, pWing->aspectRatio());
 
     ind = m_pPlaneModel->index(row, 5, QModelIndex());
-    m_pPlaneModel->setData(ind, pWing->m_TR);
+    m_pPlaneModel->setData(ind, pWing->taperRatio());
 
     ind = m_pPlaneModel->index(row, 6, QModelIndex());
-    m_pPlaneModel->setData(ind,pWing->averageSweep());
+    m_pPlaneModel->setData(ind, pWing->averageSweep());
 
     ind = m_pPlaneModel->index(row, 7, QModelIndex());
-    m_pPlaneModel->setData(ind,pPlane->tailVolume());
+    m_pPlaneModel->setData(ind, pPlane->tailVolume());
 }
 
 
 void ManagePlanesDlg::onRename()
 {
-    if(m_pPlane)      Objects3d::renamePlane(m_pPlane->name());
+    if(m_pPlane) Objects3d::renamePlane(m_pPlane->name());
 
     fillPlaneTable();
 

@@ -49,7 +49,6 @@ class gl3dBoids : public gl3dTestGLView
         Vector3d cohesionForce(  const Boid &boid);
         Vector3d separationForce(const Boid &boid);
         Vector3d alignmentForce( const Boid &boid);
-        Vector3d borderForce(    const Boid &boid);
 
     private slots:
         void onMoveBoids();
@@ -75,12 +74,12 @@ class gl3dBoids : public gl3dTestGLView
 
         QSlider *m_pslBoxOpacity;
 
-        QTimer m_Timer;
-
         QOpenGLBuffer m_vboBox, m_vboBoxEdges;
         QOpenGLBuffer m_vboInstPositions;
 
         int m_nBlocks;
+
+        QTimer m_Timer;
 
         static int s_FlockSize;
         static double s_Cohesion;

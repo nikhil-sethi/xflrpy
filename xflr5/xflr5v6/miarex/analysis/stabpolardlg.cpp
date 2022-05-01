@@ -39,7 +39,9 @@
 #include <xflobjects/objects3d/plane.h>
 #include <xflobjects/objects3d/wpolar.h>
 #include <xflobjects/objects_global.h>
+#include <xflwidgets/customwts/cptableview.h>
 #include <xflwidgets/customwts/ctrltabledelegate.h>
+#include <xflwidgets/customwts/ctrltablemodel.h>
 #include <xflwidgets/customwts/doubleedit.h>
 
 WPolar StabPolarDlg::s_StabWPolar;
@@ -58,11 +60,11 @@ StabPolarDlg::StabPolarDlg(QWidget *pParent) : QDialog(pParent)
     m_pWingList[1] = nullptr;
     m_pWingList[2] = nullptr;
     m_pWingList[3] = nullptr;
-    m_ptvInertiaControl = nullptr;
-    m_pInertiaControlModel = nullptr;
+    m_cptInertia = nullptr;
+    m_pInertiaModel = nullptr;
 
-    m_ptvAngleControl = nullptr;
-    m_pAngleControlModel = nullptr;
+    m_pcptAngle = nullptr;
+    m_pAngleModel = nullptr;
 
 
     s_StabWPolar.setPolarType(xfl::STABILITYPOLAR);
@@ -76,44 +78,44 @@ StabPolarDlg::StabPolarDlg(QWidget *pParent) : QDialog(pParent)
 
 StabPolarDlg::~StabPolarDlg()
 {
-    delete m_pMassCtrlDelegate;
+    delete m_pInertiaDelegate;
     delete m_pAngleCtrlDelegate;
-    delete m_pDragCtrlDelegate;
+    delete m_pExtraDragDelegate;
 }
 
 
 
 void StabPolarDlg::connectSignals()
 {
-    connect(m_prbUnit1,   SIGNAL(clicked()), this, SLOT(onUnit()));
-    connect(m_prbUnit2,   SIGNAL(clicked()), this, SLOT(onUnit()));
-    connect(m_pchViscous, SIGNAL(clicked()), this, SLOT(onViscous()));
-    connect(m_pchIgnoreBodyPanels, SIGNAL(clicked()), this, SLOT(onIgnoreBodyPanels()));
-    connect(m_prbArea1, SIGNAL(clicked()),this, SLOT(onArea()));
-    connect(m_prbArea2, SIGNAL(clicked()),this, SLOT(onArea()));
-    connect(m_prbArea3, SIGNAL(clicked()),this, SLOT(onArea()));
+    connect(m_prbUnit1,            SIGNAL(clicked()),             SLOT(onUnit()));
+    connect(m_prbUnit2,            SIGNAL(clicked()),             SLOT(onUnit()));
+    connect(m_pchViscous,          SIGNAL(clicked()),             SLOT(onViscous()));
+    connect(m_pchIgnoreBodyPanels, SIGNAL(clicked()),             SLOT(onIgnoreBodyPanels()));
+    connect(m_prbArea1,            SIGNAL(clicked()),             SLOT(onArea()));
+    connect(m_prbArea2,            SIGNAL(clicked()),             SLOT(onArea()));
+    connect(m_prbArea3,            SIGNAL(clicked()),             SLOT(onArea()));
 
-    connect(m_prbWingMethod2, SIGNAL(toggled(bool)), this, SLOT(onMethod()));
-    connect(m_prbWingMethod3, SIGNAL(toggled(bool)), this, SLOT(onMethod()));
+    connect(m_prbWingMethod2,      SIGNAL(toggled(bool)),         SLOT(onMethod()));
+    connect(m_prbWingMethod3,      SIGNAL(toggled(bool)),         SLOT(onMethod()));
 
-    connect(m_pdeDensity,   SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeViscosity, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeBeta, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdePhi,  SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(m_pdeDensity,          SIGNAL(valueChanged()),        SLOT(onEditingFinished()));
+    connect(m_pdeViscosity,        SIGNAL(valueChanged()),        SLOT(onEditingFinished()));
+    connect(m_pdeBeta,             SIGNAL(valueChanged()),        SLOT(onEditingFinished()));
+    connect(m_pdePhi,              SIGNAL(valueChanged()),        SLOT(onEditingFinished()));
 
-    connect(m_pdeRefArea,  SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeRefSpan,  SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeRefChord, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(m_pdeRefArea,          SIGNAL(valueChanged()),        SLOT(onEditingFinished()));
+    connect(m_pdeRefSpan,          SIGNAL(valueChanged()),        SLOT(onEditingFinished()));
+    connect(m_pdeRefChord,         SIGNAL(valueChanged()),        SLOT(onEditingFinished()));
 
-    connect(m_pleWPolarName, SIGNAL(editingFinished()), this, SLOT(onWPolarName()));
-    connect(m_pchAutoName, SIGNAL(toggled(bool)), this, SLOT(onAutoName()));
+    connect(m_pleWPolarName,       SIGNAL(editingFinished()),     SLOT(onWPolarName()));
+    connect(m_pchAutoName,         SIGNAL(toggled(bool)),         SLOT(onAutoName()));
 
-    connect(m_pchAutoPlaneInertia, SIGNAL(clicked(bool)), this, SLOT(onAutoInertia(bool)));
-    connect(m_ptwMain, SIGNAL(currentChanged(int)), this, SLOT(onTabChanged(int)));
+    connect(m_pchAutoPlaneInertia, SIGNAL(clicked(bool)),         SLOT(onAutoInertia(bool)));
+    connect(m_ptwMain,             SIGNAL(currentChanged(int)),   SLOT(onTabChanged(int)));
 
-    connect(m_pMassCtrlDelegate,  SIGNAL(closeEditor(QWidget *)), this, SLOT(onInertiaCellChanged(QWidget *)));
-    connect(m_pAngleCtrlDelegate,  SIGNAL(closeEditor(QWidget *)), this, SLOT(onAngleCellChanged(QWidget *)));
-    connect(m_pDragCtrlDelegate,  SIGNAL(closeEditor(QWidget *)), this, SLOT(onDragCellChanged(QWidget *)));
+    connect(m_pInertiaDelegate,    SIGNAL(closeEditor(QWidget*)), SLOT(onInertiaCellChanged(QWidget*)));
+    connect(m_pAngleCtrlDelegate,  SIGNAL(closeEditor(QWidget*)), SLOT(onAngleCellChanged(QWidget*)));
+    connect(m_pExtraDragDelegate,  SIGNAL(closeEditor(QWidget*)), SLOT(onDragCellChanged(QWidget*)));
 }
 
 
@@ -142,102 +144,102 @@ void StabPolarDlg::fillInertiaPage()
         s_StabWPolar.setCoGIxz(m_pPlane->m_CoGIxz);
     }
 
-    m_pInertiaControlModel->setRowCount(7);
+    m_pInertiaModel->setRowCount(7);
 
     QModelIndex ind;
 
-    ind = m_pInertiaControlModel->index(0, 0, QModelIndex()); // mass
-    ind = m_pInertiaControlModel->index(1, 0, QModelIndex()); // x_CoG
-    ind = m_pInertiaControlModel->index(2, 0, QModelIndex()); // z_CoG
-    ind = m_pInertiaControlModel->index(3, 0, QModelIndex()); // Ixx
-    ind = m_pInertiaControlModel->index(4, 0, QModelIndex()); // Iyy
-    ind = m_pInertiaControlModel->index(5, 0, QModelIndex()); // Izz
-    ind = m_pInertiaControlModel->index(6, 0, QModelIndex()); // Ixz
+    ind = m_pInertiaModel->index(0, 0, QModelIndex()); // mass
+    ind = m_pInertiaModel->index(1, 0, QModelIndex()); // x_CoG
+    ind = m_pInertiaModel->index(2, 0, QModelIndex()); // z_CoG
+    ind = m_pInertiaModel->index(3, 0, QModelIndex()); // Ixx
+    ind = m_pInertiaModel->index(4, 0, QModelIndex()); // Iyy
+    ind = m_pInertiaModel->index(5, 0, QModelIndex()); // Izz
+    ind = m_pInertiaModel->index(6, 0, QModelIndex()); // Ixz
 
-    ind = m_pInertiaControlModel->index(0, 0, QModelIndex());
-    m_pInertiaControlModel->setData(ind, tr("Mass"));
-    ind = m_pInertiaControlModel->index(0, 1, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.mass()*Units::kgtoUnit());
-    ind = m_pInertiaControlModel->index(0, 2, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.m_inertiaGain[0]*Units::kgtoUnit());
-    ind = m_pInertiaControlModel->index(0, 3, QModelIndex());
-    m_pInertiaControlModel->setData(ind, strMass);
+    ind = m_pInertiaModel->index(0, 0, QModelIndex());
+    m_pInertiaModel->setData(ind, tr("Mass"));
+    ind = m_pInertiaModel->index(0, 1, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.mass()*Units::kgtoUnit());
+    ind = m_pInertiaModel->index(0, 2, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.m_inertiaGain[0]*Units::kgtoUnit());
+    ind = m_pInertiaModel->index(0, 3, QModelIndex());
+    m_pInertiaModel->setData(ind, strMass);
 
-    ind = m_pInertiaControlModel->index(1, 0, QModelIndex());
-    m_pInertiaControlModel->setData(ind, tr("CoG_x"));
-    ind = m_pInertiaControlModel->index(1, 1, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.CoG().x*Units::mtoUnit());
-    ind = m_pInertiaControlModel->index(1, 2, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.m_inertiaGain[1]*Units::mtoUnit());
-    ind = m_pInertiaControlModel->index(1, 3, QModelIndex());
-    m_pInertiaControlModel->setData(ind, strLen);
+    ind = m_pInertiaModel->index(1, 0, QModelIndex());
+    m_pInertiaModel->setData(ind, tr("CoG_x"));
+    ind = m_pInertiaModel->index(1, 1, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.CoG().x*Units::mtoUnit());
+    ind = m_pInertiaModel->index(1, 2, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.m_inertiaGain[1]*Units::mtoUnit());
+    ind = m_pInertiaModel->index(1, 3, QModelIndex());
+    m_pInertiaModel->setData(ind, strLen);
 
-    ind = m_pInertiaControlModel->index(2, 0, QModelIndex());
-    m_pInertiaControlModel->setData(ind, tr("CoG_z"));
-    ind = m_pInertiaControlModel->index(2, 1, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.CoG().z*Units::mtoUnit());
-    ind = m_pInertiaControlModel->index(2, 2, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.m_inertiaGain[2]*Units::mtoUnit());
-    ind = m_pInertiaControlModel->index(2, 3, QModelIndex());
-    m_pInertiaControlModel->setData(ind, strLen);
+    ind = m_pInertiaModel->index(2, 0, QModelIndex());
+    m_pInertiaModel->setData(ind, tr("CoG_z"));
+    ind = m_pInertiaModel->index(2, 1, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.CoG().z*Units::mtoUnit());
+    ind = m_pInertiaModel->index(2, 2, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.m_inertiaGain[2]*Units::mtoUnit());
+    ind = m_pInertiaModel->index(2, 3, QModelIndex());
+    m_pInertiaModel->setData(ind, strLen);
 
-    ind = m_pInertiaControlModel->index(3, 0, QModelIndex());
-    m_pInertiaControlModel->setData(ind, tr("Ixx"));
-    ind = m_pInertiaControlModel->index(3, 1, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.m_CoGIxx*Units::kgm2toUnit());
-    ind = m_pInertiaControlModel->index(3, 2, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.m_inertiaGain[3]*Units::kgm2toUnit());
-    ind = m_pInertiaControlModel->index(3, 3, QModelIndex());
-    m_pInertiaControlModel->setData(ind, strInertia);
+    ind = m_pInertiaModel->index(3, 0, QModelIndex());
+    m_pInertiaModel->setData(ind, tr("Ixx"));
+    ind = m_pInertiaModel->index(3, 1, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.m_CoGIxx*Units::kgm2toUnit());
+    ind = m_pInertiaModel->index(3, 2, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.m_inertiaGain[3]*Units::kgm2toUnit());
+    ind = m_pInertiaModel->index(3, 3, QModelIndex());
+    m_pInertiaModel->setData(ind, strInertia);
 
-    ind = m_pInertiaControlModel->index(4, 0, QModelIndex());
-    m_pInertiaControlModel->setData(ind, tr("Iyy"));
-    ind = m_pInertiaControlModel->index(4, 1, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.m_CoGIyy*Units::kgm2toUnit());
-    ind = m_pInertiaControlModel->index(4, 2, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.m_inertiaGain[4]*Units::kgm2toUnit());
-    ind = m_pInertiaControlModel->index(4, 3, QModelIndex());
-    m_pInertiaControlModel->setData(ind, strInertia);
+    ind = m_pInertiaModel->index(4, 0, QModelIndex());
+    m_pInertiaModel->setData(ind, tr("Iyy"));
+    ind = m_pInertiaModel->index(4, 1, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.m_CoGIyy*Units::kgm2toUnit());
+    ind = m_pInertiaModel->index(4, 2, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.m_inertiaGain[4]*Units::kgm2toUnit());
+    ind = m_pInertiaModel->index(4, 3, QModelIndex());
+    m_pInertiaModel->setData(ind, strInertia);
 
-    ind = m_pInertiaControlModel->index(5, 0, QModelIndex());
-    m_pInertiaControlModel->setData(ind, tr("Izz"));
-    ind = m_pInertiaControlModel->index(5, 1, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.m_CoGIzz*Units::kgm2toUnit());
-    ind = m_pInertiaControlModel->index(5, 2, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.m_inertiaGain[5]*Units::kgm2toUnit());
-    ind = m_pInertiaControlModel->index(5, 3, QModelIndex());
-    m_pInertiaControlModel->setData(ind, strInertia);
+    ind = m_pInertiaModel->index(5, 0, QModelIndex());
+    m_pInertiaModel->setData(ind, tr("Izz"));
+    ind = m_pInertiaModel->index(5, 1, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.m_CoGIzz*Units::kgm2toUnit());
+    ind = m_pInertiaModel->index(5, 2, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.m_inertiaGain[5]*Units::kgm2toUnit());
+    ind = m_pInertiaModel->index(5, 3, QModelIndex());
+    m_pInertiaModel->setData(ind, strInertia);
 
-    ind = m_pInertiaControlModel->index(6, 0, QModelIndex());
-    m_pInertiaControlModel->setData(ind, tr("Ixz"));
-    ind = m_pInertiaControlModel->index(6, 1, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.m_CoGIxz*Units::kgm2toUnit());
-    ind = m_pInertiaControlModel->index(6, 2, QModelIndex());
-    m_pInertiaControlModel->setData(ind, s_StabWPolar.m_inertiaGain[6]*Units::kgm2toUnit());
-    ind = m_pInertiaControlModel->index(6, 3, QModelIndex());
-    m_pInertiaControlModel->setData(ind, strInertia);
+    ind = m_pInertiaModel->index(6, 0, QModelIndex());
+    m_pInertiaModel->setData(ind, tr("Ixz"));
+    ind = m_pInertiaModel->index(6, 1, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.m_CoGIxz*Units::kgm2toUnit());
+    ind = m_pInertiaModel->index(6, 2, QModelIndex());
+    m_pInertiaModel->setData(ind, s_StabWPolar.m_inertiaGain[6]*Units::kgm2toUnit());
+    ind = m_pInertiaModel->index(6, 3, QModelIndex());
+    m_pInertiaModel->setData(ind, strInertia);
 }
 
 
 void StabPolarDlg::resizeColumns()
 {
-    double w = double(m_ptvInertiaControl->width())*.93;
+    double w = double(m_cptInertia->width())*.93;
     int wCols  = int(w/4);
-    m_ptvInertiaControl->setColumnWidth(0, wCols);
-    m_ptvInertiaControl->setColumnWidth(1, wCols);
-    m_ptvInertiaControl->setColumnWidth(2, wCols);
-    m_ptvInertiaControl->setColumnWidth(3, wCols);
+    m_cptInertia->setColumnWidth(0, wCols);
+    m_cptInertia->setColumnWidth(1, wCols);
+    m_cptInertia->setColumnWidth(2, wCols);
+    m_cptInertia->setColumnWidth(3, wCols);
 
-    double wc = double(m_ptvAngleControl->width())*.97;
+    double wc = double(m_pcptAngle->width())*.97;
     wCols  = int(wc/2);
-    m_ptvAngleControl->setColumnWidth(0, wCols);
-    m_ptvAngleControl->setColumnWidth(1, wCols);
+    m_pcptAngle->setColumnWidth(0, wCols);
+    m_pcptAngle->setColumnWidth(1, wCols);
 
-    double wxd = double(m_ptvExtraDragControl->width())*.97;
+    double wxd = double(m_pcptExtraDrag->width())*.97;
     wCols  = int(wxd/3);
-    m_ptvExtraDragControl->setColumnWidth(0, wCols);
-    m_ptvExtraDragControl->setColumnWidth(1, wCols);
-    m_ptvExtraDragControl->setColumnWidth(2, wCols);
+    m_pcptExtraDrag->setColumnWidth(0, wCols);
+    m_pcptExtraDrag->setColumnWidth(1, wCols);
+    m_pcptExtraDrag->setColumnWidth(2, wCols);
 }
 
 
@@ -251,68 +253,68 @@ void StabPolarDlg::fillControlList()
     s_StabWPolar.m_nControls = 0;
     if(!m_pPlane->isWing())
     {
-        ind = m_pAngleControlModel->index(s_StabWPolar.m_nControls, 0, QModelIndex());
-        m_pAngleControlModel->setData(ind, tr("Wing Tilt (")+QChar(0260)+")");
+        ind = m_pAngleModel->index(s_StabWPolar.m_nControls, 0, QModelIndex());
+        m_pAngleModel->setData(ind, tr("Wing Tilt (")+QChar(0260)+")");
 
-        ind = m_pAngleControlModel->index(s_StabWPolar.m_nControls, 1, QModelIndex());
-        m_pAngleControlModel->setData(ind, s_StabWPolar.m_ControlGain[0]);
+        ind = m_pAngleModel->index(s_StabWPolar.m_nControls, 1, QModelIndex());
+        m_pAngleModel->setData(ind, s_StabWPolar.m_ControlGain[0]);
 
         s_StabWPolar.m_nControls++;
 
         if(m_pWingList[2])
         {
-            ind = m_pAngleControlModel->index(s_StabWPolar.m_nControls, 0, QModelIndex());
-            m_pAngleControlModel->setData(ind, tr("Elevator Tilt ")+QString::fromUtf8("(°)"));
+            ind = m_pAngleModel->index(s_StabWPolar.m_nControls, 0, QModelIndex());
+            m_pAngleModel->setData(ind, tr("Elevator Tilt ")+QString::fromUtf8("(°)"));
 
 
-            ind = m_pAngleControlModel->index(s_StabWPolar.m_nControls, 1, QModelIndex());
-            m_pAngleControlModel->setData(ind, s_StabWPolar.m_ControlGain[1]);
+            ind = m_pAngleModel->index(s_StabWPolar.m_nControls, 1, QModelIndex());
+            m_pAngleModel->setData(ind, s_StabWPolar.m_ControlGain[1]);
 
             s_StabWPolar.m_nControls++;
         }
     }
 
-    for(int i=0; i<m_pWingList[0]->m_nFlaps; i++)
+    for(int i=0; i<m_pWingList[0]->nFlaps(); i++)
     {
-        ind = m_pAngleControlModel->index(i+s_StabWPolar.m_nControls, 0, QModelIndex());
+        ind = m_pAngleModel->index(i+s_StabWPolar.m_nControls, 0, QModelIndex());
         strong = QString(tr("Wing Flap %1 ")+QString::fromUtf8("(°)")).arg(i+1);
-        m_pAngleControlModel->setData(ind, strong);
+        m_pAngleModel->setData(ind, strong);
 
-        ind = m_pAngleControlModel->index(i+s_StabWPolar.m_nControls, 1, QModelIndex());
-        m_pAngleControlModel->setData(ind, s_StabWPolar.m_ControlGain[i+s_StabWPolar.m_nControls]);
+        ind = m_pAngleModel->index(i+s_StabWPolar.m_nControls, 1, QModelIndex());
+        m_pAngleModel->setData(ind, s_StabWPolar.m_ControlGain[i+s_StabWPolar.m_nControls]);
     }
-    s_StabWPolar.m_nControls += m_pWingList[0]->m_nFlaps;
+    s_StabWPolar.m_nControls += m_pWingList[0]->nFlaps();
 
 
     if(m_pWingList[2])
     {
-        for(int i=0; i<m_pWingList[2]->m_nFlaps; i++)
+        for(int i=0; i<m_pWingList[2]->nFlaps(); i++)
         {
-            ind = m_pAngleControlModel->index(i+s_StabWPolar.m_nControls, 0, QModelIndex());
+            ind = m_pAngleModel->index(i+s_StabWPolar.m_nControls, 0, QModelIndex());
             strong = QString(tr("Elevator Flap %1 ")+QString::fromUtf8("(°)")).arg(i+1);
-            m_pAngleControlModel->setData(ind, strong);
+            m_pAngleModel->setData(ind, strong);
 
-            ind = m_pAngleControlModel->index(i+s_StabWPolar.m_nControls, 1, QModelIndex());
-            m_pAngleControlModel->setData(ind, s_StabWPolar.m_ControlGain[i+s_StabWPolar.m_nControls]);
+            ind = m_pAngleModel->index(i+s_StabWPolar.m_nControls, 1, QModelIndex());
+            m_pAngleModel->setData(ind, s_StabWPolar.m_ControlGain[i+s_StabWPolar.m_nControls]);
         }
-        s_StabWPolar.m_nControls += m_pWingList[2]->m_nFlaps;
+        s_StabWPolar.m_nControls += m_pWingList[2]->nFlaps();
     }
     if(m_pWingList[3])
     {
-        for(int i=0; i<m_pWingList[3]->m_nFlaps; i++)
+        for(int i=0; i<m_pWingList[3]->nFlaps(); i++)
         {
-            ind = m_pAngleControlModel->index(i+s_StabWPolar.m_nControls, 0, QModelIndex());
+            ind = m_pAngleModel->index(i+s_StabWPolar.m_nControls, 0, QModelIndex());
             strong = QString(tr("Fin Flap %1 ")+QString::fromUtf8("(°)")).arg(i+1);
-            m_pAngleControlModel->setData(ind, strong);
+            m_pAngleModel->setData(ind, strong);
 
-            ind = m_pAngleControlModel->index(i+s_StabWPolar.m_nControls, 1, QModelIndex());
-            m_pAngleControlModel->setData(ind, s_StabWPolar.m_ControlGain[i+s_StabWPolar.m_nControls]);
+            ind = m_pAngleModel->index(i+s_StabWPolar.m_nControls, 1, QModelIndex());
+            m_pAngleModel->setData(ind, s_StabWPolar.m_ControlGain[i+s_StabWPolar.m_nControls]);
         }
-        s_StabWPolar.m_nControls += m_pWingList[3]->m_nFlaps;
+        s_StabWPolar.m_nControls += m_pWingList[3]->nFlaps();
     }
 
-    m_ptvAngleControl->resizeColumnsToContents();
-    m_pAngleControlModel->setRowCount(s_StabWPolar.m_nControls);
+    m_pcptAngle->resizeColumnsToContents();
+    m_pAngleModel->setRowCount(s_StabWPolar.m_nControls);
 }
 
 
@@ -385,7 +387,7 @@ void StabPolarDlg::initDialog(Plane *pPlane, WPolar *pWPolar)
     else if(m_prbArea3->isChecked())
     {
         m_pdeRefArea->setValue(s_StabWPolar.referenceArea()*Units::m2toUnit());
-        m_pdeRefSpan->setValue(s_StabWPolar.referenceSpanLength()*Units::mtoUnit());
+        m_pdeRefSpan->setValue(s_StabWPolar.referenceSpan()*Units::mtoUnit());
     }
     m_pdeRefChord->setValue(m_pPlane->mac()*Units::mtoUnit());
 
@@ -402,7 +404,7 @@ void StabPolarDlg::initDialog(Plane *pPlane, WPolar *pWPolar)
     }
 
     s_StabWPolar.m_nControls = 0;
-    s_StabWPolar.m_nControls += m_pWingList[0]->m_nFlaps;
+    s_StabWPolar.m_nControls += m_pWingList[0]->nFlaps();
 
     if(!m_pPlane->isWing())
     {
@@ -410,9 +412,9 @@ void StabPolarDlg::initDialog(Plane *pPlane, WPolar *pWPolar)
         if(m_pWingList[2])
         {
             s_StabWPolar.m_nControls++;//stab tilt
-            s_StabWPolar.m_nControls += m_pWingList[2]->m_nFlaps;
+            s_StabWPolar.m_nControls += m_pWingList[2]->nFlaps();
         }
-        if(m_pWingList[3]) s_StabWPolar.m_nControls+=m_pWingList[3]->m_nFlaps;
+        if(m_pWingList[3]) s_StabWPolar.m_nControls+=m_pWingList[3]->nFlaps();
 
     }
 
@@ -449,7 +451,7 @@ void StabPolarDlg::initDialog(Plane *pPlane, WPolar *pWPolar)
 
     setWPolarName();
 
-    m_ptvAngleControl->setFocus();
+    m_pcptAngle->setFocus();
 
     enableControls();
 }
@@ -557,15 +559,15 @@ void StabPolarDlg::onUnit()
     {
         m_UnitType   = 1;
         m_pdeViscosity->setValue(s_StabWPolar.viscosity());
-        m_plabDensityUnit->setText("kg/m3");
-        m_plabViscosityUnit->setText("m"+QString::fromUtf8("²")+"/s");
+        m_plabDensityUnit->setText("kg/m<sup>3</sup>");
+        m_plabViscosityUnit->setText("m<sup>2</sup>/s");
     }
     else
     {
         m_UnitType   = 2;
         m_pdeViscosity->setValue(s_StabWPolar.viscosity()* 10.7182881);
-        m_plabDensityUnit->setText("slugs/ft3");
-        m_plabViscosityUnit->setText("ft"+QString::fromUtf8("²")+"/s");
+        m_plabDensityUnit->setText("slugs/ft<sup>3</sup>");
+        m_plabViscosityUnit->setText("ft<sup>2</sup>/s");
     }
     setDensity();
 }
@@ -581,7 +583,7 @@ void StabPolarDlg::onOK()
     if(qAbs(s_StabWPolar.mass())<PRECISION)
     {
         QMessageBox::warning(this, tr("Warning"),tr("Mass must be non-zero for type 7 polars"));
-        m_ptvInertiaControl->setFocus();
+        m_cptInertia->setFocus();
         return;
     }
 
@@ -625,7 +627,7 @@ void StabPolarDlg::readCtrlData()
     //    s_StabPolar.m_ControlGain.clear();
     for(int icg=0; icg<s_StabWPolar.m_nControls; icg++)
     {
-        s_StabWPolar.m_ControlGain[icg] = m_pAngleControlModel->index(icg, 1, QModelIndex()).data().toDouble(); //is the gain, AVL-like
+        s_StabWPolar.m_ControlGain[icg] = m_pAngleModel->index(icg, 1, QModelIndex()).data().toDouble(); //is the gain, AVL-like
     }
 
     setViscous();
@@ -658,21 +660,21 @@ void StabPolarDlg::readInertiaData()
     }
     else
     {
-        s_StabWPolar.setMass(m_pInertiaControlModel->index(0, 1, QModelIndex()).data().toDouble() / Units::kgtoUnit());
-        s_StabWPolar.setCoGx(m_pInertiaControlModel->index(1, 1, QModelIndex()).data().toDouble() / Units::mtoUnit());
-        s_StabWPolar.setCoGz(m_pInertiaControlModel->index(2, 1, QModelIndex()).data().toDouble() / Units::mtoUnit());
-        s_StabWPolar.setCoGIxx(m_pInertiaControlModel->index(3, 1, QModelIndex()).data().toDouble() / Units::kgm2toUnit());
-        s_StabWPolar.setCoGIyy(m_pInertiaControlModel->index(4, 1, QModelIndex()).data().toDouble() / Units::kgm2toUnit());
-        s_StabWPolar.setCoGIzz(m_pInertiaControlModel->index(5, 1, QModelIndex()).data().toDouble() / Units::kgm2toUnit());
-        s_StabWPolar.setCoGIxz(m_pInertiaControlModel->index(6, 1, QModelIndex()).data().toDouble() / Units::kgm2toUnit());
+        s_StabWPolar.setMass(m_pInertiaModel->index(0, 1, QModelIndex()).data().toDouble() / Units::kgtoUnit());
+        s_StabWPolar.setCoGx(m_pInertiaModel->index(1, 1, QModelIndex()).data().toDouble() / Units::mtoUnit());
+        s_StabWPolar.setCoGz(m_pInertiaModel->index(2, 1, QModelIndex()).data().toDouble() / Units::mtoUnit());
+        s_StabWPolar.setCoGIxx(m_pInertiaModel->index(3, 1, QModelIndex()).data().toDouble() / Units::kgm2toUnit());
+        s_StabWPolar.setCoGIyy(m_pInertiaModel->index(4, 1, QModelIndex()).data().toDouble() / Units::kgm2toUnit());
+        s_StabWPolar.setCoGIzz(m_pInertiaModel->index(5, 1, QModelIndex()).data().toDouble() / Units::kgm2toUnit());
+        s_StabWPolar.setCoGIxz(m_pInertiaModel->index(6, 1, QModelIndex()).data().toDouble() / Units::kgm2toUnit());
 
-        s_StabWPolar.m_inertiaGain[0] = m_pInertiaControlModel->index(0, 2, QModelIndex()).data().toDouble() / Units::kgtoUnit();
-        s_StabWPolar.m_inertiaGain[1] = m_pInertiaControlModel->index(1, 2, QModelIndex()).data().toDouble() / Units::mtoUnit();
-        s_StabWPolar.m_inertiaGain[2] = m_pInertiaControlModel->index(2, 2, QModelIndex()).data().toDouble() / Units::mtoUnit();
-        s_StabWPolar.m_inertiaGain[3] = m_pInertiaControlModel->index(3, 2, QModelIndex()).data().toDouble() / Units::kgm2toUnit();
-        s_StabWPolar.m_inertiaGain[4] = m_pInertiaControlModel->index(4, 2, QModelIndex()).data().toDouble() / Units::kgm2toUnit();
-        s_StabWPolar.m_inertiaGain[5] = m_pInertiaControlModel->index(5, 2, QModelIndex()).data().toDouble() / Units::kgm2toUnit();
-        s_StabWPolar.m_inertiaGain[6] = m_pInertiaControlModel->index(6, 2, QModelIndex()).data().toDouble() / Units::kgm2toUnit();
+        s_StabWPolar.m_inertiaGain[0] = m_pInertiaModel->index(0, 2, QModelIndex()).data().toDouble() / Units::kgtoUnit();
+        s_StabWPolar.m_inertiaGain[1] = m_pInertiaModel->index(1, 2, QModelIndex()).data().toDouble() / Units::mtoUnit();
+        s_StabWPolar.m_inertiaGain[2] = m_pInertiaModel->index(2, 2, QModelIndex()).data().toDouble() / Units::mtoUnit();
+        s_StabWPolar.m_inertiaGain[3] = m_pInertiaModel->index(3, 2, QModelIndex()).data().toDouble() / Units::kgm2toUnit();
+        s_StabWPolar.m_inertiaGain[4] = m_pInertiaModel->index(4, 2, QModelIndex()).data().toDouble() / Units::kgm2toUnit();
+        s_StabWPolar.m_inertiaGain[5] = m_pInertiaModel->index(5, 2, QModelIndex()).data().toDouble() / Units::kgm2toUnit();
+        s_StabWPolar.m_inertiaGain[6] = m_pInertiaModel->index(6, 2, QModelIndex()).data().toDouble() / Units::kgm2toUnit();
     }
 }
 
@@ -716,7 +718,7 @@ void StabPolarDlg::readData()
         s_StabWPolar.setReferenceArea(m_pdeRefArea->value() /Units::m2toUnit());
         s_StabWPolar.setReferenceSpanLength(m_pdeRefSpan->value() /Units::mtoUnit());
     }
-    s_StabWPolar.setReferenceChordLength(m_pdeRefChord->value() /Units::mtoUnit());
+    s_StabWPolar.setReferenceMAC(m_pdeRefChord->value() /Units::mtoUnit());
 }
 
 
@@ -761,15 +763,14 @@ void StabPolarDlg::setupLayout()
     Units::getMassUnitLabel(strMass);
     strInertia = strMass+"."+strLen+QString::fromUtf8("²");
 
-    QFont symbolFont("Symbol");
     QFont italicFnt;
     italicFnt.setItalic(true);
 
-    QFontMetrics fm(italicFnt);
+//    QFontMetrics fm(italicFnt);
 
 
     m_ptwMain = new QTabWidget(this);
-    m_ptwMain->setMinimumWidth(fm.averageCharWidth() * 103);
+//    m_ptwMain->setMinimumWidth(fm.averageCharWidth() * 103);
 
     QWidget  *pMethodPage       = new QWidget(this);
     QWidget  *pCoefficientPage  = new QWidget(this);
@@ -833,10 +834,8 @@ void StabPolarDlg::setupLayout()
         {
             QGridLayout *pAttitudeLayout = new QGridLayout;
             {
-                QLabel *lab2 = new QLabel(tr("b ="));
-                QLabel *lab3 = new QLabel(tr("f ="));
-                lab2->setFont(QFont("Symbol"));
-                lab3->setFont(QFont("Symbol"));
+                QLabel *lab2 = new QLabel("<p>&beta; =</p>");
+                QLabel *lab3 = new QLabel("<p>&phi; =</p>");
                 lab2->setAlignment(Qt::AlignVCenter|Qt::AlignRight);
                 lab3->setAlignment(Qt::AlignVCenter|Qt::AlignRight);
                 QLabel *lab4 = new QLabel(QChar(0260));
@@ -924,68 +923,73 @@ void StabPolarDlg::setupLayout()
     {
         m_pchAutoPlaneInertia = new QCheckBox(tr("Use plane inertia"));
 
-        m_ptvInertiaControl = new QTableView(this);
-        m_ptvInertiaControl->setFont(DisplayOptions::tableFont());
+        m_cptInertia = new CPTableView(this);
+        m_cptInertia->setFont(DisplayOptions::tableFont());
+        m_cptInertia->setEditTriggers(QAbstractItemView::CurrentChanged |
+                                      QAbstractItemView::DoubleClicked |
+                                      QAbstractItemView::SelectedClicked |
+                                      QAbstractItemView::EditKeyPressed |
+                                      QAbstractItemView::AnyKeyPressed);
+        m_cptInertia->setWindowTitle(tr("Controls"));
+        m_cptInertia->setSelectionMode(QAbstractItemView::SingleSelection);
+        m_cptInertia->setSelectionBehavior(QAbstractItemView::SelectRows);
+        m_cptInertia->horizontalHeader()->setStretchLastSection(true);
 
-        m_ptvInertiaControl->setWindowTitle(tr("Controls"));
-        m_ptvInertiaControl->setMinimumWidth(400);
-        m_ptvInertiaControl->setMinimumHeight(150);
-        m_ptvInertiaControl->setSelectionMode(QAbstractItemView::SingleSelection);
-        m_ptvInertiaControl->setSelectionBehavior(QAbstractItemView::SelectRows);
-        m_ptvInertiaControl->horizontalHeader()->setStretchLastSection(true);
+        m_pInertiaModel = new CtrlTableModel;
+        m_pInertiaModel->setRowCount(7);
+        m_pInertiaModel->setColumnCount(4);
+        m_pInertiaModel->setHeaderData(0, Qt::Horizontal, tr("Inertia parameter"));
+        m_pInertiaModel->setHeaderData(1, Qt::Horizontal, tr("Mean value"));
+        m_pInertiaModel->setHeaderData(2, Qt::Horizontal, tr("Gain")+QString::fromUtf8("(unit/ctrl)"));
+        m_pInertiaModel->setHeaderData(3, Qt::Horizontal, tr("Unit"));
 
-        m_pInertiaControlModel = new CtrlTableModel(this);
-        m_pInertiaControlModel->setRowCount(7);
-        m_pInertiaControlModel->setColumnCount(4);
-        m_pInertiaControlModel->setHeaderData(0, Qt::Horizontal, tr("Inertia parameter"));
-        m_pInertiaControlModel->setHeaderData(1, Qt::Horizontal, tr("Mean value"));
-        m_pInertiaControlModel->setHeaderData(2, Qt::Horizontal, tr("Gain")+QString::fromUtf8("(unit/ctrl)"));
-        m_pInertiaControlModel->setHeaderData(3, Qt::Horizontal, tr("Unit"));
+        m_cptInertia->setModel(m_pInertiaModel);
 
-        m_ptvInertiaControl->setModel(m_pInertiaControlModel);
+        m_pInertiaDelegate = new CtrlTableDelegate(this);
+        m_pInertiaDelegate->setEditable({false, true, true, false});
+        m_cptInertia->setItemDelegate(m_pInertiaDelegate);
 
-        m_pMassCtrlDelegate = new CtrlTableDelegate(this);
-        m_ptvInertiaControl->setItemDelegate(m_pMassCtrlDelegate);
-
-        m_pMassCtrlDelegate->setPrecision({2,3,3});
+        m_pInertiaDelegate->setPrecision({2,3,3,-1});
 
         pMassControlPageLayout->addWidget(m_pchAutoPlaneInertia);
-        pMassControlPageLayout->addWidget(m_ptvInertiaControl);
+        pMassControlPageLayout->addWidget(m_cptInertia);
 
         pMassControlPage->setLayout(pMassControlPageLayout);
     }
 
     QVBoxLayout *pAngleControlPageLayout  = new QVBoxLayout;
     {
-        m_ptvAngleControl = new QTableView(this);
-        m_ptvAngleControl->setFont(DisplayOptions::tableFont());
+        m_pcptAngle = new CPTableView(this);
+        m_pcptAngle->setFont(DisplayOptions::tableFont());
+        m_pcptAngle->setEditTriggers(QAbstractItemView::CurrentChanged |
+                                      QAbstractItemView::DoubleClicked |
+                                      QAbstractItemView::SelectedClicked |
+                                      QAbstractItemView::EditKeyPressed |
+                                      QAbstractItemView::AnyKeyPressed);
 
-        m_ptvAngleControl->setWindowTitle(tr("Controls"));
-        m_ptvAngleControl->setMinimumWidth(400);
-        m_ptvAngleControl->setMinimumHeight(150);
-        m_ptvAngleControl->setSelectionMode(QAbstractItemView::SingleSelection);
-        m_ptvAngleControl->setSelectionBehavior(QAbstractItemView::SelectRows);
-        m_ptvAngleControl->horizontalHeader()->setStretchLastSection(true);
+        m_pcptAngle->setWindowTitle(tr("Controls"));
+        m_pcptAngle->setSelectionMode(QAbstractItemView::SingleSelection);
+        m_pcptAngle->setSelectionBehavior(QAbstractItemView::SelectRows);
+        m_pcptAngle->horizontalHeader()->setStretchLastSection(true);
 
-        m_pAngleControlModel = new CtrlTableModel(this);
-        m_pAngleControlModel->setRowCount(10);//temporary
-        m_pAngleControlModel->setColumnCount(2);
-        m_pAngleControlModel->setHeaderData(0, Qt::Horizontal, tr("Control Name"));
-        m_pAngleControlModel->setHeaderData(1, Qt::Horizontal, tr("Gain")+QString::fromUtf8("(°/ctrl)"));
+        m_pAngleModel = new CtrlTableModel(this);
+        m_pAngleModel->setRowCount(10);//temporary
+        m_pAngleModel->setColumnCount(2);
+        m_pAngleModel->setHeaderData(0, Qt::Horizontal, tr("Control Name"));
+        m_pAngleModel->setHeaderData(1, Qt::Horizontal, tr("Gain")+QString::fromUtf8("(°/ctrl)"));
 
 
-        m_ptvAngleControl->setModel(m_pAngleControlModel);
+        m_pcptAngle->setModel(m_pAngleModel);
 
         m_pAngleCtrlDelegate = new CtrlTableDelegate(this);
-        m_ptvAngleControl->setItemDelegate(m_pAngleCtrlDelegate);
-
+        m_pAngleCtrlDelegate->setEditable({false, true});
         m_pAngleCtrlDelegate->setPrecision({1,2});
+        m_pcptAngle->setItemDelegate(m_pAngleCtrlDelegate);
 
+        QLabel* pSignLabel = new QLabel(tr("Note: + sign means trailing edge down"));
 
-        QLabel* SignLabel = new QLabel(tr("Note: + sign means trailing edge down"));
-
-        pAngleControlPageLayout->addWidget(m_ptvAngleControl);
-        pAngleControlPageLayout->addWidget(SignLabel);
+        pAngleControlPageLayout->addWidget(m_pcptAngle);
+        pAngleControlPageLayout->addWidget(pSignLabel);
         pAngleControlPage->setLayout(pAngleControlPageLayout);
     }
 
@@ -997,37 +1001,34 @@ void StabPolarDlg::setupLayout()
             {
                 QHBoxLayout *pAeroUnitLayout = new QHBoxLayout;
                 {
-                    QLabel *lab9 = new QLabel(tr("Unit"));
-                    lab9->setAlignment(Qt::AlignRight | Qt::AlignCenter);
+                    QLabel *plab9 = new QLabel(tr("Unit"));
+                    plab9->setAlignment(Qt::AlignRight | Qt::AlignCenter);
                     m_prbUnit1 = new QRadioButton(tr("International"));
                     m_prbUnit2 = new QRadioButton(tr("Imperial"));
-                    pAeroUnitLayout->addWidget(lab9);
+                    pAeroUnitLayout->addWidget(plab9);
                     pAeroUnitLayout->addWidget(m_prbUnit1);
                     pAeroUnitLayout->addWidget(m_prbUnit2);
                     pAeroUnitLayout->addStretch();
                 }
                 QGridLayout *pAeroDataValuesLayout = new QGridLayout;
                 {
-                    m_plabRho = new QLabel("r =");
-                    m_pdeDensity = new DoubleEdit(1.225,3);
-                    m_plabDensityUnit = new QLabel("kg/m3");
-                    m_plabNu = new QLabel("n =");
+                    m_plabRho = new QLabel("<p>&rho; =</p>");
+                    m_pdeDensity = new DoubleEdit(1.225);
+                    m_plabDensityUnit = new QLabel("kg/m<sup>3</sip>");
+                    m_plabNu = new QLabel("<p>&nu; =</p>");
                     m_plabRho->setAlignment(Qt::AlignRight | Qt::AlignCenter);
                     m_plabNu->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-                    m_pdeViscosity = new DoubleEdit(1.500e-5,3);
-                    m_plabViscosityUnit = new QLabel("m2/s");
-                    m_plabRho->setFont(symbolFont);
-                    m_plabNu->setFont(symbolFont);
-                    m_pdeDensity->setDigits(5);
-                    m_pdeViscosity->setDigits(3);
+                    m_pdeViscosity = new DoubleEdit(1.500e-5);
+                    m_plabViscosityUnit = new QLabel("m<sup>2</sup>/s");
+
                     m_pdeDensity->setMin(0.0);
                     m_pdeViscosity->setMin(0.0);
-                    pAeroDataValuesLayout->addWidget(m_plabRho,1,1);
-                    pAeroDataValuesLayout->addWidget(m_pdeDensity,1,2);
-                    pAeroDataValuesLayout->addWidget(m_plabDensityUnit,1,3);
-                    pAeroDataValuesLayout->addWidget(m_plabNu,2,1);
-                    pAeroDataValuesLayout->addWidget(m_pdeViscosity,2,2);
-                    pAeroDataValuesLayout->addWidget(m_plabViscosityUnit,2,3);
+                    pAeroDataValuesLayout->addWidget(m_plabRho,            1,1);
+                    pAeroDataValuesLayout->addWidget(m_pdeDensity,         1,2);
+                    pAeroDataValuesLayout->addWidget(m_plabDensityUnit,    1,3);
+                    pAeroDataValuesLayout->addWidget(m_plabNu,             2,1);
+                    pAeroDataValuesLayout->addWidget(m_pdeViscosity,       2,2);
+                    pAeroDataValuesLayout->addWidget(m_plabViscosityUnit,  2,3);
                     pAeroDataValuesLayout->setRowStretch(3,1);
                     pAeroDataValuesLayout->setColumnStretch(1,3);
                     pAeroDataValuesLayout->setColumnStretch(4,3);
@@ -1046,15 +1047,18 @@ void StabPolarDlg::setupLayout()
 
     QVBoxLayout *pExtraDragPageLayout  = new QVBoxLayout;
     {
-        m_ptvExtraDragControl = new QTableView(this);
-        m_ptvExtraDragControl->setFont(DisplayOptions::tableFont());
+        m_pcptExtraDrag = new CPTableView(this);
+        m_pcptExtraDrag->setFont(DisplayOptions::tableFont());
+        m_pcptExtraDrag->setEditTriggers(QAbstractItemView::CurrentChanged |
+                                         QAbstractItemView::DoubleClicked |
+                                         QAbstractItemView::SelectedClicked |
+                                         QAbstractItemView::EditKeyPressed |
+                                         QAbstractItemView::AnyKeyPressed);
 
-        m_ptvExtraDragControl->setWindowTitle(tr("Extra drag"));
-        m_ptvExtraDragControl->setMinimumWidth(400);
-        m_ptvExtraDragControl->setMinimumHeight(150);
-        m_ptvExtraDragControl->setSelectionMode(QAbstractItemView::SingleSelection);
-        m_ptvExtraDragControl->setSelectionBehavior(QAbstractItemView::SelectRows);
-        m_ptvExtraDragControl->horizontalHeader()->setStretchLastSection(true);
+        m_pcptExtraDrag->setWindowTitle(tr("Extra drag"));
+        m_pcptExtraDrag->setSelectionMode(QAbstractItemView::SingleSelection);
+        m_pcptExtraDrag->setSelectionBehavior(QAbstractItemView::SelectRows);
+        m_pcptExtraDrag->horizontalHeader()->setStretchLastSection(true);
 
         m_pExtraDragControlModel = new CtrlTableModel(this);
         m_pExtraDragControlModel->setColumnCount(3);
@@ -1063,16 +1067,16 @@ void StabPolarDlg::setupLayout()
         m_pExtraDragControlModel->setHeaderData(2, Qt::Horizontal, tr("Extra drag coef."));
 
 
-        m_ptvExtraDragControl->setModel(m_pExtraDragControlModel);
+        m_pcptExtraDrag->setModel(m_pExtraDragControlModel);
 
-        m_pDragCtrlDelegate = new CtrlTableDelegate(this);
-        m_ptvExtraDragControl->setItemDelegate(m_pDragCtrlDelegate);
-
-        m_pDragCtrlDelegate->setPrecision({0,3,5});
+        m_pExtraDragDelegate = new CtrlTableDelegate(this);
+        m_pcptExtraDrag->setItemDelegate(m_pExtraDragDelegate);
+        m_pExtraDragDelegate->setEditable({false, true,  true});
+        m_pExtraDragDelegate->setPrecision({0,3,5});
 
         QLabel* pExtraLabel = new QLabel(QString::fromUtf8("D = 1/2 rho V² ( S (CD_induced+CD_Visc) + S_Extra1.CD_Extra1 + ... + S_ExtraN.Cd_ExtraN)"));
 
-        pExtraDragPageLayout->addWidget(m_ptvExtraDragControl);
+        pExtraDragPageLayout->addWidget(m_pcptExtraDrag);
         pExtraDragPageLayout->addWidget(pExtraLabel);
         pExtraDragPage->setLayout(pExtraDragPageLayout);
     }
@@ -1155,7 +1159,7 @@ void StabPolarDlg::fillExtraDragList()
         m_pExtraDragControlModel->setData(ind, s_StabWPolar.m_ExtraDragCoef[i]);
     }
 
-    m_ptvExtraDragControl->resizeColumnsToContents();
+    m_pcptExtraDrag->resizeColumnsToContents();
 }
 
 
@@ -1188,7 +1192,7 @@ void StabPolarDlg::enableControls()
     m_pdeRefChord->setEnabled(m_prbArea3->isChecked());
     m_pdeRefSpan->setEnabled(m_prbArea3->isChecked());
 
-    m_ptvInertiaControl->setEnabled(!s_StabWPolar.bAutoInertia());
+    m_cptInertia->setEnabled(!s_StabWPolar.bAutoInertia());
 }
 
 

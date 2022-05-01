@@ -185,7 +185,6 @@ void CurveActionDelegate::updateEditorGeometry(QWidget *pEditor, const QStyleOpt
 
 void CurveActionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QString strong;
     QStyleOptionViewItem myOption = option;
     QColor linecolor;
     int row = index.row();

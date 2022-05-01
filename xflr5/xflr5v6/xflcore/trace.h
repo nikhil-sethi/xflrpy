@@ -26,11 +26,11 @@
 extern bool g_bTrace;
 extern QFile *g_pTraceFile;
 
-void Trace(int n);
-void Trace(const QString &msg);
-void Trace(const QString &msg, bool b);
-void Trace(const QString &msg, int n);
-void Trace(const QString &msg, double f);
+void trace(int n);
+void trace(const QString &msg);
+void trace(const QString &msg, bool b);
+void trace(const QString &msg, int n);
+void trace(const QString &msg, double f);
 
 
 void startTrace(bool bTrace);

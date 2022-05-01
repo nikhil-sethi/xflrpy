@@ -13,9 +13,9 @@
 
 #include "gl3dsurface.h"
 
-#include <xfl3d/gl_globals.h>
+#include <xfl3d/globals/gl_globals.h>
 #include <xflcore/xflcore.h>
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/w3dprefs.h>
 
 
 
@@ -109,7 +109,7 @@ void gl3dSurface::glMakeSurface()
     }
     float range = zmax - zmin;
     range = std::max(range, 0.001f);
-    QColor clr;
+
     int iv = 0;
 
     int iLA{0},iTA{0},iLB{0},iTB{0};
@@ -132,25 +132,25 @@ void gl3dSurface::glMakeSurface()
             surfvertexarray[iv++] = TB.yf();
             surfvertexarray[iv++] = TB.zf();
             tau = (TB.zf()-zmin)/range;
-            surfvertexarray[iv++] = xfl::GLGetRed(tau);
-            surfvertexarray[iv++] = xfl::GLGetGreen(tau);
-            surfvertexarray[iv++] = xfl::GLGetBlue(tau);
+            surfvertexarray[iv++] = glGetRed(tau);
+            surfvertexarray[iv++] = glGetGreen(tau);
+            surfvertexarray[iv++] = glGetBlue(tau);
 
             surfvertexarray[iv++] = TA.xf();
             surfvertexarray[iv++] = TA.yf();
             surfvertexarray[iv++] = TA.zf();
             tau = (TA.zf()-zmin)/range;
-            surfvertexarray[iv++] = xfl::GLGetRed(tau);
-            surfvertexarray[iv++] = xfl::GLGetGreen(tau);
-            surfvertexarray[iv++] = xfl::GLGetBlue(tau);
+            surfvertexarray[iv++] = glGetRed(tau);
+            surfvertexarray[iv++] = glGetGreen(tau);
+            surfvertexarray[iv++] = glGetBlue(tau);
 
             surfvertexarray[iv++] = LA.xf();
             surfvertexarray[iv++] = LA.yf();
             surfvertexarray[iv++] = LA.zf();
             tau = (LA.zf()-zmin)/range;
-            surfvertexarray[iv++] = xfl::GLGetRed(tau);
-            surfvertexarray[iv++] = xfl::GLGetGreen(tau);
-            surfvertexarray[iv++] = xfl::GLGetBlue(tau);
+            surfvertexarray[iv++] = glGetRed(tau);
+            surfvertexarray[iv++] = glGetGreen(tau);
+            surfvertexarray[iv++] = glGetBlue(tau);
 
 
             //second triangle
@@ -158,25 +158,25 @@ void gl3dSurface::glMakeSurface()
             surfvertexarray[iv++] = LA.yf();
             surfvertexarray[iv++] = LA.zf();
             tau = (LA.zf()-zmin)/range;
-            surfvertexarray[iv++] = xfl::GLGetRed(tau);
-            surfvertexarray[iv++] = xfl::GLGetGreen(tau);
-            surfvertexarray[iv++] = xfl::GLGetBlue(tau);
+            surfvertexarray[iv++] = glGetRed(tau);
+            surfvertexarray[iv++] = glGetGreen(tau);
+            surfvertexarray[iv++] = glGetBlue(tau);
 
             surfvertexarray[iv++] = LB.xf();
             surfvertexarray[iv++] = LB.yf();
             surfvertexarray[iv++] = LB.zf();
             tau = (LB.zf()-zmin)/range;
-            surfvertexarray[iv++] = xfl::GLGetRed(tau);
-            surfvertexarray[iv++] = xfl::GLGetGreen(tau);
-            surfvertexarray[iv++] = xfl::GLGetBlue(tau);
+            surfvertexarray[iv++] = glGetRed(tau);
+            surfvertexarray[iv++] = glGetGreen(tau);
+            surfvertexarray[iv++] = glGetBlue(tau);
 
             surfvertexarray[iv++] = TB.xf();
             surfvertexarray[iv++] = TB.yf();
             surfvertexarray[iv++] = TB.zf();
             tau = (TB.zf()-zmin)/range;
-            surfvertexarray[iv++] = xfl::GLGetRed(tau);
-            surfvertexarray[iv++] = xfl::GLGetGreen(tau);
-            surfvertexarray[iv++] = xfl::GLGetBlue(tau);
+            surfvertexarray[iv++] = glGetRed(tau);
+            surfvertexarray[iv++] = glGetGreen(tau);
+            surfvertexarray[iv++] = glGetBlue(tau);
         }
     }
 
@@ -191,7 +191,7 @@ void gl3dSurface::glMakeSurface()
 
     //Make the grid
     int nsegs = m_Size_x * (m_Size_y-1) + m_Size_y * (m_Size_x-1);
-    bufferSize = nsegs * 2 * 3; // 3 vertex components
+    bufferSize = nsegs * 2 * 4; // 4 vertex components
 
     QVector<float>gridvertexarray(bufferSize);
     iv=0;
@@ -206,10 +206,11 @@ void gl3dSurface::glMakeSurface()
             gridvertexarray[iv++] = TA.xf();
             gridvertexarray[iv++] = TA.yf();
             gridvertexarray[iv++] = TA.zf();
-
+            gridvertexarray[iv++] = 1.0f;
             gridvertexarray[iv++] = LA.xf();
             gridvertexarray[iv++] = LA.yf();
             gridvertexarray[iv++] = LA.zf();
+            gridvertexarray[iv++] = 1.0f;
         }
     }
 
@@ -224,10 +225,12 @@ void gl3dSurface::glMakeSurface()
             gridvertexarray[iv++] = TA.xf();
             gridvertexarray[iv++] = TA.yf();
             gridvertexarray[iv++] = TA.zf();
+            gridvertexarray[iv++] = 1.0f;
 
             gridvertexarray[iv++] = TB.xf();
             gridvertexarray[iv++] = TB.yf();
             gridvertexarray[iv++] = TB.zf();
+            gridvertexarray[iv++] = 1.0f;
         }
     }
     Q_ASSERT(iv==bufferSize);

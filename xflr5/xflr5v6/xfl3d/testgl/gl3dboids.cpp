@@ -6,10 +6,10 @@
 
 *****************************************************************************/
 
-//https://processing.org/examples/flocking.html
-#include <QFutureSynchronizer>
 #include <QGridLayout>
+
 #include <QRandomGenerator>
+#include <QFutureSynchronizer>
 #include <QtConcurrent/qtconcurrentrun.h>
 
 #define INFLUENCEDIST 3.0
@@ -18,8 +18,9 @@
 
 #include "gl3dboids.h"
 
-#include <xfl3d/gl_globals.h>
-#include <xfl3d/controls/w3dprefs.h>
+//#include <xflcore/displayoptions.h>
+#include <xfl3d/globals/gl_globals.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xflwidgets/customwts/doubleedit.h>
 #include <xflwidgets/customwts/intedit.h>
 #include <xflwidgets/wt_globals.h>
@@ -43,6 +44,7 @@ gl3dBoids::gl3dBoids(QWidget *pParent) : gl3dTestGLView(pParent)
     m_X = m_Y = 200.0;
     m_Z = 100.0;
 
+    setReferenceLength(1.5*m_X);
 
     QPalette palette;
     palette.setColor(QPalette::WindowText, s_TextColor);
@@ -77,7 +79,7 @@ gl3dBoids::gl3dBoids(QWidget *pParent) : gl3dTestGLView(pParent)
             m_pslCohesion->setTickInterval(10);
             m_pslCohesion->setTickPosition(QSlider::TicksBelow);
             m_pslCohesion->setValue(int(s_Cohesion*30.0));
-            connect(m_pslCohesion, SIGNAL(sliderMoved(int)), SLOT(onSlider()));
+            connect(m_pslCohesion, SIGNAL(valueChanged(int)), SLOT(onSlider()));
             m_plabCohesion = new QLabel;
             m_plabCohesion->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 
@@ -88,7 +90,7 @@ gl3dBoids::gl3dBoids(QWidget *pParent) : gl3dTestGLView(pParent)
             m_pslSeparation->setTickInterval(10);
             m_pslSeparation->setTickPosition(QSlider::TicksBelow);
             m_pslSeparation->setValue(int(s_Separation*30.0));
-            connect(m_pslSeparation, SIGNAL(sliderMoved(int)), SLOT(onSlider()));
+            connect(m_pslSeparation, SIGNAL(valueChanged(int)), SLOT(onSlider()));
             m_plabSeparation = new QLabel;
             m_plabSeparation->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 
@@ -100,7 +102,7 @@ gl3dBoids::gl3dBoids(QWidget *pParent) : gl3dTestGLView(pParent)
             m_pslAlignment->setTickInterval(10);
             m_pslAlignment->setTickPosition(QSlider::TicksBelow);
             m_pslAlignment->setValue(int(s_Alignment*30.0));
-            connect(m_pslAlignment, SIGNAL(sliderMoved(int)), SLOT(onSlider()));
+            connect(m_pslAlignment, SIGNAL(valueChanged(int)), SLOT(onSlider()));
             m_plabAlignment = new QLabel;
             m_plabAlignment->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 
@@ -137,12 +139,13 @@ gl3dBoids::gl3dBoids(QWidget *pParent) : gl3dTestGLView(pParent)
             pMainLayout->addWidget(m_pslAlignment,   4, 2);
             pMainLayout->addWidget(m_plabAlignment,  4, 3);
 
-            pMainLayout->addWidget(pBoidsLink,       5,1,1,3);
 
             pMainLayout->addWidget(plabOpacity,      6, 1);
             pMainLayout->addWidget(m_pslBoxOpacity,  6, 2);
 
             pMainLayout->addWidget(pchAxes,          7, 1,1,3);
+            pMainLayout->addWidget(pBoidsLink,       8, 1,1,3);
+
             pMainLayout->setColumnStretch(2,1);
         }
         pFrame->setLayout(pMainLayout);
@@ -156,10 +159,6 @@ gl3dBoids::gl3dBoids(QWidget *pParent) : gl3dTestGLView(pParent)
     m_Timer.start(16);  // 16.667 ms = 60Hz
 
     onSlider();
-
-    setReferenceLength(1.5*m_X);
-
-    reset3dScale();
 }
 
 
@@ -244,7 +243,7 @@ void gl3dBoids::glMake3dObjects()
         m_vboInstPositions.create();
         m_vboInstPositions.bind();
         {
-            m_vboInstPositions.allocate(PositionArray.data(), PositionArray.size() * sizeof(GLfloat));
+            m_vboInstPositions.allocate(PositionArray.data(), PositionArray.size() * int(sizeof(GLfloat)));
         }
         m_vboInstPositions.release();
 
@@ -336,8 +335,10 @@ Vector3d gl3dBoids::separationForce(Boid const &boid)
     Vector3d steer;
     int count = 0;
     int nboids=0;
-    for(Boid const &b : m_Boids)
+    for(int iboid=0; iboid<m_Boids.size(); iboid++)
     {
+        Boid const &b = m_Boids.at(iboid);
+
         if(b.Index != boid.Index)
         {
             double dist = boid.m_Position.distanceTo(b.m_Position);
@@ -372,8 +373,9 @@ Vector3d gl3dBoids::alignmentForce(Boid const &boid)
     double neighbordist = m_X/INFLUENCEDIST;
     Vector3d sum;
     int count = 0;
-    for(Boid const &b : m_Boids)
+    for(int iboid=0; iboid<m_Boids.size(); iboid++)
     {
+        Boid const &b = m_Boids.at(iboid);
         if(b.Index != boid.Index)
         {
             double dist = boid.m_Position.distanceTo(b.m_Position);
@@ -418,7 +420,11 @@ void gl3dBoids::onMoveBoids()
         QFutureSynchronizer<void> futureSync;
         for(int iBlock=0; iBlock<m_nBlocks; iBlock++)
         {
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+            futureSync.addFuture(QtConcurrent::run(&gl3dBoids::moveBoidBlock, this, iBlock, accel.data()));
+#else
             futureSync.addFuture(QtConcurrent::run(this, &gl3dBoids::moveBoidBlock, iBlock, accel.data()));
+#endif
         }
         futureSync.waitForFinished();
     }
@@ -482,25 +488,4 @@ void gl3dBoids::moveBoidBlock(int iBlock, Vector3d *accel)
         accel[iboid] = fc + fs + fa;
     }
 }
-
-
-Vector3d gl3dBoids::borderForce(Boid const &boid)
-{
-    Vector3d fborder;
-    double dist=boid.m_Position.norm(); //distance to origin
-    dist = fabs(boid.m_Position.x-m_X);    fborder.x -= 1.0/(dist*dist);
-    dist = fabs(boid.m_Position.x+m_X);    fborder.x += 1.0/(dist*dist);
-
-    dist = fabs(boid.m_Position.y-m_Y);    fborder.y -= 1.0/(dist*dist);
-    dist = fabs(boid.m_Position.y+m_Y);    fborder.y += 1.0/(dist*dist);
-
-    dist = fabs(boid.m_Position.z-m_Z);    fborder.z -= 1.0/(dist*dist);
-    dist = fabs(boid.m_Position.z+m_Z);    fborder.z += 1.0/(dist*dist);
-
-/*    if(dist>m_SideLength)        fborder =  boid.Position *(-sqrt(dist-m_SideLength));
-    if(fborder.norm()>MAXFORCE) fborder.set(fborder.normalized()*MAXFORCE);*/
-
-    return fborder;
-}
-
 

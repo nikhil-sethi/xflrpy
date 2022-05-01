@@ -86,10 +86,8 @@ class Miarex : public QWidget
 {
     friend class GL3DScales;
     friend class GL3dBodyDlg;
-    friend class GL3dWingDlg;
     friend class LLTAnalysisDlg;
     friend class MainFrame;
-    friend class ManageUFOsDlg;
     friend class PanelAnalysisDlg;
     friend class Plane;
     friend class PlaneDlg;
@@ -263,7 +261,7 @@ class Miarex : public QWidget
         void panelAnalyze(double V0, double VMax, double VDelta, bool bSequence);
         void paintPlaneLegend(QPainter &painter, const Plane *pPlane, const WPolar *pWPolar, const QRect &drawRect, float devicePixelRatio);
         void paintPlaneOppLegend(QPainter &painter, QRect drawRect);
-        QString POppTitle(PlaneOpp *pPOpp);
+        QString POppTitle(const PlaneOpp *pPOpp);
         void renamePlane(QString PlaneName);
         bool saveSettings(QSettings &settings);
         void setAnalysisParams();

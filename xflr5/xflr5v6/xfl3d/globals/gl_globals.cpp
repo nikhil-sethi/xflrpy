@@ -25,16 +25,105 @@
 
 #include "gl_globals.h"
 
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xflgeom/geom3d/vector3d.h>
 #include <xflgeom/geom3d/segment3d.h>
 #include <xflgeom/geom3d/triangle3d.h>
+#include <xflobjects/objects3d/panel.h>
 
 #define PIf    3.141592654f
 #define NPOINTS 300
 
 double t_lmin(0), t_range(0);
 QVector<QVector<Segment3d>> t_futuresegs;
+
+
+#define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
+#define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
+void getMemoryStatus(int &total_mem_kb, int &cur_avail_mem_kb)
+{
+    total_mem_kb = 0;
+    glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX,
+                  &total_mem_kb);
+
+    cur_avail_mem_kb = 0;
+    glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX,
+                  &cur_avail_mem_kb);
+}
+
+
+
+/**
+* Returns the red component of a color scale depending on an input parameter with value between 0 and 1.
+* Used to draw a color scale between 0=blue and 1=red
+*@param tau the input parameter between 0 and 1.
+*@return the red component of the color
+*/
+float glGetRed(float tau)
+{
+    if(tau>2.0f/3.0f)      return 1.0f;
+    else if(tau>1.0f/3.0f) return (3.0f*(tau-1.0f/3.0f));
+    else                   return 0.0;
+}
+
+
+/**
+* Returns the green component of a color scale depending on an input parameter with value between 0 and 1.
+* Used to draw a color scale between 0=blue and 1=red
+*@param tau the input parameter between 0 and 1.
+*@return the green component of the color
+*/
+float glGetGreen(float tau)
+{
+    if(tau<0.f || tau>1.0f)     return 0.0f;
+    else if(tau<1.0f/4.0f)     return (4.0f*tau);
+    else if(tau>3.0f/4.0f)     return (1.0f-4.0f*(tau-3.0f/4.0f));
+    else                    return 1.0f;
+}
+
+
+/**
+* Returns the blue component of a color scale depending on an input parameter with value between 0 and 1.
+* Used to draw a color scale between 0=blue and 1=red
+*@param tau the input parameter between 0 and 1.
+*@return the blue component of the color
+*/
+float glGetBlue(float tau)
+{
+    if(tau>2.0f/3.0f)      return 0.0;
+    else if(tau>1.0f/3.0f) return (1.0f-3.0f*(tau-1.0f/3.0f));
+    else                   return 1.0;
+}
+
+
+
+/** note: glLineStipple is deprecated since OpenGL 3.1 */
+void GLLineStipple(Line::enumLineStipple stipple)
+{
+    switch(stipple)
+    {
+        default:
+        case Line::SOLID:       glLineStipple (1, 0xFFFF);   break;
+        case Line::DASH:        glLineStipple (1, 0xCFCF);   break;
+        case Line::DOT:         glLineStipple (1, 0x6666);   break;
+        case Line::DASHDOT:     glLineStipple (1, 0xFF18);   break;
+        case Line::DASHDOTDOT:  glLineStipple (1, 0x7E66);   break;
+    }
+}
+
+
+GLushort GLStipple(Line::enumLineStipple stipple)
+{
+    switch(stipple)
+    {
+        default:
+        case Line::SOLID:       return 0xFFFF;
+        case Line::DASH:        return 0x1F1F;
+        case Line::DOT:         return 0x6666;
+        case Line::DASHDOT:     return 0xFF18;
+        case Line::DASHDOTDOT:  return 0x7E66;
+    }
+}
 
 void glMakeTetra(Vector3d const &pt, double side, QOpenGLBuffer &vboFaces, QOpenGLBuffer &vboEdges)
 {
@@ -413,7 +502,7 @@ void glMakeCube(Vector3d const &pt, double dx, double dy, double dz,
     vboFaces.allocate(CubeVertexArray.data(), buffersize* int(sizeof(GLfloat)));
     vboFaces.release();
 
-    buffersize = 12 * 2 *3; //12 edges x2 vertices x3 components
+    buffersize = 12 * 2 *4; //12 edges x2 vertices x4 components
     QVector<float> EdgeVertexArray(buffersize);
     iv=0;
 
@@ -422,30 +511,38 @@ void glMakeCube(Vector3d const &pt, double dx, double dy, double dz,
         EdgeVertexArray[iv++] = T000.xf();
         EdgeVertexArray[iv++] = T000.yf();
         EdgeVertexArray[iv++] = T000.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T100.xf();
         EdgeVertexArray[iv++] = T100.yf();
         EdgeVertexArray[iv++] = T100.zf();
+        EdgeVertexArray[iv++] = 1.0f;
 
         EdgeVertexArray[iv++] = T100.xf();
         EdgeVertexArray[iv++] = T100.yf();
         EdgeVertexArray[iv++] = T100.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T110.xf();
         EdgeVertexArray[iv++] = T110.yf();
         EdgeVertexArray[iv++] = T110.zf();
+        EdgeVertexArray[iv++] = 1.0f;
 
         EdgeVertexArray[iv++] = T110.xf();
         EdgeVertexArray[iv++] = T110.yf();
         EdgeVertexArray[iv++] = T110.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T010.xf();
         EdgeVertexArray[iv++] = T010.yf();
         EdgeVertexArray[iv++] = T010.zf();
+        EdgeVertexArray[iv++] = 1.0f;
 
         EdgeVertexArray[iv++] = T010.xf();
         EdgeVertexArray[iv++] = T010.yf();
         EdgeVertexArray[iv++] = T010.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T000.xf();
         EdgeVertexArray[iv++] = T000.yf();
         EdgeVertexArray[iv++] = T000.zf();
+        EdgeVertexArray[iv++] = 1.0f;
     }
 
     //top face
@@ -453,30 +550,38 @@ void glMakeCube(Vector3d const &pt, double dx, double dy, double dz,
         EdgeVertexArray[iv++] = T001.xf();
         EdgeVertexArray[iv++] = T001.yf();
         EdgeVertexArray[iv++] = T001.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T101.xf();
         EdgeVertexArray[iv++] = T101.yf();
         EdgeVertexArray[iv++] = T101.zf();
+        EdgeVertexArray[iv++] = 1.0f;
 
         EdgeVertexArray[iv++] = T101.xf();
         EdgeVertexArray[iv++] = T101.yf();
         EdgeVertexArray[iv++] = T101.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T111.xf();
         EdgeVertexArray[iv++] = T111.yf();
         EdgeVertexArray[iv++] = T111.zf();
+        EdgeVertexArray[iv++] = 1.0f;
 
         EdgeVertexArray[iv++] = T111.xf();
         EdgeVertexArray[iv++] = T111.yf();
         EdgeVertexArray[iv++] = T111.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T011.xf();
         EdgeVertexArray[iv++] = T011.yf();
         EdgeVertexArray[iv++] = T011.zf();
+        EdgeVertexArray[iv++] = 1.0f;
 
         EdgeVertexArray[iv++] = T011.xf();
         EdgeVertexArray[iv++] = T011.yf();
         EdgeVertexArray[iv++] = T011.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T001.xf();
         EdgeVertexArray[iv++] = T001.yf();
         EdgeVertexArray[iv++] = T001.zf();
+        EdgeVertexArray[iv++] = 1.0f;
     }
 
     //lateral edges
@@ -484,30 +589,38 @@ void glMakeCube(Vector3d const &pt, double dx, double dy, double dz,
         EdgeVertexArray[iv++] = T000.xf();
         EdgeVertexArray[iv++] = T000.yf();
         EdgeVertexArray[iv++] = T000.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T001.xf();
         EdgeVertexArray[iv++] = T001.yf();
         EdgeVertexArray[iv++] = T001.zf();
+        EdgeVertexArray[iv++] = 1.0f;
 
         EdgeVertexArray[iv++] = T100.xf();
         EdgeVertexArray[iv++] = T100.yf();
         EdgeVertexArray[iv++] = T100.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T101.xf();
         EdgeVertexArray[iv++] = T101.yf();
         EdgeVertexArray[iv++] = T101.zf();
+        EdgeVertexArray[iv++] = 1.0f;
 
         EdgeVertexArray[iv++] = T110.xf();
         EdgeVertexArray[iv++] = T110.yf();
         EdgeVertexArray[iv++] = T110.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T111.xf();
         EdgeVertexArray[iv++] = T111.yf();
         EdgeVertexArray[iv++] = T111.zf();
+        EdgeVertexArray[iv++] = 1.0f;
 
         EdgeVertexArray[iv++] = T010.xf();
         EdgeVertexArray[iv++] = T010.yf();
         EdgeVertexArray[iv++] = T010.zf();
+        EdgeVertexArray[iv++] = 1.0f;
         EdgeVertexArray[iv++] = T011.xf();
         EdgeVertexArray[iv++] = T011.yf();
         EdgeVertexArray[iv++] = T011.zf();
+        EdgeVertexArray[iv++] = 1.0f;
     }
 
     Q_ASSERT(iv==buffersize);
@@ -616,8 +729,8 @@ void glMakeQuadContoursOnGrid(QOpenGLBuffer &vbo, int nrows, int ncols,
     // vertex array size
     // nsegs
     // x 2 vertices
-    // x 3 components
-    int nodeVertexSize = segs.size() * 2 * 3;
+    // x 4 components
+    int nodeVertexSize = segs.size() * 2 * 4;
     QVector<float> nodeVertexArray(nodeVertexSize);
 
     int iv=0;
@@ -628,9 +741,11 @@ void glMakeQuadContoursOnGrid(QOpenGLBuffer &vbo, int nrows, int ncols,
         nodeVertexArray[iv++] = n0.xf();
         nodeVertexArray[iv++] = n0.yf();
         nodeVertexArray[iv++] = n0.zf();
+        nodeVertexArray[iv++] = 1.0f;
         nodeVertexArray[iv++] = n1.xf();
         nodeVertexArray[iv++] = n1.yf();
         nodeVertexArray[iv++] = n1.zf();
+        nodeVertexArray[iv++] = 1.0f;
     }
 
     Q_ASSERT(iv==nodeVertexSize);
@@ -868,11 +983,10 @@ void lookUpQuadKey(int key, int *i)
 }
 
 
-
 void glMakeEllipseLineStrip(double a, double e, Vector3d const &O, QOpenGLBuffer &vbo)
 {
     int arcbuffersize = NPOINTS;
-    arcbuffersize *= 3; // 3 components per vertex for the surface shader
+    arcbuffersize *= 4; // 4 components per vertex for the line shader
 
     // NPOINTS-1 triangles
 
@@ -890,6 +1004,7 @@ void glMakeEllipseLineStrip(double a, double e, Vector3d const &O, QOpenGLBuffer
         ArcVertexArray[iv++] = C.xf()+x;
         ArcVertexArray[iv++] = C.yf()+y;
         ArcVertexArray[iv++] = C.zf();
+        ArcVertexArray[iv++] = 1.0f;
     }
 
     Q_ASSERT(iv==arcbuffersize);
@@ -1030,9 +1145,9 @@ void glMakeTrianglesOutline(QVector<Triangle3d> const &triangles, Vector3d const
     //		n triangular Panels
     //      x3 edges
     //      x2 nodes per edges
-    //		x3 vertex components
+    //		x4 vertex components
 
-    int buffersize = nPanel3*3*2*3;
+    int buffersize = nPanel3*3*2*4;
 
     QVector<float> nodeVertexArray(buffersize);
 
@@ -1046,10 +1161,12 @@ void glMakeTrianglesOutline(QVector<Triangle3d> const &triangles, Vector3d const
             nodeVertexArray[iv++] = t3d.vertexAt(i).xf() + position.xf();
             nodeVertexArray[iv++] = t3d.vertexAt(i).yf() + position.yf();
             nodeVertexArray[iv++] = t3d.vertexAt(i).zf() + position.zf();
+            nodeVertexArray[iv++] = 1.0f;
 
             nodeVertexArray[iv++] = t3d.vertexAt(i+1).xf() + position.xf();
             nodeVertexArray[iv++] = t3d.vertexAt(i+1).yf() + position.yf();
             nodeVertexArray[iv++] = t3d.vertexAt(i+1).zf() + position.zf();
+            nodeVertexArray[iv++] = 1.0f;
         }
     }
 
@@ -1128,7 +1245,7 @@ void glMakeCircle(double radius, Vector3d const &O, QOpenGLBuffer &vbo)
 {
     int arcbuffersize = NPOINTS-1; // 1 segment less than the number of points
     arcbuffersize *= 2; // two vertices per segment
-    arcbuffersize *= 3; // three components per vertex
+    arcbuffersize *= 4; // four components per vertex
 
     QVector<GLfloat> ArcVertexArray(arcbuffersize, 0);
 
@@ -1142,9 +1259,11 @@ void glMakeCircle(double radius, Vector3d const &O, QOpenGLBuffer &vbo)
         ArcVertexArray[iv++] = O.xf()+radius*cosf(theta);
         ArcVertexArray[iv++] = O.yf()+radius*sinf(theta);
         ArcVertexArray[iv++] = O.zf();
+        ArcVertexArray[iv++] = 1.0f;
         ArcVertexArray[iv++] = O.xf()+radius*cosf(theta1);
         ArcVertexArray[iv++] = O.yf()+radius*sinf(theta1);
         ArcVertexArray[iv++] = O.zf();
+        ArcVertexArray[iv++] = 1.0f;
     }
 
     Q_ASSERT(iv==arcbuffersize);
@@ -1195,3 +1314,39 @@ void glMakeDisk(double radius, Vector3d const &O, QOpenGLBuffer &vbo)
     vbo.release();
 }
 
+
+void glMakePanelNormals(QVector<Panel> const &panel, float length, QOpenGLBuffer &vbo)
+{
+    // vertices array size:
+    //		n  Panels
+    //      x2 nodes per normal
+    //		x3 = 3 vertex components
+    int buffersize = panel.count() * 2 * 3;
+    QVector<float>NormalVertexArray(buffersize);
+
+    int iv = 0;
+    int vec=0;
+    for (int i=0; i<panel.count(); i++)
+    {
+        Panel const & p4 = panel.at(i);
+
+        Vector3d pt = p4.CollPt;
+
+        NormalVertexArray[iv++] = pt.xf();
+        NormalVertexArray[iv++] = pt.yf();
+        NormalVertexArray[iv++] = pt.zf();
+
+        NormalVertexArray[iv++] = pt.xf() + p4.normal().xf() * length;
+        NormalVertexArray[iv++] = pt.yf() + p4.normal().yf() * length;
+        NormalVertexArray[iv++] = pt.zf() + p4.normal().zf() * length;
+        vec++;
+    }
+
+    Q_ASSERT(iv==buffersize);
+
+    vbo.destroy();
+    vbo.create();
+    vbo.bind();
+    vbo.allocate(NormalVertexArray.data(), NormalVertexArray.size() * int(sizeof(GLfloat)));
+    vbo.release();
+}

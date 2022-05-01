@@ -79,8 +79,8 @@ public:
         m_pY = y;
     }
 
-    bool isCancelled() const;
-    bool hasWarnings() const;
+    bool isCancelled() const {return m_bCancel;}
+    bool hasWarnings() const {return m_bError || m_bWarning;}
 
     static void setMaxIter(int maxIter){s_IterLim = maxIter;}
     static void setConvergencePrecision(double precision) {s_CvPrec = precision;}

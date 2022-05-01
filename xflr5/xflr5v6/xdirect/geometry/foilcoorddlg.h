@@ -62,7 +62,7 @@ class FoilCoordDlg : public QDialog
         void keyPressEvent(QKeyEvent *pEvent) override;
         void showEvent(QShowEvent *pEvent) override;
         void resizeEvent(QResizeEvent *pEvent) override;
-        QSize sizeHint() const override {return QSize(450,750);}
+        QSize sizeHint() const override {return QSize(750,950);}
 
     private:
         QDialogButtonBox *m_pButtonBox;

@@ -40,9 +40,9 @@ LinePickerWt::LinePickerWt(QWidget *pParent) : QWidget(pParent)
 
 void LinePickerWt::connectSignals()
 {
-    connect(m_plcbPointStyle,  SIGNAL(activated(int)), SLOT(onPointStyle(int)));
-    connect(m_plcbLineStyle,   SIGNAL(activated(int)), SLOT(onLineStyle(int)));
-    connect(m_plcbLineWidth,   SIGNAL(activated(int)), SLOT(onLineWidth(int)));
+    connect(m_plcbPointStyle,  SIGNAL(activated(int)),       SLOT(onPointStyle(int)));
+    connect(m_plcbLineStyle,   SIGNAL(activated(int)),       SLOT(onLineStyle(int)));
+    connect(m_plcbLineWidth,   SIGNAL(activated(int)),       SLOT(onLineWidth(int)));
     connect(m_plbLineColor,    SIGNAL(clickedLB(LineStyle)), SLOT(onLineColor()));
 }
 

@@ -34,7 +34,6 @@ XmlPolarWriter::XmlPolarWriter(QFile &XFile)
 void XmlPolarWriter::writeXMLPolar(Polar *pPolar)
 {
     if(!pPolar) return;
-    QString strange;
 
     writeHeader();
 

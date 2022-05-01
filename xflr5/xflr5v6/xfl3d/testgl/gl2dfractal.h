@@ -8,58 +8,59 @@
 
 #pragma once
 
-#include <QOpenGLWidget>
-#include <QOpenGLVertexArrayObject>
-#include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
+#include <QRadioButton>
+#include <QCheckBox>
 #include <QSettings>
-#include <QTimer>
-#include <QElapsedTimer>
-#include <QLabel>
 
-#include <xflgeom/geom3d/vector3d.h>
+#include <xfl3d/testgl/gl2dview.h>
+
+#include <QLabel>
+#include <QSlider>
+
 
 class IntEdit;
 class DoubleEdit;
 
-class gl2dFractal : public QOpenGLWidget
+class gl2dFractal : public gl2dView
 {
     Q_OBJECT
     public:
         gl2dFractal(QWidget *pParent = nullptr);
 
-        virtual QSize sizeHint() const override {return QSize(1500, 1100);}
+        QPointF defaultOffset() override {return QPointF(+0.5*float(width()),0.0f);}
+
         void initializeGL() override;
         void paintGL()  override;
-        void showEvent(QShowEvent *pEvent) override;
-        void wheelEvent(QWheelEvent *pEvent) override;
+
         void mousePressEvent(QMouseEvent *pEvent) override;
-        void mouseReleaseEvent(QMouseEvent *pEvent) override;
         void mouseMoveEvent(QMouseEvent *pEvent) override;
-        void keyPressEvent(QKeyEvent *pEvent) override;
+        void mouseReleaseEvent(QMouseEvent *pEvent) override;
 
         static void loadSettings(QSettings &settings);
         static void saveSettings(QSettings &settings);
 
-        static void setScaleFactor(double f) {s_ScaleFactor=float(f);}
-
-    private:
-        void screenToViewport(QPoint const &point, QVector2D &real) const;
-        void makeQuad();
-        void startDynamicTimer();
-        void stopDynamicTimer();
-
     private slots:
-        void onDynamicIncrement();
+        void onMode();
 
     private:
-        QOpenGLVertexArrayObject m_vao; /** generic vao required for the core profile >3.x*/
-        QOpenGLBuffer m_vboQuad;
+        QRadioButton *m_prbMandelbrot, *m_prbJulia;
+        IntEdit *m_pieMaxIter;
+        DoubleEdit *m_pdeMaxLength;
+        QLabel *m_plabScale;
+        QCheckBox *m_pchShowSeed;
+        QSlider *m_pslTau;
+
+        QOpenGLBuffer m_vboRoots;
+        QOpenGLBuffer m_vboSegs;
 
         QOpenGLShaderProgram m_shadFrac;
-
         // shader uniforms
+        int m_locJulia;
+        int m_locParamX;
+        int m_locParamY;
         int m_locIters;
+        int m_locHue;
         int m_locLength;
         int m_locViewTrans;
         int m_locViewScale;
@@ -68,31 +69,13 @@ class gl2dFractal : public QOpenGLWidget
         //shader attributes
         int m_attrVertexPosition;
 
-        //
-        QPoint m_LastPoint, m_PressedPoint;
-        float m_Scale;
-        QPointF m_ptOffset;          /**< the foil's leading edge position in screen coordinates */
+        bool m_bResetRoots;
+        int m_iHoveredRoot;
+        int m_iSelectedRoot;
+        float m_amp0, m_phi0; /** The seed's initial position */
 
-        QRectF m_rectMandelbrot;
-
-
-        QElapsedTimer m_MoveTime;
-        QTimer m_DynTimer;
-
-        QPointF m_Trans;
-        bool m_bDynTranslation;
-
-        bool m_bDynScaling;
-        float m_ZoomFactor;
-
-        IntEdit *m_pieMaxIter;
-        DoubleEdit *m_pdeMaxLength;
-        QLabel *m_plabScale;
-
-        static float s_ScaleFactor;
-
+        static int s_Hue;
         static int s_MaxIter;
         static float s_MaxLength;
-
+        static QVector2D s_Seed;
 };
-

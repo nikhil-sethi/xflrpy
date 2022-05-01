@@ -36,6 +36,7 @@ class gl3dSolarSys : public gl3dTestGLView
         void onRestart();
         void onPlanetSize(int size);
 
+        void onCeres(bool bShow);
         void onHalley(bool bShow);
 
     private:
@@ -45,31 +46,35 @@ class gl3dSolarSys : public gl3dTestGLView
         void glMake3dObjects() override;
         void keyPressEvent(QKeyEvent *pEvent) override;
 
+
         void makePlanets();
 
 
     private:
         QDate m_Elapsed;
-        bool m_bResetPlanet;
-        bool m_bResetStars;
+        bool m_bResetPlanets;
+
+        bool m_bCeres;
         bool m_bHalley;
 
         QVector<Planet> m_Planet;
 
+        Planet m_Ceres;
         Planet m_Halley;
 
         QTimer m_Timer;
 
         DoubleEdit *m_pdeDt, *m_pdePlanetSize;
-        QVector<Star> m_Stars;
+
 
         QLabel *m_plabDate;
         QLabel *m_plabHalley;
 
         QVector<QOpenGLBuffer> m_vboCircle;
         QOpenGLBuffer m_vboSaturnDisk;
+        QOpenGLBuffer m_vboCeresEllipse;
         QOpenGLBuffer m_vboHalleyEllipse;
-        QOpenGLBuffer m_vboStars;
+
 
         Light m_RefLight;
 

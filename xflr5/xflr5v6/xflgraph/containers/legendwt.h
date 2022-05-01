@@ -36,9 +36,8 @@ class LegendWt : public QWidget
     Q_OBJECT
     public:
         LegendWt(QWidget *pParent = nullptr);
-        ~LegendWt();
 
-        void keyPressEvent(QKeyEvent *event) override;
+        void keyPressEvent(QKeyEvent *pEvent) override;
         void paintEvent(QPaintEvent *event) override;
         QSize sizeHint() const override;
         void mouseMoveEvent(QMouseEvent *event) override;

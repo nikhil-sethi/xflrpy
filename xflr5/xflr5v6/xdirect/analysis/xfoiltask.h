@@ -48,13 +48,13 @@ struct FoilAnalysis
 *@class XFoilTask
 * This file implements the management task of an XFoil calculation. Used in multithreaded analysis. 
 */
-class XFoilTask : public QRunnable
+class XFoilTask : public QObject
 {
     public:
         XFoilTask(QObject *pParent=nullptr);
 
     public:
-        void run() override; // run in a thread started from the QThreadPool
+        void run(); // run in a thread started from the QThreadPool
 
         bool alphaSequence();
         bool ReSequence();
@@ -85,7 +85,6 @@ class XFoilTask : public QRunnable
         XFoil m_XFoilInstance;     /**< An instance of the XFoil class specific for this object */
 
         QTextStream m_OutStream;
-        QString m_OutMessage;
         QString m_XFoilLog;
         QTextStream m_XFoilStream;
 

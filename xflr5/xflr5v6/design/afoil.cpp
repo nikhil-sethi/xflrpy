@@ -1291,9 +1291,6 @@ void AFoil::onFoilTableCtxMenu(const QPoint &)
 }
 
 
-/**
- * Sets up the GUI.
- */
 void AFoil::setupLayout()
 {
     m_ptvFoil = new QTableView(this);
@@ -1304,7 +1301,7 @@ void AFoil::setupLayout()
     m_ptvFoil->setFont(DisplayOptions::tableFont());
     m_ptvFoil->horizontalHeader()->setFont(DisplayOptions::tableFont());
 
-    connect(m_ptvFoil, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(onFoilTableCtxMenu(const QPoint &)));
+    connect(m_ptvFoil, SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(onFoilTableCtxMenu(const QPoint&)));
 
     QHBoxLayout *pMainLayout = new QHBoxLayout;
     pMainLayout->addWidget(m_ptvFoil);

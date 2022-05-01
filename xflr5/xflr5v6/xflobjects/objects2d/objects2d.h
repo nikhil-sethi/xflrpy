@@ -93,9 +93,9 @@ namespace Objects2d
     void setFoilVisible(Foil *pFoil, bool bVisible, bool bChildrenOnly);
     void setPolarVisible(Polar *pPolar, bool bVisible);
 
-    inline void setCurFoil(Foil*pFoil)    {m_pCurFoil = pFoil;}
+    inline void setCurFoil(Foil*pFoil)    {m_pCurFoil  = pFoil;}
     inline void setCurPolar(Polar*pPolar) {m_pCurPolar = pPolar;}
-    inline void setCurOpp(OpPoint* pOpp)  {m_pCurOpp = pOpp;}
+    inline void setCurOpp(OpPoint* pOpp)  {m_pCurOpp   = pOpp;}
 
     inline Foil *   curFoil()  {return m_pCurFoil;}
     inline Polar*   curPolar() {return m_pCurPolar;}
@@ -105,6 +105,6 @@ namespace Objects2d
     inline QVector<Polar*> * pOAPolar() {return &s_oaPolar;}
     inline QVector<OpPoint*> * pOAOpp() {return &s_oaOpp;}
 
-    Polar* createPolar(Foil *pFoil, xfl::enumPolarType PolarType, double Spec, double Mach, double NCrit, double m_XTop, double m_XBot);
+    Polar* createPolar(const Foil *pFoil, xfl::enumPolarType PolarType, double Spec, double Mach, double NCrit, double XTop, double XBot);
 };
 

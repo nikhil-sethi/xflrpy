@@ -9,15 +9,17 @@
 
 #include <QGridLayout>
 #include <QLabel>
+#include <QFile>
 
 #include "gl3dspace.h"
 
-#include <xfl3d/gl_globals.h>
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/gl_globals.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xflwidgets/customwts/intedit.h>
 #include <xflwidgets/customwts/doubleedit.h>
 #include <xflwidgets/wt_globals.h>
 #include <xflgeom/geom_globals.h>
+
 
 
 int gl3dSpace::s_NObjects = 869;
@@ -64,7 +66,7 @@ gl3dSpace::gl3dSpace(QWidget *pParent) : gl3dTestGLView(pParent)
             pPlanetSize->setTickPosition(QSlider::TicksBelow);
             pPlanetSize->setValue(int(s_SphereRadius));
 
-            connect(pPlanetSize,  SIGNAL(sliderMoved(int)),  SLOT(onObjectRadius(int)));
+            connect(pPlanetSize,  SIGNAL(valueChanged(int)),  SLOT(onObjectRadius(int)));
 
             m_plwGalaxies = new QListWidget;
             connect(m_plwGalaxies, SIGNAL(itemClicked(QListWidgetItem*)), SLOT(onSelGalaxy(QListWidgetItem*)));
@@ -86,7 +88,7 @@ gl3dSpace::gl3dSpace(QWidget *pParent) : gl3dTestGLView(pParent)
             pMainLayout->addWidget(pPlanetSize,     3, 2);
             pMainLayout->addWidget(m_plwGalaxies,   4, 1, 1, 2);
             pMainLayout->addWidget(pchAxes,         5, 1, 1, 2);
-            pMainLayout->addWidget(pNEARGALCATLink, 5, 1, 1, 2);
+            pMainLayout->addWidget(pNEARGALCATLink, 6, 1, 1, 2);
         }
 
         pFrame->setLayout(pMainLayout);
@@ -119,9 +121,9 @@ void gl3dSpace::glMake3dObjects()
 
             arcbuffersize *= 2; // two arcs Ra and Da
             arcbuffersize *= 2; // two vertices per segment
-            arcbuffersize *= 3; // three components per vertex
+            arcbuffersize *= 4; // four components per vertex
             QVector<GLfloat> ArcVertexArray(arcbuffersize, 0);
-            QVector<GLfloat> RadiusVertexArray(3*2*3, 0);
+            QVector<GLfloat> RadiusVertexArray(3*2*4, 0);
 
 
             Star const &galaxy = m_Galaxies.at(m_iSelIndex);
@@ -137,10 +139,12 @@ void gl3dSpace::glMake3dObjects()
                 float theta1 = float(i+1) * float(galaxy.m_Ra)/float(NPOINTS-1);
                 ArcVertexArray[iv++] = radius*cosf(theta*PI/180.0);
                 ArcVertexArray[iv++] = radius*sinf(theta*PI/180.0);
-                ArcVertexArray[iv++] = 0.0;
+                ArcVertexArray[iv++] = 0.0f;
+                ArcVertexArray[iv++] = 1.0f;
                 ArcVertexArray[iv++] = radius*cosf(theta1*PI/180.0);
                 ArcVertexArray[iv++] = radius*sinf(theta1*PI/180.0);
-                ArcVertexArray[iv++] = 0.0;
+                ArcVertexArray[iv++] = 0.0f;
+                ArcVertexArray[iv++] = 0.0f;
             }
 
             // make declination arc
@@ -148,26 +152,32 @@ void gl3dSpace::glMake3dObjects()
             RadiusVertexArray[0] = 0.0f;
             RadiusVertexArray[1] = 0.0f;
             RadiusVertexArray[2] = 0.0f;
-            RadiusVertexArray[3] = rad.xf();
-            RadiusVertexArray[4] = rad.yf();
-            RadiusVertexArray[5] = rad.zf();
+            RadiusVertexArray[3] = 1.0f;
+            RadiusVertexArray[4] = rad.xf();
+            RadiusVertexArray[5] = rad.yf();
+            RadiusVertexArray[6] = rad.zf();
+            RadiusVertexArray[7] = 1.0f;
             m_RaLoc.set(rad);
             m_RaLoc.rotateZ(galaxy.m_Ra/2.0);
 
             rad.rotateZ(galaxy.m_Ra);
 
-            RadiusVertexArray[6]  = 0.0f;
-            RadiusVertexArray[7]  = 0.0f;
             RadiusVertexArray[8]  = 0.0f;
-            RadiusVertexArray[9]  = rad.xf();
-            RadiusVertexArray[10] = rad.yf();
-            RadiusVertexArray[11] = rad.zf();
-            RadiusVertexArray[12] = 0.0f;
-            RadiusVertexArray[13] = 0.0f;
-            RadiusVertexArray[14] = 0.0f;
-            RadiusVertexArray[15] = galaxy.m_Position.xf();
-            RadiusVertexArray[16] = galaxy.m_Position.yf();
-            RadiusVertexArray[17] = galaxy.m_Position.zf();
+            RadiusVertexArray[9]  = 0.0f;
+            RadiusVertexArray[10]  = 0.0f;
+            RadiusVertexArray[11]  = 1.0f;
+            RadiusVertexArray[12] = rad.xf();
+            RadiusVertexArray[13] = rad.yf();
+            RadiusVertexArray[14] = rad.zf();
+            RadiusVertexArray[15] = 1.0f;
+            RadiusVertexArray[16] = 0.0f;
+            RadiusVertexArray[17] = 0.0f;
+            RadiusVertexArray[18] = 0.0f;
+            RadiusVertexArray[19] = 1.0f;
+            RadiusVertexArray[20] = galaxy.m_Position.xf();
+            RadiusVertexArray[21] = galaxy.m_Position.yf();
+            RadiusVertexArray[22] = galaxy.m_Position.zf();
+            RadiusVertexArray[23] = galaxy.m_Position.zf();
 
             Vector3d axis = (rad * galaxy.m_Position).normalized();
 
@@ -186,9 +196,11 @@ void gl3dSpace::glMake3dObjects()
                 ArcVertexArray[iv++] = vtx0.xf();
                 ArcVertexArray[iv++] = vtx0.yf();
                 ArcVertexArray[iv++] = vtx0.zf();
+                ArcVertexArray[iv++] = 1.0f;
                 ArcVertexArray[iv++] = vtx1.xf();
                 ArcVertexArray[iv++] = vtx1.yf();
                 ArcVertexArray[iv++] = vtx1.zf();
+                ArcVertexArray[iv++] = 1.0f;
             }
 
             Q_ASSERT(iv==arcbuffersize);
@@ -347,7 +359,7 @@ void gl3dSpace::onObjectRadius(int size)
 
 void gl3dSpace::makeGalaxies()
 {
-    QFile XFile(":/resources/textfiles/galaxies.csv");
+    QFile XFile(":/textfiles/galaxies.csv");
 
     if(!XFile.open(QIODevice::ReadOnly)) return;
     m_Galaxies.clear();
@@ -454,7 +466,7 @@ void gl3dSpace::mouseMoveEvent(QMouseEvent *pEvent)
 
         double radius = double(s_SphereRadius)/2500.0/m_glScalef;
 
-        s_NObjects = std::min(s_NObjects, m_Galaxies.size());
+        s_NObjects = qMin(s_NObjects, m_Galaxies.size());
 
         m_iCloseIndex = -1;
         for(int in=0; in<s_NObjects; in++)

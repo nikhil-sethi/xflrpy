@@ -76,7 +76,7 @@ void FoilCoordDlg::setupLayout()
             QVector<int> precision = {5,5};
             m_pFloatDelegate->setPrecision(precision);
 
-            connect(m_pFloatDelegate, SIGNAL(closeEditor(QWidget *)), this, SLOT(onCellChanged(QWidget *)));
+            connect(m_pFloatDelegate, SIGNAL(closeEditor(QWidget*)), SLOT(onCellChanged(QWidget*)));
 
             QItemSelectionModel *pSelectionModel = new QItemSelectionModel(m_pCoordModel);
             m_ptvCoordTable->setSelectionModel(pSelectionModel);

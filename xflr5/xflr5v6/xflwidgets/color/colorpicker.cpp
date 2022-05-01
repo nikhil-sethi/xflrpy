@@ -95,7 +95,7 @@ void ColorPicker::setupLayout()
             QLabel *pLabSatMax = new QLabel("255");
             m_pslSaturation = new QSlider(Qt::Horizontal);
             m_pslSaturation->setRange(0,255);
-            connect(m_pslSaturation, SIGNAL(sliderMoved(int)), SLOT(onSaturationMoved(int)));
+            connect(m_pslSaturation, SIGNAL(valueChanged(int)), SLOT(onSaturationMoved(int)));
 
             QLabel *pLabAlpha = new QLabel(tr("Alpha"));
             QLabel *pLabAlphaMin = new QLabel("0");

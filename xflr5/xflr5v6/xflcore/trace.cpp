@@ -39,7 +39,7 @@ QFile *g_pTraceFile = nullptr;
 * Used for debugging.
 *@param n the integer to output
 */
-void Trace(int n)
+void trace(int n)
 {
     if(!g_bTrace) return;
 
@@ -51,7 +51,7 @@ void Trace(int n)
 }
 
 
-void Trace(QString const &msg, bool b)
+void trace(QString const &msg, bool b)
 {
     if(!g_bTrace) return;
     QString str;
@@ -72,7 +72,7 @@ void Trace(QString const &msg, bool b)
 * Used for debugging.
 *@param msg the message to output
 */
-void Trace(QString const &msg)
+void trace(QString const &msg)
 {
     if(!g_bTrace) return;
 
@@ -92,7 +92,7 @@ void Trace(QString const &msg)
 * @param msg the message to output
 * @param n the integer to output
 */
-void Trace(QString const &msg, int n)
+void trace(QString const &msg, int n)
 {
     if(!g_bTrace) return;
 
@@ -115,7 +115,7 @@ void Trace(QString const &msg, int n)
 * @param msg the message to output
 * @param f the float number to output
 */
-void Trace(QString const &msg, double f)
+void trace(QString const &msg, double f)
 {
     if(!g_bTrace) return;
 
@@ -146,7 +146,7 @@ void startTrace(bool bTrace)
     QString strange;
     QOperatingSystemVersion const &sys = QOperatingSystemVersion::current();
     strange = sys.name();
-    Trace(strange+"\n");
+    trace(strange+"\n");
 
     QSysInfo sysInfo;
 
@@ -159,24 +159,24 @@ void startTrace(bool bTrace)
     strange += "   product name:    "  + sysInfo.prettyProductName() +"\n";
     strange += "   product type:    "  + sysInfo.productType() +"\n";
     strange += "   product version: "  + sysInfo.productVersion() +"\n\n";
-    Trace(strange);
+    trace(strange);
 
     const char *qt_version = qVersion();
     strange = QString::asprintf("Qt version: %s\n\n", qt_version);
-    Trace(strange);
+    trace(strange);
 
     strange = QString::asprintf("Ideal thread count: %d\n\n", QThread::idealThreadCount());
-    Trace(strange);
+    trace(strange);
 
 
     strange = QString::asprintf("Default OpengGl format:%d.%d\n",
                     QSurfaceFormat::defaultFormat().majorVersion(),
                     QSurfaceFormat::defaultFormat().minorVersion());
-    Trace(strange);
-    Trace("OpenGL support:\n");
-    Trace("    Desktop OpenGL ", qApp->testAttribute(Qt::AA_UseDesktopOpenGL));
-    Trace("    OpenGL ES      ", qApp->testAttribute(Qt::AA_UseOpenGLES));
-    Trace("    Software OpenGL", qApp->testAttribute(Qt::AA_UseSoftwareOpenGL));
-    Trace("\n");
+    trace(strange);
+    trace("OpenGL support:\n");
+    trace("    Desktop OpenGL ", qApp->testAttribute(Qt::AA_UseDesktopOpenGL));
+    trace("    OpenGL ES      ", qApp->testAttribute(Qt::AA_UseOpenGLES));
+    trace("    Software OpenGL", qApp->testAttribute(Qt::AA_UseSoftwareOpenGL));
+    trace("\n");
 
 }

@@ -33,6 +33,7 @@
 #include <xfl3d/views/gl3dview.h>
 
 
+QByteArray GLLightDlg::s_Geometry;
 
 int GLLightDlg::s_iShininess = 3;
 
@@ -52,21 +53,21 @@ GLLightDlg::GLLightDlg(QWidget *pParent) : QDialog(pParent)
 
 void GLLightDlg::connectSignals()
 {
-    connect(m_plabLight,         SIGNAL(clicked()),        SLOT(onLight()));
-    connect(m_ppbClose,          SIGNAL(clicked()),        SLOT(accept()));
-    connect(m_ppbDefaults,       SIGNAL(clicked()),        SLOT(onDefaults()));
+    connect(m_plabLight,               SIGNAL(clicked()),         SLOT(onLight()));
+    connect(m_ppbClose,                SIGNAL(clicked()),         SLOT(accept()));
+    connect(m_ppbDefaults,             SIGNAL(clicked()),         SLOT(onDefaults()));
 
-    connect(m_pslRed,            SIGNAL(sliderMoved(int)), SLOT(onChanged()));
-    connect(m_pslGreen,          SIGNAL(sliderMoved(int)), SLOT(onChanged()));
-    connect(m_pslBlue,           SIGNAL(sliderMoved(int)), SLOT(onChanged()));
-    connect(m_peslLightAmbient,  SIGNAL(sliderMoved(int)), SLOT(onChanged()));
-    connect(m_peslLightDiffuse,  SIGNAL(sliderMoved(int)), SLOT(onChanged()));
-    connect(m_peslLightSpecular, SIGNAL(sliderMoved(int)), SLOT(onChanged()));
-    connect(m_peslXLight,        SIGNAL(sliderMoved(int)), SLOT(onChanged()));
-    connect(m_peslYLight,        SIGNAL(sliderMoved(int)), SLOT(onChanged()));
-    connect(m_peslZLight,        SIGNAL(sliderMoved(int)), SLOT(onChanged()));
+    connect(m_pslRed,                  SIGNAL(sliderMoved(int)),  SLOT(onChanged()));
+    connect(m_pslGreen,                SIGNAL(sliderMoved(int)),  SLOT(onChanged()));
+    connect(m_pslBlue,                 SIGNAL(sliderMoved(int)),  SLOT(onChanged()));
+    connect(m_peslLightAmbient,        SIGNAL(sliderMoved(int)),  SLOT(onChanged()));
+    connect(m_peslLightDiffuse,        SIGNAL(sliderMoved(int)),  SLOT(onChanged()));
+    connect(m_peslLightSpecular,       SIGNAL(sliderMoved(int)),  SLOT(onChanged()));
+    connect(m_peslXLight,              SIGNAL(sliderMoved(int)),  SLOT(onChanged()));
+    connect(m_peslYLight,              SIGNAL(sliderMoved(int)),  SLOT(onChanged()));
+    connect(m_peslZLight,              SIGNAL(sliderMoved(int)),  SLOT(onChanged()));
 
-    connect(m_pslMatShininess,   SIGNAL(sliderMoved(int)), SLOT(onChanged()));
+    connect(m_pslMatShininess,         SIGNAL(sliderMoved(int)),  SLOT(onChanged()));
 
     connect(m_pdeConstantAttenuation,  SIGNAL(editingFinished()), SLOT(onChanged()));
     connect(m_pdeLinearAttenuation,    SIGNAL(editingFinished()), SLOT(onChanged()));
@@ -314,39 +315,39 @@ void GLLightDlg::onDefaults()
 
 void GLLightDlg::readParams(void)
 {
-    Light &s_Light = m_pglView->s_Light;
+    Light &light = gl3dView::s_Light;
 
-    s_Light.m_bIsLightOn = m_plabLight->isChecked();
+    light.m_bIsLightOn = m_plabLight->isChecked();
 
-    s_Light.m_Red     = float(m_pslRed->value())    /100.0f;
-    s_Light.m_Green   = float(m_pslGreen->value())  /100.0f;
-    s_Light.m_Blue    = float(m_pslBlue->value())   /100.0f;
+    light.m_Red     = float(m_pslRed->value())    /100.0f;
+    light.m_Green   = float(m_pslGreen->value())  /100.0f;
+    light.m_Blue    = float(m_pslBlue->value())   /100.0f;
 
-    s_Light.m_X  = float(m_peslXLight->expValue())/100.0f;
-    s_Light.m_Y  = float(m_peslYLight->expValue())/100.0f;
-    s_Light.m_Z  = float(m_peslZLight->expValue())/100.0f;
+    light.m_X  = float(m_peslXLight->expValue())/100.0f;
+    light.m_Y  = float(m_peslYLight->expValue())/100.0f;
+    light.m_Z  = float(m_peslZLight->expValue())/100.0f;
 
-    s_Light.m_Ambient     = float(m_peslLightAmbient->expValue())  / 20.0f;
-    s_Light.m_Diffuse     = float(m_peslLightDiffuse->expValue())  / 20.0f;
-    s_Light.m_Specular    = float(m_peslLightSpecular->expValue()) / 20.0f;
+    light.m_Ambient     = float(m_peslLightAmbient->expValue())  / 20.0f;
+    light.m_Diffuse     = float(m_peslLightDiffuse->expValue())  / 20.0f;
+    light.m_Specular    = float(m_peslLightSpecular->expValue()) / 20.0f;
 
     s_iShininess   = m_pslMatShininess->value();
 
-    s_Light.m_Attenuation.m_Constant  = float(m_pdeConstantAttenuation->value());
-    s_Light.m_Attenuation.m_Linear    = float(m_pdeLinearAttenuation->value());
-    s_Light.m_Attenuation.m_Quadratic = float(m_pdeQuadAttenuation->value());
+    light.m_Attenuation.m_Constant  = float(m_pdeConstantAttenuation->value());
+    light.m_Attenuation.m_Linear    = float(m_pdeLinearAttenuation->value());
+    light.m_Attenuation.m_Quadratic = float(m_pdeQuadAttenuation->value());
 }
 
 
 void GLLightDlg::setParams(void)
 {
-    Light &s_Light = gl3dView::s_Light;
+    Light &light = gl3dView::s_Light;
 
-    m_plabLight->setChecked(s_Light.m_bIsLightOn);
+    m_plabLight->setChecked(light.m_bIsLightOn);
 
-    m_peslLightAmbient->setExpValue( double(s_Light.m_Ambient)  *20.0);
-    m_peslLightDiffuse->setExpValue( double(s_Light.m_Diffuse)  *20.0);
-    m_peslLightSpecular->setExpValue(double(s_Light.m_Specular) *20.0);
+    m_peslLightAmbient->setExpValue( double(light.m_Ambient)  *20.0);
+    m_peslLightDiffuse->setExpValue( double(light.m_Diffuse)  *20.0);
+    m_peslLightSpecular->setExpValue(double(light.m_Specular) *20.0);
 
     m_peslXLight->setRange(-int(LIGHTREFLENGTH*100), int(LIGHTREFLENGTH*100));
     m_peslYLight->setRange(-int(LIGHTREFLENGTH*100), int(LIGHTREFLENGTH*100));
@@ -354,19 +355,19 @@ void GLLightDlg::setParams(void)
     m_peslXLight->setTickInterval(int(LIGHTREFLENGTH*10.0));
     m_peslYLight->setTickInterval(int(LIGHTREFLENGTH*10.0));
     m_peslZLight->setTickInterval(int(LIGHTREFLENGTH*10.0));
-    m_peslXLight->setExpValue(double(s_Light.m_X)*100.0);
-    m_peslYLight->setExpValue(double(s_Light.m_Y)*100.0);
-    m_peslZLight->setExpValue(double(s_Light.m_Z)*100.0);
+    m_peslXLight->setExpValue(double(light.m_X)*100.0);
+    m_peslYLight->setExpValue(double(light.m_Y)*100.0);
+    m_peslZLight->setExpValue(double(light.m_Z)*100.0);
 
-    m_pslRed->setValue(  int(s_Light.m_Red  *100.0f));
-    m_pslGreen->setValue(int(s_Light.m_Green*100.0f));
-    m_pslBlue->setValue( int(s_Light.m_Blue *100.0f));
+    m_pslRed->setValue(  int(light.m_Red  *100.0f));
+    m_pslGreen->setValue(int(light.m_Green*100.0f));
+    m_pslBlue->setValue( int(light.m_Blue *100.0f));
 
     m_pslMatShininess->setValue(s_iShininess);
 
-    m_pdeConstantAttenuation->setValue(double(s_Light.m_Attenuation.m_Constant));
-    m_pdeLinearAttenuation->setValue(  double(s_Light.m_Attenuation.m_Linear));
-    m_pdeQuadAttenuation->setValue(    double(s_Light.m_Attenuation.m_Quadratic));
+    m_pdeConstantAttenuation->setValue(double(light.m_Attenuation.m_Constant));
+    m_pdeLinearAttenuation->setValue(  double(light.m_Attenuation.m_Linear));
+    m_pdeQuadAttenuation->setValue(    double(light.m_Attenuation.m_Quadratic));
 
     setLabels();
 }
@@ -374,25 +375,25 @@ void GLLightDlg::setParams(void)
 
 void GLLightDlg::setLabels()
 {
-    Light &s_Light = gl3dView::s_Light;
+    Light &light = gl3dView::s_Light;
 
     QString strong;
 
-    strong = QString::asprintf("%7.1f", double(s_Light.m_Ambient));
+    strong = QString::asprintf("%7.1f", double(light.m_Ambient));
     m_plabLightAmbient->setText(strong);
-    strong = QString::asprintf("%7.1f", double(s_Light.m_Diffuse));
+    strong = QString::asprintf("%7.1f", double(light.m_Diffuse));
     m_plabLightDiffuse->setText(strong);
-    strong = QString::asprintf("%7.1f", double(s_Light.m_Specular));
-    m_plabLightSpecular->setText(strong);    strong = QString::asprintf("%7.1f", double(s_Light.m_X)*Units::mtoUnit());
+    strong = QString::asprintf("%7.1f", double(light.m_Specular));
+    m_plabLightSpecular->setText(strong);    strong = QString::asprintf("%7.1f", double(light.m_X)*Units::mtoUnit());
     m_plabPosXValue->setText(strong + Units::lengthUnitLabel());
-    strong = QString::asprintf("%7.1f", double(s_Light.m_Y)*Units::mtoUnit());
+    strong = QString::asprintf("%7.1f", double(light.m_Y)*Units::mtoUnit());
     m_plabPosYValue->setText(strong + Units::lengthUnitLabel());
-    strong = QString::asprintf("%7.1f", double(s_Light.m_Z)*Units::mtoUnit());
-    m_plabPosZValue->setText(strong + Units::lengthUnitLabel());    strong = QString::asprintf("%7.1f", double(s_Light.m_Red));
+    strong = QString::asprintf("%7.1f", double(light.m_Z)*Units::mtoUnit());
+    m_plabPosZValue->setText(strong + Units::lengthUnitLabel());    strong = QString::asprintf("%7.1f", double(light.m_Red));
     m_plabLightRed->setText(strong);
-    strong = QString::asprintf("%7.1f", double(s_Light.m_Green));
+    strong = QString::asprintf("%7.1f", double(light.m_Green));
     m_plabLightGreen->setText(strong);
-    strong = QString::asprintf("%7.1f", double(s_Light.m_Blue));
+    strong = QString::asprintf("%7.1f", double(light.m_Blue));
     m_plabLightBlue->setText(strong);
 
     strong = QString::asprintf("%d", s_iShininess);
@@ -403,28 +404,30 @@ void GLLightDlg::setLabels()
 
 bool GLLightDlg::loadSettings(QSettings &settings)
 {
-    Light &s_Light = gl3dView::s_Light;
+    Light &light = gl3dView::s_Light;
     settings.beginGroup("GLLightDlg");
     {
-        s_Light.m_Ambient           = settings.value("Ambient",  0.3).toFloat();
-        s_Light.m_Diffuse           = settings.value("Diffuse",  1.2).toFloat();
-        s_Light.m_Specular          = settings.value("Specular", 0.5).toFloat();
+        s_Geometry = settings.value("WindowGeom", QByteArray()).toByteArray();
 
-        s_Light.m_X                 = settings.value("XLight", 0.300).toFloat();
-        s_Light.m_Y                 = settings.value("YLight", 0.300).toFloat();
-        s_Light.m_Z                 = settings.value("ZLight", 3.000).toFloat();
+        light.m_Ambient           = settings.value("Ambient",   light.m_Ambient).toFloat();
+        light.m_Diffuse           = settings.value("Diffuse",   light.m_Diffuse).toFloat();
+        light.m_Specular          = settings.value("Specular",  light.m_Specular).toFloat();
 
-        s_Light.m_Red               = settings.value("RedLight",  1.0).toFloat();
-        s_Light.m_Green             = settings.value("GreenLight",1.0).toFloat();
-        s_Light.m_Blue              = settings.value("BlueLight", 1.0).toFloat();
+        light.m_X                 = settings.value("XLight",    light.m_X).toFloat();
+        light.m_Y                 = settings.value("YLight",    light.m_Y).toFloat();
+        light.m_Z                 = settings.value("ZLight",    light.m_Z).toFloat();
+
+        light.m_Red               = settings.value("RedLight",  light.m_Red).toFloat();
+        light.m_Green             = settings.value("GreenLight",light.m_Green).toFloat();
+        light.m_Blue              = settings.value("BlueLight", light.m_Blue).toFloat();
 
         s_iShininess     = settings.value("MatShininess", 5).toInt();
 
-        s_Light.m_Attenuation.m_Constant    = settings.value("ConstantAtt",  2.0).toFloat();
-        s_Light.m_Attenuation.m_Linear      = settings.value("LinearAtt",    1.0).toFloat();
-        s_Light.m_Attenuation.m_Quadratic   = settings.value("QuadraticAtt", 0.5).toFloat();
+        light.m_Attenuation.m_Constant    = settings.value("ConstantAtt",  light.m_Attenuation.m_Constant).toFloat();
+        light.m_Attenuation.m_Linear      = settings.value("LinearAtt",    light.m_Attenuation.m_Linear).toFloat();
+        light.m_Attenuation.m_Quadratic   = settings.value("QuadraticAtt", light.m_Attenuation.m_Quadratic).toFloat();
 
-        s_Light.m_bIsLightOn        = settings.value("bLight", true).toBool();
+        light.m_bIsLightOn        = settings.value("bLight", true).toBool();
     }
     settings.endGroup();
     return true;
@@ -433,41 +436,36 @@ bool GLLightDlg::loadSettings(QSettings &settings)
 
 void GLLightDlg::setDefaults()
 {
-    Light &s_Light = gl3dView::s_Light;
-    s_Light.setDefaults(LIGHTREFLENGTH);
-
+    Light &light = gl3dView::s_Light;
+    light.setDefaults(LIGHTREFLENGTH);
     s_iShininess = 5;
-
-    s_Light.m_Attenuation.m_Constant  = 1.0;
-    s_Light.m_Attenuation.m_Linear    = 0.5;
-    s_Light.m_Attenuation.m_Quadratic = 0.0;
-
-    s_Light.m_bIsLightOn = true;
 }
 
 
 bool GLLightDlg::saveSettings(QSettings &settings)
 {
-    Light &s_Light = gl3dView::s_Light;
+    Light &light = gl3dView::s_Light;
     settings.beginGroup("GLLightDlg");
     {
-        settings.setValue("Ambient",      s_Light.m_Ambient);
-        settings.setValue("Diffuse",      s_Light.m_Diffuse);
-        settings.setValue("Specular",     s_Light.m_Specular);
+        settings.setValue("WindowGeom",   s_Geometry);
 
-        settings.setValue("XLight",       s_Light.m_X);
-        settings.setValue("YLight",       s_Light.m_Y);
-        settings.setValue("ZLight",       s_Light.m_Z);
-        settings.setValue("RedLight",     s_Light.m_Red);
-        settings.setValue("GreenLight",   s_Light.m_Green);
-        settings.setValue("BlueLight",    s_Light.m_Blue);
-        settings.setValue("bLight",       s_Light.m_bIsLightOn);
+        settings.setValue("Ambient",      light.m_Ambient);
+        settings.setValue("Diffuse",      light.m_Diffuse);
+        settings.setValue("Specular",     light.m_Specular);
+
+        settings.setValue("XLight",       light.m_X);
+        settings.setValue("YLight",       light.m_Y);
+        settings.setValue("ZLight",       light.m_Z);
+        settings.setValue("RedLight",     light.m_Red);
+        settings.setValue("GreenLight",   light.m_Green);
+        settings.setValue("BlueLight",    light.m_Blue);
+        settings.setValue("bLight",       light.m_bIsLightOn);
 
         settings.setValue("MatShininess", s_iShininess);
 
-        settings.setValue("ConstantAtt",  s_Light.m_Attenuation.m_Constant);
-        settings.setValue("LinearAtt",    s_Light.m_Attenuation.m_Linear);
-        settings.setValue("QuadraticAtt", s_Light.m_Attenuation.m_Quadratic);
+        settings.setValue("ConstantAtt",  light.m_Attenuation.m_Constant);
+        settings.setValue("LinearAtt",    light.m_Attenuation.m_Linear);
+        settings.setValue("QuadraticAtt", light.m_Attenuation.m_Quadratic);
 
     }
     settings.endGroup();
@@ -480,19 +478,21 @@ void GLLightDlg::showEvent(QShowEvent *)
 {
     setParams();
     setEnabled();
+    restoreGeometry(s_Geometry);
 }
 
 
 void GLLightDlg::hideEvent(QHideEvent *)
 {
+    s_Geometry = saveGeometry();
     if(m_pglView) m_pglView->setLightVisible(false);
 }
 
 
 void GLLightDlg::onLight()
 {
-    Light &s_Light = gl3dView::s_Light;
-    s_Light.m_bIsLightOn = m_plabLight->isChecked();
+    Light &light = gl3dView::s_Light;
+    light.m_bIsLightOn = m_plabLight->isChecked();
     setEnabled();
     apply();
 }
@@ -500,20 +500,20 @@ void GLLightDlg::onLight()
 
 void GLLightDlg::setEnabled()
 {
-    Light &s_Light = gl3dView::s_Light;
-    m_pslRed->setEnabled(s_Light.m_bIsLightOn);
-    m_pslGreen->setEnabled(s_Light.m_bIsLightOn);
-    m_pslBlue->setEnabled(s_Light.m_bIsLightOn);
+    Light &light = gl3dView::s_Light;
+    m_pslRed->setEnabled(light.m_bIsLightOn);
+    m_pslGreen->setEnabled(light.m_bIsLightOn);
+    m_pslBlue->setEnabled(light.m_bIsLightOn);
 
-    m_peslLightAmbient->setEnabled(s_Light.m_bIsLightOn);
-    m_peslLightDiffuse->setEnabled(s_Light.m_bIsLightOn);
-    m_peslLightSpecular->setEnabled(s_Light.m_bIsLightOn);
+    m_peslLightAmbient->setEnabled(light.m_bIsLightOn);
+    m_peslLightDiffuse->setEnabled(light.m_bIsLightOn);
+    m_peslLightSpecular->setEnabled(light.m_bIsLightOn);
 
-    m_peslXLight->setEnabled(s_Light.m_bIsLightOn);
-    m_peslYLight->setEnabled(s_Light.m_bIsLightOn);
-    m_peslZLight->setEnabled(s_Light.m_bIsLightOn);
+    m_peslXLight->setEnabled(light.m_bIsLightOn);
+    m_peslYLight->setEnabled(light.m_bIsLightOn);
+    m_peslZLight->setEnabled(light.m_bIsLightOn);
 
-    m_pslMatShininess->setEnabled(s_Light.m_bIsLightOn);
+    m_pslMatShininess->setEnabled(light.m_bIsLightOn);
 }
 
 

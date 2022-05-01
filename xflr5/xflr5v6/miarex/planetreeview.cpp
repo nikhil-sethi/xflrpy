@@ -8,6 +8,7 @@
 
 #include <QVBoxLayout>
 #include <QHeaderView>
+#include <QRegularExpression>
 
 #include "planetreeview.h"
 
@@ -629,7 +630,7 @@ void PlaneTreeView::setObjectFromIndex(QModelIndex index)
         s_pMiarex->setWPolar(pWPolar);
         s_pMiarex->setPlaneOpp(pPOpp);
 
-        int iMode = pSelectedItem->name().rightRef(1).toInt()-1;
+        int iMode = pSelectedItem->name().right(1).toInt()-1;
         if(iMode>=0 && iMode<8)
         {
             m_Selection = xfl::STABILITYMODE;
@@ -1492,7 +1493,7 @@ void PlaneTreeView::onSwitchAll(bool bChecked)
 void PlaneTreeView::onSetFilter()
 {
     QString filter = m_pTreeView->filter();
-    QStringList filters = filter.split(QRegExp("\\s+"));
+    QStringList filters = filter.split(QRegularExpression("\\s+"));
 
     if(filters.size()==0)
     {

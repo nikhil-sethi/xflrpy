@@ -33,7 +33,7 @@ void StringValueDlg::setupLayout()
     }
     setLayout(pMainLayout);
 
-    connect(m_plwStrings, SIGNAL(itemDoubleClicked(QListWidgetItem *)), SLOT(onItemDoubleClicked(QListWidgetItem *)));
+    connect(m_plwStrings, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(onItemDoubleClicked(QListWidgetItem*)));
 }
 
 

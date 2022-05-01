@@ -35,6 +35,7 @@
 
 #include <globals/mainframe.h>
 
+
 #include <miarex/analysis/aerodatadlg.h>
 #include <miarex/analysis/editpolardefdlg.h>
 #include <miarex/analysis/panelanalysisdlg.h>
@@ -42,9 +43,6 @@
 #include <miarex/analysis/stabpolardlg.h>
 #include <miarex/analysis/wadvanceddlg.h>
 #include <miarex/analysis/wpolardlg.h>
-#include <xflobjects/editors/editplanedlg.h>
-#include <xflobjects/editors/wingdlg.h>
-#include <xflobjects/editors/planedlg.h>
 #include <miarex/mgt/manageplanesdlg.h>
 #include <miarex/planetreeview.h>
 #include <miarex/view/gl3dmiarexview.h>
@@ -57,7 +55,8 @@
 #include <twodwidgets/wingwt.h>
 
 #include <xfl3d/controls/gllightdlg.h>
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/gl_globals.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xflcore/matrix.h>
 #include <xflcore/trace.h>
 #include <xflcore/units.h>
@@ -67,10 +66,13 @@
 #include <xflgraph/containers/miarextilewt.h>
 #include <xflgraph/curve.h>
 #include <xflgraph/graph.h>
-#include <xflobjects/editors/editbodydlg.h>
 #include <xflobjects/editors/bodydlg.h>
+#include <xflobjects/editors/editbodydlg.h>
+#include <xflobjects/editors/editplanedlg.h>
 #include <xflobjects/editors/inertiadlg.h>
+#include <xflobjects/editors/planedlg.h>
 #include <xflobjects/editors/renamedlg.h>
+#include <xflobjects/editors/wingdlg.h>
 #include <xflobjects/editors/wingscaledlg.h>
 #include <xflobjects/objects2d/objects2d.h>
 #include <xflobjects/objects3d/body.h>
@@ -389,7 +391,6 @@ Miarex::Miarex(QWidget *parent) : QWidget(parent)
 }
 
 
-
 /**
  * The public destructor.
  */
@@ -451,7 +452,7 @@ void Miarex::connectSignals()
     connect(m_pchSurfVel,     SIGNAL(clicked()), SLOT(onSurfaceSpeeds()));
 
     connect(m_pchWOppAnimate,      SIGNAL(clicked()),        SLOT(onAnimateWOpp()));
-    connect(m_pslAnimateWOppSpeed, SIGNAL(sliderMoved(int)), SLOT(onAnimateWOppSpeed(int)));
+    connect(m_pslAnimateWOppSpeed, SIGNAL(valueChanged(int)), SLOT(onAnimateWOppSpeed(int)));
     connect(m_pTimerWOpp,          SIGNAL(timeout()),        SLOT(onAnimateWOppSingle()));
     connect(m_pTimerMode,          SIGNAL(timeout()),        SLOT(onAnimateModeSingle()));
 
@@ -465,7 +466,7 @@ void Miarex::connectSignals()
 
     connect(m_ppbKeepCpSection,   SIGNAL(clicked()),         SLOT(onKeepCpSection()));
     connect(m_ppbResetCpSection,  SIGNAL(clicked()),         SLOT(onResetCpSection()));
-    connect(m_pslCpSectionSlider, SIGNAL(sliderMoved(int)),  SLOT(onCpSectionSlider(int)));
+    connect(m_pslCpSectionSlider, SIGNAL(valueChanged(int)),  SLOT(onCpSectionSlider(int)));
     connect(m_pdeSpanPos,         SIGNAL(editingFinished()), SLOT(onCpPosition()));
 
     connect(m_pchAxes,  SIGNAL(clicked(bool)), m_pgl3dMiarexView, SLOT(onAxes(bool)));
@@ -475,15 +476,15 @@ void Miarex::connectSignals()
     connect(m_ptbIso,   SIGNAL(clicked()),     m_pgl3dMiarexView, SLOT(on3dIso()));
     connect(m_ptbFlip,  SIGNAL(clicked()),     m_pgl3dMiarexView, SLOT(on3dFlip()));
 
-    connect(m_pslClipPlanePos, SIGNAL(sliderMoved(int)), m_pgl3dMiarexView, SLOT(onClipPlane(int)));
+    connect(m_pslClipPlanePos, SIGNAL(valueChanged(int)), m_pgl3dMiarexView, SLOT(onClipPlane(int)));
 
-    connect(m_ppb3DResetScale, SIGNAL(clicked()), this, SLOT(on3DResetScale()));
+    connect(m_ppb3DResetScale, SIGNAL(clicked()), SLOT(on3DResetScale()));
 
-    connect(m_pdeAlphaMin,   SIGNAL(editingFinished()), this, SLOT(onReadAnalysisData()));
-    connect(m_pdeAlphaMax,   SIGNAL(editingFinished()), this, SLOT(onReadAnalysisData()));
-    connect(m_pdeAlphaDelta, SIGNAL(editingFinished()), this, SLOT(onReadAnalysisData()));
+    connect(m_pdeAlphaMin,   SIGNAL(editingFinished()), SLOT(onReadAnalysisData()));
+    connect(m_pdeAlphaMax,   SIGNAL(editingFinished()), SLOT(onReadAnalysisData()));
+    connect(m_pdeAlphaDelta, SIGNAL(editingFinished()), SLOT(onReadAnalysisData()));
 
-    connect(m_pgl3dMiarexView, SIGNAL(viewModified()), this, SLOT(onCheckViewIcons()));
+    connect(m_pgl3dMiarexView, SIGNAL(viewModified()), SLOT(onCheckViewIcons()));
 }
 
 
@@ -665,14 +666,11 @@ void Miarex::clearCpCurves()
 }
 
 
-
-
 /**
  * Creates the curves of the Cp graph at the selected span positions
  */
 void Miarex::createCpCurves()
 {
-    bool bFound(false);
     double SpanPos(0), SpanInc(0);
 
     Curve *pCurve(nullptr);
@@ -700,7 +698,7 @@ void Miarex::createCpCurves()
 
     m_CurSpanPos = qMax(-1.0, m_CurSpanPos);
     m_CurSpanPos = qMin( 1.0, m_CurSpanPos);
-    SpanPos = m_CurSpanPos*m_pCurPlane->span()/2.000001;
+    SpanPos = m_CurSpanPos*m_pCurPlane->planformSpan()/2.000001;
 
     //    str1 = m_pCurPlane->m_Wing[0].WingName();
     str2 = QString(" a=%1").arg(m_pCurPOpp->alpha(), 5, 'f', 2);
@@ -711,7 +709,6 @@ void Miarex::createCpCurves()
     //    if(m_bCurWOppOnly)
     {
         //        p=0;
-        bFound = false;
         //        if(m_pCurWPolar->bThinSurfaces()) p+=m_pCurPlane->m_Wing[0].m_Surface[0]->m_NXPanels;
 
         SpanInc = -m_pCurPlane->planformSpan()/2.0;
@@ -725,7 +722,6 @@ void Miarex::createCpCurves()
                 SpanInc += panel_i.width();
                 if(SpanPos<=SpanInc || qAbs(SpanPos-SpanInc)/m_pCurPlane->planformSpan()<0.001)
                 {
-                    bFound = true;
                     break;
                 }
             }
@@ -735,7 +731,7 @@ void Miarex::createCpCurves()
             if(pWing(iw) && m_bShowWingCurve[iw])
             {
                 int p=0;
-                bFound = false;
+                bool bFound = false;
                 //                if(m_pCurWPolar->bThinSurfaces()) p+=pWingList(iw)->m_Surface.at(0)->m_NXPanels;
 
                 SpanInc = -pWing(iw)->planformSpan()/2.0;
@@ -747,7 +743,7 @@ void Miarex::createCpCurves()
                     if(panel_i.m_bIsTrailing && panel_i.m_Pos<=xfl::MIDSURFACE)
                     {
                         SpanInc += panel_i.width();
-                        if(SpanPos<=SpanInc || qAbs(SpanPos-SpanInc)/pWing(iw)->m_PlanformSpan<0.001)
+                        if(SpanPos<=SpanInc || qAbs(SpanPos-SpanInc)/pWing(iw)->planformSpan()<0.001)
                         {
                             bFound = true;
                             break;
@@ -789,7 +785,7 @@ void Miarex::createWOppCurves()
     // add a curve for those selected, and fill them with data
     for (int k=0; k<Objects3d::planeOppCount(); k++)
     {
-        PlaneOpp *pPOpp = Objects3d::planeOppAt(k);
+        PlaneOpp const *pPOpp = Objects3d::planeOppAt(k);
         if (pPOpp->isVisible() && (!m_bCurPOppOnly || (m_pCurPOpp==pPOpp)))
         {
             for(int iw=0; iw<MAXWINGS; iw++)
@@ -813,19 +809,19 @@ void Miarex::createWOppCurves()
     //if the elliptic curve is requested, and if the graph variable is local lift, then add the curve
     if(m_bShowEllipticCurve && m_pCurPOpp)
     {
-        double x, y;
-        double lift, maxlift = 0.0;
+        double x(0), y(0);
+        double lift(0), maxlift(0);
 
-        int nStart;
+        int nStart(0);
         if(m_pCurPOpp->analysisMethod()==xfl::LLTMETHOD) nStart = 1;
-        else                                               nStart = 0;
+        else                                             nStart = 0;
         if(m_bMaxCL) maxlift = m_pCurPOpp->m_pWOpp[0]->maxLift();
         else
         {
             lift=0.0;
             for (int i=nStart; i<m_pCurPOpp->m_NStation; i++)
             {
-                x = m_pCurPOpp->m_pWOpp[0]->m_SpanPos[i]/m_pCurPlane->span()*2.0;
+                x = m_pCurPOpp->m_pWOpp[0]->m_SpanPos[i]/m_pCurPlane->planformSpan()*2.0;
                 y = sqrt(1.0 - x*x);
                 lift += y*m_pCurPOpp->m_pWOpp[0]->m_StripArea[i] ;
             }
@@ -842,8 +838,8 @@ void Miarex::createWOppCurves()
                 pCurve->setColor(QColor(100, 100, 100));
                 for (double id=-50.0; id<=50.5; id+=1.0)
                 {
-                    x = m_pCurPlane->span()/2.0 * cos(id*PI/50.0) * ( 1.0-PRECISION);
-                    y = maxlift*sqrt(1.0 - x*x/m_pCurPlane->span()/m_pCurPlane->span()*4.0);
+                    x = m_pCurPlane->planformSpan()/2.0 * cos(id*PI/50.0) * ( 1.0-PRECISION);
+                    y = maxlift*sqrt(1.0 - x*x/m_pCurPlane->planformSpan()/m_pCurPlane->planformSpan()*4.0);
                     pCurve->appendPoint(x*Units::mtoUnit(),y);
                 }
             }
@@ -852,10 +848,10 @@ void Miarex::createWOppCurves()
     //if the target bell curve is requested, and if the graph variable is local lift, then add the curve
     if(m_bShowBellCurve && m_pCurPOpp)
     {
-        double b2 = m_pCurPlane->span()/2.0;
-        int nStart;
+        double b2 = m_pCurPlane->planformSpan()/2.0;
+        int nStart(0);
         if(m_pCurPOpp->analysisMethod()==xfl::LLTMETHOD) nStart = 1;
-        else                                               nStart = 0;
+        else                                             nStart = 0;
 
         double lift, maxlift, x, y;
         if(m_bMaxCL) maxlift = m_pCurPOpp->m_pWOpp[0]->maxLift();
@@ -898,14 +894,11 @@ void Miarex::createWOppCurves()
 */
 void Miarex::createWPolarCurves()
 {
-    WPolar *pWPolar;
-    Curve *pCurve[MAXPOLARGRAPHS];
-
     for(int ig=0; ig<m_WPlrGraph.count(); ig++) m_WPlrGraph[ig]->deleteCurves();
 
     for (int k=0; k<Objects3d::polarCount(); k++)
     {
-        pWPolar = Objects3d::polarAt(k);
+        WPolar *pWPolar = Objects3d::polarAt(k);
         if (pWPolar->isVisible() && pWPolar->dataSize()>0 &&
                 ((m_bType1 && pWPolar->polarType()==xfl::FIXEDSPEEDPOLAR) ||
                  (m_bType2 && pWPolar->polarType()==xfl::FIXEDLIFTPOLAR) ||
@@ -916,10 +909,10 @@ void Miarex::createWPolarCurves()
 
             for(int ig=0; ig<m_WPlrGraph.count(); ig++)
             {
-                pCurve[ig] = m_WPlrGraph[ig]->addCurve();
-                fillWPlrCurve(pCurve[ig], pWPolar, m_WPlrGraph[ig]->xVariable(), m_WPlrGraph[ig]->yVariable());
-                pCurve[ig]->setLineStyle(pWPolar->theStyle());
-                pCurve[ig]->setName(pWPolar->polarName());
+                Curve *pCurve = m_WPlrGraph[ig]->addCurve();
+                fillWPlrCurve(pCurve, pWPolar, m_WPlrGraph[ig]->xVariable(), m_WPlrGraph[ig]->yVariable());
+                pCurve->setLineStyle(pWPolar->theStyle());
+                pCurve->setName(pWPolar->polarName());
             }
         }
     }
@@ -950,28 +943,26 @@ void Miarex::createStabilityCurves()
 */
 void Miarex::createStabTimeCurves()
 {
-    complex<double> M[16];// the modal matrix
-    complex<double> InvM[16];// the inverse of the modal matrix
-    complex<double> q[4],q0[4],y[4];//the part of each mode in the solution
-    int i,j,k;
-    double t, dt, TotalPoints; // the input load
-    complex<double> in[4];
-    Curve *pCurve0, *pCurve1, *pCurve2, *pCurve3;
+    std::complex<double> M[16];// the modal matrix
+    std::complex<double> InvM[16];// the inverse of the modal matrix
+    std::complex<double> q[4],q0[4],y[4];//the part of each mode in the solution
+
+    std::complex<double> in[4];
     QString strong, CurveTitle;
 
     StabViewDlg *pStabView = s_pMainFrame->m_pStabView;
     CurveTitle = pStabView->m_pcbCurveList->currentText();
 
-    pCurve0 = m_TimeGraph[0]->curve(CurveTitle);
+    Curve *pCurve0 = m_TimeGraph[0]->curve(CurveTitle);
     if(pCurve0) pCurve0->clear();
     else return;
-    pCurve1 = m_TimeGraph[1]->curve(CurveTitle);
+    Curve *pCurve1 = m_TimeGraph[1]->curve(CurveTitle);
     if(pCurve1) pCurve1->clear();
     else return;
-    pCurve2 = m_TimeGraph[2]->curve(CurveTitle);
+    Curve *pCurve2 = m_TimeGraph[2]->curve(CurveTitle);
     if(pCurve2) pCurve2->clear();
     else return;
-    pCurve3 = m_TimeGraph[3]->curve(CurveTitle);
+    Curve *pCurve3 = m_TimeGraph[3]->curve(CurveTitle);
     if(pCurve3) pCurve3->clear();
     else return;
 
@@ -981,10 +972,10 @@ void Miarex::createStabTimeCurves()
 
     m_Deltat = pStabView->m_pdeDeltat->value();
     m_TotalTime = pStabView->m_pdeTotalTime->value();
-    dt = m_TotalTime/1000.;
+    double dt = m_TotalTime/1000.;
     if(dt<m_Deltat) dt = m_Deltat;
 
-    TotalPoints = qMin(1000, int(m_TotalTime/dt));
+    int TotalPoints = qMin(1000, int(m_TotalTime/dt));
     //read the initial state condition
     m_TimeInput[0] = pStabView->m_pdeStabVar1->value();
     m_TimeInput[1] = pStabView->m_pdeStabVar2->value();
@@ -994,10 +985,10 @@ void Miarex::createStabTimeCurves()
     if(m_StabilityResponseType==0)
     {
         //start with the user input initial conditions
-        in[0] = complex<double>(m_TimeInput[0], 0.0);
-        in[1] = complex<double>(m_TimeInput[1], 0.0);
-        in[2] = complex<double>(m_TimeInput[2]*PI/180.0, 0.0);
-        in[3] = complex<double>(m_TimeInput[3]*PI/180.0, 0.0);
+        in[0] = std::complex<double>(m_TimeInput[0], 0.0);
+        in[1] = std::complex<double>(m_TimeInput[1], 0.0);
+        in[2] = std::complex<double>(m_TimeInput[2]*PI/180.0, 0.0);
+        in[3] = std::complex<double>(m_TimeInput[3]*PI/180.0, 0.0);
     }
     else if(m_StabilityResponseType==2)
     {
@@ -1009,10 +1000,11 @@ void Miarex::createStabTimeCurves()
     }
 
     //fill the modal matrix
-    if(m_bLongitudinal) k=0; else k=1;
-    for (i=0; i<4; i++)
+    int k = m_bLongitudinal ? 0 : 1;
+//    if(m_bLongitudinal) k=0; else k=1;
+    for (int i=0; i<4; i++)
     {
-        for(j=0;j<4;j++)
+        for(int j=0;j<4;j++)
         {
             *(M+4*j+i) = m_pCurPOpp->m_EigenVector[k*4+i][j];
         }
@@ -1030,9 +1022,9 @@ void Miarex::createStabTimeCurves()
         q0[2] = InvM[8] * in[0] + InvM[9] * in[1] + InvM[10]* in[2] + InvM[11]* in[3];
         q0[3] = InvM[12]* in[0] + InvM[13]* in[1] + InvM[14]* in[2] + InvM[15]* in[3];
 
-        for(i=0; i<TotalPoints; i++)
+        for(int i=0; i<TotalPoints; i++)
         {
-            t = double(i) * dt;
+            double t = double(i) * dt;
             q[0] = q0[0] * exp(m_pCurPOpp->m_EigenValue[0+k*4]*t);
             q[1] = q0[1] * exp(m_pCurPOpp->m_EigenValue[1+k*4]*t);
             q[2] = q0[2] * exp(m_pCurPOpp->m_EigenValue[2+k*4]*t);
@@ -1052,7 +1044,6 @@ void Miarex::createStabTimeCurves()
     }
     s_bResetCurves = false;
 }
-
 
 
 /**
@@ -1291,6 +1282,7 @@ void Miarex::fillWOppCurve(WingOpp const *pWOpp, Graph *pGraph, Curve *pCurve)
 
     switch(Var)
     {
+        default:
         case 0:
         {
             for (int i=nStart; i<pWOpp->m_NStation; i++)
@@ -1430,13 +1422,44 @@ void Miarex::fillWOppCurve(WingOpp const *pWOpp, Graph *pGraph, Curve *pCurve)
             pGraph->setYTitle(tr("BM (") + str + ")");
             break;
         }
-        default:
+        case 15:
         {
             for (int i=nStart; i<pWOpp->m_NStation; i++)
             {
-                pCurve->appendPoint(pWOpp->m_SpanPos[i]*Units::mtoUnit(), pWOpp->m_Ai[i]);
+                if(fabs(pWOpp->m_ICd[i]+pWOpp->m_PCd[i])>PRECISION)
+                {
+                    pCurve->appendPoint(pWOpp->m_SpanPos[i]*Units::mtoUnit(),
+                                        pWOpp->m_Cl[i]/(pWOpp->m_ICd[i]+pWOpp->m_PCd[i]));
+                }
+                else
+                {
+                    pCurve->appendPoint(pWOpp->m_SpanPos[i]*Units::mtoUnit(), 0.0);
+                }
             }
-            pGraph->setYTitle(tr("Induced Angle"));
+            QString str;
+            Units::getMomentUnitLabel(str);
+            pGraph->setYTitle("Cl/Cd");
+            break;
+        }
+        case 16:
+        {
+            for (int i=nStart; i<pWOpp->m_NStation; i++)
+            {
+                if(fabs(pWOpp->m_ICd[i]+pWOpp->m_PCd[i])>PRECISION && pWOpp->m_Cl[i]>PRECISION)
+                {
+                    pCurve->appendPoint(pWOpp->m_SpanPos[i]*Units::mtoUnit(),
+                                        sqrt(  pWOpp->m_Cl[i] * pWOpp->m_Cl[i] * pWOpp->m_Cl[i]
+                                             /(pWOpp->m_ICd[i]+pWOpp->m_PCd[i])/(pWOpp->m_ICd[i]+pWOpp->m_PCd[i])));
+                }
+                else
+                {
+                    pCurve->appendPoint(pWOpp->m_SpanPos[i]*Units::mtoUnit(), 0.0);
+                }
+            }
+            QString str;
+            Units::getMomentUnitLabel(str);
+            pGraph->setYTitle("sqrt(Cl³/Cd²)");
+            break;
         }
     }
 }
@@ -1606,31 +1629,6 @@ void Miarex::keyPressEvent(QKeyEvent *pEvent)
         case Qt::Key_Y:
             m_bYPressed = true;
             break;
-/*        case Qt::Key_Z:
-        {
-            // testing only
-            if(bCtrl && m_pCurPlane)
-            {
-                Wing *pWing = m_pCurPlane->mainWing();
-                Surface *pSurf0 = pWing->m_Surface.at(0);
-                Surface *pSurf1 = pWing->m_Surface.at(1);
-                int CHORDPANELS = 13;
-                std::vector<Vector3d> NormalA(CHORDPANELS+1);
-                std::vector<Vector3d> NormalB(CHORDPANELS+1);
-                std::vector<Vector3d> PtLeft0(CHORDPANELS+1);
-                std::vector<Vector3d> PtRight0(CHORDPANELS+1);
-                std::vector<Vector3d> PtLeft1(CHORDPANELS+1);
-                std::vector<Vector3d> PtRight1(CHORDPANELS+1);
-
-                pSurf0->getSidePoints(TOPSURFACE, nullptr, PtLeft0.data(), PtRight0.data(), NormalA.data(), NormalB.data(), CHORDPANELS+1);
-                pSurf1->getSidePoints(TOPSURFACE, nullptr, PtLeft1.data(), PtRight1.data(), NormalA.data(), NormalB.data(), CHORDPANELS+1);
-                for(int i=0; i<CHORDPANELS+1; i++)
-                {
-                    qDebug(" %19g  %19g  %19g  %19g  %19g  %19g", PtRight0[i].x, PtRight0[i].y, PtRight0[i].z, PtLeft1[i].x, PtLeft1[i].y, PtLeft1[i].z);
-                }
-            }
-            break;
-        }*/
         case Qt::Key_H:
         {
             if((m_iView==xfl::WPOLARVIEW || m_iView==xfl::STABPOLARVIEW) && pEvent->modifiers().testFlag(Qt::ControlModifier))
@@ -1900,18 +1898,17 @@ bool Miarex::loadSettings(QSettings &settings)
     m_CpGraph.loadSettings(settings);
 
     for(int ig=0; ig<MAXWINGGRAPHS; ig++)
-    {
         m_WingGraph[ig]->loadSettings(settings);
-    }
+
     for(int ig=0; ig<MAXPOLARGRAPHS; ig++)
     {
         m_WPlrGraph[ig]->loadSettings(settings);
         setWGraphTitles(m_WPlrGraph[ig]);
     }
+
     for(int ig=0; ig<MAXTIMEGRAPHS; ig++)
-    {
         m_TimeGraph[ig]->loadSettings(settings);
-    }
+
     m_StabPlrGraph.at(0)->loadSettings(settings);
     m_StabPlrGraph.at(1)->loadSettings(settings);
 
@@ -1921,10 +1918,8 @@ bool Miarex::loadSettings(QSettings &settings)
 }
 
 
-
-
 /**
- * Updates the display after the user has requested a switch to the OpenGL 3D view
+ * Updates the display after the user has requested a switch to the 3d view
  */
 void Miarex::on3DView()
 {
@@ -2617,7 +2612,7 @@ void Miarex::onDefineStabPolar()
 
 
 
-        pNewStabPolar->setReferenceChordLength(m_pCurPlane->mac());
+        pNewStabPolar->setReferenceMAC(m_pCurPlane->mac());
 
         pNewStabPolar->duplicateSpec(&StabPolarDlg::s_StabWPolar);
 
@@ -2685,14 +2680,14 @@ void Miarex::onDefineWPolar()
         {
             pNewWPolar->setReferenceSpanLength(m_pCurPlane->planformSpan());
             double area = m_pCurPlane->planformArea();
-            if(m_pCurPlane && m_pCurPlane->biPlane()) area += m_pCurPlane->wing2()->m_PlanformArea;
+            if(m_pCurPlane && m_pCurPlane->biPlane()) area += m_pCurPlane->wing2()->planformArea();
             pNewWPolar->setReferenceArea(area);
         }
         else if(pNewWPolar->referenceDim()==xfl::PROJECTEDREFDIM)
         {
             pNewWPolar->setReferenceSpanLength(m_pCurPlane->projectedSpan());
             double area = m_pCurPlane->projectedArea();
-            if(m_pCurPlane && m_pCurPlane->biPlane()) area += m_pCurPlane->wing2()->m_ProjectedArea;
+            if(m_pCurPlane && m_pCurPlane->biPlane()) area += m_pCurPlane->wing2()->projectedArea();
             pNewWPolar->setReferenceArea(area);
         }
 
@@ -2742,7 +2737,7 @@ void Miarex::onDefineWPolarObject()
     pNewWPolar->setPlaneName(m_pCurPlane->name());
     pNewWPolar->setReferenceArea(m_pCurPlane->planformArea());
     pNewWPolar->setReferenceSpanLength(m_pCurPlane->planformSpan());
-    pNewWPolar->setReferenceChordLength(m_pCurPlane->mac());
+    pNewWPolar->setReferenceMAC(m_pCurPlane->mac());
 
     EditPolarDefDlg vpDlg(s_pMainFrame);
     vpDlg.initDialog(m_pCurPlane, pNewWPolar);
@@ -2756,14 +2751,14 @@ void Miarex::onDefineWPolarObject()
         {
             pNewWPolar->setReferenceSpanLength(m_pCurPlane->planformSpan());
             double area = m_pCurPlane->planformArea();
-            if(m_pCurPlane && m_pCurPlane->biPlane()) area += m_pCurPlane->wing2()->m_PlanformArea;
+            if(m_pCurPlane && m_pCurPlane->biPlane()) area += m_pCurPlane->wing2()->planformArea();
             pNewWPolar->setReferenceArea(area);
         }
         else if(pNewWPolar->referenceDim()==xfl::PROJECTEDREFDIM)
         {
             pNewWPolar->setReferenceSpanLength(m_pCurPlane->projectedSpan());
             double area = m_pCurPlane->projectedArea();
-            if(m_pCurPlane && m_pCurPlane->biPlane()) area += m_pCurPlane->wing2()->m_ProjectedArea;
+            if(m_pCurPlane && m_pCurPlane->biPlane()) area += m_pCurPlane->wing2()->projectedArea();
             pNewWPolar->setReferenceArea(area);
         }
 
@@ -3899,7 +3894,7 @@ void Miarex::onExportCurPOpp()
     if(exporttype==xfl::TXT) sep = ""; else sep=",";
 
 
-    out << VERSIONNAME;
+    out << xfl::versionName();
     out << "\n\n";
 
     out << m_pCurPOpp->planeName()<< "\n";
@@ -3967,10 +3962,10 @@ void Miarex::onExportCurPOpp()
         //export non dimensional stability derivatives
         if(exporttype==xfl::TXT)
         {
-            //            complex<double> c, angle;
+            //            std::complex<double> c, angle;
             double u0 = m_pCurPOpp->m_QInf;
             double mac = m_pCurWPolar->referenceArea();
-            double b = m_pCurWPolar->referenceSpanLength();
+            double b = m_pCurWPolar->referenceSpan();
 
             strong = "\n\n   ___Longitudinal modes____\n\n";
             out << strong;
@@ -4289,7 +4284,7 @@ void Miarex::onExporttoAVL()
 
     strong = QString("%1   %2   %3   | Sref   Cref   Bref\n")
             .arg(m_pCurPlane->planformArea()*Units::mtoUnit()*Units::mtoUnit(),9,'f',5)
-            .arg(m_pCurPlane->m_Wing[0].m_MAChord*Units::mtoUnit(),9,'f',5)
+            .arg(m_pCurPlane->m_Wing[0].MAC()*Units::mtoUnit(),9,'f',5)
             .arg(m_pCurPlane->planformSpan()*Units::mtoUnit(), 9,'f',5);
     out << strong;
 
@@ -4417,7 +4412,7 @@ void Miarex::exportAVLWing(Wing *pWing, QTextStream &out, int index, double y, d
         out << ("AFIL 0.0 1.0\n");
         if(aSurface.m_pFoilA)  out << (aSurface.m_pFoilA->name() +".dat\n");
         out << ("\n");
-        if(aSurface.m_bTEFlap)
+        if(aSurface.m_bTEFlap && aSurface.m_pFoilA)
         {
             out << ("CONTROL                                                     |  (keyword)\n");
             str = QString("_Flap_%1  ").arg(iFlap);
@@ -4455,7 +4450,7 @@ void Miarex::exportAVLWing(Wing *pWing, QTextStream &out, int index, double y, d
         if(aSurface.m_pFoilB)  out << (aSurface.m_pFoilB->name() +".dat\n");
         out << ("\n");
 
-        if(aSurface.m_bTEFlap)
+        if(aSurface.m_bTEFlap && aSurface.m_pFoilB)
         {
             out << ("CONTROL                                                     |  (keyword)\n");
             str = QString("_Flap_%1  ").arg(iFlap);
@@ -4572,7 +4567,7 @@ void Miarex::exportAVLWing_Old(Wing *pWing, QTextStream &out, int index, double 
         out << ("AFIL 0.0 1.0\n");
         if(ASurface.m_pFoilA)  out << (ASurface.m_pFoilA->name() +".dat\n");
         out << ("\n");
-        if(ASurface.m_bTEFlap)
+        if(ASurface.m_bTEFlap && ASurface.m_pFoilA)
         {
             out << ("CONTROL                                                     |  (keyword)\n");
             str = QString("_Flap_%1  ").arg(iFlap);
@@ -4869,7 +4864,7 @@ void Miarex::onImportWPolars()
 
                 pWPolar->setPlaneName(PlaneName);
                 pWPolar->setReferenceArea(pPlane->projectedArea());
-                pWPolar->setReferenceChordLength(pPlane->mac());
+                pWPolar->setReferenceMAC(pPlane->mac());
                 pWPolar->setReferenceSpanLength(pPlane->projectedSpan());
 
                 strong = inStream.readLine();
@@ -6165,7 +6160,7 @@ void Miarex::paintPlaneOppLegend(QPainter &painter, QRect drawRect)
     painter.drawText(RightPos, ZPos+D, dwidth, dheight, Qt::AlignRight | Qt::AlignTop, Result);
 
     /*        oswald=CZ^2/CXi/PI/allongement;*/
-    double cxielli=m_pCurPOpp->m_CL*m_pCurPOpp->m_CL/PI/m_pCurPlane->m_Wing[0].m_AR;
+    double cxielli=m_pCurPOpp->m_CL*m_pCurPOpp->m_CL/PI/m_pCurPlane->m_Wing[0].aspectRatio();
     Result = QString("Efficiency = %1   ").arg(cxielli/m_pCurPOpp->m_ICD, e,'f',f);
     D+=dheight;
     painter.drawText(RightPos, ZPos+D, dwidth, dheight, Qt::AlignRight | Qt::AlignTop, Result);
@@ -6471,9 +6466,12 @@ bool Miarex::saveSettings(QSettings &settings)
     m_StabPlrGraph.at(0)->saveSettings(settings);
     m_StabPlrGraph.at(1)->saveSettings(settings);
 
-    for(int ig=0; ig<m_WPlrGraph.count(); ig++) m_WPlrGraph[ig]->saveSettings(settings);
-    for(int ig=0; ig<m_WingGraph.count(); ig++) m_WingGraph[ig]->saveSettings(settings);
-    for(int ig=0; ig<m_TimeGraph.count(); ig++) m_TimeGraph[ig]->saveSettings(settings);
+    for(int ig=0; ig<m_WPlrGraph.count(); ig++)
+        m_WPlrGraph[ig]->saveSettings(settings);
+    for(int ig=0; ig<m_WingGraph.count(); ig++)
+        m_WingGraph[ig]->saveSettings(settings);
+    for(int ig=0; ig<m_TimeGraph.count(); ig++)
+        m_TimeGraph[ig]->saveSettings(settings);
 
     PlaneTreeView::saveSettings(settings);
     GLLightDlg::saveSettings(settings);
@@ -6496,7 +6494,7 @@ void Miarex::setScale()
     {
         double bodyLength = 0.0;
         if(m_pCurPlane->body()) bodyLength = m_pCurPlane->body()->length();
-        m_pgl3dMiarexView->setReferenceLength(std::max(m_pCurPlane->span(), bodyLength));
+        m_pgl3dMiarexView->setReferenceLength(std::max(m_pCurPlane->planformSpan(), bodyLength));
     }
 }
 
@@ -6542,26 +6540,26 @@ void Miarex::setAnalysisParams()
         m_pdeAlphaMax->setValue(m_AlphaMax);
         m_pdeAlphaDelta->setValue(m_AlphaDelta);
     }
-    else if(m_pCurWPolar  && m_pCurWPolar->polarType() == xfl::FIXEDAOAPOLAR)
+    else if(m_pCurWPolar  && m_pCurWPolar->isFixedaoaPolar())
     {
         m_pdeAlphaMin->setValue(m_QInfMin*Units::mstoUnit());
         m_pdeAlphaMax->setValue(m_QInfMax*Units::mstoUnit());
         m_pdeAlphaDelta->setValue(m_QInfDelta*Units::mstoUnit());
     }
-    else if (m_pCurWPolar && m_pCurWPolar->polarType() == xfl::BETAPOLAR)
+    else if (m_pCurWPolar && m_pCurWPolar->isBetaPolar())
     {
         m_pdeAlphaMin->setValue(m_BetaMin);
         m_pdeAlphaMax->setValue(m_BetaMax);
         m_pdeAlphaDelta->setValue(m_BetaDelta);
     }
-    else if (m_pCurWPolar && (m_pCurWPolar->polarType() == xfl::STABILITYPOLAR))
+    else if (m_pCurWPolar && (m_pCurWPolar->isStabilityPolar()))
     {
         m_pdeAlphaMin->setValue(m_ControlMin);
         m_pdeAlphaMax->setValue(m_ControlMax);
         m_pdeAlphaDelta->setValue(m_ControlDelta);
     }
 
-    if(m_pCurWPolar && m_pCurWPolar->polarType()==xfl::FIXEDAOAPOLAR)
+    if(m_pCurWPolar && m_pCurWPolar->isFixedaoaPolar())
     {
         QString str;
         Units::getSpeedUnitLabel(str);
@@ -6569,33 +6567,23 @@ void Miarex::setAnalysisParams()
         m_plabUnit2->setText(str);
         m_plabUnit3->setText(str);
 
-        m_plabParameterName->setText("Freestream velocity");
-        QFont fontSymbol(DisplayOptions::textFont());
-        fontSymbol.setBold(true);
-        fontSymbol.setPointSize(DisplayOptions::textFont().pointSize()+2);
-        m_plabParameterName->setFont(fontSymbol);
+        m_plabParameterName->setText("<p>V<sub>&infin;</sub></p>");
     }
-    else if(m_pCurWPolar && m_pCurWPolar->polarType()==xfl::STABILITYPOLAR)
+    else if(m_pCurWPolar && m_pCurWPolar->isStabilityPolar())
     {
         m_plabUnit1->setText("");
         m_plabUnit2->setText("");
         m_plabUnit3->setText("");
 
         m_plabParameterName->setText("Control parameter");
-/*        QFont fontSymbol(DisplayOptions::textFont());
-        fontSymbol.setBold(true);
-        m_plabParameterName->setFont(fontSymbol);*/
     }
-    else if(m_pCurWPolar && m_pCurWPolar->polarType()==xfl::BETAPOLAR)
+    else if(m_pCurWPolar && m_pCurWPolar->isBetaPolar())
     {
         m_plabUnit1->setText(QChar(0260));
         m_plabUnit2->setText(QChar(0260));
         m_plabUnit3->setText(QChar(0260));
 
         m_plabParameterName->setText(QChar(0x03B2));
-/*        QFont fontSymbol("Symbol");
-        fontSymbol.setBold(true);
-        m_plabParameterName->setFont(fontSymbol);*/
     }
     else
     {
@@ -6604,9 +6592,6 @@ void Miarex::setAnalysisParams()
         m_plabUnit3->setText(QChar(0260));
 
         m_plabParameterName->setText(QChar(0x03B1));
-/*        QFont fontSymbol("Symbol");
-        fontSymbol.setBold(true);
-        m_plabParameterName->setFont(fontSymbol);*/
     }
 }
 
@@ -6638,7 +6623,7 @@ void Miarex::setPlane(Plane *pPlane)
         //clear the pointers
         for (int iw=0; iw<MAXWINGS; iw++)
         {
-            m_pWOpp[iw]     = nullptr;
+            m_pWOpp[iw] = nullptr;
         }
 
         //clear the GUI
@@ -6655,12 +6640,12 @@ void Miarex::setPlane(Plane *pPlane)
         return;
     }
 
-    // we have a plane, initialize the pointers and the  GUI
+    // we have a plane, initialize the pointers and the GUI
     gl3dMiarexView::s_bResetglGeom = true;
     gl3dMiarexView::s_bResetglMesh = true;
 
-    if(m_pCurPlane->body()) gl3dMiarexView::s_bResetglBody   = true;
-    else                    gl3dMiarexView::s_bResetglBody   = false;
+    if(m_pCurPlane->body()) gl3dMiarexView::s_bResetglBody = true;
+    else                    gl3dMiarexView::s_bResetglBody = false;
 
 
     setScale();
@@ -6675,24 +6660,6 @@ void Miarex::setPlane(Plane *pPlane)
  */
 void Miarex::setupLayout()
 {
-    QSizePolicy szPolicyExpanding;
-    szPolicyExpanding.setHorizontalPolicy(QSizePolicy::Expanding);
-    szPolicyExpanding.setVerticalPolicy(QSizePolicy::Expanding);
-
-    QSizePolicy szPolicyMinimum;
-    szPolicyMinimum.setHorizontalPolicy(QSizePolicy::Minimum);
-    szPolicyMinimum.setVerticalPolicy(QSizePolicy::Minimum);
-
-    QSizePolicy szPolicyMaximum;
-    szPolicyMaximum.setHorizontalPolicy(QSizePolicy::Maximum);
-    szPolicyMaximum.setVerticalPolicy(QSizePolicy::Maximum);
-
-    QSizePolicy szPolicyPreferred;
-    szPolicyPreferred.setHorizontalPolicy(QSizePolicy::Preferred);
-    szPolicyPreferred.setVerticalPolicy(QSizePolicy::Preferred);
-
-    //_______________________Analysis
-
     QGroupBox *pAnalysisBox = new QGroupBox(tr("Analysis settings"));
     {
         QVBoxLayout *pAnalysisGroupLayout = new QVBoxLayout;
@@ -6756,7 +6723,6 @@ void Miarex::setupLayout()
         QVBoxLayout *pCpParams = new QVBoxLayout;
         {
             m_pslCpSectionSlider = new QSlider(Qt::Horizontal);
-            m_pslCpSectionSlider->setSizePolicy(szPolicyMinimum);
             m_pslCpSectionSlider->setMinimum(-100);
             m_pslCpSectionSlider->setMaximum(100);
             m_pslCpSectionSlider->setSliderPosition(00);
@@ -6807,24 +6773,23 @@ void Miarex::setupLayout()
                 m_pchWOppAnimate    = new QCheckBox(tr("Animate"));
 
                 m_pslAnimateWOppSpeed  = new QSlider(Qt::Horizontal);
-                m_pslAnimateWOppSpeed->setSizePolicy(szPolicyMinimum);
                 m_pslAnimateWOppSpeed->setMinimum(0);
                 m_pslAnimateWOppSpeed->setMaximum(500);
                 m_pslAnimateWOppSpeed->setSliderPosition(250);
                 m_pslAnimateWOppSpeed->setTickInterval(50);
                 m_pslAnimateWOppSpeed->setTickPosition(QSlider::TicksBelow);
-                pCheckDispLayout->addWidget(m_pchCp,       1,1);
-                pCheckDispLayout->addWidget(m_pchPanelForce, 1, 2);
-                pCheckDispLayout->addWidget(m_pchLift,     2, 1);
-                pCheckDispLayout->addWidget(m_pchMoment,   2, 2);
-                pCheckDispLayout->addWidget(m_pchIDrag,    3, 1);
-                pCheckDispLayout->addWidget(m_pchVDrag,    3, 2);
-                pCheckDispLayout->addWidget(m_pchTrans,    4, 1);
-                pCheckDispLayout->addWidget(m_pchDownwash, 4, 2);
-                pCheckDispLayout->addWidget(m_pchSurfVel,  5, 1);
-                pCheckDispLayout->addWidget(m_pchStream,   5, 2);
-                pCheckDispLayout->addWidget(m_pchWOppAnimate,  6, 1);
-                pCheckDispLayout->addWidget(m_pslAnimateWOppSpeed,6,2);
+                pCheckDispLayout->addWidget(m_pchCp,               1,1);
+                pCheckDispLayout->addWidget(m_pchPanelForce,       1, 2);
+                pCheckDispLayout->addWidget(m_pchLift,             2, 1);
+                pCheckDispLayout->addWidget(m_pchMoment,           2, 2);
+                pCheckDispLayout->addWidget(m_pchIDrag,            3, 1);
+                pCheckDispLayout->addWidget(m_pchVDrag,            3, 2);
+                pCheckDispLayout->addWidget(m_pchTrans,            4, 1);
+                pCheckDispLayout->addWidget(m_pchDownwash,         4, 2);
+                pCheckDispLayout->addWidget(m_pchSurfVel,          5, 1);
+                pCheckDispLayout->addWidget(m_pchStream,           5, 2);
+                pCheckDispLayout->addWidget(m_pchWOppAnimate,      6, 1);
+                pCheckDispLayout->addWidget(m_pslAnimateWOppSpeed, 6, 2);
                 pCheckDispLayout->setRowStretch(7,1);
             }
 
@@ -6837,12 +6802,12 @@ void Miarex::setupLayout()
                 m_pchFoilNames    = new QCheckBox(tr("Foil Names"), this);
                 m_pchMasses       = new QCheckBox(tr("Masses"), this);
 
-                pThreeDParamsLayout->addWidget(m_pchAxes, 1,1);
-                pThreeDParamsLayout->addWidget(m_pchPanels, 1,2);
-                pThreeDParamsLayout->addWidget(m_pchSurfaces, 2,1);
-                pThreeDParamsLayout->addWidget(m_pchOutline, 2,2);
+                pThreeDParamsLayout->addWidget(m_pchAxes,      1,1);
+                pThreeDParamsLayout->addWidget(m_pchPanels,    1,2);
+                pThreeDParamsLayout->addWidget(m_pchSurfaces,  2,1);
+                pThreeDParamsLayout->addWidget(m_pchOutline,   2,2);
                 pThreeDParamsLayout->addWidget(m_pchFoilNames, 3,1);
-                pThreeDParamsLayout->addWidget(m_pchMasses, 3,2);
+                pThreeDParamsLayout->addWidget(m_pchMasses,    3,2);
             }
 
             QVBoxLayout *pThreeDViewLayout = new QVBoxLayout;
@@ -6896,7 +6861,6 @@ void Miarex::setupLayout()
             {
                 QLabel *ClipLabel = new QLabel(tr("Clip:"));
                 m_pslClipPlanePos = new QSlider(Qt::Horizontal);
-                m_pslClipPlanePos->setSizePolicy(szPolicyMinimum);
                 m_pslClipPlanePos->setMinimum(-100);
                 m_pslClipPlanePos->setMaximum( 100);
                 m_pslClipPlanePos->setSliderPosition(0);
@@ -6911,7 +6875,6 @@ void Miarex::setupLayout()
             pThreeDViewControlsLayout->addStretch(1);
             pThreeDViewControlsLayout->addLayout(pThreeDViewLayout);
             pThreeDViewControlsLayout->addLayout(pClipLayout);
-            pThreeDViewControlsLayout->addStretch(1);
 
         }
         m_pThreeDViewBox->setLayout(pThreeDViewControlsLayout);
@@ -6938,7 +6901,6 @@ void Miarex::setupLayout()
     }
     setLayout(pMainLayout);
 }
-
 
 
 /**
@@ -7125,13 +7087,8 @@ void Miarex::setStabGraphTitles()
  */
 void Miarex::setWGraphTitles(Graph* pGraph)
 {
-    QString Title;
-
-    Title  = Miarex::WPolarVariableName(pGraph->xVariable());
-    pGraph->setXTitle(Title);
-
-    Title  = Miarex::WPolarVariableName(pGraph->yVariable());
-    pGraph->setYTitle(Title);
+    pGraph->setXTitle(WPolarVariableName(pGraph->xVariable()));
+    pGraph->setYTitle(WPolarVariableName(pGraph->yVariable()));
 }
 
 
@@ -7140,15 +7097,11 @@ void Miarex::setWGraphTitles(Graph* pGraph)
  * Fills the main dialog box with default or selected data
  * @param event unused
  */
-void Miarex::showEvent(QShowEvent *event)
+void Miarex::showEvent(QShowEvent *pEvent)
 {
     setAnalysisParams();
-    event->accept();
-
-    //    QWidget *pWidget = new QWidget;
-    //    pWidget->show();
+    pEvent->accept();
 }
-
 
 
 /**
@@ -7158,10 +7111,10 @@ void Miarex::showEvent(QShowEvent *event)
  */
 void Miarex::snapClient(QString const &FileName)
 {
-    int NbBytes, bitsPerPixel;
+    int NbBytes(0);
     QSize size(m_pgl3dMiarexView->rect().width(),m_pgl3dMiarexView->rect().height());
 
-    bitsPerPixel = 24;
+    int bitsPerPixel = 24;
     int width = size.width();
     switch(bitsPerPixel)
     {
@@ -7250,7 +7203,6 @@ void Miarex::stopAnimate()
         m_pPlaneTreeView->selectPlaneOpp(m_pCurPOpp);
     }
 }
-
 
 
 /**
@@ -7402,7 +7354,7 @@ void Miarex::paintCpLegendText(QPainter &painter)
     int labellength = fm.horizontalAdvance(strong)+5;
     painter.drawText(ixPos-labellength, iyPos-dy, strong);
 
-    for (int i=0; i<=20; i ++)
+    for (int i=0; i<=20; i++)
     {
         double f = gl3dMiarexView::s_LegendMax - double(i) * delta;
         strong = QString("%1").arg(f, 5,'f',2);
@@ -7417,7 +7369,6 @@ void Miarex::paintCpLegendText(QPainter &painter)
 }
 
 
-
 /**
  * Paints the labels associated to the Panel forces color scale in the 3D view
  * @param painter the painter to write on
@@ -7428,10 +7379,10 @@ void Miarex::paintPanelForceLegendText(QPainter &painter)
     if(!m_bPanelForce || m_pCurPOpp->analysisMethod()<xfl::VLMMETHOD) return;
 
     QString strPressure, strong;
-    int p, i;
+
     int labellength;
-    double f;
-    double rmin, rmax, range, delta;
+
+    double rmin(0), rmax(0), range(0), delta(0);
     double ratio = 1.0;
 
     painter.save();
@@ -7457,7 +7408,7 @@ void Miarex::paintPanelForceLegendText(QPainter &painter)
     {
         if(pWing(iw))
         {
-            for (p=0; p<pWing(iw)->m_nPanels; p++)
+            for (int p=0; p<pWing(iw)->m_nPanels; p++)
             {
                 rmax = qMax(rmax, pWOppList[iw]->m_dCp[p]);
                 rmin = qMin(rmin, pWOppList[iw]->m_dCp[p]);
@@ -7470,7 +7421,6 @@ void Miarex::paintPanelForceLegendText(QPainter &painter)
     rmin *= qdyn *Units::PatoUnit();
     rmax *= qdyn *Units::PatoUnit();
     range = rmax - rmin;
-
 
     QFontMetrics fm(font);
     int fmw = fm.averageCharWidth();
@@ -7489,9 +7439,9 @@ void Miarex::paintPanelForceLegendText(QPainter &painter)
     labellength = fm.horizontalAdvance(strPressure)+2+5;
     painter.drawText(ixPos-labellength, iyPos-dy, "("+strPressure+")");
 
-    for (i=0; i<=20; i++)
+    for (int i=0; i<=20; i++)
     {
-        f = rmin + double(i) * delta;
+        double f = rmax - double(i) * delta;
         strong = QString::asprintf("%6.3f", f);
         labellength = (fm.horizontalAdvance(strong)+5);
         painter.drawText(ixPos-labellength, iyPos+i*dy, strong);
@@ -7506,8 +7456,6 @@ void Miarex::paintPanelForceLegendText(QPainter &painter)
 
 void Miarex::drawColorGradient(QPainter &painter, QRect const & gradientRect)
 {
-    // draw the color gradient
-
     QLinearGradient gradient;
     gradient.setStart(gradientRect.center().x(), gradientRect.bottom());
     gradient.setFinalStop(gradientRect.center().x(), gradientRect.top());
@@ -7515,7 +7463,7 @@ void Miarex::drawColorGradient(QPainter &painter, QRect const & gradientRect)
     for (int i=0; i<MAXCPCOLORS; i++)
     {
         float fi = float(i)/float(MAXCPCOLORS-1);
-        QColor clr = QColor(int(xfl::GLGetRed(fi)*255.0f), int(xfl::GLGetGreen(fi)*255.0f), int(xfl::GLGetBlue(fi)*255.0f));
+        QColor clr = QColor(int(glGetRed(fi)*255.0f), int(glGetGreen(fi)*255.0f), int(glGetBlue(fi)*255.0f));
         gradient.setColorAt(double(fi), clr);
     }
     painter.fillRect(gradientRect, gradient);
@@ -7533,7 +7481,7 @@ void Miarex::drawColorGradient(QPainter &painter, QRect const & gradientRect)
 */
 bool Miarex::setPlaneOpp(bool bCurrent, double x)
 {
-    PlaneOpp *pPOpp = nullptr;
+    PlaneOpp *pPOpp(nullptr);
     if(bCurrent) pPOpp = m_pCurPOpp;
     else         pPOpp = Objects3d::getPlaneOpp(m_pCurPlane, m_pCurWPolar, x);
     if(!pPOpp)   pPOpp = Objects3d::getPlaneOpp(m_pCurPlane, m_pCurWPolar, m_LastAlpha);
@@ -7631,7 +7579,7 @@ bool Miarex::setPlaneOpp(PlaneOpp *pPOpp)
 void Miarex::drawTextLegend()
 {
     QRect rect;
-    float ratio(1);
+    float ratio(1.0f);
     if(m_iView==xfl::W3DVIEW)
     {
         QRect tempRect = m_pgl3dMiarexView->rect();
@@ -7693,7 +7641,6 @@ bool Miarex::intersectObject(Vector3d O,  Vector3d U, Vector3d &I)
     }
     return false;
 }
-
 
 
 /**
@@ -7884,7 +7831,6 @@ void Miarex::onExporttoSTL()
 }
 
 
-
 void Miarex::onImportSTLFile()
 {
     if (!m_pCurPlane) return;
@@ -7916,8 +7862,6 @@ void Miarex::onImportSTLFile()
 
 
     inStream.setByteOrder(QDataStream::LittleEndian);
-    //    uint u = inStream.byteOrder();
-    //qDebug()<<in.byteOrder()<<QDataStream::BigEndian<<QDataStream::LittleEndian;
 
     //80 character header, avoid word "solid"
     //                       0123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789
@@ -7957,7 +7901,6 @@ void Miarex::onImportSTLFile()
         if(j>2) break;
     }
 
-
     XFile.close();
 }
 
@@ -7986,14 +7929,14 @@ void Miarex::onImportFromXml()
 
     do{
         xmlReader.readNextStartElement();
-        if (xmlReader.name().compare(QString("Plane_Polar"), Qt::CaseInsensitive)==0 && xmlReader.attributes().value("version") == "1.0")
+        if (xmlReader.name().compare(QString("Plane_Polar"), Qt::CaseInsensitive)==0 && xmlReader.attributes().value("version").toString() == "1.0")
         {
             // the file contains the definition of a WPolar
             xmlFile.close();
             importWPolarFromXML(xmlFile);
             break;
         }
-        else if (xmlReader.name().compare(QString("explane"), Qt::CaseInsensitive)==0 && xmlReader.attributes().value("version") == "1.0")
+        else if (xmlReader.name().compare(QString("explane"), Qt::CaseInsensitive)==0 && xmlReader.attributes().value("version").toString() == "1.0")
         {
             // the file contains the definition of a Plane
             xmlFile.close();
@@ -8003,7 +7946,6 @@ void Miarex::onImportFromXml()
     } while(!xmlReader.atEnd() && !xmlReader.hasError() );
 
 }
-
 
 
 /**
@@ -8104,7 +8046,6 @@ void Miarex::importWPolarFromXML(QFile &xmlFile)
 }
 
 
-
 /**
  * Imports the plane geometry from an XML file
  */
@@ -8151,7 +8092,6 @@ void Miarex::onExportPlanetoXML()
 {
     if(!m_pCurPlane)return ;// is there anything to export ?
 
-
     QString filter = "XML file (*.xml)";
     QString FileName, strong;
 
@@ -8169,8 +8109,7 @@ void Miarex::onExportPlanetoXML()
 
 
     QFile XFile(FileName);
-    if (!XFile.open(QIODevice::WriteOnly | QIODevice::Text)) return ;
-
+    if (!XFile.open(QIODevice::WriteOnly | QIODevice::Text)) return;
 
     XMLPlaneWriter planeWriter(XFile);
     planeWriter.writeXMLPlane(m_pCurPlane);
@@ -8260,7 +8199,7 @@ void Miarex::exportToTextStream(WPolar const *pWPolar, QTextStream &out, xfl::en
     {
         if(!bDataOnly)
         {
-            strong = VERSIONNAME;
+            strong = xfl::versionName();
             strong += "\n\n";
             out << strong;
 
@@ -8313,7 +8252,7 @@ void Miarex::exportToTextStream(WPolar const *pWPolar, QTextStream &out, xfl::en
     {
         if(!bDataOnly)
         {
-            strong = VERSIONNAME;
+            strong = xfl::versionName();
             strong += "\n\n";
             out << strong;
 
@@ -8362,7 +8301,7 @@ void Miarex::exportToTextStream(WPolar const *pWPolar, QTextStream &out, xfl::en
  * @param pPOpp a pointer to the plane OpPoint instance.
  * @return the the plane OpPoint title.
  */
-QString Miarex::POppTitle(PlaneOpp *pPOpp)
+QString Miarex::POppTitle(PlaneOpp const*pPOpp)
 {
     QString strong;
 
@@ -8393,8 +8332,6 @@ QString Miarex::POppTitle(PlaneOpp *pPOpp)
 
     return strong;
 }
-
-
 
 
 /**
@@ -8443,7 +8380,7 @@ QString Miarex::WPolarVariableName(int iVar)
         case 14:
             return "CL/CD";
         case 15:
-            return "CL^(3/2)/CD";
+            return "sqrt(Cl³/Cd²)";
         case 16:
             return "1/Rt(CL)";
         case 17:
@@ -8512,7 +8449,6 @@ QString Miarex::WPolarVariableName(int iVar)
             return "CoG_x ("+ strLength+")";
         case 49:
             return "CoG_z ("+ strLength+")";
-
 
         default:
             return QString();

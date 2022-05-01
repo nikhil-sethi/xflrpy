@@ -146,13 +146,11 @@ void StabViewDlg::readControlModelData()
 
 void StabViewDlg::fillEigenThings()
 {
-    complex<double> eigenvalue;
-    double OmegaN, Omega1, Zeta;
+    std::complex<double> eigenvalue;
+    double OmegaN(0), Omega1(0), Zeta(0);
     QString strange;
-    double u0, mac, span;
-    complex<double> angle;
-
-    OmegaN = Omega1 = Zeta = u0 = mac = span = 0;
+    double u0(0), mac(0), span(0);
+    std::complex<double> angle;
 
     QString ModeDescription = tr("<small>Mode Properties:")+"<br/>";
 
@@ -160,8 +158,8 @@ void StabViewDlg::fillEigenThings()
     {
         //We normalize the mode before display and only for display purposes
         u0   = s_pMiarex->m_pCurPOpp->m_QInf;
-        mac  = s_pMiarex->m_pCurPlane->m_Wing[0].m_MAChord;
-        span = s_pMiarex->m_pCurPlane->m_Wing[0].m_PlanformSpan;
+        mac  = s_pMiarex->m_pCurPlane->m_Wing[0].MAC();
+        span = s_pMiarex->m_pCurPlane->m_Wing[0].planformSpan();
 
         eigenvalue = s_pMiarex->m_pCurPOpp->m_EigenValue[m_iCurrentMode];
         if(eigenvalue.imag()>=0.0) strange = QString::asprintf("%9.4f+%9.4fi", eigenvalue.real(), eigenvalue.imag());
@@ -436,7 +434,7 @@ void StabViewDlg::onAnimateRestart()
     //max 10% span
     norm1 = qMax(qAbs(ModeState[0]), qAbs(ModeState[1]));
     norm1 = qMax(norm1, qAbs(ModeState[2]));
-    if(norm1>PRECISION)  norm1 = pPlane->m_Wing[0].m_PlanformSpan *.10 / norm1;
+    if(norm1>PRECISION)  norm1 = pPlane->m_Wing[0].planformSpan() *.10 / norm1;
     else                 norm1 = 1.0;
 
     //max 10degrees
@@ -569,8 +567,6 @@ void StabViewDlg::setMode(int iMode)
 
 void StabViewDlg::setupLayout()
 {
-    QFont SymbolFont("Symbol");
-
     //____________Stability direction__________
     QGroupBox *pStabilityDirBox = new QGroupBox(tr("Stability direction"));
     {
@@ -768,44 +764,44 @@ void StabViewDlg::setupLayout()
         //_____________Mode properties _________
         QGroupBox *pFreakBox = new QGroupBox(tr("Mode properties"));
         {
-            QLabel *FreqNLab = new QLabel("F =");
-            QLabel *Freq1Lab = new QLabel("F1 =");
-            QLabel *DsiLab   = new QLabel("z =");
-            QLabel *T2lab    = new QLabel("t2 =");
-            QLabel *tauLab   = new QLabel("t =");
-            FreqNLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-            Freq1Lab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-            DsiLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-            T2lab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-            tauLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-            DsiLab->setFont(SymbolFont);
-            tauLab->setFont(SymbolFont);
+            QLabel *pFreqNLab = new QLabel("F =");
+            QLabel *pFreq1Lab = new QLabel("F<sub>1</sub> =");
+            QLabel *pDsiLab   = new QLabel("<p>&zeta; =</p>");
+            QLabel *pT2lab    = new QLabel("t<sub>2</sub> =");
+            QLabel *pTauLab   = new QLabel("<p>&tau; =</p>");
+            pFreqNLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+            pFreq1Lab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+            pDsiLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+            pT2lab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+            pTauLab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+//            pDsiLab->setFont(SymbolFont);
+//            pTauLab->setFont(SymbolFont);
 
-            m_pdeFreqN  = new DoubleEdit(0.0, 3);
-            m_pdeFreq1  = new DoubleEdit(0.0, 3);
-            m_pdeZeta   = new DoubleEdit(0.0, 3);
-            m_pdeT2     = new DoubleEdit(0.0, 3);
-            m_pdeTau    = new DoubleEdit(0.0, 3);
+            m_pdeFreqN  = new DoubleEdit(0.0);
+            m_pdeFreq1  = new DoubleEdit(0.0);
+            m_pdeZeta   = new DoubleEdit(0.0);
+            m_pdeT2     = new DoubleEdit(0.0);
+            m_pdeTau    = new DoubleEdit(0.0);
 
             QString strong;
             strong = tr("Natural frequency");
-            FreqNLab->setToolTip(strong);
+            pFreqNLab->setToolTip(strong);
             m_pdeFreqN->setToolTip(strong);
 
             strong = tr("Damped natural frequency");
-            Freq1Lab->setToolTip(strong);
+            pFreq1Lab->setToolTip(strong);
             m_pdeFreq1->setToolTip(strong);
 
             strong = tr("Damping ratio");
-            DsiLab->setToolTip(strong);
+            pDsiLab->setToolTip(strong);
             m_pdeZeta->setToolTip(strong);
 
             strong = tr("Time to double");
-            T2lab->setToolTip(strong);
+            pT2lab->setToolTip(strong);
             m_pdeT2->setToolTip(strong);
 
             strong = tr("Time constant") + "= (1-1/e)/|real(lambda)|";
-            tauLab->setToolTip(strong);
+            pTauLab->setToolTip(strong);
             m_pdeTau->setToolTip(strong);
 
             m_pdeFreqN->setEnabled(false);
@@ -818,19 +814,19 @@ void StabViewDlg::setupLayout()
             QLabel *T2Unit    = new QLabel("s");
             QGridLayout *pFreakLayout = new QGridLayout;
             {
-                pFreakLayout->addWidget(FreqNLab,1,1);
-                pFreakLayout->addWidget(Freq1Lab,2,1);
-                pFreakLayout->addWidget(DsiLab,3,1);
-                pFreakLayout->addWidget(T2lab, 4, 1);
-                pFreakLayout->addWidget(tauLab, 5, 1);
-                pFreakLayout->addWidget(m_pdeFreqN,1,2);
-                pFreakLayout->addWidget(m_pdeFreq1,2,2);
-                pFreakLayout->addWidget(m_pdeZeta,3,2);
-                pFreakLayout->addWidget(m_pdeT2,4,2);
-                pFreakLayout->addWidget(m_pdeTau,5,2);
-                pFreakLayout->addWidget(FreqUnit1,1,3);
-                pFreakLayout->addWidget(FreqUnit2,2,3);
-                pFreakLayout->addWidget(T2Unit,4,3);
+                pFreakLayout->addWidget(pFreqNLab,     1,1);
+                pFreakLayout->addWidget(pFreq1Lab,     2,1);
+                pFreakLayout->addWidget(pDsiLab,       3,1);
+                pFreakLayout->addWidget(pT2lab,        4,1);
+                pFreakLayout->addWidget(pTauLab,       5,1);
+                pFreakLayout->addWidget(m_pdeFreqN,    1,2);
+                pFreakLayout->addWidget(m_pdeFreq1,    2,2);
+                pFreakLayout->addWidget(m_pdeZeta,     3,2);
+                pFreakLayout->addWidget(m_pdeT2,       4,2);
+                pFreakLayout->addWidget(m_pdeTau,      5,2);
+                pFreakLayout->addWidget(FreqUnit1,     1,3);
+                pFreakLayout->addWidget(FreqUnit2,     2,3);
+                pFreakLayout->addWidget(T2Unit,        4,3);
 
                 pFreakBox->setLayout(pFreakLayout);
             }
@@ -841,18 +837,16 @@ void StabViewDlg::setupLayout()
         {
             QGridLayout *pEigenLayout = new QGridLayout;
             {
-                QLabel *LabValue = new QLabel("l=");
-                QFont SymbolFont("Symbol");
-                LabValue->setFont(SymbolFont);
-                QLabel *LabVect1 = new QLabel("v1=");
-                QLabel *LabVect2 = new QLabel("v2=");
-                QLabel *LabVect3 = new QLabel("v3=");
-                QLabel *LabVect4 = new QLabel("v4=");
-                pEigenLayout->addWidget(LabValue,1,1);
-                pEigenLayout->addWidget(LabVect1,2,1);
-                pEigenLayout->addWidget(LabVect2,3,1);
-                pEigenLayout->addWidget(LabVect3,4,1);
-                pEigenLayout->addWidget(LabVect4,5,1);
+                QLabel *plabValue = new QLabel("<p>&lambda;=</p>");
+                QLabel *plabVect1 = new QLabel("v<sub>1</sub>=");
+                QLabel *plabVect2 = new QLabel("v<sub>2</sub>=");
+                QLabel *plabVect3 = new QLabel("v<sub>3</sub>=");
+                QLabel *plabVect4 = new QLabel("v<sub>4</sub>=");
+                pEigenLayout->addWidget(plabValue,1,1);
+                pEigenLayout->addWidget(plabVect1,2,1);
+                pEigenLayout->addWidget(plabVect2,3,1);
+                pEigenLayout->addWidget(plabVect3,4,1);
+                pEigenLayout->addWidget(plabVect4,5,1);
                 m_pleEigenValue = new QLineEdit("2+4i");
                 m_pleEigenVector1 = new QLineEdit("3-7i");
                 m_pleEigenVector2 = new QLineEdit("4-6i");
@@ -882,8 +876,8 @@ void StabViewDlg::setupLayout()
         {
             QGridLayout *pAnimSpeedLayout = new QGridLayout;
             {
-                QLabel *LabSpeed = new QLabel(tr("Speed"));
-                LabSpeed->setAlignment(Qt::AlignCenter|Qt::AlignVCenter);
+                QLabel *plabSpeed = new QLabel(tr("Speed"));
+                plabSpeed->setAlignment(Qt::AlignCenter|Qt::AlignVCenter);
                 m_pdAnimationSpeed  = new QDial();
                 m_pdAnimationSpeed->setMinimum(0);
                 m_pdAnimationSpeed->setMaximum(400);
@@ -893,11 +887,8 @@ void StabViewDlg::setupLayout()
                 m_pdAnimationSpeed->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 
-                pAnimSpeedLayout->addWidget(m_pdAnimationSpeed,1,1);
-                pAnimSpeedLayout->addWidget(LabSpeed,2,1);
-
-                QLabel *LabAmplitude = new QLabel(tr("Amplitude"));
-                LabAmplitude->setAlignment(Qt::AlignCenter|Qt::AlignVCenter);
+                QLabel *plabAmplitude = new QLabel(tr("Amplitude"));
+                plabAmplitude->setAlignment(Qt::AlignCenter|Qt::AlignVCenter);
                 m_pdAnimationAmplitude  = new QDial();
                 m_pdAnimationAmplitude->setMinimum(0);
                 m_pdAnimationAmplitude->setMaximum(1000);
@@ -905,8 +896,12 @@ void StabViewDlg::setupLayout()
                 m_pdAnimationAmplitude->setNotchesVisible(true);
                 m_pdAnimationAmplitude->setSingleStep(20);
                 m_pdAnimationAmplitude->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-                pAnimSpeedLayout->addWidget(m_pdAnimationAmplitude,1,2);
-                pAnimSpeedLayout->addWidget(LabAmplitude,2,2);
+
+
+                pAnimSpeedLayout->addWidget(m_pdAnimationSpeed,      1,1);
+                pAnimSpeedLayout->addWidget(plabSpeed,               2,1);
+                pAnimSpeedLayout->addWidget(m_pdAnimationAmplitude,  1,2);
+                pAnimSpeedLayout->addWidget(plabAmplitude,           2,2);
             }
 
             QVBoxLayout *pAnimationCommandsLayout = new QVBoxLayout;
@@ -920,7 +915,7 @@ void StabViewDlg::setupLayout()
 
             QHBoxLayout *pStepLayout = new  QHBoxLayout;
             {
-                m_pdeModeStep = new DoubleEdit(0.01,3);
+                m_pdeModeStep = new DoubleEdit(0.01);
                 QLabel *StepLabel = new QLabel(tr("Time Step ="));
                 QLabel *StepUnit  = new QLabel(tr("s"));
                 pStepLayout->addWidget(StepLabel);
@@ -1218,8 +1213,8 @@ void StabViewDlg::fillCurveList()
 
 double StabViewDlg::getControlInput(const double &time)
 {
-    double t1, t2, in1, in2;
-    t1 = t2 = 0.0;
+    double t1(0), t2(0), in1(0), in2(0);
+
     t1 = m_pControlModel->index(0, 0, QModelIndex()).data().toDouble();
     for(int i=1; i<m_pControlModel->rowCount()-1; i++)
     {

@@ -301,13 +301,13 @@ bool SplineFoil::serializeXFL(QDataStream &ar, bool bIsStoring)
         ar << m_Extrados.m_iDegree << m_Intrados.m_iDegree;
         ar << m_Extrados.m_iRes << m_Intrados.m_iRes;
 
-        ar << m_Extrados.m_CtrlPt.size();
+        ar << int(m_Extrados.m_CtrlPt.size());
         for (k=0; k<m_Extrados.m_CtrlPt.size();k++)
         {
             ar << m_Extrados.m_CtrlPt[k].x << m_Extrados.m_CtrlPt[k].y;
         }
 
-        ar << m_Intrados.m_CtrlPt.size();
+        ar << int(m_Intrados.m_CtrlPt.size());
         for (k=0; k<m_Intrados.m_CtrlPt.size();k++)
         {
             ar << m_Intrados.m_CtrlPt[k].x << m_Intrados.m_CtrlPt[k].y;

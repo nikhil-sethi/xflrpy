@@ -6,16 +6,17 @@
 
 *****************************************************************************/
 
+
 #include <QtConcurrent/QtConcurrent>
 #include <QRandomGenerator>
 #include <QVBoxLayout>
 #include <QSlider>
+#include <QGroupBox>
 
 #include "gl3dhydrogen.h"
 
-#include <xflcore/xflcore.h>
 #include <xflcore/mathelem.h>
-#include <xfl3d/gl_globals.h>
+#include <xfl3d/globals/gl_globals.h>
 #include <xflwidgets/customwts/intedit.h>
 #include <xflwidgets/customwts/doubleedit.h>
 #include <xflwidgets/wt_globals.h>
@@ -31,9 +32,9 @@ int gl3dHydrogen::s_n(2); // principal quantum number: 1, 2, 3
 int gl3dHydrogen::s_l(1); // azimuthal quantum number: 0, ..., n-1
 int gl3dHydrogen::s_m(0); // magnetic  quantum number: -l, ...,l
 int gl3dHydrogen::s_NObservations(25000); // Number of observationss
-double gl3dHydrogen::s_PtWidth = 0.3;
-double gl3dHydrogen::s_ObsRadius(35.0); // in Bohr radius units
-
+int gl3dHydrogen::s_ElectronSize = 15;
+double gl3dHydrogen::s_ObsRadius(50.0); // in Bohr radius units
+int gl3dHydrogen::s_iRenderer(0);
 
 gl3dHydrogen::gl3dHydrogen(QWidget *pParent) : gl3dTestGLView(pParent)
 {
@@ -48,11 +49,11 @@ gl3dHydrogen::gl3dHydrogen(QWidget *pParent) : gl3dTestGLView(pParent)
 
     m_BlockSize = 50;
 
-//    setReferenceLength(s_ObsRadius);
+    setReferenceLength(s_ObsRadius);
 
     QPalette palette;
     palette.setColor(QPalette::WindowText, s_TextColor);
-    palette.setColor(QPalette::Text, s_TextColor);
+    palette.setColor(QPalette::Text,       s_TextColor);
 
     QColor clr = s_BackgroundColor;
     clr.setAlpha(0);
@@ -99,6 +100,7 @@ gl3dHydrogen::gl3dHydrogen(QWidget *pParent) : gl3dTestGLView(pParent)
                     pQuantumLayout->addWidget(m_piel,       2,2);
                     pQuantumLayout->addWidget(plab_m,       3,1, Qt::AlignRight);
                     pQuantumLayout->addWidget(m_piem,       3,2);
+                    pQuantumLayout->setColumnStretch(3,1);
                 }
                 pQuantumBox->setLayout(pQuantumLayout);
             }
@@ -168,58 +170,60 @@ gl3dHydrogen::gl3dHydrogen(QWidget *pParent) : gl3dTestGLView(pParent)
                     QHBoxLayout *pWidthLayout = new QHBoxLayout;
                     {
                         QLabel *plabPtWidth = new QLabel("Electron size:");
-                        m_pdePtWidth = new DoubleEdit(s_PtWidth);
-                        m_pdePtWidth->setToolTip("This value controls the radius of the sphere representing each collapsed electron position.");
-                        connect(m_pdePtWidth, SIGNAL(valueChanged()), SLOT(update()));
+                        QSlider *pPlanetSize = new QSlider(Qt::Horizontal);
+                        pPlanetSize->setRange(0, 100);
+                        pPlanetSize->setTickInterval(5);
+                        pPlanetSize->setTickPosition(QSlider::TicksBelow);
+                        pPlanetSize->setValue(int(s_ElectronSize));
+                        connect(pPlanetSize,  SIGNAL(valueChanged(int)),  SLOT(onObjectRadius(int)));
 
                         pWidthLayout->addWidget(plabPtWidth);
-                        pWidthLayout->addWidget(m_pdePtWidth);
-                        pWidthLayout->addStretch();
+                        pWidthLayout->addWidget(pPlanetSize);
                     }
 
                     QHBoxLayout *pShaderLayout = new QHBoxLayout;
                     {
-                        QString tip("The GS renderer and the instancing renderer are two distinct OpenGL methods "
-                                    "implemented in flow5 for comparative testing.<br>"
+                        QString tip("The Geometry Shader (GS) renderer, the instancing renderer and the point renderer are three "
+                                    "distinct OpenGL methods implemented in flow5 for comparative testing.<br>"
                                     "The first method generates a sphere on the fly in the geometry shader for each electron position. "
                                     "It is fast but displays coarse spheres. It requires OpenGL 3.2+.<br>"
                                     "The instancing method generates the sphere once and renders it at each electron position. "
                                     "It is slower but displays more regular spheres.<br>"
-                                    "The instancing technique has been selected for the display of the VPW "
-                                    "since there isn't usually any noticeable speed difference when rendering "
-                                    "only a few hundred vortons.");
+                                    "The point renderer uses the default OpenGL primitive to render a flat point. "
+                                    "It is faster than the other two  methods and can handle larger numbers of instances "
+                                    "but displays only flat unshaded points.<br>"
+                                    "The instancing technique has been selected for the display of the VPW  since there isn't usually "
+                                    "any noticeable speed difference when rendering only a few hundred vortons.");
 
-                        QLabel *plabRend = new QLabel("Rendering:");
-                        m_prbPtShader   = new QRadioButton("Geometry shader");
+                        QLabel *plabRend = new QLabel("Renderer:");
+                        m_prbPtShader   = new QRadioButton("GS");
                         m_prbSurfShader = new QRadioButton("Instancing");
+                        m_prbPt2Shader  = new QRadioButton("Points");
                         m_prbPtShader->setToolTip(tip);
                         m_prbSurfShader->setToolTip(tip);
-                        connect(m_prbPtShader,   SIGNAL(clicked(bool)), SLOT(update()));
-                        connect(m_prbSurfShader, SIGNAL(clicked(bool)), SLOT(update()));
+                        m_prbPt2Shader->setToolTip(tip);
+                        s_iRenderer = 0;
+                        switch (s_iRenderer)
+                        {
+                            default:
+                            case 0: m_prbPtShader->setChecked(true);    break;
+                            case 1: m_prbSurfShader->setChecked(true);  break;
+                            case 2: m_prbPt2Shader->setChecked(true);   break;
+                        }
+
+                        connect(m_prbPtShader,   SIGNAL(clicked(bool)), SLOT(onRenderer()));
+                        connect(m_prbSurfShader, SIGNAL(clicked(bool)), SLOT(onRenderer()));
+                        connect(m_prbPt2Shader,  SIGNAL(clicked(bool)), SLOT(onRenderer()));
                         pShaderLayout->addWidget(plabRend);
                         pShaderLayout->addWidget(m_prbPtShader);
                         pShaderLayout->addWidget(m_prbSurfShader);
+                        pShaderLayout->addWidget(m_prbPt2Shader);
                         pShaderLayout->addStretch();
                     }
-
                     QCheckBox *pchClip = new QCheckBox("Clip screen plane");
                     pchClip->setToolTip("Activate this checkbox to hide all objects positioned forward of the screen/viewport.<br>"
-                                        "Use the X, Y, and Z keys to view the scene in the direction of each axis.");
+                                        "Use the (SHIFT+) X, Y, and Z keys to view the scene in the direction of each axis.");
                     connect(pchClip, SIGNAL(clicked(bool)), SLOT(onClipScreenPlane(bool)));
-/*                    QHBoxLayout *pClipLayout = new QHBoxLayout;
-                    {
-                        QLabel *plabClip = new QLabel("Clip plane:");
-                        QSlider *pslClip = new QSlider(Qt::Horizontal);
-                        pslClip->setMinimum(-100);
-                        pslClip->setMaximum(100);
-                        pslClip->setSliderPosition(0);
-                        pslClip->setTickInterval(10);
-                        pslClip->setTickPosition(QSlider::TicksBelow);
-                        pslClip->setValue(100);
-                        connect(pslClip, SIGNAL(sliderMoved(int)), SLOT(onClipPlane(int)));
-                        pClipLayout->addWidget(plabClip);
-                        pClipLayout->addWidget(pslClip);
-                    }*/
 
                     pDisplayLayout->addLayout(pWidthLayout);
                     pDisplayLayout->addLayout(pShaderLayout);
@@ -240,9 +244,6 @@ gl3dHydrogen::gl3dHydrogen(QWidget *pParent) : gl3dTestGLView(pParent)
         pFrame->setStyleSheet("QFrame{background-color: transparent;}");
         setWidgetStyle(pFrame, palette);
     }
-
-    setReferenceLength(s_ObsRadius);
-    reset3dScale();
 }
 
 
@@ -255,7 +256,8 @@ void gl3dHydrogen::loadSettings(QSettings &settings)
         s_m             = settings.value("m", s_m).toInt();
         s_ObsRadius     = settings.value("ObsDistance",   s_ObsRadius).toDouble();
         s_NObservations = settings.value("NObservations", s_NObservations).toInt();
-        s_PtWidth       = settings.value("PtWidth", s_PtWidth).toDouble();
+        s_ElectronSize  = settings.value("ElectronSize", s_ElectronSize).toDouble();
+        s_iRenderer     = settings.value("Renderer",      s_iRenderer).toInt();
     }
     settings.endGroup();
 }
@@ -269,10 +271,27 @@ void gl3dHydrogen::saveSettings(QSettings &settings)
         settings.setValue("l", s_l);
         settings.setValue("m", s_m);
         settings.setValue("NObservations", s_NObservations);
-        settings.setValue("ObsDistance", s_ObsRadius);
-        settings.setValue("PtWidth", s_PtWidth);
+        settings.setValue("ObsDistance",   s_ObsRadius);
+        settings.setValue("ElectronSize",  s_ElectronSize);
+        settings.setValue("Renderer",      s_iRenderer);
     }
     settings.endGroup();
+}
+
+
+void gl3dHydrogen::onRenderer()
+{
+    if     (m_prbPtShader->isChecked())   s_iRenderer = 0;
+    else if(m_prbSurfShader->isChecked()) s_iRenderer = 1;
+    else if(m_prbPt2Shader->isChecked())  s_iRenderer = 2;
+    update();
+}
+
+
+void gl3dHydrogen::onObjectRadius(int size)
+{
+    s_ElectronSize = size;
+    update();
 }
 
 
@@ -288,7 +307,7 @@ void gl3dHydrogen::showEvent(QShowEvent *pEvent)
 void gl3dHydrogen::closeEvent(QCloseEvent *pEvent)
 {
     m_bCancel = true;
-    gl3dTestGLView::closeEvent(pEvent);
+    QOpenGLWidget::closeEvent(pEvent);
 }
 
 
@@ -298,10 +317,11 @@ void gl3dHydrogen::initializeGL()
 
     if(m_bUse120StyleShaders)
     {
-        m_prbSurfShader->setChecked(true);
-        m_prbPtShader->setEnabled(false);
+        m_prbPt2Shader->setChecked(true);
     }
-    else m_prbPtShader->setChecked(true);
+
+    m_prbPtShader->setEnabled(!m_bUse120StyleShaders);
+    m_prbSurfShader->setEnabled(!m_bUse120StyleShaders);
 
     glMakeIcoSphere(3);
 }
@@ -324,10 +344,10 @@ void gl3dHydrogen::glMake3dObjects()
             pts[iv++] = m_Pts.at(i).zf();
             pts[iv++] = state;
 
-            pts[iv++] = xfl::GLGetRed(state); // for the surface shader
-            pts[iv++] = xfl::GLGetGreen(state);
-            pts[iv++] = xfl::GLGetBlue(state);
-            pts[iv++] = 1.0; //alpha
+            pts[iv++] = glGetRed(  state); // for the surface shader
+            pts[iv++] = glGetGreen(state);
+            pts[iv++] = glGetBlue( state);
+            pts[iv++] = 1.0f; //alpha
         }
 
         Q_ASSERT(iv==buffersize);
@@ -345,12 +365,11 @@ void gl3dHydrogen::glMake3dObjects()
 
 void gl3dHydrogen::glRenderView()
 {
-    s_PtWidth = m_pdePtWidth->value();
-
     QMatrix4x4 vmMat(m_matView*m_matModel);
     QMatrix4x4 pvmMat(m_matProj*vmMat);
 
-    if(m_prbPtShader->isChecked() && !m_bUse120StyleShaders)
+
+    if(s_iRenderer==0 && !m_bUse120StyleShaders)
     {
         m_shadPoint.bind();
         {
@@ -358,9 +377,9 @@ void gl3dHydrogen::glRenderView()
             m_shadPoint.setUniformValue(m_locPoint.m_pvmMatrix, pvmMat);
         }
         m_shadPoint.release();
-        paintPoints(m_vboObservations, float(s_PtWidth)/m_glScalef, 1, true, Qt::black, 8);
+        paintPoints(m_vboObservations, float(s_ElectronSize)/50.0f, 0, true, Qt::black, 8);
     }
-    else
+    else if(s_iRenderer==1 && !m_bUse120StyleShaders)
     {
         m_shadSurf.bind();
         {
@@ -368,7 +387,40 @@ void gl3dHydrogen::glRenderView()
             m_shadSurf.setUniformValue(m_locSurf.m_pvmMatrix, pvmMat);
         }
         m_shadSurf.release();
-        paintElectronInstances(m_vboObservations, s_PtWidth/100./m_glScalef, Qt::cyan, false, true);
+        paintElectronInstances(m_vboObservations, float(s_ElectronSize)/5000.f/m_glScalef, Qt::cyan, false, true);
+    }
+    else
+    {
+        QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
+
+        m_shadPoint2.bind();
+        {
+            int stride = 8;
+            m_shadPoint2.setUniformValue(m_locPt2.m_vmMatrix,  vmMat);
+            m_shadPoint2.setUniformValue(m_locPt2.m_pvmMatrix, pvmMat);
+            m_shadPoint2.setUniformValue(m_locPt2.m_Shape, float(s_ElectronSize)/2.0f);
+            m_shadPoint2.setUniformValue(m_locPt2.m_ClipPlane, m_ClipPlanePos);
+
+            m_shadPoint2.enableAttributeArray(m_locPt2.m_attrVertex);
+            m_shadPoint2.enableAttributeArray(m_locPt2.m_attrColor);
+
+            m_vboObservations.bind();
+            {
+                m_shadPoint2.setAttributeBuffer(m_locPt2.m_attrVertex, GL_FLOAT, 0,                  4, stride * sizeof(GLfloat));
+                m_shadPoint2.setAttributeBuffer(m_locPt2.m_attrColor,  GL_FLOAT, 4* sizeof(GLfloat), 4, stride * sizeof(GLfloat));
+
+                int nPoints = m_vboObservations.size()/stride/int(sizeof(float));
+
+                glEnable (GL_POINT_SPRITE);
+                glEnable(GL_PROGRAM_POINT_SIZE); // To set the point size from a shader, enable the glEnable with argument (GL_PROGRAM_POINT_SIZE)
+                glDrawArrays(GL_POINTS, 0, nPoints);
+            }
+            m_vboObservations.release();
+
+            m_shadPoint2.disableAttributeArray(m_locPt2.m_attrVertex);
+            m_shadPoint2.disableAttributeArray(m_locPt2.m_attrColor);
+        }
+        m_shadPoint2.release();
     }
 
     if(m_pchBohr->isChecked())   paintSphere(0,0,0, 1,           QColor(201,201,201,171));
@@ -400,7 +452,7 @@ void gl3dHydrogen::paintElectronInstances(QOpenGLBuffer &vboPosInstances, float 
         if(bLight) m_shadSurf.setUniformValue(m_locSurf.m_Light, 1);
         else       m_shadSurf.setUniformValue(m_locSurf.m_Light, 0);
         m_shadSurf.setUniformValue(m_locSurf.m_UniColor, clr);
-        m_shadSurf.setUniformValue(m_locSurf.m_HasUniColor, 0); // using color attribute instead
+        m_shadSurf.setUniformValue(m_locSurf.m_HasUniColor, 1); // using color attribute instead
 
         m_vboIcoSphere.bind();
         {
@@ -415,14 +467,15 @@ void gl3dHydrogen::paintElectronInstances(QOpenGLBuffer &vboPosInstances, float 
         }
         m_vboIcoSphere.release();
 
+        m_shadSurf.setUniformValue(m_locSurf.m_HasUniColor, 0); // using color attribute instead
         vboPosInstances.bind();
         {
             m_shadSurf.enableAttributeArray(m_locSurf.m_attrOffset);
-            m_shadSurf.setAttributeBuffer(m_locSurf.m_attrOffset, GL_FLOAT, 0*sizeof(GLfloat), 3, stride*sizeof(float));
+            m_shadSurf.setAttributeBuffer(m_locSurf.m_attrOffset, GL_FLOAT, 0*sizeof(GLfloat), 3, stride*sizeof(GLfloat));
             glVertexAttribDivisor(m_locSurf.m_attrOffset, 1);
 
             m_shadSurf.enableAttributeArray(m_locSurf.m_attrColor);
-            m_shadSurf.setAttributeBuffer(m_locSurf.m_attrColor, GL_FLOAT, 4*sizeof(GLfloat), 4, stride*sizeof(float));
+            m_shadSurf.setAttributeBuffer(m_locSurf.m_attrColor,  GL_FLOAT, 4*sizeof(GLfloat), 4, stride*sizeof(GLfloat));
             glVertexAttribDivisor(m_locSurf.m_attrColor, 1);
 
             nObjects = vboPosInstances.size()/stride/int(sizeof(float));
@@ -433,6 +486,15 @@ void gl3dHydrogen::paintElectronInstances(QOpenGLBuffer &vboPosInstances, float 
         m_shadSurf.setUniformValue(m_locSurf.m_IsInstanced, 0);
     }
     m_shadSurf.release();
+}
+
+
+/**
+ *  Ground state wave function
+ *  r is in Bohr radius units*/
+double gl3dHydrogen::psi_1s(double r, double, double)
+{
+    return 1.0/sqrt(PI*A0*A0*A0)*exp(-r);
 }
 
 
@@ -448,7 +510,11 @@ double gl3dHydrogen::psi(double r, double theta, double phi) const
     double rho = 2.0*r/double(s_n);
     double coef = 1.0;
     coef *= sqrt((2.0/double(s_n)/A0)*(2.0/double(s_n)/A0)*(2.0/double(s_n)/A0));
-    coef *= sqrt(factorial(s_n-s_l-1)/2.0/double(s_n)/factorial(s_n+s_l));
+//    double fact1 = dfactorial(s_n-s_l-1);
+//    double fact2 = dfactorial(s_n+s_l);
+    double fact1 = double(factorial(s_n-s_l-1));
+    double fact2 = double(factorial(s_n+s_l));
+    coef *= sqrt(fact1/2.0/double(s_n)/fact2);
     coef *= exp(-rho/2);
     coef *= pow(rho, s_l);
     coef *= Laguerre(2*s_l+1, s_n-s_l-1, rho);
@@ -508,9 +574,16 @@ void gl3dHydrogen::onCollapse()
     m_BlockSize = s_NObservations/nThreads+1;
     m_UpdateInterval = std::min(m_BlockSize, 50);
 
+
     for(int i=0; i<nThreads; i++)
     {
+//        collapseBlock(this);
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+        QFuture<void> future = QtConcurrent::run(&gl3dHydrogen::collapseBlock, this, this);
+#else
         QtConcurrent::run(this, &gl3dHydrogen::collapseBlock, this);
+#endif
+
     }
 }
 
@@ -528,6 +601,7 @@ void gl3dHydrogen::collapseBlock(QWidget *pParent) const
     {
         rho   = pow(QRandomGenerator::global()->generateDouble(),0.33333)*s_ObsRadius;
         r = rho*A0;// in Bohr radius units
+
         phi   = QRandomGenerator::global()->bounded(2.0*PI);
         theta = acos(1.0-2.0*QRandomGenerator::global()->generateDouble());
 
@@ -581,7 +655,7 @@ void gl3dHydrogen::customEvent(QEvent *pEvent)
             m_StateMax = std::max(m_StateMax, pHEvent->newStates().at(i));
 
 
-        m_plabNObs->setText(QString::asprintf("%5d/%5d", m_Pts.size(), s_NObservations));
+        m_plabNObs->setText(QString::asprintf("%5d/%5d", int(m_Pts.size()), s_NObservations));
 
         m_bResetPositions = true;
 

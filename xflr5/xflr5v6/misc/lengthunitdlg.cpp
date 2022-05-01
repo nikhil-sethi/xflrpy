@@ -88,7 +88,7 @@ void LengthUnitDlg::SetupLayout()
 
     setLayout(pMainLayout);
 
-    connect(m_pcbLength, SIGNAL(activated(const QString &)),this, SLOT(onSelChanged(const QString &)));
+    connect(m_pcbLength, SIGNAL(activated(QString&)),this, SLOT(onSelChanged(QString&)));
 }
 
 

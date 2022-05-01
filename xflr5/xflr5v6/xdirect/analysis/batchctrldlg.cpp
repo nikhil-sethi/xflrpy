@@ -23,7 +23,6 @@
 #include <QMenu>
 #include <QApplication>
 #include <QDir>
-#include <QFutureSynchronizer>
 #include <QHeaderView>
 #include <QVBoxLayout>
 #include <QtConcurrent/QtConcurrent>
@@ -37,6 +36,7 @@
 #include <xflwidgets/customwts/cptableview.h>
 #include <xflwidgets/customwts/actiondelegate.h>
 #include <xflwidgets/customwts/actionitemmodel.h>
+#include <xflwidgets/customwts/plaintextoutput.h>
 
 double BatchCtrlDlg::s_XHinge     = 0.7;
 double BatchCtrlDlg::s_YHinge     = 0.5;
@@ -115,15 +115,15 @@ void BatchCtrlDlg::setupLayout()
 
         pLeftSideLayout->addWidget(m_pVSplitter);
         pLeftSideLayout->addWidget(pFlapBox);
-        pLeftSideLayout->addWidget(m_pTransVarsGroupBox);
-        pLeftSideLayout->addWidget(m_pRangeVarsGroupBox);
+        pLeftSideLayout->addWidget(m_pgbTransVars);
+        pLeftSideLayout->addWidget(m_pgbRangeVars);
         pLeftSideLayout->addWidget(m_pButtonBox);
     }
 
     QVBoxLayout *pRightSideLayout = new QVBoxLayout;
     {
         pRightSideLayout->addWidget(m_pchInitBL);
-        pRightSideLayout->addWidget(m_pOptionsFrame);
+        pRightSideLayout->addWidget(m_pfrOptions);
         pRightSideLayout->addWidget(m_pteTextOutput);
     }
 
@@ -135,6 +135,7 @@ void BatchCtrlDlg::setupLayout()
     }
 
     setLayout(pBoxesLayout);
+    m_pteTextOutput->setPlainText("Hell");
 }
 
 
@@ -256,8 +257,7 @@ void BatchCtrlDlg::customEvent(QEvent * pEvent)
 void BatchCtrlDlg::startAnalyses()
 {
     QString strange;
-    int nRe=0;
-
+    int nRe(0);
 
     QVector<Foil*> foils;
     readFoils(foils);
@@ -307,7 +307,13 @@ void BatchCtrlDlg::startAnalyses()
 //            QFuture<Polar*> future = QtConcurrent::run(pXFoilTask, &XFoilTask::runFuture);
 //            futureSync.addFuture(future);
 
-            QThreadPool::globalInstance()->start(pXFoilTask);
+//            QThreadPool::globalInstance()->start(pXFoilTask);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+            QFuture<void> future = QtConcurrent::run(&XFoilTask::run, pXFoilTask);
+#else
+            QtConcurrent::run(pXFoilTask, &XFoilTask::run);
+#endif
         }
 //        futureSync.waitForFinished(); // maybe unnecessary: "The destructor of QFutureSynchronizer calls waitForFinished()"
         m_pteTextOutput->appendPlainText("   finished launching XFoil tasks for " + pFoil->name());

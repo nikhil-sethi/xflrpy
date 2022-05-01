@@ -139,10 +139,8 @@ class Graph
         void setAutoYUnit();
 
         void setBkColor(QColor cr){m_BkColor = cr;}
-    //    void setBorderColor(QColor crBorder){m_BorderStyle.m_Color = crBorder;}
         void setBorder(bool bBorder) {m_BorderStyle.m_bIsVisible = bBorder;}
-    //    void setBorderStipple(int s) {m_BorderStyle.setStipple(s);}
-    //    void setBorderWidth(int w) {m_BorderStyle.m_Width = w;}
+
         void setBorderStyle(LineStyle const &ls2) {m_BorderStyle=ls2;}
         void setDrawRect(QRect Rect) {m_rCltRect = Rect;}
         void setMargin(int m);
@@ -213,8 +211,8 @@ class Graph
         bool setYScale();
 
 
-        QString xTitle() const {return m_XTitle;}
-        QString yTitle() const {return m_YTitle;}
+        QString const &xTitle() const {return m_XTitle;}
+        QString const &yTitle() const {return m_YTitle;}
 
         QRect *clientRect() {return &m_rCltRect;}
 
@@ -231,7 +229,7 @@ class Graph
         Curve* addCurve(Curve *pCurve);
         void deleteCurve(int index);
         void deleteCurve(Curve *pCurve);
-        void deleteCurve(QString CurveTitle);
+        void deleteCurve(QString const &CurveTitle);
         void deleteCurves();
         void resetXLimits();
         void resetYLimits();

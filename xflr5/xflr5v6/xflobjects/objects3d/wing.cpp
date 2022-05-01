@@ -60,10 +60,10 @@ Wing::Wing()
     memset(m_SpanPos, 0, sizeof(m_SpanPos));
     memset(m_StripArea, 0, sizeof(m_StripArea));
 
-    m_xHinge.clear();
-    m_xHinge.insert(0, 1000, 0);
-    m_xPanel.clear();
-    m_xPanel.insert(0, 1000, 0);
+    m_xHinge.resize(1000);
+    m_xHinge.fill(0.0);
+    m_xPanel.resize(1000);
+    m_xPanel.fill(0.0);
 
     m_CoG.set(0.0,0.0,0.0);
     m_CoGIxx = m_CoGIyy = m_CoGIzz = m_CoGIxz = 0.0;
@@ -78,7 +78,7 @@ Wing::Wing()
     m_bWingOut      = false;
 
     m_Name        = QObject::tr("Wing Name");
-    m_WingType        = xfl::MAINWING;
+    m_WingType    = xfl::MAINWING;
     m_Description = "";
 
     QColor clr;
@@ -109,7 +109,6 @@ Wing::Wing()
     m_NStation  = 0;
 
     m_AR         = 0.0;// Aspect ratio
-    m_TR         = 0.0;// Taper ratio
     m_GChord     = 0.0;// mean geometric chord
     m_MAChord    = 0.0;// mean aero chord
     m_yMac       = 0.0;
@@ -146,7 +145,7 @@ Wing::~Wing()
  * Imports the wing geometry from a text file.
  * @param path_to_file the path to the filename as a QString
  */
-bool Wing::importDefinition(QString path_to_file, QString errorMessage)
+bool Wing::importDefinition(QString const &path_to_file, QString &errorMessage)
 {
     QFile fp(path_to_file);
     double ypos(0), chord(0), offset(0), dihedral(0), twist(0);
@@ -159,72 +158,67 @@ bool Wing::importDefinition(QString path_to_file, QString errorMessage)
     unsigned counter = 0;
 
 
-    try{
-        if (!fp.open(QIODevice::ReadOnly))
-        {
-            errorMessage = "Could not open the file for reading";
-            return false;
-        }
-        else {
-            QTextStream infile(&fp);
-            clearWingSections();
-            this->m_Name = infile.readLine();
-            while (true)
-            {
-                counter++;
-                infile >> ypos >> chord >> offset >> dihedral >> twist >> nx >> ny;
-
-                infile >> px >> py;
-
-                if(px ==2)         x_pan_dist  = xfl::INVERSESINE;
-                else if(px ==  1)  x_pan_dist  = xfl::COSINE;
-                else if(px == -2)  x_pan_dist  = xfl::SINE;
-                else               x_pan_dist  = xfl::UNIFORM;
-
-                if(py ==2)         y_pan_dist  = xfl::INVERSESINE;
-                else if(py ==  1)  y_pan_dist  = xfl::COSINE;
-                else if(py == -2)  y_pan_dist  = xfl::SINE;
-                else               y_pan_dist  = xfl::UNIFORM;
-
-                infile >> right_buff >> left_buff;
-
-                if (infile.atEnd())
-                {
-                    fp.close();
-                    break;
-                }
-                //Append the sections convert from mm to m
-                appendWingSection(chord,
-                                  twist,
-                                  ypos,
-                                  dihedral,
-                                  offset,
-                                  nx,
-                                  ny,
-                                  x_pan_dist,
-                                  y_pan_dist,
-                                  QString(QString(QLatin1String(right_buff)).replace(QString("/_/"), QString(" "))),
-                                  QString(QString(QLatin1String(left_buff)).replace(QString("/_/"), QString(" ")))
-                                  );
-
-            }
-        }
-
-        //Build the Geometry
-        computeGeometry();
-        double length = Length(0);
-        for (int is=0; is<m_Section.size(); is++)
-        {
-            length += Length(is);
-            setYPosition(is, length);
-            setXPanelDist(is,  xfl::COSINE);
-        }
-    }
-    catch (std::iostream::failure e)
+    if (!fp.open(QIODevice::ReadOnly))
     {
-        errorMessage = "Unable to import wing definition\n";
+        errorMessage = "Could not open the file for reading";
         return false;
     }
+    else {
+        QTextStream infile(&fp);
+        clearWingSections();
+        this->m_Name = infile.readLine();
+        while (true)
+        {
+            counter++;
+            infile >> ypos >> chord >> offset >> dihedral >> twist >> nx >> ny;
+
+            infile >> px >> py;
+
+            if(px ==2)         x_pan_dist  = xfl::INVERSESINE;
+            else if(px ==  1)  x_pan_dist  = xfl::COSINE;
+            else if(px == -2)  x_pan_dist  = xfl::SINE;
+            else               x_pan_dist  = xfl::UNIFORM;
+
+            if(py ==2)         y_pan_dist  = xfl::INVERSESINE;
+            else if(py ==  1)  y_pan_dist  = xfl::COSINE;
+            else if(py == -2)  y_pan_dist  = xfl::SINE;
+            else               y_pan_dist  = xfl::UNIFORM;
+
+            infile >> right_buff >> left_buff;
+
+            if (infile.atEnd())
+            {
+                fp.close();
+                break;
+            }
+            //Append the sections convert from mm to m
+            appendWingSection(chord,
+                              twist,
+                              ypos,
+                              dihedral,
+                              offset,
+                              nx,
+                              ny,
+                              x_pan_dist,
+                              y_pan_dist,
+                              QString(QString(QLatin1String(right_buff)).replace(QString("/_/"), QString(" "))),
+                              QString(QString(QLatin1String(left_buff)).replace(QString("/_/"), QString(" ")))
+                              );
+
+        }
+    }
+
+    //Build the Geometry
+    computeGeometry();
+    double length = Length(0);
+    for (int is=0; is<m_Section.size(); is++)
+    {
+        length += Length(is);
+        setYPosition(is, length);
+        setXPanelDist(is,  xfl::COSINE);
+    }
+
+
     return true;
 }
 
@@ -233,91 +227,87 @@ bool Wing::importDefinition(QString path_to_file, QString errorMessage)
  * Exports the wing geometry to a text file.
  * @param path_to_file the path to the filename as a QString
  */
-bool Wing::exportDefinition(QString path_to_file, QString errorMessage)
+bool Wing::exportDefinition(QString const &path_to_file, QString &errorMessage)
 {
-    try{
-        QFile fp(path_to_file);
-        if (!fp.open(QIODevice::WriteOnly)) {
-            errorMessage = "Could not open the file for writing";
-            return false;
-        } else {
-            QTextStream out_file(&fp);
-            //Iterate the wing sections are write out the data...
-            out_file << this->m_Name;
 
-#if QT_VERSION >= 0x050F00
-            out_file << Qt::endl;
-#else
-            out_file << endl;
-#endif
-
-            for (int is=0; is<m_Section.size(); is++)
-            {
-                out_file << YPosition(is) << " " << Chord(is) << " " << Offset(is) \
-                         << " " << Dihedral(is) << " " << Twist(is) << " " << NXPanels(is) \
-                         << " " << NYPanels(is) << " ";
-
-                switch(XPanelDist(is))
-                {
-                    case xfl::COSINE:
-                        out_file <<  1;
-                        break;
-                    case xfl::SINE:
-                        out_file <<  2;
-                        break;
-                    case xfl::INVERSESINE:
-                        out_file << -2;
-                        break;
-                    default:
-                        out_file <<  0; //XFLR5::UNIFORM
-                        break;
-                }
-
-                out_file << " " ;
-
-                switch(YPanelDist(is))
-                {
-                    case xfl::COSINE:
-                        out_file <<  1;
-                        break;
-                    case xfl::SINE:
-                        out_file <<  2;
-                        break;
-                    case xfl::INVERSESINE:
-                        out_file << -2;
-                        break;
-                    default:
-                        out_file <<  0; //XFLR5::UNIFORM
-                        break;
-                }
-
-
-                if(rightFoilName(is).isEmpty()){
-                    out_file  << " " << "/_/";
-                } else {
-                    QString rightfoilname = rightFoilName(is);
-                    out_file  << " " << rightfoilname.replace(QString(" "), QString("/_/")).toLatin1().data();
-                }
-                if(leftFoilName(is).isEmpty()) {
-                    out_file  << " " << "/_/";
-                } else {
-                    QString leftfoilname = leftFoilName(is);
-                    out_file  << " " << leftfoilname.replace(QString(" "), QString("/_/")).toLatin1().data();
-                }
-
-#if QT_VERSION >= 0x050F00
-            out_file << Qt::endl;
-#else
-            out_file << endl;
-#endif
-            }
-            fp.close();
-        }
-    }
-    catch (std::iostream::failure e){
-        errorMessage = "Unable to import wing definition\n";
+    QFile fp(path_to_file);
+    if (!fp.open(QIODevice::WriteOnly)) {
+        errorMessage = "Could not open the file for writing";
         return false;
+    } else {
+        QTextStream out_file(&fp);
+        //Iterate the wing sections are write out the data...
+        out_file << this->m_Name;
+
+#if QT_VERSION >= 0x050F00
+        out_file << Qt::endl;
+#else
+        out_file << endl;
+#endif
+
+        for (int is=0; is<m_Section.size(); is++)
+        {
+            out_file << YPosition(is) << " " << Chord(is) << " " << Offset(is) \
+                     << " " << Dihedral(is) << " " << Twist(is) << " " << NXPanels(is) \
+                     << " " << NYPanels(is) << " ";
+
+            switch(XPanelDist(is))
+            {
+                case xfl::COSINE:
+                    out_file <<  1;
+                    break;
+                case xfl::SINE:
+                    out_file <<  2;
+                    break;
+                case xfl::INVERSESINE:
+                    out_file << -2;
+                    break;
+                default:
+                    out_file <<  0; //XFLR5::UNIFORM
+                    break;
+            }
+
+            out_file << " " ;
+
+            switch(YPanelDist(is))
+            {
+                case xfl::COSINE:
+                    out_file <<  1;
+                    break;
+                case xfl::SINE:
+                    out_file <<  2;
+                    break;
+                case xfl::INVERSESINE:
+                    out_file << -2;
+                    break;
+                default:
+                    out_file <<  0; //XFLR5::UNIFORM
+                    break;
+            }
+
+
+            if(rightFoilName(is).isEmpty()){
+                out_file  << " " << "/_/";
+            } else {
+                QString rightfoilname = rightFoilName(is);
+                out_file  << " " << rightfoilname.replace(QString(" "), QString("/_/")).toLatin1().data();
+            }
+            if(leftFoilName(is).isEmpty()) {
+                out_file  << " " << "/_/";
+            } else {
+                QString leftfoilname = leftFoilName(is);
+                out_file  << " " << leftfoilname.replace(QString(" "), QString("/_/")).toLatin1().data();
+            }
+
+#if QT_VERSION >= 0x050F00
+        out_file << Qt::endl;
+#else
+        out_file << endl;
+#endif
+        }
+        fp.close();
     }
+
     return true;
 }
 
@@ -378,8 +368,6 @@ void Wing::computeGeometry()
         m_GChord  = m_PlanformArea/m_PlanformSpan*2.0;
         m_AR      = m_PlanformSpan*m_PlanformSpan/m_PlanformArea/2.0;
     }
-    if(tipChord()>0.0)  m_TR = tipChord()/rootChord();
-    else                m_TR = 99999.0;
 
     //calculate the number of flaps
     m_nFlaps = 0;
@@ -425,7 +413,7 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
     QVector<double> ElemVolume(NXSTATIONS*NYSTATIONS*m_Surface.size()); // Qt initializes to zero
     QVector<Vector3d> PtVolume(NXSTATIONS*NYSTATIONS*m_Surface.size());
 
-    double rho(0), LocalSpan(0), LocalVolume(0);
+    double rho(0), LocalSpan(0);
     double LocalChord(0),  LocalArea(0),  tau(0);
     double LocalChord1(0), LocalArea1(0), tau1(0);
     double xrel(0), xrel1(0), yrel(0), ElemArea(0);
@@ -435,10 +423,6 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
     CoGIxx = CoGIyy = CoGIzz = CoGIxz = 0.0;
 
     //sanity check
-    //    Vector3d CoGCheck(0.0,0.0,0.0);
-    double CoGIxxCheck(0), CoGIyyCheck(0), CoGIzzCheck(0), CoGIxzCheck(0);
-    double recalcMass = 0.0;
-    double recalcVolume = 0.0;
     double checkVolume = 0.0;
 
 //    computeGeometry();
@@ -466,7 +450,7 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
 
             surf.getSection(tau,  LocalChord,  LocalArea,  Pt);
             surf.getSection(tau1, LocalChord1, LocalArea1, Pt1);
-            LocalVolume = (LocalArea+LocalArea1)/2.0 * LocalSpan;
+
             PtC4.x = (Pt.x + Pt1.x)/2.0;
             PtC4.y = (Pt.y + Pt1.y)/2.0;
             PtC4.z = (Pt.z + Pt1.z)/2.0;
@@ -516,7 +500,7 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
     for (int j=0; j<m_Surface.size(); j++)
     {
         Surface const &surf = m_Surface.at(j);
-        LocalSpan = surf.m_Length/double(NYSTATIONS);
+//        LocalSpan = surf.m_Length/double(NYSTATIONS);
         for (int k=0; k<NYSTATIONS; k++)
         {
             tau  = double(k)     / double(NYSTATIONS);
@@ -524,19 +508,9 @@ void Wing::computeVolumeInertia(Vector3d &CoG, double &CoGIxx, double &CoGIyy, d
             surf.getSection(tau,  LocalChord,  LocalArea,  Pt);
             surf.getSection(tau1, LocalChord1, LocalArea1, Pt1);
 
-            LocalVolume = (LocalArea+LocalArea1)/2.0 * LocalSpan;
-
             PtC4.x = (Pt.x + Pt1.x)/2.0;
             PtC4.y = (Pt.y + Pt1.y)/2.0;
             PtC4.z = (Pt.z + Pt1.z)/2.0;
-
-            CoGIxxCheck += LocalVolume*rho * ( (PtC4.y-CoG.y)*(PtC4.y-CoG.y) + (PtC4.z-CoG.z)*(PtC4.z-CoG.z) );
-            CoGIyyCheck += LocalVolume*rho * ( (PtC4.x-CoG.x)*(PtC4.x-CoG.x) + (PtC4.z-CoG.z)*(PtC4.z-CoG.z) );
-            CoGIzzCheck += LocalVolume*rho * ( (PtC4.x-CoG.x)*(PtC4.x-CoG.x) + (PtC4.y-CoG.y)*(PtC4.y-CoG.y) );
-            CoGIxzCheck += LocalVolume*rho * ( (PtC4.x-CoG.x)*(PtC4.z-CoG.z) );
-
-            recalcMass   += LocalVolume*rho;
-            recalcVolume += LocalVolume;
 
             for(int l=0; l<NXSTATIONS; l++)
             {
@@ -1026,7 +1000,7 @@ void Wing::computeChords(int NStation, double *chord, double *offset, double *tw
 
 
 /**
-* Copies the gemetrical data from an existing Wing
+* Copies the geometrical data from an existing Wing
 *@param pWing a pointer to the instance of the source Wing object
 */
 void Wing::duplicate(Wing const*pWing)
@@ -1037,7 +1011,6 @@ void Wing::duplicate(Wing const*pWing)
     m_PlanformArea  = pWing->m_PlanformArea;
     m_ProjectedArea = pWing->m_ProjectedArea;
     m_AR            = pWing->m_AR;
-    m_TR            = pWing->m_TR;
     m_GChord        = pWing->m_GChord;
     m_MAChord       = pWing->m_MAChord;
     m_Name      = pWing->m_Name;
@@ -1351,7 +1324,7 @@ double Wing::zPos(double y) const
  * Assumes the array of force vectors has been calculated previously
  * @param bThinSurface true if the calculation has been performed on thin VLM surfaces, false in the case of a 3D-panelanalysis
  */
-void Wing::panelComputeBending(Panel const*pPanel, bool bThinSurface)
+void Wing::panelComputeBending(QVector<Panel> const&pPanel, bool bThinSurface)
 {
     QVector<double> ypos, zpos;
     int coef(0),p(0);
@@ -1420,6 +1393,7 @@ void Wing::panelComputeBending(Panel const*pPanel, bool bThinSurface)
         m_BendingMoment[j] = bm;
     }
 }
+
 
 /**
 * Scales the wing chord-wise so that the root chord is set to the NewChord value
@@ -1573,7 +1547,7 @@ int Wing::VLMPanelTotal(bool bThinSurface) const
 void Wing::panelComputeOnBody(double QInf, double Alpha, double *Cp, double const*Gamma,
                               double &XCP, double &YCP, double &ZCP,
                               double &GCm, double &VCm, double &ICm, double &GRm, double &GYm, double &VYm,double &IYm,
-                              WPolar const*pWPolar, Vector3d const &CoG, Panel const *pPanel)
+                              WPolar const*pWPolar, Vector3d const &CoG, QVector<Panel> const &pPanel)
 
 {
     double CPStrip(0), tau(0), NForce(0), cosa(0), sina(0);
@@ -1752,15 +1726,13 @@ void Wing::panelComputeViscous(double QInf, const WPolar *pWPolar, double &WingV
 {
     QString string, strong, strLength;
 
-    bool bPointOutRe, bPointOutCl, bOutRe, bError;
+    bool bPointOutRe(false), bPointOutCl(false), bOutRe(false), bError(false);
     double tau = 0.0;
     Vector3d PtC4;
 
     OutString.clear();
 
     WingVDrag = 0.0;
-
-    bOutRe = bError = bPointOutRe = bPointOutCl = false;
 
     strLength = "m";
 
@@ -1838,7 +1810,7 @@ void Wing::panelComputeViscous(double QInf, const WPolar *pWPolar, double &WingV
  * @param nPanel the index of the panel
  * @return true if the panel belongs to the wing, false otherwise
  */
-bool Wing::isWingPanel(int nPanel, Panel const *pPanel)
+bool Wing::isWingPanel(int nPanel, QVector<Panel> const &pPanel)
 {
     for(int p=0; p<m_nPanels; p++)
     {
@@ -1853,14 +1825,14 @@ bool Wing::isWingPanel(int nPanel, Panel const *pPanel)
  * @param nNode the index of a node
  * @return true if the node belongs to the wing, false otherwise
  */
-bool Wing::isWingNode(int nNode, Panel const *pPanel)
+bool Wing::isWingNode(int nNode, QVector<Panel> const &panel)
 {
     for(int p=0; p<m_nPanels; p++)
     {
-        if(nNode==pPanel[m_FirstPanelIndex+p].m_iLA) return true;
-        if(nNode==pPanel[m_FirstPanelIndex+p].m_iLB) return true;
-        if(nNode==pPanel[m_FirstPanelIndex+p].m_iTA) return true;
-        if(nNode==pPanel[m_FirstPanelIndex+p].m_iTB) return true;
+        if(nNode==panel[m_FirstPanelIndex+p].m_iLA) return true;
+        if(nNode==panel[m_FirstPanelIndex+p].m_iLB) return true;
+        if(nNode==panel[m_FirstPanelIndex+p].m_iTA) return true;
+        if(nNode==panel[m_FirstPanelIndex+p].m_iTB) return true;
     }
     return false;
 }
@@ -2195,21 +2167,6 @@ bool Wing::serializeWingWPA(QDataStream &ar, bool bIsStoring)
             }
             else     ar >> m_Section[is].m_NYPanels;
         }
-        int total = 0;
-        for (int is=0; is<NPanel; is++)
-        {
-            total += NYPanels(is);
-        }
-
-
-        int spanpos = 0;
-        int vlmpanels = 0;
-        for (int is=0; is<NPanel; is++)
-        {
-            spanpos  += NYPanels(is);
-            vlmpanels +=NXPanels(is)*NYPanels(is);
-        }
-
 
         if (ArchiveFormat >=1005)
         {
@@ -2359,7 +2316,7 @@ bool Wing::serializeWingXFL(QDataStream &ar, bool bIsStoring)
         }
 
         ar << m_VolumeMass;
-        ar << m_PointMass.size();
+        ar << int(m_PointMass.size());
         for(int im=0; im<m_PointMass.size(); im++)
         {
             PointMass const &pm = m_PointMass.at(im);
@@ -2512,10 +2469,10 @@ void Wing::scaleAR(double newAR)
 */
 void Wing::scaleTR(double newTR)
 {
-    if(m_TR<PRECISION)  return;
+    if(taperRatio()<PRECISION)  return;
     if(newTR<PRECISION) return;
 
-    double Ratio = m_TR/newTR;
+    double Ratio = taperRatio()/newTR;
     for (int is=0; is<m_Section.size(); is++)
     {
         double yRel = YPosition(is)/m_PlanformSpan *2.0;
@@ -3163,27 +3120,28 @@ Foil* Wing::foil(QString const &strFoilName)
 */
 double Wing::getInterpolatedVariable(int nVar, Foil *pFoil0, Foil *pFoil1, double Re, double Cl, double Tau, bool &bOutRe, bool &bError)
 {
-    bool IsOutRe = false;
-    bool IsError  = false;
+    bool IsOutRe(false);
+    bool IsError(false);
     bOutRe = false;
     bError = false;
-    double Var0, Var1;
+    double Var0(0), Var1(0);
+
     if(!pFoil0)
     {
         Cl = 0.0;
         Var0 = 0.0;
     }
-    else Var0 = getPlrPointFromCl(pFoil0, Re, Cl,nVar, IsOutRe, IsError);
+    else Var0 = getPlrPointFromCl(pFoil0, Re, Cl, nVar, IsOutRe, IsError);
     if(IsOutRe) bOutRe = true;
     if(IsError) bError = true;
 
 
     if(!pFoil1)
     {
-        Cl = 0.0;
+//        Cl = 0.0;
         Var1 = 0.0;
     }
-    else Var1 = getPlrPointFromCl(pFoil1, Re, Cl,nVar, IsOutRe, IsError);
+    else Var1 = getPlrPointFromCl(pFoil1, Re, Cl, nVar, IsOutRe, IsError);
     if(IsOutRe) bOutRe = true;
     if(IsError) bError = true;
 
@@ -3192,8 +3150,6 @@ double Wing::getInterpolatedVariable(int nVar, Foil *pFoil0, Foil *pFoil1, doubl
 
     return ((1-Tau) * Var0 + Tau * Var1);
 }
-
-
 
 
 /**
@@ -3221,12 +3177,11 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
     7, 8 = m_HMom, m_Cpmn;
     9,10 = m_ClCd, m_Cl32Cd;
 */
-    double Clmin=0, Clmax=0;
-    Polar *pPolar;
-    double Var1=0, Var2=0, u=0, dist=0;
-    Var1 = Var2 = u = dist = 0.0;
-    int pt=0;
-    int n=0;
+    double Clmin(0), Clmax(0);
+    Polar *pPolar(nullptr);
+    double Var1(0), Var2(0), u(0), dist(0);
+    int pt(0);
+    int n(0);
 
     bOutRe = false;
     bError = false;
@@ -3269,7 +3224,7 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
             {
                 bOutRe = true;
                 //interpolate Cl on this polar
-                QVector<double> const &pX = pPolar->getPlrVariable(PlrVar);
+                QVector<double> const &pX = pPolar->getVariable(PlrVar);
                 int size = pPolar->m_Cl.size();
                 if(Cl < pPolar->m_Cl[0])
                 {
@@ -3343,7 +3298,7 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
             return 0.000;
         }
 
-        QVector<double> const &pX = pPolar1->getPlrVariable(PlrVar);
+        QVector<double> const &pX = pPolar1->getVariable(PlrVar);
         if(Cl < pPolar1->m_Cl[0])       return pX.front();
         if(Cl > pPolar1->m_Cl[size-1]) return pX.back();
         for (int i=0; i<size-1; i++)
@@ -3384,7 +3339,7 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
             return 0.000;
         }
 
-        QVector<double> const &pX = pPolar1->getPlrVariable(PlrVar);
+        QVector<double> const &pX = pPolar1->getVariable(PlrVar);
         pPolar1->getClLimits(Clmin, Clmax);
         if(Cl < Clmin)
         {
@@ -3462,7 +3417,7 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
             return 0.000;
         }
 
-        QVector<double> const &pX2 = pPolar2->getPlrVariable(PlrVar);
+        QVector<double> const &pX2 = pPolar2->getVariable(PlrVar);
         pPolar2->getClLimits(Clmin, Clmax);
 
         if(Cl < Clmin)

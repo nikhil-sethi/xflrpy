@@ -74,8 +74,8 @@ class XflScriptExec : public QObject
         void runFoilAnalyses();
 
     signals:
-        void msgUpdate(const QString &msg) const;
-        void cancelTask() const;
+        void msgUpdate(const QString &msg);
+        void cancelTask();
 
     public slots:
         void onCancel();

@@ -237,10 +237,10 @@ QColor ColorGradDlg::colour(float tau) const
         double fi  = double(i)/df;
         if(tau<fi)
         {
-            double hue0 = std::max(0.0, m_Clr.at(i-1).hueF()); // hue returns -1 if grey
+            double hue0 = qMax(0.0, m_Clr.at(i-1).hueF()); // hue returns -1 if grey
             double sat0 = m_Clr.at(i-1).saturationF();
             double val0 = m_Clr.at(i-1).valueF();
-            double hue1 = std::max(0.0, m_Clr.at(i).hueF());
+            double hue1 = qMax(0.0, m_Clr.at(i).hueF());
             double sat1 = m_Clr.at(i).saturationF();
             double val1 = m_Clr.at(i).valueF();
 

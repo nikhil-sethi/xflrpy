@@ -1,7 +1,7 @@
 /****************************************************************************
 
     GraphTileWidget Class
-        Copyright (C) 2015 André Deperrois
+        Copyright (C) André Deperrois
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,16 +20,12 @@
 *****************************************************************************/
 
 
-#ifndef GRAPHTILEWIDGET_H
-#define GRAPHTILEWIDGET_H
+#pragma once
 
 #include <QWidget>
 #include <QSplitter>
 
 #include <xflgraph/graph.h>
-
-
-#include <xflcore/core_enums.h>
 #include <xflcore/core_enums.h>
 
 class LegendWt;
@@ -40,77 +36,75 @@ class Graph;
 
 class GraphTileWidget : public QWidget
 {
-    friend class XDirectTileWidget;
-    friend class MiarexTileWidget;
+        friend class XDirectTileWidget;
+        friend class MiarexTileWidget;
 
-    Q_OBJECT
-public:
-    GraphTileWidget(QWidget *parent = nullptr);
-    virtual ~GraphTileWidget();
+        Q_OBJECT
+    public:
+        GraphTileWidget(QWidget *parent = nullptr);
 
-    Graph *graph(int iGraph);
-    GraphWt *graphWidget(int iGraph);
+        Graph *graph(int iGraph);
+        GraphWt *graphWidget(int iGraph);
 
-    xfl::enumApp xflr5App() const {return m_xflr5App;}
+        xfl::enumApp xflr5App() const {return m_xflr5App;}
 
-    int graphWidgetCount() const {return m_GraphWidget.count();}
-    int activeGraphIndex() const {return m_iActiveGraphWidget;}
+        int graphWidgetCount() const {return m_GraphWidget.count();}
+        int activeGraphIndex() const {return m_iActiveGraphWidget;}
 
-    void keyPressEvent(QKeyEvent *event);
-    void contextMenuEvent (QContextMenuEvent *event);
-    void showEvent(QShowEvent *event);
+        void keyPressEvent(QKeyEvent *event) override;
+        void contextMenuEvent (QContextMenuEvent *event) override;
 
 
-    virtual void setGraphList(QVector<Graph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation =Qt::Horizontal);
-    virtual void connectSignals() = 0;
+        virtual void setGraphList(QVector<Graph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation =Qt::Horizontal);
+        virtual void connectSignals() = 0;
 
 
-    GraphWt *graphWidget(Graph *pGraph);
-    Graph *activeGraph();
-    GraphWt *activeGraphWidget();
+        GraphWt *graphWidget(Graph *pGraph);
+        Graph *activeGraph();
+        GraphWt *activeGraphWidget();
 
-private:
-    virtual void adjustLayout() = 0;
-    virtual void setupMainLayout() = 0;
-
-
-public slots:
-    void onResetCurves(Graph *pGraph = nullptr);
-
-    void onSingleGraph();
-    void onAllGraphSettings();
-    void onAllGraphScales();
+    private:
+        virtual void adjustLayout() = 0;
+        virtual void setupMainLayout() = 0;
 
 
-    void onTwoGraphs();
-    void onFourGraphs();
-    void onAllGraphs();
-    void onCurGraphSettings();
-    void onResetCurGraphScales();
-    void onExportCurGraph();
+    public slots:
+        void onResetCurves(Graph *pGraph = nullptr);
+
+        void onSingleGraph();
+        void onAllGraphSettings();
+        void onAllGraphScales();
 
 
-public:
-    static MainFrame *s_pMainFrame;   /**< A void pointer to the instance of the MainFrame object. */
-    static Miarex *s_pMiarex;      /**< A void pointer to the instance of the QMiarex object. */
-    static XDirect *s_pXDirect;     /**< A void pointer to the instance of the QXDirect object. */
+        void onTwoGraphs();
+        void onFourGraphs();
+        void onAllGraphs();
+        void onCurGraphSettings();
+        void onResetCurGraphScales();
+        void onExportCurGraph();
 
 
-private:
-    QVector<GraphWt*>m_GraphWidget;
-    LegendWt *m_pLegendWidget;
-    QSplitter *m_pMainSplitter;
-
-    int m_nGraphWidgets;
-    int m_iActiveGraphWidget;
-
-    int m_iPOppIndex, m_iWPolarIndex, m_iStabPolarIndex, m_iStabTimeIndex;
+    public:
+        static MainFrame *s_pMainFrame;   /**< A void pointer to the instance of the MainFrame object. */
+        static Miarex *s_pMiarex;      /**< A void pointer to the instance of the QMiarex object. */
+        static XDirect *s_pXDirect;     /**< A void pointer to the instance of the QXDirect object. */
 
 
-    xfl::enumApp m_xflr5App;
-    xfl::enumMiarexViews m_MiarexView;
+    private:
+        QVector<GraphWt*>m_GraphWidget;
+        LegendWt *m_pLegendWidget;
+        QSplitter *m_pMainSplitter;
 
-    Qt::Orientation m_SingleGraphOrientation;
+        int m_nGraphWidgets;
+        int m_iActiveGraphWidget;
+
+        int m_iPOppIndex, m_iWPolarIndex, m_iStabPolarIndex, m_iStabTimeIndex;
+
+
+        xfl::enumApp m_xflr5App;
+        xfl::enumMiarexViews m_MiarexView;
+
+        Qt::Orientation m_SingleGraphOrientation;
 };
 
-#endif // GRAPHTILEWIDGET_H
+

@@ -88,7 +88,7 @@ class Units : public QWidget
 
 
     private slots:
-        void onSelChanged(const QString &);
+        void onSelChanged();
 
     private:
         QComboBox  *m_pcbMoment;

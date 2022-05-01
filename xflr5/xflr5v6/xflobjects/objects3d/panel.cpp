@@ -270,7 +270,7 @@ a(ei-fh) - b(di-fg) + c(dh-eg)      (dh-eg)   (bg-ah)   (ae-bd)*/
 *@param  V the global coordinates
 *@param  V the calculated local coordinates
 */
-void Panel::globalToLocal(Vector3d const &V, Vector3d &VLocal)
+void Panel::globalToLocal(Vector3d const &V, Vector3d &VLocal) const
 {
     VLocal.x = lij[0]*V.x +lij[1]*V.y +lij[2]*V.z;
     VLocal.y = lij[3]*V.x +lij[4]*V.y +lij[5]*V.z;
@@ -284,7 +284,7 @@ void Panel::globalToLocal(Vector3d const &V, Vector3d &VLocal)
 *@param  V the global coordinates
 *@return The Vector3d holding the local coordinates
 */
-Vector3d Panel::globalToLocal(Vector3d const &V)
+Vector3d Panel::globalToLocal(Vector3d const &V) const
 {
     Vector3d L;
     L.x = lij[0]*V.x +lij[1]*V.y +lij[2]*V.z;
@@ -302,7 +302,7 @@ Vector3d Panel::globalToLocal(Vector3d const &V)
 *@param  Vz the global z-coordinate
 *@return The Vector3d holding the local coordinates
 */
-Vector3d Panel::globalToLocal(double const &Vx, double const &Vy, double const &Vz)
+Vector3d Panel::globalToLocal(double const &Vx, double const &Vy, double const &Vz) const
 {
     Vector3d L;
     L.x = lij[0]*Vx +lij[1]*Vy +lij[2]*Vz;
@@ -317,7 +317,7 @@ Vector3d Panel::globalToLocal(double const &Vx, double const &Vy, double const &
 *@param  V the locaal coordinates
 *@return The Vector3d holding the global coordinates
 */
-Vector3d Panel::localToGlobal(Vector3d const &V)
+Vector3d Panel::localToGlobal(Vector3d const &V) const
 {
     Vector3d L;
     L.x = V.x * l.x + V.y * m.x + V.z * Normal.x;
@@ -574,13 +574,13 @@ void Panel::sourceNASA4023(Vector3d const &C,  Vector3d &V, double &phi) const
         if(m_pR[i]->isSame(*m_pR[i+1]))
         {
             //no contribution from this side
-            CJKi = 0.0;
+//            CJKi = 0.0;
         }
         else if ((((h.x*h.x+h.y*h.y+h.z*h.z)/(s.x*s.x+s.y*s.y+s.z*s.z) <= CoreSize*CoreSize) && a.x*s.x+a.y*s.y+a.z*s.z>=0.0 && b.x*s.x+b.y*s.y+b.z*s.z<=0.0) ||
                  A < CoreSize || B < CoreSize)
         {
             //if lying on the panel's side... no contribution
-            CJKi = 0.0;
+//            CJKi = 0.0;
         }
         else
         {

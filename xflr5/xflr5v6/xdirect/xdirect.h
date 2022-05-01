@@ -154,7 +154,6 @@ class XDirect : public QWidget
         void onImportJavaFoilPolar();
         void onImportXFoilPolars();
         void onImportXMLAnalysis();
-        void onInputChanged();
         void onInterpolateFoils();
         void onMultiThreadedBatchAnalysis();
         void onNacaFoils();
@@ -184,24 +183,23 @@ class XDirect : public QWidget
         void onStoreOpp();
         void onViscous();
         void onXFoilAdvanced();
-
+        void onTaskFinished(Polar *pPolar);
 
     private:
-        void keyPressEvent(QKeyEvent *event);
-        void keyReleaseEvent(QKeyEvent *event);
+        void keyPressEvent(QKeyEvent *pEvent);
+        void keyReleaseEvent(QKeyEvent *pEvent);
 
         void setControls();
         void connectSignals();
         void createOppCurves(OpPoint *pOpp=nullptr);
         void createPolarCurves();
-        void fillPolarCurve(Curve *pCurve, Polar *pPolar, int XVar, int YVar);
+        void fillPolarCurve(Curve *pCurve, Polar *pPolar, int XVar, int YVar) const;
         void fillOppCurve(OpPoint *pOpp, Graph *pGraph, Curve *pCurve, bool bInviscid=false);
 
         void importAnalysisFromXML(QFile &xmlFile);
         Polar *importXFoilPolar(QFile &txtFile);
 
         void loadSettings(QSettings &settings);
-        void readParams();
         Foil *addNewFoil(Foil *pFoil);
         void renameFoil(Foil *pFoil);
         void saveSettings(QSettings &settings);
@@ -214,8 +212,6 @@ class XDirect : public QWidget
         void setupLayout();
         void stopAnimate();
         void updateCurveStyle(const LineStyle &ls);
-
-        QVector<double> * getVariable(Polar *pPolar, int iVar);
 
         Foil *setFoil(Foil* pFoil=nullptr);
         Polar *setPolar(Polar *pPolar=nullptr);
@@ -278,10 +274,6 @@ class XDirect : public QWidget
         int m_iPlrGraph;           /**< defines whch polar graph is selected if m_iPlrView=1 */
         xfl::enumGraphView m_iPlrView;  /**< defines the number of graphs to be displayed in the polar view */
 
-        QVector<Foil*> *m_poaFoil;    /**< pointer to the foil object array */
-        QVector<Polar*> *m_poaPolar;  /**< pointer to the polar object array */
-        QVector<OpPoint*> *m_poaOpp;  /**< pointer to the OpPoint object array */
-
         Graph m_CpGraph;           /**< the Cp graph for the OpPoint view */
         QVector<Graph*> m_PlrGraph;  /**< the array of pointer to the 5 Polar graphs */
 
@@ -289,7 +281,6 @@ class XDirect : public QWidget
 
         XFoil m_XFoil;                /**< the unique instance of the XFoil object */
 
-        static double s_Re, s_ReMax, s_ReDelta;
         static bool s_bViscous;           /**< true if performing a viscous calculation, false if inviscid */
         static bool s_bAlpha;             /**< true if performing an analysis based on aoa, false if based on Cl */
         static bool s_bInitBL;            /**< true if the boundary layer should be initialized for the next xfoil calculation */

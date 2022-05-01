@@ -8,7 +8,7 @@
 
 
 
-#include <QWidget>
+#include <QOpenGLWidget>
 #include <QDialog>
 #include <QRadioButton>
 #include <QComboBox>
@@ -57,7 +57,7 @@ class OpenGlDlg : public QDialog
         void readFormat(QSurfaceFormat &fmt);
         void readVersion(QPair<int, int> &oglversion);
 
-        gl3dTestGLView *getView(int iView);
+        QOpenGLWidget *getView(int iView);
 
         void printFormat(const QSurfaceFormat &format, QString &log, bool bFull=true);
         void setupLayout();
@@ -84,7 +84,7 @@ class OpenGlDlg : public QDialog
 
         QStackedWidget *m_pStackWt;
 
-        gl3dTestGLView *m_pgl3dTestView;
+        QOpenGLWidget *m_pglTestView;
 
         QSplitter *m_pHSplitter;
 

@@ -153,21 +153,21 @@ class Plane : public XflObject
         void setCoGIxz(double ixz) {m_CoGIxx=ixz;}
 
 
-        double mac()           const {return m_Wing[0].m_MAChord;}
-        double span()          const {return m_Wing[0].m_PlanformSpan;}
+        double mac()           const {return m_Wing[0].MAC();}
+//        double span()          const {return m_Wing[0].m_PlanformSpan;}
         double rootChord()     const {return m_Wing[0].rootChord();}
         double tipChord()      const {return m_Wing[0].tipChord();}
 
-        double projectedArea() const {return m_Wing[0].m_ProjectedArea;}
-        double planformArea()  const {return m_Wing[0].m_PlanformArea;}
+        double projectedArea() const {return m_Wing[0].projectedArea();}
+        double planformArea()  const {return m_Wing[0].planformArea();}
 
-        double projectedSpan() const {return m_Wing[0].m_ProjectedSpan;}
-        double planformSpan()  const {return m_Wing[0].m_PlanformSpan;}
+        double projectedSpan() const {return m_Wing[0].projectedSpan();}
+        double planformSpan()  const {return m_Wing[0].planformSpan();}
 
         bool isWing() const {return !m_bBiplane&& !m_bStab && !m_bFin && !m_bBody;}
 
-        double aspectRatio()  const {return m_Wing[0].m_AR;}
-        double taperRatio()   const {return m_Wing[0].m_TR;}
+        double aspectRatio()  const {return m_Wing[0].aspectRatio();}
+        double taperRatio()   const {return m_Wing[0].taperRatio();}
 
         int spanStationCount();
 

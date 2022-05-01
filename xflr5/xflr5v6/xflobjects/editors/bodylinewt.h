@@ -43,7 +43,7 @@ class BodyLineWt : public Section2dWt
         int highlightPoint(Vector3d real) override;
         int selectPoint(Vector3d real) override;
         void dragSelectedPoint(double x, double y) override;
-        void createActions() override;
+        void createActions();
 
     signals:
         void frameSelChanged();

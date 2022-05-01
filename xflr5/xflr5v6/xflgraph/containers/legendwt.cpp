@@ -59,15 +59,10 @@ LegendWt::LegendWt(QWidget *pParent) : QWidget(pParent)
 }
 
 
-LegendWt::~LegendWt()
-{
-}
-
 void LegendWt::setMiarexView(xfl::enumMiarexViews eMiarexView)
 {
     m_MiarexView = eMiarexView;
 }
-
 
 
 void LegendWt::paintEvent(QPaintEvent *)
@@ -110,13 +105,10 @@ void LegendWt::paintEvent(QPaintEvent *)
 }
 
 
-
 QSize LegendWt::sizeHint() const
 {
     return QSize(150,150);
 }
-
-
 
 
 /**
@@ -254,7 +246,6 @@ void LegendWt::drawWPolarLegend(QPainter &painter, QPointF place, int bottom)
     }
     painter.restore();
 }
-
 
 
 /**
@@ -424,8 +415,6 @@ void LegendWt::drawCpLegend(QPainter &painter, Graph const *pGraph, QPointF plac
 {
     painter.save();
 
-    int i, ny;
-    Curve const *pCurve=nullptr;
     QString strong;
 
     double LegendSize = 30;
@@ -436,11 +425,11 @@ void LegendWt::drawCpLegend(QPainter &painter, Graph const *pGraph, QPointF plac
     QPen CurvePen;
     QPen TextPen(DisplayOptions::textColor());
 
-    ny=0;
+    int ny=0;
 
-    for (i=0; i<pGraph->curveCount(); i++)
+    for (int i=0; i<pGraph->curveCount(); i++)
     {
-        pCurve = pGraph->curveAt(i);
+        Curve const *pCurve = pGraph->curveAt(i);
         if(pCurve->size())
         {
             ny++;
@@ -488,7 +477,6 @@ void LegendWt::drawStabTimeLegend(QPainter &painter, Graph const *pGraph, QPoint
 {
     painter.save();
 
-    Curve const *pCurve=nullptr;
     QString strong;
 
     double LegendSize = 30;
@@ -503,7 +491,7 @@ void LegendWt::drawStabTimeLegend(QPainter &painter, Graph const *pGraph, QPoint
 
     for (int i=0; i<pGraph->curveCount(); i++)
     {
-        pCurve = pGraph->curveAt(i);
+        Curve const *pCurve = pGraph->curveAt(i);
         if(pCurve->size() && pCurve->isVisible())
         {
             ny++;
@@ -564,14 +552,13 @@ void LegendWt::drawPolarLegend(QPainter &painter, QPointF place, int bottom)
     TextPen.setWidth(1);
 
     QStringList str; // we need to make an inventory of foils
-    Polar * pPolar=nullptr;
-    Foil *pFoil=nullptr;
+
     for (int j=0; j<Objects2d::foilCount(); j++)
     {
-        pFoil = Objects2d::foilAt(j);
+        Foil *pFoil = Objects2d::foilAt(j);
         for (int i=0; i<Objects2d::polarCount(); i++)
         {
-            pPolar = Objects2d::polarAt(i);
+            Polar *pPolar = Objects2d::polarAt(i);
             if (pPolar->foilName() == pFoil->name() && pPolar->m_Alpha.size() && pPolar->isVisible())
             {
                 str.append(pFoil->name());
@@ -595,7 +582,7 @@ void LegendWt::drawPolarLegend(QPainter &painter, QPointF place, int bottom)
         int FoilPlrs = 0;
         for (int l=0; l<Objects2d::polarCount(); l++)
         {
-            pPolar = Objects2d::polarAt(l);
+            Polar *pPolar = Objects2d::polarAt(l);
             if (pPolar->m_Alpha.size() &&
                     pPolar->polarName().length() &&
                     pPolar->isVisible() &&
@@ -624,7 +611,7 @@ void LegendWt::drawPolarLegend(QPainter &painter, QPointF place, int bottom)
         }
         for (int nc=0; nc<Objects2d::polarCount(); nc++)
         {
-            pPolar = Objects2d::polarAt(nc);
+            Polar *pPolar = Objects2d::polarAt(nc);
             if(str.at(k) == pPolar->foilName())
             {
                 if (pPolar->m_Alpha.size() && pPolar->polarName().length() && pPolar->isVisible())
@@ -659,18 +646,18 @@ void LegendWt::drawPolarLegend(QPainter &painter, QPointF place, int bottom)
 }
 
 
-void LegendWt::keyPressEvent(QKeyEvent *event)
+void LegendWt::keyPressEvent(QKeyEvent *pEvent)
 {
-    switch (event->key())
+    switch (pEvent->key())
     {
         case Qt::Key_R:
         {
             m_LegendPosition = QPointF(11.0,11.0);
             update();
-            event->accept();
+            pEvent->accept();
             break;
         }
-        default:event->ignore();
+        default:pEvent->ignore();
     }
 }
 

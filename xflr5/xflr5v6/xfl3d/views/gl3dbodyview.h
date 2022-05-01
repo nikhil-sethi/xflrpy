@@ -48,9 +48,11 @@ class gl3dBodyView : public gl3dXflView
     public:
         Body *m_pBody;
 
+        QOpenGLBuffer m_vboNormals;
+
         bool m_bResetglFrameHighlight;
         bool m_bResetglBody;
-
+        bool m_bNormals;
 };
 
 

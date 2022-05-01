@@ -11,7 +11,7 @@
 #include <QFormLayout>
 #include <QPushButton>
 
-#include "gl3dattractor.h"
+#include "gl3dlorenz.h"
 
 #include <xflcore/trace.h>
 #include <xflwidgets/customwts/intedit.h>
@@ -20,19 +20,19 @@
 #include <xflwidgets/line/linemenu.h>
 #include <xflwidgets/wt_globals.h>
 
-Vector3d gl3dAttractor::s_P = Vector3d(13, 15, 30);
-double gl3dAttractor::s_Sigma = 10.0;
-double gl3dAttractor::s_Beta = 8.0/3.0;
-double gl3dAttractor::s_Rho = 28.0;
+Vector3d gl3dLorenz::s_P = Vector3d(13, 15, 30);
+double gl3dLorenz::s_Sigma = 10.0;
+double gl3dLorenz::s_Beta = 8.0/3.0;
+double gl3dLorenz::s_Rho = 28.0;
 
-int gl3dAttractor::s_RefreshInterval = 16; //ms = 1/60Hz = usual monitor refresh rate
+int gl3dLorenz::s_RefreshInterval = 16; //ms = 1/60Hz = usual monitor refresh rate
 
-int gl3dAttractor::s_MaxPts = 5000;
-double gl3dAttractor::s_dt = 0.003;
-LineStyle gl3dAttractor::s_ls = {true, Line::SOLID, 2, QColor(205,92,92), Line::NOSYMBOL, QString()};
+int gl3dLorenz::s_MaxPts = 5000;
+double gl3dLorenz::s_dt = 0.003;
+LineStyle gl3dLorenz::s_ls = {true, Line::SOLID, 2, QColor(205,92,92), Line::NOSYMBOL, QString()};
 
 
-gl3dAttractor::gl3dAttractor(QWidget *pParent) : gl3dTestGLView (pParent)
+gl3dLorenz::gl3dLorenz(QWidget *pParent) : gl3dTestGLView (pParent)
 {
     setWindowTitle("Lorenz attractor");
 
@@ -94,9 +94,9 @@ gl3dAttractor::gl3dAttractor(QWidget *pParent) : gl3dTestGLView (pParent)
                     m_plbStyle->setPalette(palette);
                     connect(m_plbStyle, SIGNAL(clickedLB(LineStyle)), SLOT(onLineStyle(LineStyle)));
 
-                    QLabel *pLabSigma     = new QLabel(QString(QChar(963))+"=");    pLabSigma->setPalette(palette);
-                    QLabel *pLabRho       = new QLabel(QString(QChar(961))+"=");    pLabRho->setPalette(palette);
-                    QLabel *pLabBeta      = new QLabel(QString(QChar(946))+"=");    pLabBeta->setPalette(palette);
+                    QLabel *pLabSigma     = new QLabel("&sigma;=");    pLabSigma->setPalette(palette);   pLabSigma->setTextFormat(Qt::RichText);
+                    QLabel *pLabRho       = new QLabel("&rho;=");      pLabRho->setPalette(palette);     pLabRho->setTextFormat(Qt::RichText);
+                    QLabel *pLabBeta      = new QLabel("&beta;=");     pLabBeta->setPalette(palette);    pLabBeta->setTextFormat(Qt::RichText);
                     QLabel *pLabX0        = new QLabel("X<sub>0</sub>=");           pLabX0->setPalette(palette);
                     QLabel *pLabY0        = new QLabel("Y<sub>0</sub>=");           pLabY0->setPalette(palette);
                     QLabel *pLabZ0        = new QLabel("Z<sub>0</sub>=");           pLabZ0->setPalette(palette);
@@ -149,12 +149,12 @@ gl3dAttractor::gl3dAttractor(QWidget *pParent) : gl3dTestGLView (pParent)
 
     onRestart();
 
-    setReferenceLength(150);
+    setReferenceLength(100);
     reset3dScale();
 }
 
 
-gl3dAttractor::~gl3dAttractor()
+gl3dLorenz::~gl3dLorenz()
 {
     if(m_pTimer)
     {
@@ -165,7 +165,7 @@ gl3dAttractor::~gl3dAttractor()
 }
 
 
-void gl3dAttractor::keyPressEvent(QKeyEvent *pEvent)
+void gl3dLorenz::keyPressEvent(QKeyEvent *pEvent)
 {
     switch (pEvent->key())
     {
@@ -182,9 +182,9 @@ void gl3dAttractor::keyPressEvent(QKeyEvent *pEvent)
 }
 
 
-void gl3dAttractor::loadSettings(QSettings &settings)
+void gl3dLorenz::loadSettings(QSettings &settings)
 {
-    settings.beginGroup("gl3dAttractor");
+    settings.beginGroup("gl3dLorenz");
     {
         s_P.x             = settings.value("X0", s_P.x).toDouble();
         s_P.y             = settings.value("Y0", s_P.y).toDouble();
@@ -198,9 +198,9 @@ void gl3dAttractor::loadSettings(QSettings &settings)
 }
 
 
-void gl3dAttractor::saveSettings(QSettings &settings)
+void gl3dLorenz::saveSettings(QSettings &settings)
 {
-    settings.beginGroup("gl3dAttractor");
+    settings.beginGroup("gl3dLorenz");
     {
         settings.setValue("X0", s_P.x);
         settings.setValue("Y0", s_P.y);
@@ -217,7 +217,7 @@ void gl3dAttractor::saveSettings(QSettings &settings)
 /**
  * The user has changed the color of the current curve
  */
-void gl3dAttractor::onLineStyle(LineStyle)
+void gl3dLorenz::onLineStyle(LineStyle)
 {
     LineMenu *pLineMenu = new LineMenu(nullptr, false);
     pLineMenu->initMenu(s_ls);
@@ -227,7 +227,7 @@ void gl3dAttractor::onLineStyle(LineStyle)
 }
 
 
-void gl3dAttractor::onResetDefaults()
+void gl3dLorenz::onResetDefaults()
 {
     s_P = Vector3d(13, 15, 30);
     m_pdeX->setValue(s_P.x);
@@ -252,7 +252,7 @@ void gl3dAttractor::onResetDefaults()
 }
 
 
-void gl3dAttractor::glRenderView()
+void gl3dLorenz::glRenderView()
 {
     paintSphere(s_P, 0.5f, s_ls.m_Color, true);
 
@@ -273,12 +273,12 @@ void gl3dAttractor::glRenderView()
 }
 
 
-void gl3dAttractor::glMake3dObjects()
+void gl3dLorenz::glMake3dObjects()
 {
     if(m_bResetAttractor)
     {
         int buffersize = (s_MaxPts-1)  // NSegments
-                         *2*(3+4);     // 2 vertices * (3 coordinates+ 4 color components)
+                         *2*(4+4);     // 2 vertices * (4 coordinates+ 4 color components)
         QVector<float> buffer(buffersize);
 
         int ip0(0), ip1(0);
@@ -292,6 +292,7 @@ void gl3dAttractor::glMake3dObjects()
             buffer[iv++] = m_Trace[ip0].xf();
             buffer[iv++] = m_Trace[ip0].yf();
             buffer[iv++] = m_Trace[ip0].zf();
+            buffer[iv++] = 1.0f;
 
             buffer[iv++] = s_ls.m_Color.redF();
             buffer[iv++] = s_ls.m_Color.greenF();
@@ -301,6 +302,7 @@ void gl3dAttractor::glMake3dObjects()
             buffer[iv++] = m_Trace[ip1].xf();
             buffer[iv++] = m_Trace[ip1].yf();
             buffer[iv++] = m_Trace[ip1].zf();
+            buffer[iv++] = 1.0f;
 
             buffer[iv++] = s_ls.m_Color.redF();
             buffer[iv++] = s_ls.m_Color.greenF();
@@ -321,12 +323,12 @@ void gl3dAttractor::glMake3dObjects()
     }
 }
 
-double gl3dAttractor::f(double x, double y, double )  const {return s_Sigma*(y-x);}
-double gl3dAttractor::g(double x, double y, double z) const {return x*(s_Rho-z)-y;}
-double gl3dAttractor::h(double x, double y, double z) const {return x*y-s_Beta*z;}
+double gl3dLorenz::f(double x, double y, double )  const {return s_Sigma*(y-x);}
+double gl3dLorenz::g(double x, double y, double z) const {return x*(s_Rho-z)-y;}
+double gl3dLorenz::h(double x, double y, double z) const {return x*y-s_Beta*z;}
 
 
-void gl3dAttractor::moveIt()
+void gl3dLorenz::moveIt()
 {
     s_dt = m_pdeDt->value();
     s_RefreshInterval = m_pieIntervalms->value();
@@ -374,7 +376,7 @@ void gl3dAttractor::moveIt()
 }
 
 
-void gl3dAttractor::onRestart()
+void gl3dLorenz::onRestart()
 {
     s_P = Vector3d(m_pdeX->value(), m_pdeY->value(), m_pdeZ->value());
 

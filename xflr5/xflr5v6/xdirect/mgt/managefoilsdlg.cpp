@@ -49,10 +49,10 @@ ManageFoilsDlg::ManageFoilsDlg(QWidget *pParent) : QDialog(pParent)
     m_pFoil = nullptr;
     setupLayout();
 
-    connect(m_ppbDelete, SIGNAL(clicked()),this, SLOT(onDelete()));
-    connect(m_ppbRename, SIGNAL(clicked()),this, SLOT(onRename()));
-    connect(m_ppbExport, SIGNAL(clicked()),this, SLOT(onExport()));
-    connect(m_ptvFoils, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onDoubleClickTable(const QModelIndex &)));
+    connect(m_ppbDelete, SIGNAL(clicked()), SLOT(onDelete()));
+    connect(m_ppbRename, SIGNAL(clicked()), SLOT(onRename()));
+    connect(m_ppbExport, SIGNAL(clicked()), SLOT(onExport()));
+    connect(m_ptvFoils,  SIGNAL(doubleClicked(QModelIndex&)),  SLOT(onDoubleClickTable(QModelIndex&)));
 }
 
 

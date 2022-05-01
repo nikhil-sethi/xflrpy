@@ -209,10 +209,10 @@ Foil *xfl::readFoilFile(QFile &xFoilFile)
     QString tempStr;
     QString FoilName;
 
-    Foil* pFoil = nullptr;
-    int pos=0;
-    double x=0, y=0, z=0, area=0;
-    double xp=0, yp=0;
+    Foil* pFoil(nullptr);
+    int pos(0);
+    double x(0), y(0), z(0), area(0);
+    double xp(0), yp(0);
 
     QTextStream in(&xFoilFile);
 
@@ -253,8 +253,8 @@ Foil *xfl::readFoilFile(QFile &xFoilFile)
                 pFoil->m_xb[0] = x;
                 pFoil->m_yb[0] = y;
                 pFoil->m_nb=1;
-                xp = x;
-                yp = y;
+//                xp = x;
+//                yp = y;
             }
         }
         else FoilName = strong;
@@ -879,7 +879,7 @@ bool xfl::serializeFoil(Foil *pFoil, QDataStream &ar, bool bIsStoring)
 
 
 /**
- * Loads or saves the data of this polar to a binary file
+ * Loads or saves the data of this polar to a legacy binary file
  * @param ar the QDataStream object from/to which the data should be serialized
  * @param bIsStoring true if saving the data, false if loading
  * @return true if the operation was successful, false otherwise
@@ -910,7 +910,7 @@ bool xfl::serializePolar(Polar *pPolar, QDataStream &ar, bool bIsStoring)
         else if(pPolar->m_PolarType==xfl::FIXEDAOAPOLAR)    ar<<4;
         else                                                ar<<1;
 
-        ar << pPolar->m_MaType << pPolar->m_ReType;
+        ar << pPolar->MaType() << pPolar->ReType();  // redundant
         ar << int(pPolar->m_Reynolds) << float(pPolar->m_Mach);
         ar << float(pPolar->m_ASpec);
         ar << n << float(pPolar->m_NCrit);
@@ -922,7 +922,7 @@ bool xfl::serializePolar(Polar *pPolar, QDataStream &ar, bool bIsStoring)
         ar<<pPolar->m_Symbol;*/
         pPolar->theStyle().serializeXfl(ar, bIsStoring);
 
-        for (i=0; i< pPolar->m_Alpha.size(); i++){
+        for (i=0; i<pPolar->m_Alpha.size(); i++){
             ar << float(pPolar->m_Alpha[i]) << float(pPolar->m_Cd[i]) ;
             ar << float(pPolar->m_Cdp[i])   << float(pPolar->m_Cl[i]) << float(pPolar->m_Cm[i]);
             ar << float(pPolar->m_XTr1[i])  << float(pPolar->m_XTr2[i]);
@@ -964,16 +964,7 @@ bool xfl::serializePolar(Polar *pPolar, QDataStream &ar, bool bIsStoring)
         else          pPolar->m_PolarType = xfl::FIXEDSPEEDPOLAR;
 
 
-        ar >> pPolar->m_MaType >> pPolar->m_ReType;
-
-        if(pPolar->m_MaType!=1 && pPolar->m_MaType!=2 && pPolar->m_MaType!=3)
-        {
-            return false;
-        }
-        if(pPolar->m_ReType!=1 && pPolar->m_ReType!=2 && pPolar->m_ReType!=3)
-        {
-            return false;
-        }
+        ar >> k >> k; // formerly MaType and ReType
 
         ar >> iRe;
         pPolar->m_Reynolds = double(iRe);
@@ -1045,7 +1036,8 @@ bool xfl::serializePolar(Polar *pPolar, QDataStream &ar, bool bIsStoring)
             }
             if(!bExists)
             {
-                pPolar->addPoint(double(Alpha), double(Cd), double(Cdp), double(Cl), double(Cm), double(XTr1), double(XTr2), double(HMom), double(Cpmn), double(Re), double(XCp));
+                pPolar->addPoint(double(Alpha), double(Cd), double(Cdp), double(Cl), double(Cm), double(XTr1), double(XTr2),
+                                 double(HMom), 0.0, 0.0, double(Cpmn), double(Re), double(XCp));
             }
         }
         if(ArchiveFormat>=1003)
@@ -1053,3 +1045,106 @@ bool xfl::serializePolar(Polar *pPolar, QDataStream &ar, bool bIsStoring)
     }
     return true;
 }
+
+
+
+Vector3d xfl::windDirection(double alpha, double beta)
+{
+/*  Using AVL convention
+    | x |          | cos(b) sin(b)    | | x |
+    | y |       =  |-sin(b) cos(b)    | | y |
+    | z |_wind     |                1 | | z |
+
+                   | cos(b)cos(a)      sin(b)    cos(b)sin(a)| | X |
+                =  |-sin(b)cos(a)      cos(b)   -sin(b)sin(a)| | Y |
+                   |      -sin(a)        0             cos(a)| | Z |
+
+    | X |	       | cos(b)cos(a)   -sin(b)cos(a)     -sin(a)| | x |
+    | Y | 		=  | sin(b)             cos(b)            0  | | y |
+    | Z |		   | cos(b)sin(a)   -sin(b)sin(a)      cos(a)| | z |_wind
+    */
+
+    // V=(1,0,0)_wind
+    Vector3d Vinf;
+    Vinf.x =   cos(alpha*PI/180.0) * cos(beta*PI/180.0);
+    Vinf.y =   sin(beta*PI/180.0);
+    Vinf.z =   sin(alpha*PI/180.0) * cos(beta*PI/180.0);
+    return Vinf;
+}
+
+
+Vector3d xfl::windSide(double alpha, double beta)
+{
+    Vector3d Vinf;
+    Vinf.x =  -cos(alpha*PI/180.0) * sin(beta*PI/180.0);
+    Vinf.y =   cos(beta*PI/180.0);
+    Vinf.z =  -sin(alpha*PI/180.0) * sin(beta*PI/180.0);
+    return Vinf;
+}
+
+
+Vector3d xfl::windNormal(double alpha, double beta)
+{
+    (void)beta;
+    // V=(0,0,1)_wind
+    Vector3d Vinf;
+    Vinf.x = -sin(alpha*PI/180.0);
+    Vinf.y = 0.0;
+    Vinf.z = cos(alpha*PI/180.0);
+    return Vinf;
+}
+
+
+Vector3d xfl::windToGeomAxes(Vector3d const &Vw, double alpha, double beta)
+{
+/*  Using AVL convention
+    | x |          | cos(b) sin(b)    | | x |
+    | y |       =  |-sin(b) cos(b)    | | y |
+    | z |_wind     |                1 | | z |
+
+                   | cos(b)cos(a)      sin(b)    cos(b)sin(a)| | X |
+                =  |-sin(b)cos(a)      cos(b)   -sin(b)sin(a)| | Y |
+                   |      -sin(a)        0             cos(a)| | Z |
+
+    | X |	       | cos(b)cos(a)   -sin(b)cos(a)     -sin(a)| | x |
+    | Y | 		=  | sin(b)             cos(b)            0  | | y |
+    | Z |		   | cos(b)sin(a)   -sin(b)sin(a)      cos(a)| | z |_wind
+    */
+    double cosa = cos(alpha*PI/180.0);
+    double sina = sin(alpha*PI/180.0);
+    double cosb = cos(beta*PI/180.0);
+    double sinb = sin(beta*PI/180.0);
+
+    double i[9];
+    i[0] = cosb*cosa;    i[1] = -sinb*cosa;     i[2] = -sina;
+    i[3] = sinb;         i[4] = cosb;           i[5] = 0;
+    i[6] = cosb*sina;    i[7] = -sinb*sina;     i[8] = cosa;
+
+    Vector3d Vg;
+    Vg.x = i[0]*Vw.x +i[1]*Vw.y + i[2]*Vw.z;
+    Vg.y = i[3]*Vw.x +i[4]*Vw.y + i[5]*Vw.z;
+    Vg.z = i[6]*Vw.x +i[7]*Vw.y + i[8]*Vw.z;
+    return Vg;
+}
+
+
+Vector3d xfl::geomToWindAxes(Vector3d const &Vw, double alpha, double beta)
+{
+    double cosa = cos(alpha*PI/180.0);
+    double sina = sin(alpha*PI/180.0);
+    double cosb = cos(beta*PI/180.0);
+    double sinb = sin(beta*PI/180.0);
+
+    double i[9]; // transposed
+    i[0] = cosb*cosa;    i[3] = -sinb*cosa;     i[6] = -sina;
+    i[1] = sinb;         i[4] = cosb;           i[7] = 0;
+    i[2] = cosb*sina;    i[5] = -sinb*sina;     i[8] = cosa;
+
+    Vector3d Vg;
+    Vg.x = i[0]*Vw.x +i[1]*Vw.y + i[2]*Vw.z;
+    Vg.y = i[3]*Vw.x +i[4]*Vw.y + i[5]*Vw.z;
+    Vg.z = i[6]*Vw.x +i[7]*Vw.y + i[8]*Vw.z;
+    return Vg;
+}
+
+

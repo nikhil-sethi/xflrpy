@@ -85,7 +85,7 @@ void LineMenu::initMenu(Line::enumLineStipple style, int width, QColor color, Li
 
 void LineMenu::updateLineActions()
 {
-    emit(lineChanged(m_theStyle));
+    emit lineChanged(m_theStyle);
 
     for(int i=0; i<NLINESTYLES; i++)
     {

@@ -88,7 +88,7 @@ class LLTAnalysisDlg : public QDialog
         void onTaskFinished();
 
     signals:
-        void lltAnalysisFinished() const;
+        void lltAnalysisFinished();
 
 
     private:

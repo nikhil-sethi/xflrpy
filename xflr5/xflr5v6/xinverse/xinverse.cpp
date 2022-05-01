@@ -29,9 +29,7 @@
 
 #include <globals/mainframe.h>
 
-#include <xflobjects/editors/renamedlg.h>
 #include <twodwidgets/inverseviewwt.h>
-#include <xflobjects/objects2d/objects2d.h>
 #include <xdirect/xdirect.h>
 #include <xflanalysis/analysis3d_params.h>
 #include <xflcore/constants.h>
@@ -39,7 +37,9 @@
 #include <xflcore/xflcore.h>
 #include <xflgraph/controls/graphdlg.h>
 #include <xflgraph/curve.h>
+#include <xflobjects/editors/renamedlg.h>
 #include <xflobjects/objects2d/foil.h>
+#include <xflobjects/objects2d/objects2d.h>
 #include <xflobjects/objects_global.h>
 #include <xflwidgets/customwts/doubleedit.h>
 #include <xflwidgets/customwts/intedit.h>
@@ -49,8 +49,8 @@
 #include <xinverse/inverseoptionsdlg.h>
 #include <xinverse/pertdlg.h>
 
-MainFrame *XInverse::s_pMainFrame;
-inverseviewwt *XInverse::s_p2dWidget;
+MainFrame *XInverse::s_pMainFrame(nullptr);
+inverseviewwt *XInverse::s_p2dWidget(nullptr);
 
 /** The public contructor */
 XInverse::XInverse(QWidget *parent)
@@ -149,9 +149,6 @@ XInverse::~XInverse()
 {
     delete m_pModFoil;
     delete m_pRefFoil;
-    //    delete m_pPertDlg;
-    //    delete m_pGraphDlg;
-    //    delete m_pXInverseStyleDlg;
 }
 
 
@@ -182,7 +179,6 @@ void XInverse::cancelSmooth()
  */
 void XInverse::cancelSpline()
 {
-    //    m_bSpline  = false;
     m_bSplined = false;
     m_ppbNewSpline->setChecked(false);
     m_bSmooth = false;
@@ -240,29 +236,29 @@ void XInverse::clear()
  */
 void XInverse::connectSignals()
 {
-    connect(m_prbSpecAlpha,     SIGNAL(clicked()), this, SLOT(onSpecal()));
-    connect(m_prbSpecCl,        SIGNAL(clicked()), this, SLOT(onSpecal()));
-    connect(m_pdeSpec,          SIGNAL(editingFinished()), this, SLOT(onSpecInv()));
-    connect(m_pchShowSpline,    SIGNAL(clicked()), this, SLOT(onShowSpline()));
-    connect(m_ppbNewSpline,     SIGNAL(clicked()), this, SLOT(onNewSpline()));
-    connect(m_ppbApplySpline,   SIGNAL(clicked()), this, SLOT(onApplySpline()));
-    connect(m_pchTangentSpline, SIGNAL(clicked()), this, SLOT(onTangentSpline()));
-    connect(m_ppbResetQSpec,    SIGNAL(clicked()), this, SLOT(onQReset()));
-    connect(m_ppbSmooth,        SIGNAL(clicked()), this, SLOT(onSmooth()));
-    connect(m_ppbMSmooth,        SIGNAL(clicked()), this, SLOT(onSmooth()));
-    connect(m_ppbPert,          SIGNAL(clicked()), this, SLOT(onPertubate()));
-    connect(m_ppbFilter,        SIGNAL(clicked()), this, SLOT(onFilter()));
-    connect(m_pchSymm,          SIGNAL(clicked()), this, SLOT(onSymm()));
-    connect(m_ppbExec,          SIGNAL(clicked()), this, SLOT(onExecute()));
+    connect(m_prbSpecAlpha,      SIGNAL(clicked()),      SLOT(onSpecal()));
+    connect(m_prbSpecCl,         SIGNAL(clicked()),      SLOT(onSpecal()));
+    connect(m_pdeSpec,           SIGNAL(valueChanged()), SLOT(onSpecInv()));
+    connect(m_pchShowSpline,     SIGNAL(clicked()),      SLOT(onShowSpline()));
+    connect(m_ppbNewSpline,      SIGNAL(clicked()),      SLOT(onNewSpline()));
+    connect(m_ppbApplySpline,    SIGNAL(clicked()),      SLOT(onApplySpline()));
+    connect(m_pchTangentSpline,  SIGNAL(clicked()),      SLOT(onTangentSpline()));
+    connect(m_ppbResetQSpec,     SIGNAL(clicked()),      SLOT(onQReset()));
+    connect(m_ppbSmooth,         SIGNAL(clicked()),      SLOT(onSmooth()));
+    connect(m_ppbMSmooth,        SIGNAL(clicked()),      SLOT(onSmooth()));
+    connect(m_ppbPert,           SIGNAL(clicked()),      SLOT(onPertubate()));
+    connect(m_ppbFilter,         SIGNAL(clicked()),      SLOT(onFilter()));
+    connect(m_pchSymm,           SIGNAL(clicked()),      SLOT(onSymm()));
+    connect(m_ppbExec,           SIGNAL(clicked()),      SLOT(onExecute()));
 
-    connect(m_ppbMNewSpline,     SIGNAL(clicked()), this, SLOT(onNewSpline()));
-    connect(m_ppbMark,           SIGNAL(clicked()), this, SLOT(onMarkSegment()));
-    connect(m_ppbMApplySpline,   SIGNAL(clicked()), this, SLOT(onApplySpline()));
-    connect(m_pchMTangentSpline, SIGNAL(clicked()), this, SLOT(onTangentSpline()));
-    connect(m_pchMShowSpline,    SIGNAL(clicked()), this, SLOT(onShowSpline()));
-    connect(m_ppbMResetQSpec,    SIGNAL(clicked()), this, SLOT(onQReset()));
-    connect(m_pchCpxx,           SIGNAL(clicked()), this, SLOT(onCpxx()));
-    connect(m_ppbMExec,          SIGNAL(clicked()), this, SLOT(onExecute()));
+    connect(m_ppbMNewSpline,     SIGNAL(clicked()),      SLOT(onNewSpline()));
+    connect(m_ppbMark,           SIGNAL(clicked()),      SLOT(onMarkSegment()));
+    connect(m_ppbMApplySpline,   SIGNAL(clicked()),      SLOT(onApplySpline()));
+    connect(m_pchMTangentSpline, SIGNAL(clicked()),      SLOT(onTangentSpline()));
+    connect(m_pchMShowSpline,    SIGNAL(clicked()),      SLOT(onShowSpline()));
+    connect(m_ppbMResetQSpec,    SIGNAL(clicked()),      SLOT(onQReset()));
+    connect(m_pchCpxx,           SIGNAL(clicked()),      SLOT(onCpxx()));
+    connect(m_ppbMExec,          SIGNAL(clicked()),      SLOT(onExecute()));
 }
 
 
@@ -271,7 +267,7 @@ void XInverse::connectSignals()
  */
 void XInverse::createQCurve()
 {
-    double x=0, y=0;
+    double x(0), y(0);
     m_pQCurve->clear();
 
     int points;
@@ -291,18 +287,17 @@ void XInverse::createQCurve()
  */
 void XInverse::createMCurve()
 {
-    int i, points;
-    double x,y;
     m_pMCurve->clear();
     m_pReflectedCurve->clear();
 
+    int points=0;
     if(m_bFullInverse) points = 257;
     else               points = m_pXFoil->n;
 
-    for (i=1; i<=points; i++)
+    for (int i=1; i<=points; i++)
     {
-        x = 1.0 - m_pXFoil->sspec[i];
-        y = m_pXFoil->qcomp(m_pXFoil->qspec[1][i])/m_pXFoil->qinf;
+        double x = 1.0 - m_pXFoil->sspec[i];
+        double y = m_pXFoil->qcomp(m_pXFoil->qspec[1][i])/m_pXFoil->qinf;
         m_pMCurve->appendPoint(x,y);
         m_pReflectedCurve->appendPoint(m_pXFoil->sspec[i],-y);
     }
@@ -316,11 +311,9 @@ void XInverse::createMCurve()
 void XInverse::drawGrid(QPainter &painter, double scale)
 {
     painter.save();
-    double scalex;
-    int TickSize;
 
-    TickSize = 5;
-    scalex= scale;
+    int TickSize = 5;
+    double scalex= scale;
 
     QPen TextPen(DisplayOptions::textColor());
     painter.setPen(TextPen);
@@ -386,11 +379,10 @@ void XInverse::execMDES()
     //----- put modified info back into global arrays
     m_pmteOutput->append(tr("executing..."));
 
-    double qscom;
     for (int i=1; i<= m_pXFoil->nsp; i++)
     {
         //        isp = pXFoil->nsp - i + 1;
-        qscom =  m_pXFoil->qinf*m_pMCurve->m_y[i-1];
+        double qscom =  m_pXFoil->qinf*m_pMCurve->m_y[i-1];
         m_pXFoil->qspec[1][i] = qincom(qscom, m_pXFoil->qinf, m_pXFoil->tklam);
     }
     m_pXFoil->ExecMDES();
@@ -432,11 +424,11 @@ bool XInverse::execQDES()
 
     //----- put modified info back into global arrays
     //    int isp;
-    double qscom;
+
     for (int i=1; i<= m_pXFoil->nsp; i++)
     {
         //        isp = pXFoil->nsp - i + 1;
-        qscom =  m_pXFoil->qinf*m_pMCurve->m_y[i-1];
+        double qscom =  m_pXFoil->qinf*m_pMCurve->m_y[i-1];
         m_pXFoil->qspec[1][i] = qincom(qscom, m_pXFoil->qinf, m_pXFoil->tklam);
     }
     bool bRes =  m_pXFoil->ExecQDES();
@@ -491,7 +483,6 @@ bool XInverse::execQDES()
  */
 bool XInverse::initXFoil(Foil * pFoil)
 {
-    //loads pFoil in XFoil, calculates normal vectors, and sets results in current foil
     if(!pFoil) return  false;
 
     m_pModFoil->setName(pFoil->name() + tr(" Modified"));
@@ -512,7 +503,7 @@ bool XInverse::initXFoil(Foil * pFoil)
     m_pXFoil->lqspec = false;
     m_pXFoil->lscini = false;
 
-    if(m_pXFoil->Preprocess())
+    if(m_pXFoil->PreProcess())
     {
         m_pXFoil->CheckAngles();
 
@@ -616,51 +607,6 @@ void XInverse::keyPressEvent(QKeyEvent *event)
             break;
         }
 
-/*        case Qt::Key_1:
-            if(bCtrl)
-            {
-                s_pMainFrame->onAFoil();
-                return;
-            }
-            break;
-        case Qt::Key_2:
-            if(bCtrl)
-            {
-                s_pMainFrame->onAFoil();
-                return;
-            }
-            break;
-        case Qt::Key_3:
-            if(bCtrl)
-            {
-                s_pMainFrame->onXInverse();
-                return;
-            }
-            break;
-
-        case Qt::Key_4:
-            if(bCtrl)
-            {
-                s_pMainFrame->onXInverseMixed();
-                return;
-            }
-            break;
-        case Qt::Key_5:
-            if(bCtrl)
-            {
-                s_pMainFrame->onXDirect();
-                return;
-            }
-            break;
-        case Qt::Key_6:
-        {
-            if(bCtrl)
-            {
-                s_pMainFrame->onMiarex();
-                return;
-            }
-            break;
-        }*/
         default:
             event->ignore();
     }
@@ -672,10 +618,10 @@ void XInverse::keyPressEvent(QKeyEvent *event)
  * Dispatches the key release event
  * @param event the QKeyEvent
  */
-void XInverse::keyReleaseEvent(QKeyEvent *event)
+void XInverse::keyReleaseEvent(QKeyEvent *pEvent)
 {
     m_bXPressed = m_bYPressed = false;
-    switch (event->key())
+    switch (pEvent->key())
     {
         case Qt::Key_Escape:
         {
@@ -684,7 +630,7 @@ void XInverse::keyReleaseEvent(QKeyEvent *event)
         }
 
         default:
-            QWidget::keyReleaseEvent(event);
+            QWidget::keyReleaseEvent(pEvent);
     }
 }
 
@@ -746,24 +692,24 @@ void XInverse::doubleClickEvent(QPoint pos)
  * Dispatches the event
  * @param event the QMouseEvent
  */
-void XInverse::mouseMoveEvent(QMouseEvent *event)
+void XInverse::mouseMoveEvent(QMouseEvent *pEvent)
 {
-    double x1,y1, xmin, xmax, ymin,  ymax, xpt, ypt, scale, ux, uy, unorm, vx, vy, vnorm, scal;
-    double xx0,xx1,xx2,yy0,yy1,yy2, dist;
-    int a, n, ipt;
+    double x1(0), y1(0), xmin(0), xmax(0), ymin(0), ymax(0), xpt(0), ypt(0), scale(0), ux(0), uy(0), unorm(0), vx(0), vy(0), vnorm(0), scal(0);
+    double xx0(0),xx1(0),xx2(0),yy0(0),yy1(0),yy2(0), dist(0);
+
     QPoint point;
-    point = event->pos();
+    point = pEvent->pos();
 
     if(m_bGetPos)
     {
         m_tmpPos = m_pMCurve->closestPoint(m_QGraph.clientTox(point.x()), m_QGraph.clientToy(point.y()), dist);
     }
-    else if(m_bZoomPlus && (event->buttons() & Qt::LeftButton))
+    else if(m_bZoomPlus && (pEvent->buttons() & Qt::LeftButton))
     {
         m_ZoomRect.setRight(point.x());
         m_ZoomRect.setBottom(point.y());
     }
-    else if(m_rCltRect.contains(point) && (event->buttons() & Qt::LeftButton) && m_bTrans)
+    else if(m_rCltRect.contains(point) && (pEvent->buttons() & Qt::LeftButton) && m_bTrans)
     {
         if(m_bTransGraph)
         {
@@ -788,20 +734,20 @@ void XInverse::mouseMoveEvent(QMouseEvent *event)
             m_ptOffset.ry() += point.y() - m_PointDown.y();
         }
     }
-    else if ((event->buttons() & Qt::LeftButton)  && !m_bZoomPlus && m_bSpline && m_Spline.m_iSelect>=0)
+    else if ((pEvent->buttons() & Qt::LeftButton)  && !m_bZoomPlus && m_bSpline && m_Spline.m_iSelect>=0)
     {
         // user is dragging the point
         x1 =  m_QGraph.clientTox(point.x()) ;
         y1 =  m_QGraph.clientToy(point.y()) ;
         if(m_rGraphRect.contains(point))
         {
-            n = m_Spline.m_iSelect;
+            int n = m_Spline.m_iSelect;
 
             if(n==0)
             {
                 // user is dragging end point
                 // find closest graph point
-                ipt = m_pMCurve->closestPoint(m_QGraph.clientTox(point.x()), m_QGraph.clientToy(point.y()), dist);
+                int ipt = m_pMCurve->closestPoint(m_QGraph.clientTox(point.x()), m_QGraph.clientToy(point.y()), dist);
                 m_SplineLeftPos = ipt;
                 xpt = m_pMCurve->m_x[ipt];
                 ypt = m_pMCurve->m_y[ipt];
@@ -825,7 +771,7 @@ void XInverse::mouseMoveEvent(QMouseEvent *event)
             {
                 // user is dragging end point
                 // find closest graph point
-                ipt = m_pMCurve->closestPoint(m_QGraph.clientTox(point.x()), m_QGraph.clientToy(point.y()), dist);
+                int ipt = m_pMCurve->closestPoint(m_QGraph.clientTox(point.x()), m_QGraph.clientToy(point.y()), dist);
                 m_SplineRightPos = ipt;
                 xpt = m_pMCurve->m_x[ipt];
                 ypt = m_pMCurve->m_y[ipt];
@@ -954,7 +900,7 @@ void XInverse::mouseMoveEvent(QMouseEvent *event)
             }
         }
     }
-    else if((event->buttons() & Qt::MidButton)  || event->modifiers().testFlag(Qt::AltModifier))
+    else if((pEvent->buttons() & Qt::MiddleButton)  || pEvent->modifiers().testFlag(Qt::AltModifier))
     {
         releaseZoom();
         QPoint pttmp(point.x(), point.y());
@@ -972,7 +918,7 @@ void XInverse::mouseMoveEvent(QMouseEvent *event)
             if(point.y()-m_PointDown.y()>0) m_fScale *= 1.02;
             else                            m_fScale /= 1.02;
 
-            a = int((m_rCltRect.right()+m_rCltRect.left())/2);
+            int a = int((m_rCltRect.right()+m_rCltRect.left())/2);
             m_ptOffset.rx() = a + int((m_ptOffset.x()-a)*m_fScale/scale);
         }
     }
@@ -993,7 +939,7 @@ void XInverse::mouseMoveEvent(QMouseEvent *event)
         {
             x1 =  m_QGraph.clientTox(point.x());
             y1 =  m_QGraph.clientToy(point.y());
-            n = m_Spline.isControlPoint(x1,y1, m_QGraph.xScale(), m_QGraph.yScale());
+            int n = m_Spline.isControlPoint(x1,y1, m_QGraph.xScale(), m_QGraph.yScale());
             if (n>=0 && n<m_Spline.m_CtrlPt.size())
             {
                 m_Spline.m_iHighlight = n;
@@ -1016,12 +962,12 @@ void XInverse::mouseMoveEvent(QMouseEvent *event)
  */
 void XInverse::mousePressEvent(QMouseEvent *event)
 {
-    bool bCtrl, bShift;
-    bCtrl = bShift = false;
+    bool bCtrl(false), bShift(false);
+
     if(event->modifiers() & Qt::ControlModifier) bCtrl  = true;
     if(event->modifiers() & Qt::ShiftModifier)   bShift = true;
 
-    int CtrlPt;
+
     QPoint pttmp;
     QPoint point = event->pos();
     if((event->buttons() & Qt::LeftButton))
@@ -1040,16 +986,16 @@ void XInverse::mousePressEvent(QMouseEvent *event)
                 yd = m_QGraph.clientToy(point.y());
                 if(m_bSpline)
                 {
-                    CtrlPt = m_Spline.isControlPoint(xd, yd, m_QGraph.xScale(), m_QGraph.yScale());
-                    if(CtrlPt<0) m_Spline.m_iSelect = -1;
+                    int iCtrlPt = m_Spline.isControlPoint(xd, yd, m_QGraph.xScale(), m_QGraph.yScale());
+                    if(iCtrlPt<0) m_Spline.m_iSelect = -1;
                     else
                     {
-                        m_Spline.m_iSelect = CtrlPt;
+                        m_Spline.m_iSelect = iCtrlPt;
                         //                        return;
                     }
                     if (bCtrl)
                     {
-                        if(CtrlPt>=0)
+                        if(iCtrlPt>=0)
                         {
                             if (m_Spline.m_iSelect>=0)
                             {
@@ -1071,7 +1017,7 @@ void XInverse::mousePressEvent(QMouseEvent *event)
                         m_Spline.splineKnots();
                         m_Spline.splineCurve();
                     }
-                    if(CtrlPt>=0) return;
+                    if(iCtrlPt>=0) return;
                 }
             }
             else m_bTransGraph = false;
@@ -1112,10 +1058,9 @@ void XInverse::mouseReleaseEvent(QMouseEvent *event)
 {
     m_bTrans = false;
 
-    int tmp, width, height;
-    double x1,x2,w,h,xw,yh,xm,ym, dist;
-    double xmin, ymin, xmax, ymax;
-    double ratio,x, y, ux, uy, xpt, ypt, norm;
+    double x1(0),x2(0),w(0),h(0),xw(0),yh(0),xm(0),ym(0), dist(0);
+    double xmin(0), ymin(0), xmax(0), ymax(0);
+    double ratio(0),x(0), y(0), ux(0), uy(0), xpt(0), ypt(0), norm(0);
 
     QPoint point = event->pos();
 
@@ -1127,8 +1072,8 @@ void XInverse::mouseReleaseEvent(QMouseEvent *event)
             xu = m_QGraph.clientTox(point.x());
             yu = m_QGraph.clientToy(point.y());
 
-            width  = abs(m_PointDown.x()-point.x());
-            height = abs(m_PointDown.y()-point.y());
+            int width  = abs(m_PointDown.x()-point.x());
+            int height = abs(m_PointDown.y()-point.y());
             //preserve ratio
             w = qAbs(xu-xd);
             h = qAbs(yu-yd);
@@ -1196,7 +1141,7 @@ void XInverse::mouseReleaseEvent(QMouseEvent *event)
                 if(qAbs(x2-x1)<0.00001) return;
                 if(x2<x1)
                 {
-                    tmp    = m_Pos2;
+                    int tmp    = m_Pos2;
                     m_Pos2 = m_Pos1;
                     m_Pos1 = tmp;
                 }
@@ -1269,8 +1214,8 @@ void XInverse::mouseReleaseEvent(QMouseEvent *event)
 
                 m_Mk1 = m_Pos1;
                 m_Mk2 = m_Pos2;
-                m_pXFoil->iq1 = min(m_Pos1, m_Pos2)+1;
-                m_pXFoil->iq2 = max(m_Pos1, m_Pos2)+1;
+                m_pXFoil->iq1 = std::min(m_Pos1, m_Pos2)+1;
+                m_pXFoil->iq2 = std::max(m_Pos1, m_Pos2)+1;
                 if(m_pXFoil->iq1<=1) m_pXFoil->iq1 = 2;
                 if(m_pXFoil->iq2>=m_pXFoil->n) m_pXFoil->iq2 = m_pXFoil->n-1;
                 m_pXFoil->liqset = true;
@@ -1314,9 +1259,8 @@ void XInverse::onApplySpline()
 {
     if(!m_bSplined)
     {
-        int i;
-        double qscom, xx;
-        for (i=1; i<m_pMCurve->size()-1; i++)
+        double qscom(0), xx(0);
+        for (int i=1; i<m_pMCurve->size()-1; i++)
         {
             xx = m_pMCurve->m_x[i];
             if (xx > m_Spline.m_CtrlPt.first().x &&
@@ -1327,13 +1271,13 @@ void XInverse::onApplySpline()
             }
         }
 
-        for (i=1; i<m_pMCurve->size()-1; i++)
+        for (int i=1; i<m_pMCurve->size()-1; i++)
         {
             m_pReflectedCurve->m_y[i] = -m_pMCurve->m_y[i];
         }
 
         m_bSplined = true;
-        for (i=1; i<= m_pXFoil->nsp; i++)
+        for (int i=1; i<= m_pXFoil->nsp; i++)
         {
             //            isp = pXFoil->nsp - i + 1;
             qscom =  m_pXFoil->qinf*m_pMCurve->m_y[i-1];
@@ -1416,8 +1360,7 @@ void XInverse::onExtractFoil()
         m_bMarked = false;
         m_bSpline = false;
         m_bSplined  = true;
-        Foil *pFoil;
-        pFoil = Objects2d::foil(dlg.selectedFoilName());
+        Foil *pFoil = Objects2d::foil(dlg.selectedFoilName());
         XDirect::setCurFoil(pFoil);
 
         m_pRefFoil->copyFoil(pFoil);
@@ -1478,17 +1421,15 @@ void XInverse::onFilter()
 */
 void XInverse::onQGraphSettings()
 {
-    GraphDlg *m_pGraphDlg = new GraphDlg(s_pMainFrame);
+    GraphDlg *pGraphDlg = new GraphDlg(s_pMainFrame);
 
-    m_pGraphDlg->XSel() = 0;
-    m_pGraphDlg->YSel() = 0;
-    m_pGraphDlg->setGraph(&m_QGraph);
+    pGraphDlg->setXSel(0);
+    pGraphDlg->setYSel(0);
+    pGraphDlg->setGraph(&m_QGraph);
 
-    m_pGraphDlg->exec();
+    pGraphDlg->exec();
     updateView();
 }
-
-
 
 
 /**
@@ -1617,12 +1558,11 @@ void XInverse::onNewSpline()
  */
 void XInverse::onPertubate()
 {
-    int m=0;
     m_pXFoil->pert_init(1);
 
     PertDlg PerturbDlg(s_pMainFrame);
 
-    for (m=0; m<=qMin(32, m_pXFoil->nc); m++)
+    for (int m=0; m<=qMin(32, m_pXFoil->nc); m++)
     {
         PerturbDlg.m_cnr[m] = real(m_pXFoil->cn[m]);
         PerturbDlg.m_cni[m] = imag(m_pXFoil->cn[m]);
@@ -1632,9 +1572,9 @@ void XInverse::onPertubate()
 
     if(PerturbDlg.exec() == QDialog::Accepted)
     {
-        for (m=0; m<=qMin(32, m_pXFoil->nc); m++)
+        for (int m=0; m<=qMin(32, m_pXFoil->nc); m++)
         {
-            m_pXFoil->cn[m] = complex<double>(PerturbDlg.m_cnr[m], PerturbDlg.m_cni[m]);
+            m_pXFoil->cn[m] = std::complex<double>(PerturbDlg.m_cnr[m], PerturbDlg.m_cni[m]);
         }
 
         m_pXFoil->pert_process(1);
@@ -2085,7 +2025,7 @@ void XInverse::paintFoil(QPainter &painter)
     if(m_bModFoil && m_bLoaded)  str2 = QString("    %1%").arg(m_pModFoil->xCamber()*100.0, 6, 'f', 2);
     else str2 = "";
     painter.drawText(LeftPos,ZPos+D, str1+str2);
-    D += dD;
+//    D += dD;
 
     //convert screen coordinates to foil coordinates
 
@@ -2201,11 +2141,10 @@ void XInverse::resetScale()
  */
 void XInverse::setFoil()
 {
-    int i;
-    QFile *pXFile=nullptr;
+    QFile *pXFile(nullptr);
 
     QString strong;
-    for(i=1; i<=m_pXFoil->n; i++)
+    for(int i=1; i<=m_pXFoil->n; i++)
     {
         m_pModFoil->m_x[i-1] = m_pXFoil->x[i];
         m_pModFoil->m_y[i-1] = m_pXFoil->y[i];
@@ -2251,7 +2190,7 @@ void XInverse::setFoil()
 
         m_pQVCurve->clear();
 
-        for(i=2; i<= m_pXFoil->n; i++)
+        for(int i=2; i<= m_pXFoil->n; i++)
         {
             dsp = m_pXFoil->s[i] - m_pXFoil->s[i-1];
             dqv = m_pXFoil->qcomp(m_pXFoil->qvis[i]) - m_pXFoil->qcomp(m_pXFoil->qvis[i-1]);
@@ -2288,7 +2227,6 @@ void XInverse::setFoil()
  */
 bool XInverse::setParams()
 {
-    Foil *pFoil=nullptr;
     QString strFoilName;
 
     if(m_bFullInverse)
@@ -2348,7 +2286,7 @@ bool XInverse::setParams()
         //is there anything in the database ?
         if(Objects2d::foilCount())
         {
-            pFoil = Objects2d::foilAt(0);
+            Foil *pFoil = Objects2d::foilAt(0);
             strFoilName = pFoil->name();
             m_pRefFoil->copyFoil(pFoil);
             m_pRefFoil->setColor(m_pQCurve->color().red(), m_pQCurve->color().green(), m_pQCurve->color().blue(), m_pQCurve->color().alpha());
@@ -2431,7 +2369,7 @@ void XInverse::setTAngle(double a)
  */
 void XInverse::setTGap(double tr, double ti)
 {
-    m_pXFoil->dzte = complex<double>(tr,ti);
+    m_pXFoil->dzte = std::complex<double>(tr,ti);
 }
 
 

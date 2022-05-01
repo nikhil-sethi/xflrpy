@@ -20,13 +20,13 @@ class DoubleEdit;
 class LineBtn;
 
 
-class gl3dAttractor : public gl3dTestGLView
+class gl3dLorenz : public gl3dTestGLView
 {
     Q_OBJECT
 
     public:
-        gl3dAttractor(QWidget *pParent = nullptr);
-        ~gl3dAttractor() override;
+        gl3dLorenz(QWidget *pParent = nullptr);
+        ~gl3dLorenz() override;
 
         static void loadSettings(QSettings &settings);
         static void saveSettings(QSettings &settings);

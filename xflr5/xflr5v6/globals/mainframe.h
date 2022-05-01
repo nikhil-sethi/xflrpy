@@ -133,6 +133,7 @@ class MainFrame : public QMainWindow
         void onOpenRecentFile();
         void onPreferences();
         void onProjectModified();
+        void onReleaseNotes();
         void onResetCurGraphScales();
         void onResetSettings();
         void onRestoreToolbars();
@@ -205,13 +206,13 @@ class MainFrame : public QMainWindow
 
     private:
 
-        AFoil *m_pAFoil;     /**< A void pointer to the instance of the QAFoil application. The pointer will be cast to the QAFoil type at runtime. This is necessary to prevent loop includes of header files. */
-        Miarex *m_pMiarex;    /**< A void pointer to the instance of the QMiarex application. The pointer will be cast to the QMiarex type at runtime. This is necessary to prevent loop includes of header files. */
-        XInverse *m_pXInverse;  /**< A void pointer to the instance of the QXInverse application. The pointer will be cast to the QXInverse type at runtime. This is necessary to prevent loop includes of header files. */
-        XDirect *m_pXDirect;   /**< A void pointer to the instance of the QXDirect application. The pointer will be cast to the QXDirect type at runtime. This is necessary to prevent loop includes of header files. */
-        StabViewDlg *m_pStabView;  /** < A void pointer to the instance of the StabViewDlg window. */
+        AFoil *m_pAFoil=nullptr;     /**< A void pointer to the instance of the QAFoil application. The pointer will be cast to the QAFoil type at runtime. This is necessary to prevent loop includes of header files. */
+        Miarex *m_pMiarex=nullptr;    /**< A void pointer to the instance of the QMiarex application. The pointer will be cast to the QMiarex type at runtime. This is necessary to prevent loop includes of header files. */
+        XInverse *m_pXInverse=nullptr;  /**< A void pointer to the instance of the QXInverse application. The pointer will be cast to the QXInverse type at runtime. This is necessary to prevent loop includes of header files. */
+        XDirect *m_pXDirect=nullptr;   /**< A void pointer to the instance of the QXDirect application. The pointer will be cast to the QXDirect type at runtime. This is necessary to prevent loop includes of header files. */
+        StabViewDlg *m_pStabView=nullptr;  /** < A void pointer to the instance of the StabViewDlg window. */
 
-        GL3DScales *m_pGL3DScales;
+        GL3DScales *m_pGL3DScales=nullptr;
 
         static QPointer<MainFrame> _self; /**< necessary for MacOS >*/
 
@@ -276,7 +277,7 @@ class MainFrame : public QMainWindow
         QAction *m_pExecuteScript;
 
         QAction *m_pExitAct;
-        QAction *m_pAboutAct, *m_pAboutQtAct, *m_pOpenGLAct;
+        QAction *m_pAboutAct, *m_pAboutQtAct, *m_pOpenGLAct, *m_pReleaseNotes;
         QAction *m_pPreferencesAct;
         QAction *m_pRecentFileActs[MAXRECENTFILES];
         QAction *m_pSeparatorAct;
@@ -372,7 +373,7 @@ class MainFrame : public QMainWindow
         static bool s_bSaved;       /**< true if the project has not been modified since the last save operation. */
         bool m_bAutoLoadLast;       /**< true if the last project should be loaded on startup */
         bool m_bSaveOpps;           /**< true if the foil operating points should be serialized in the project file */
-        bool m_bSaveWOpps;          /**< true if the wing operating points should be serialized in the project file */
+        bool m_bSavePOpps;          /**< true if the wing operating points should be serialized in the project file */
         bool m_bAutoSave;           /**< true if the project should be auto-saved on regular intervals */
         bool m_bSaveSettings;       /**< true if user-defined settings should be saved on exit. */
 

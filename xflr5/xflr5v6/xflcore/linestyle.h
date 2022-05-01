@@ -35,7 +35,7 @@ struct LineStyle
     }
 
 
-    LineStyle(bool bVisible, Line::enumLineStipple style, int width, QColor color,  Line::enumPointStyle pointstyle, QString LineTag=QString(), bool bEnabled=true)
+    LineStyle(bool bVisible, Line::enumLineStipple style, int width, QColor color,  Line::enumPointStyle pointstyle=Line::NOSYMBOL, QString LineTag=QString(), bool bEnabled=true)
     {
         m_bIsEnabled = bEnabled;
         m_bIsVisible = bVisible;

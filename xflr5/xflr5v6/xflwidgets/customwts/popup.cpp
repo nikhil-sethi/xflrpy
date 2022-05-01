@@ -36,7 +36,7 @@ void PopUp::setupLayout()
     QVBoxLayout *pMainLayout = new QVBoxLayout;
     {
         m_plabMessage = new QLabel;
-        QPalette palette;
+
         m_plabMessage->setAutoFillBackground(true);
         m_plabMessage->setContentsMargins(5,5,5,5);
         m_plabMessage->setText("A toast popup\n with useful information");

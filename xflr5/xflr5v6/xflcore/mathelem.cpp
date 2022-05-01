@@ -545,6 +545,9 @@ int binomial(int n, int k)
 
 double LegendreAssociated(int m, int l, double x)
 {
+    if(m<0)
+        return -1.0* double(factorial(l+m))/double(factorial(l-m))*LegendreAssociated(-m, l, x);
+
     if(m==0  && l==0) return 1;
     if(m==0  && l==1) return x;
     if(m==1  && l==1) return -sqrt(1.0-x*x);
@@ -565,7 +568,6 @@ std::complex<double> LaplaceHarmonic(int m, int l, double theta, double phi)
     if(abs(m)>l) return harmonic;
 
     double N = sqrt(double(2*l+1)/4.0/PI* factorial(l-m)/factorial(l+m));
-//    if(m%2==1)  N=-N;
     double LA = LegendreAssociated(m, l, cos(theta));
 
     harmonic.real(N * LA * cos(m*phi));
@@ -573,8 +575,6 @@ std::complex<double> LaplaceHarmonic(int m, int l, double theta, double phi)
 
     return harmonic;
 }
-
-
 
 
 void modeProperties(std::complex<double> lambda, double &omegaN, double &omega1, double &zeta)

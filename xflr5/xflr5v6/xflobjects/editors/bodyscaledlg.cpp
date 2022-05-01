@@ -23,7 +23,6 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QDesktopWidget>
 #include <QLabel>
 
 #include "bodyscaledlg.h"

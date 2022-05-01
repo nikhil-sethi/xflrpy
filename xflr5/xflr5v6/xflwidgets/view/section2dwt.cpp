@@ -77,8 +77,7 @@ Section2dWt::Section2dWt(QWidget *parent) : QWidget(parent)
 }
 
 
-
-void Section2dWt::createActions()
+void Section2dWt::createBaseActions()
 {
     m_ActionList.clear();
 
@@ -318,7 +317,7 @@ void Section2dWt::mouseMoveEvent(QMouseEvent *pEvent)
         dragSelectedPoint(m_MousePos.x, m_MousePos.y);
 //        emit objectModified();
     }
-    else if ((pEvent->buttons() & Qt::MidButton))
+    else if ((pEvent->buttons() & Qt::MiddleButton))
     {
         // user is zooming with mouse button down rather than with wheel
         double scale = m_fScale;
@@ -952,10 +951,7 @@ void Section2dWt::drawLabel(QPainter &painter, int xu, int yu, double value, int
         return;
     }
 
-    QString strLabel;
-    QString strLabelExp;
-
-    strLabel = QString(xfl::g_bLocalize ? "%L1" : "%1").arg(value, expo);
+    QString strLabel = QString(xfl::g_bLocalize ? "%L1" : "%1").arg(value, expo);
     if(align & Qt::AlignHCenter)
     {
         int px = DisplayOptions::textFontStruct().width(strLabel);
@@ -1000,8 +996,8 @@ void Section2dWt::drawScale(QPainter &painter, double scalex)
     double XMinGridUnit = 0.01;
 
     double xt  = xo-int((xo-xmin)*1.0001/XGridUnit)*XGridUnit;//one tick at the origin
-    double xht = xo-int((xo-xmin)*1.0001/XHalfGridUnit)*XHalfGridUnit;//one tick at the origin
-    double xmt = xo-int((xo-xmin)*1.0001/XMinGridUnit)*XMinGridUnit;//one tick at the origin
+//    double xht = xo-int((xo-xmin)*1.0001/XHalfGridUnit)*XHalfGridUnit;//one tick at the origin
+//    double xmt = xo-int((xo-xmin)*1.0001/XMinGridUnit)*XMinGridUnit;//one tick at the origin
 
     painter.drawLine(int(xt*scalex + m_ptOffset.x()), offy, int(xmax*scalex + m_ptOffset.x()), offy);
 
@@ -1017,14 +1013,14 @@ void Section2dWt::drawScale(QPainter &painter, double scalex)
     }
 
     //    while(xht<=xmax*1.001)
-    xht = 0;
+    double xht = 0;
     for(int i=0;i<1/XHalfGridUnit;i++)
     {
         if(i%2!=0) painter.drawLine(int(xht*scalex + m_ptOffset.x()), offy, int(xht*scalex + m_ptOffset.x()), offy+TickSize*2);
         xht += XHalfGridUnit ;
     }
 
-    xmt=0;
+    double xmt=0;
     //    while(xmt<=xmax*1.001)
     for(int i=0;i<1/XMinGridUnit;i++)
     {

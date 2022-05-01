@@ -53,8 +53,9 @@ QGroupBox
     background: transparent;
     font: bold;
     color: ghostwhite;
-    margin-top: 2ex;
+    margin-top: 3ex;
     border: 1px solid #444444;
+    padding: 3px;
 }
 
 
@@ -75,7 +76,6 @@ QDockWidget
 {
     border: 1px solid lightgray;
     padding: 3px;
-
 }
 
 QDockWidget::title
@@ -186,8 +186,6 @@ QPushButton
     min-height: 21px;
 }
 
-
-
 QPushButton:hover
 {
     border: 1px solid lightgray;
@@ -202,6 +200,12 @@ QPushButton:pressed
 {
     background-color: darkgray;
     border: 2px solid dimgray;
+}
+
+QPushButton:checked
+{
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #233030, stop: 1 #121212);
+    border: 2px solid white;
 }
 
 
@@ -733,16 +737,18 @@ QTableView QTableCornerButton::section
 /*_____________________  QTreeView  ______________________*/
 
 
-
+/*
 QTreeView::branch:has-children:!has-siblings:closed,
 QTreeView::branch:closed:has-children:has-siblings {
         border-image: none;
+        image: url(qss-img/branch-closed.png);
 }
 
 QTreeView::branch:open:has-children:!has-siblings,
 QTreeView::branch:open:has-children:has-siblings  {
         border-image: none;
-}
+        image: url(qss-img/branch-open.png);
+} */
 
 
 /*_____________________  QHeaderView  ______________________*/

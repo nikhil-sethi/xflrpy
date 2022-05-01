@@ -69,7 +69,7 @@ class LinePickerWt : public QWidget
         void onLineColor();
 
     signals:
-        void styleChanged(LineStyle) const;
+        void styleChanged(LineStyle);
 
     private:
         LineBtn *m_plbLineColor;

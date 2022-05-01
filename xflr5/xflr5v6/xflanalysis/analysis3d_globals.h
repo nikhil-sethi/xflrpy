@@ -24,15 +24,13 @@
 * This file contains the declaration of methods used throughout the program and not specific to one application.
 */
 
-#ifndef ENGINE_GLOBALS_H
-#define ENGINE_GLOBALS_H
+#pragma once
 
 
 #include <xflgeom/geom3d/vector3d.h>
 #include <xflobjects/objects2d/foil.h>
 
 
-using namespace std;
 
 
 double GetPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bool &bOutRe, bool &bError);
@@ -42,5 +40,3 @@ double splineBlend(int const &index, int const &p, double const &t, double *knot
 
 
 
-#endif // ENGINE_GLOBALS_H
- 

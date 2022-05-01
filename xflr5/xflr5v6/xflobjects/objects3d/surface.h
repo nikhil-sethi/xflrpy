@@ -98,14 +98,11 @@ class Surface
 {
     friend class Wing;
     friend class Miarex;
-    friend class Objects3D;
     friend class MainFrame;
-    friend class GL3dWingDlg;
     friend class PanelAnalysis;
     friend class PanelAnalysisDlg;
     friend class InertiaDlg;
     friend class WPolar;
-    friend class ViewObjectDlg;
     friend class PlaneTask;
 
     public:

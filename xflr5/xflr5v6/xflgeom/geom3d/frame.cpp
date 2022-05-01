@@ -73,15 +73,15 @@ int Frame::isPoint(const Vector3d &Point, const double &ZoomFactor) const
  */
 bool Frame::serializeFrame(QDataStream &ar, bool bIsStoring)
 {
-    int ArchiveFormat;
-    int k,n;
-    float fx, fy, fz;
+    int ArchiveFormat(0);
+    int k(0),n(0);
+    float fx(0), fy(0), fz(0);
 
     if(bIsStoring)
     {
         ar << 1000;
         //1000 : first format
-        ar << m_CtrlPoint.size();
+        ar << int(m_CtrlPoint.size());
         for(k=0; k<m_CtrlPoint.size(); k++)
         {
             ar << m_CtrlPoint[k].xf() << m_CtrlPoint[k].yf() << m_CtrlPoint[k].zf();

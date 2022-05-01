@@ -137,8 +137,11 @@ void OpPointWt::keyReleaseEvent(QKeyEvent *pEvent)
 */
 void OpPointWt::mousePressEvent(QMouseEvent *pEvent)
 {
-    QPoint pt(pEvent->x(), pEvent->y()); //client coordinates
-
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    QPointF const pos = pEvent->position();
+#else
+    QPointF const pos = pEvent->pos();
+#endif
     if(pEvent->buttons() & Qt::LeftButton)
     {
         if (m_pCpGraph->isInDrawRect(pEvent->pos()))
@@ -149,8 +152,7 @@ void OpPointWt::mousePressEvent(QMouseEvent *pEvent)
         {
             m_bTransFoil = true;
         }
-        m_LastPoint.setX(pt.x());
-        m_LastPoint.setY(pt.y());
+        m_LastPoint = pos;
         setCursor(Qt::ClosedHandCursor);
 //        if(!m_bAnimate) update();
     }
@@ -177,12 +179,14 @@ void OpPointWt::mouseReleaseEvent(QMouseEvent *pEvent)
 */
 void OpPointWt::mouseMoveEvent(QMouseEvent *pEvent)
 {
-    QPoint pt;
-    double scale;
-    double a;
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    QPointF const pt = pEvent->position();
+#else
+    QPointF const pt = pEvent->pos();
+#endif
+    double scale(0);
+    double a(0);
 
-    pt.setX(pEvent->x());
-    pt.setY(pEvent->y()); //client coordinates
     setFocus();
 
     if (pEvent->buttons() & Qt::LeftButton)
@@ -216,7 +220,7 @@ void OpPointWt::mouseMoveEvent(QMouseEvent *pEvent)
             m_FoilOffset.ry() += pt.y()-m_LastPoint.y();
         }
     }
-    else if (Objects2d::curFoil() && ((pEvent->buttons() & Qt::MidButton) || pEvent->modifiers().testFlag(Qt::AltModifier)))
+    else if (Objects2d::curFoil() && ((pEvent->buttons() & Qt::MiddleButton) || pEvent->modifiers().testFlag(Qt::AltModifier)))
     {
         // we zoom the graph or the foil
         if(Objects2d::curFoil())
@@ -340,7 +344,7 @@ void OpPointWt::setFoilScale()
 */
 void OpPointWt::wheelEvent(QWheelEvent *pEvent)
 {
-    QPoint pt;
+    QPointF pt;
 #if QT_VERSION >= 0x050F00
     pt = pEvent->position().toPoint();
 #else
@@ -591,12 +595,12 @@ void OpPointWt::paintOpPoint(QPainter &painter)
     }
 
     Back = 6;
-    Polar   *pPolar   = Objects2d::curPolar();
-    OpPoint *pOpPoint = Objects2d::curOpp();
+    Polar   const *pPolar   = Objects2d::curPolar();
+    OpPoint const *pOpPoint = Objects2d::curOpp();
     if(pOpPoint)
     {
         Back = 12;
-        if(pOpPoint->m_bTEFlap) Back++;
+        if(pOpPoint->m_bTEFlap) Back+=3;
         if(pOpPoint->m_bLEFlap) Back++;
         if(pOpPoint->m_bViscResults && qAbs(pOpPoint->Cd)>0.0) Back++;
         if(pPolar->isFixedLiftPolar()) Back++;
@@ -621,7 +625,7 @@ void OpPointWt::paintOpPoint(QPainter &painter)
         D += dD;
         if(pPolar->isFixedSpeedPolar())
         {
-            xfl::ReynoldsFormat(strong, pPolar->Reynolds());
+            strong = xfl::ReynoldsFormat(pPolar->Reynolds());
             strong ="Reynolds = " + strong;
             painter.drawText(XPos,ZPos+D, dwidth, dD, Qt::AlignRight | Qt::AlignTop, strong);
             D += dD;
@@ -631,7 +635,7 @@ void OpPointWt::paintOpPoint(QPainter &painter)
         }
         else if(pPolar->isFixedLiftPolar())
         {
-            xfl::ReynoldsFormat(strong, pPolar->Reynolds());
+            strong = xfl::ReynoldsFormat(pPolar->Reynolds());
             strong = tr("Re.sqrt(Cl) = ") + strong;
             painter.drawText(XPos,ZPos+D, dwidth, dD, Qt::AlignRight | Qt::AlignTop, strong);
             D += dD;
@@ -642,8 +646,8 @@ void OpPointWt::paintOpPoint(QPainter &painter)
         }
         else if(pPolar->isRubberChordPolar())
         {
-            xfl::ReynoldsFormat(strong, pPolar->Reynolds());
-            strong = tr("Re.sqrt(Cl) = ") + strong;
+            strong = xfl::ReynoldsFormat(pPolar->Reynolds());
+            strong = tr("Re.Cl = ") + strong;
             painter.drawText(XPos,ZPos+D, dwidth, dD, Qt::AlignRight | Qt::AlignTop, strong);
             D += dD;
 
@@ -676,7 +680,7 @@ void OpPointWt::paintOpPoint(QPainter &painter)
         {
             if(!pPolar->isFixedSpeedPolar())
             {
-                xfl::ReynoldsFormat(Result, pOpPoint->Reynolds());
+                Result = xfl::ReynoldsFormat(pOpPoint->Reynolds());
                 Result = "Re = "+ Result;
                 painter.drawText(XPos,ZPos+D, dwidth, dD, Qt::AlignRight | Qt::AlignTop, Result);
                 D += dD;
@@ -722,14 +726,20 @@ void OpPointWt::paintOpPoint(QPainter &painter)
 
             if(pOpPoint->m_bTEFlap)
             {
-                Result = QString(tr("TE Hinge Moment/span = %1")).arg(pOpPoint->m_TEHMom, 9, 'e', 2);
+                Result = QString(tr("TE Hinge Moment/span = %1")).arg(pOpPoint->m_TE_HMom, 9, 'g',3);
+                painter.drawText(XPos,ZPos+D, dwidth, dD, Qt::AlignRight | Qt::AlignTop, Result);
+                D += dD;
+                Result = QString::asprintf("TE Hinge Fx/span = %9.3g", pOpPoint->m_TE_HFx);
+                painter.drawText(XPos,ZPos+D, dwidth, dD, Qt::AlignRight | Qt::AlignTop, Result);
+                D += dD;
+                Result = QString::asprintf("TE Hinge Fy/span = %9.3g", pOpPoint->m_TE_HFy);
                 painter.drawText(XPos,ZPos+D, dwidth, dD, Qt::AlignRight | Qt::AlignTop, Result);
                 D += dD;
             }
 
             if(pOpPoint->m_bLEFlap)
             {
-                Result = QString(tr("LE Hinge Moment/span = %1")).arg(pOpPoint->m_LEHMom, 9, 'e', 2);
+                Result = QString(tr("LE Hinge Moment/span = %1")).arg(pOpPoint->m_LE_HMom, 9, 'e', 2);
                 painter.drawText(XPos,ZPos+D, dwidth, dD, Qt::AlignRight | Qt::AlignTop, Result);
             }
         }
@@ -971,7 +981,7 @@ void OpPointWt::onXDirectStyle()
  * @param point the screen coordinates
  * @return the viewport coordinates
  */
-Vector3d OpPointWt::mousetoReal(const QPoint &point) const
+Vector3d OpPointWt::mousetoReal(const QPointF &point) const
 {
     Vector3d Real;
 

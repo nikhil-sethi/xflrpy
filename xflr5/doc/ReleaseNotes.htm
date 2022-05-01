@@ -1,5 +1,3 @@
-
-<!-- saved from url=(0037)http://www.xflr5.com/ReleaseNotes.htm -->
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -18,13 +16,72 @@
                     XFLR5 Release Notes
                 </h1>
                 <br>
-                  <h3>
+                <h3>
+                     xflr5 v6.56 April 10, 2022
+                </h3>
+                    <ul>
+                    <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/188/">bug reported in ticket 188</a></li>
+                    <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/189/">bug reported in ticket 189</a></li>
+                    <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/191/">bug reported in ticket 191</a></li>
+                    <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/192/">bug reported in ticket 192</a></li>
+                    </ul>
+                <br>
+                <br>
+                <h3>
+                     xflr5 v6.55 February 23, 2022
+                </h3>
+                    <ul>
+                        <li>restored the output of CY, Cl and Cn in the case of beta polars</li>
+                        <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/185/">bug reported in ticket 185</a></li>
+                        <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/180/">bug reported in ticket 180</a>;
+                            to ensure consistency with the original FORTRAN XFoil, updated some XFoil routines from v6.94 to v6.99</li>
+                        <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/181/">bug reported in ticket 181</a></li>
+                        <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/182/">bug reported in ticket 182</a></li>
+                        <li>fixed a bunch of bugs in the foil analysis module including crash bugs</li>
+                        <li>fixed a bunch of minor display bugs</li>
+                    </ul>
+                <br>
+                <h3>
+                     xflr5 v6.54 December 29 2021
+                </h3>
+                    <ul>
+                       <li>fixed a bug which limited to 2 the number of threads used in foil batch analyses.</li>
+                       <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/179/">bug report 179</a></li>
+                       <li>fixed some compatibility issues with Qt6 and VS2019</li>
+                    </ul>
+                <br>
+                <h3>
+                     xflr5 v6.53 November 28 2021
+                </h3>
+                    <ul>
+                       <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/177/">bug report 177</a></li> 
+                    </ul>
+                <br>
+                <h3>
+                     xflr5 v6.52 November 24 2021
+                </h3>
+                    <ul>
+                        <li>restored the polar type selection and the storage of operating points in foil batch analyses</li>
+                        <li>fixed some minor mouse focus issues in the 3d views</li>
+                        <li>fixed some minor compatibility issues with flow5</li>
+                    </ul>
+                <br>
+                <h3>
+                     xflr5 v6.51 October 24 2021
+                 </h3>
+                    <ul>
+                       <li>fix for bugs reported in tickets 167, 168, 169, 170 and 171</li>
+                       <li>fixed the loading of xml analysis files in foil scripts</li>
+                    </ul>
+                  <br>
+                <h3>
                    xflr5 v6.50 September 8 2021
                   </h3>
                   <ul>
-                     <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/166/">bug report 166</a> - the changes to the Re/Ma/NCrit parameters in a batch analysis are now recorded</li>
                      <li>fixed the crash bug ocurring when running foil T4 analyses</li>
-                     <li>corrected the crash bug which prevented to load project foil containing foil operating points</li>
+                     <li>
+                     fixed the crash bug which prevented to load project files containing foil operating points</li>
+                     <li>fix for <a href="https://sourceforge.net/p/xflr5/tickets/166/">bug report 166</a> - the changes to the Re/Ma/NCrit parameters in a batch analysis are now recorded</li>
                      <li>simplified the UI for foil batch analyses</li>
                      <li>code cleaning and refactoring</li>
                   </ul>
@@ -68,7 +125,6 @@
                         <li>replaced the deprecated sprintf() with QString::asprintf() for forward compatibility</li>
                         <li>added translation to Catalan</li>
                     </ul>
-                    <br>
                 <br>
                 <br>
                   <h3>
@@ -88,9 +144,8 @@
                         <li>File name cleaning</li>
                         <li>code cleaning</li>
                     </ul>
-                    <br>
                 <br>
-                xflr5 v6.46 May 4th 2019
+                  <h3>xflr5 v6.46 May 4th 2019</h3>
                   </h3>
                     <ul>
                         <li>fix for bug #134 - LLT now restored in v6.46</li>

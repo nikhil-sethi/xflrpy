@@ -46,7 +46,7 @@ InterpolateFoilsDlg::InterpolateFoilsDlg(QWidget *pParent) : QDialog(pParent)
     connect(m_pcbFoil1,  SIGNAL(activated(int)),    this, SLOT(onSelChangeFoil1(int)));
     connect(m_pcbFoil2,  SIGNAL(activated(int)),    this, SLOT(onSelChangeFoil2(int)));
     connect(m_pdeFrac,   SIGNAL(editingFinished()), this, SLOT(onFrac()));
-    connect(m_pslMix, SIGNAL(sliderMoved(int)),  this, SLOT(onVScroll(int)));
+    connect(m_pslMix, SIGNAL(valueChanged(int)),  this, SLOT(onVScroll(int)));
 }
 
 

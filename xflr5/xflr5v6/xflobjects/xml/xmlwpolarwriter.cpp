@@ -79,8 +79,8 @@ void XmlWPolarWriter::writeXMLWPolar(WPolar *pWPolar)
         writeTextElement("Fixed_SideSlip",     QString("%1").arg(pWPolar->Beta(),11,'f',5));
         writeTextElement("Reference_Dimensions",   referenceDimension(pWPolar->referenceDim()));
         writeTextElement("Reference_Area",         QString("%1").arg(pWPolar->referenceArea()*Units::m2toUnit(),11,'f',5));
-        writeTextElement("Reference_Span_Length",  QString("%1").arg(pWPolar->referenceSpanLength()*Units::mtoUnit(),11,'f',5));
-        writeTextElement("Reference_Chord_Length", QString("%1").arg(pWPolar->referenceChordLength()*Units::mtoUnit(),11,'f',5));
+        writeTextElement("Reference_Span_Length",  QString("%1").arg(pWPolar->referenceSpan()*Units::mtoUnit(),11,'f',5));
+        writeTextElement("Reference_Chord_Length", QString("%1").arg(pWPolar->referenceMAC()*Units::mtoUnit(),11,'f',5));
 
         writeStartElement("ExtraDrag");
         {

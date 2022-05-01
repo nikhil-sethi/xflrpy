@@ -22,15 +22,17 @@
 
 #include <QFontDialog>
 #include <QColorDialog>
-
+#include <QPushButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDebug>
 
+#include <miarex/miarex.h>
+
 #include <xflgraph/graph.h>
 #include <xflgraph/controls/graphdlg.h>
-#include <miarex/miarex.h>
+
 #include <xflwidgets/color/colorbtn.h>
 #include <xflwidgets/line/linebtn.h>
 #include <xflwidgets/line/linemenu.h>
@@ -40,6 +42,7 @@
 #include <xflobjects/objects2d/polar.h>
 #include <xflobjects/objects3d/wpolar.h>
 
+QByteArray GraphDlg::s_Geometry;
 
 int GraphDlg::s_iActivePage = 0;
 
@@ -94,8 +97,8 @@ void GraphDlg::connectSignals()
     connect(m_plwXSel, SIGNAL(itemSelectionChanged()), SLOT(onVariableChanged()));
     connect(m_plwYSel, SIGNAL(itemSelectionChanged()), SLOT(onVariableChanged()));
 
-    connect(m_plwXSel, SIGNAL(itemDoubleClicked (QListWidgetItem *)), SLOT(onOK()));
-    connect(m_plwYSel, SIGNAL(itemDoubleClicked (QListWidgetItem *)), SLOT(onOK()));
+    connect(m_plwXSel, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(onOK()));
+    connect(m_plwYSel, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(onOK()));
 }
 
 
@@ -133,7 +136,7 @@ void GraphDlg::fillVariableList()
         case GRAPH::POLARGRAPH:
         {
             //foil polar graph variables
-            for(int iVar=0; iVar<15; iVar++)
+            for(int iVar=0; iVar<17; iVar++)
             {
                 m_plwXSel->addItem(Polar::variableName(iVar));
                 m_plwYSel->addItem(Polar::variableName(iVar));
@@ -145,12 +148,12 @@ void GraphDlg::fillVariableList()
             //wing graph variable
             m_plwXSel->addItem(tr("Y - span"));
 
-            m_plwYSel->addItem(tr("Induced Angle"));                        //0
-            m_plwYSel->addItem(tr("Total Angle"));                        //1
+            m_plwYSel->addItem(tr("Induced Angle"));                       //0
+            m_plwYSel->addItem(tr("Total Angle"));                         //1
             m_plwYSel->addItem(tr("Local lift coef."));                    //2
-            m_plwYSel->addItem(tr("Local Lift C.Cl/M.A.C."));                //3
-            m_plwYSel->addItem(tr("Airfoil viscous drag coef."));            //4
-            m_plwYSel->addItem(tr("Induced drag coef."));                    //5
+            m_plwYSel->addItem(tr("Local Lift C.Cl/M.A.C."));              //3
+            m_plwYSel->addItem(tr("Airfoil viscous drag coef."));          //4
+            m_plwYSel->addItem(tr("Induced drag coef."));                  //5
             m_plwYSel->addItem(tr("Total drag coef."));                    //6
             m_plwYSel->addItem(tr("Local Drag C.Cd/M.A.C."));              //7
             m_plwYSel->addItem(tr("Airfoil Pitching moment coef."));       //8
@@ -160,6 +163,8 @@ void GraphDlg::fillVariableList()
             m_plwYSel->addItem(tr("Bottom Transition x-pos%"));            //12
             m_plwYSel->addItem(tr("Centre of Pressure x-pos%"));           //13
             m_plwYSel->addItem(tr("Bending moment"));                      //14
+            m_plwYSel->addItem("Cl/Cd");                                   //15
+            m_plwYSel->addItem("sqrt(Cl³/Cd²)");                           //16
             break;
         }
         case GRAPH::WPOLARGRAPH:
@@ -199,9 +204,16 @@ void GraphDlg::reject()
 }
 
 
+void GraphDlg::hideEvent(QHideEvent *)
+{
+    s_Geometry = saveGeometry();
+}
+
+
 void GraphDlg::showEvent(QShowEvent *pEvent)
 {
     m_pTabWidget->setCurrentIndex(s_iActivePage);
+    restoreGeometry(s_Geometry);
     pEvent->ignore();
 }
 
@@ -402,7 +414,7 @@ void GraphDlg::onTitleColor()
 
 void GraphDlg::onTitleFont()
 {
-    bool bOk=false;
+    bool bOk(false);
     QFont TitleFont("Arial");
     m_pGraph->getTitleFont(TitleFont);
 
@@ -523,7 +535,6 @@ void GraphDlg::onYMinGridShow(int state)
 void GraphDlg::setApplied(bool bApplied)
 {
     m_bApplied = bApplied;
-    //    ApplyButton->setEnabled(!bApplied);
 }
 
 
@@ -600,8 +611,6 @@ void GraphDlg::setControls()
 
 void GraphDlg::setupLayout()
 {
-    QFontMetrics fm(font());
-
     m_pButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Discard | QDialogButtonBox::Reset);
     {
         connect(m_pButtonBox, SIGNAL(clicked(QAbstractButton*)), SLOT(onButton(QAbstractButton*)));
@@ -824,7 +833,7 @@ void GraphDlg::setupLayout()
     m_pTabWidget->addTab(m_pFontPage, tr("Fonts and BackGround"));
 
     m_pTabWidget->setCurrentIndex(s_iActivePage);
-    connect(m_pTabWidget, SIGNAL(currentChanged (int)), this, SLOT(onActivePage(int)));
+    connect(m_pTabWidget, SIGNAL(currentChanged(int)), this, SLOT(onActivePage(int)));
 
     QVBoxLayout *pMainLayout = new QVBoxLayout;
     {
@@ -842,6 +851,25 @@ void GraphDlg::setGraph(Graph *pGraph)
     setControls();
 }
 
+
+void GraphDlg::loadSettings(QSettings &settings)
+{
+    settings.beginGroup("GraphDlg");
+    {
+        s_Geometry = settings.value("WindowGeom", QByteArray()).toByteArray();
+    }
+    settings.endGroup();
+}
+
+
+void GraphDlg::saveSettings(QSettings &settings)
+{
+    settings.beginGroup("GraphDlg");
+    {
+        settings.setValue("WindowGeom", s_Geometry);
+    }
+    settings.endGroup();
+}
 
 
 void GraphDlg::setActivePage(int iPage)

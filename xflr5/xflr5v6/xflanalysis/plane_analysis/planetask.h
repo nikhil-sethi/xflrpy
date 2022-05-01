@@ -113,15 +113,10 @@ class PlaneTask : public QObject
 
         //data arrays
         QVector<Vector3d> m_Node;              /**< the node array for the currently loaded UFO*/
-        QVector<Vector3d> m_MemNode;           /**< used if the analysis should be performed on the tilted geometry */
         QVector<Vector3d> m_WakeNode;          /**< the current wake node array */
-        QVector<Vector3d> m_RefWakeNode;       /**< the reference wake node array if wake needs to be reset */
-        QVector<Vector3d> m_TempWakeNode;      /**< a temporary array to hold the calculations of wake roll-up */
 
         QVector<Panel> m_Panel;               /**< the panel array for the currently loaded UFO */
-        QVector<Panel> m_MemPanel;            /**< used if the analysis should be performed on the tilted geometry */
         QVector<Panel> m_WakePanel;           /**< the reference current wake panel array */
-        QVector<Panel> m_RefWakePanel;        /**< the reference wake panel array if wake= new Vector3d needs to be reset */
 
         int m_WakeSize;                    /**< the size of the wake matrix, if a wake is included in the analysis */
         int m_NWakeColumn;                 /**< the number of wake columns */

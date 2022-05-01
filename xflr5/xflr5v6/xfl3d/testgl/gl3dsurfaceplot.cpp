@@ -15,8 +15,8 @@
 
 
 
-#include <xfl3d/gl_globals.h>
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/gl_globals.h>
+#include <xfl3d/globals/w3dprefs.h>
 
 
 gl3dSurfacePlot::gl3dSurfacePlot(QWidget *pParent) : gl3dSurface(pParent)
@@ -106,7 +106,7 @@ void gl3dSurfacePlot::glMake3dObjects()
         glMakeSurface();
         QVector<double> nodevalues(m_PointArray.size());
         for(int i=0; i<m_PointArray.size(); i++) nodevalues[i] = m_PointArray.at(i).z;
-        glMakeQuadContoursOnGrid( m_vboContourLines, m_Size_x, m_Size_y, m_PointArray, nodevalues, true);
+        glMakeQuadContoursOnGrid(m_vboContourLines, m_Size_x, m_Size_y, m_PointArray, nodevalues, true);
 
         //		m_pglStdBuffers->glMakeTriangle(m_TriangleVertex[0], m_TriangleVertex[1], m_TriangleVertex[2]);
         glMakePolygon();
@@ -161,8 +161,8 @@ void gl3dSurfacePlot::paintPolygon()
 
         m_shadLine.setUniformValue(m_locLine.m_UniColor, QColor(255,0,0));
 
-        if(m_bUse120StyleShaders) glLineWidth(5);
-        else m_shadLine.setUniformValue(m_locLine.m_Thickness, 5);
+        if(m_bUse120StyleShaders) glLineWidth(5.0f);
+        else m_shadLine.setUniformValue(m_locLine.m_Thickness, 5.0f);
         m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(Line::SOLID));
 
         if(m_vboPolygon.size()>=0)

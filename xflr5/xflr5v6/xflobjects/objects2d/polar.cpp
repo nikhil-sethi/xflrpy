@@ -42,14 +42,14 @@ Polar::Polar()
 
     m_ASpec     = 0.0;
     m_PolarType = xfl::FIXEDSPEEDPOLAR;
-    m_ReType    = 1;
-    m_MaType    = 1;
     m_Reynolds  = 100000.0;
     m_Mach      = 0.0;
     m_NCrit     = 9.0;
     m_XTop      = 1.0;
     m_XBot      = 1.0;
     m_FoilName.clear();
+
+    m_FlapAngle = m_XHinge = m_YHinge = 0.0;
 }
 
 
@@ -59,7 +59,7 @@ Polar::Polar()
  * @param FileType TXT if the data is separated by spaces, CSV for a comma separator
  * @param bDataOnly true if the analysis parameters should not be output
  */
-void Polar::exportPolar(QTextStream &out, QString versionName, bool bCSV, bool bDataOnly) const
+void Polar::exportPolar(QTextStream &out, const QString &versionName, bool bCSV, bool bDataOnly) const
 {
     QString Header, strong;
 
@@ -72,15 +72,15 @@ void Polar::exportPolar(QTextStream &out, QString versionName, bool bCSV, bool b
         strong += m_FoilName + "\n\n";
         out << strong;
 
-        strong = QString(" %1 %2").arg(m_ReType).arg(m_MaType);
+        strong = QString(" %1 %2").arg(ReType()).arg(MaType());
 
-        if(m_ReType==1)      strong += (" Reynolds number fixed       ");
-        else if(m_ReType==2) strong += (" Reynolds number ~ 1/sqrt(CL)");
-        else if(m_ReType==3) strong += (" Reynolds number ~ 1/CL      ");
+        if     (ReType()==1) strong += (" Reynolds number fixed       ");
+        else if(ReType()==2) strong += (" Reynolds number ~ 1/sqrt(CL)");
+        else if(ReType()==3) strong += (" Reynolds number ~ 1/CL      ");
 
-        if(m_MaType==1)      strong += ("   Mach number fixed         ");
-        else if(m_MaType==2) strong += ("   Mach number ~ 1/sqrt(CL)  ");
-        else if(m_MaType==3) strong += ("   Mach number ~ 1/CL        ");
+        if     (MaType()==1) strong += ("   Mach number fixed         ");
+        else if(MaType()==2) strong += ("   Mach number ~ 1/sqrt(CL)  ");
+        else if(MaType()==3) strong += ("   Mach number ~ 1/CL        ");
         strong +="\n\n";
         out << strong;
 
@@ -106,27 +106,37 @@ void Polar::exportPolar(QTextStream &out, QString versionName, bool bCSV, bool b
         for (int j=0; j<m_Alpha.size(); j++)
         {
             if(!bCSV) strong = QString(" %1  %2  %3  %4  %5")
-                                            .arg(m_Alpha[j],7,'f',3)
-                                            .arg(m_Cl[j],7,'f',4)
-                                            .arg(m_Cd[j],8,'f',5)
-                                            .arg(m_Cdp[j],8,'f',5)
-                                            .arg(m_Cm[j],7,'f',4);
+                                            .arg(m_Alpha.at(j),7,'f',3)
+                                            .arg(m_Cl.at(j),   7,'f',4)
+                                            .arg(m_Cd.at(j),   8,'f',5)
+                                            .arg(m_Cdp.at(j),  8,'f',5)
+                                            .arg(m_Cm.at(j),   7,'f',4);
             else      strong = QString("%1,%2,%3,%4,%5")
-                                            .arg(m_Alpha[j],7,'f',3)
-                                            .arg(m_Cl[j],7,'f',4)
-                                            .arg(m_Cd[j],8,'f',5)
-                                            .arg(m_Cdp[j],8,'f',5)
-                                            .arg(m_Cm[j],7,'f',4);
+                                            .arg(m_Alpha.at(j),7,'f',3)
+                                            .arg(m_Cl.at(j),   7,'f',4)
+                                            .arg(m_Cd.at(j),   8,'f',5)
+                                            .arg(m_Cdp.at(j),  8,'f',5)
+                                            .arg(m_Cm.at(j),   7,'f',4);
 
             out << strong;
-            if(m_XTr1[j]<990.0)
+            if(m_XTr1.at(j)<990.0)
             {
-                if(!bCSV) strong=QString("  %1  %2").arg(m_XTr1[j],6,'f',4).arg( m_XTr2[j],6,'f',4);
-                else      strong=QString(",%1,%2").arg(m_XTr1[j],6,'f',4).arg( m_XTr2[j],6,'f',4);
+                if(!bCSV) strong=QString("  %1  %2").arg(m_XTr1.at(j),6,'f',4).arg( m_XTr2.at(j),6,'f',4);
+                else      strong=QString(",%1,%2").arg(m_XTr1.at(j),6,'f',4).arg( m_XTr2.at(j),6,'f',4);
                 out << strong;
             }
-            if(!bCSV) strong=QString("  %1  %2  %3\n").arg(m_Cpmn[j],7,'f',4).arg(m_HMom[j],7,'f',4).arg(m_XCp[j],7,'f',4);
-            else      strong=QString(",%1,%2,%3\n").arg(m_Cpmn[j],7,'f',4).arg(m_HMom[j],7,'f',4).arg(m_XCp[j],7,'f',4);
+            if(!bCSV) strong=QString("  %1  %2  %3  %4  %5\n")
+                    .arg(m_Cpmn.at(j),7,'f',4)
+                    .arg(m_HMom.at(j),7,'f',4)
+                    .arg(m_HFx.at(j), 7,'f',4)
+                    .arg(m_HFy.at(j), 7,'f',4)
+                    .arg(m_XCp.at(j), 7,'f',4);
+            else      strong=QString(",%1,%2,%3,%4,%5\n")
+                    .arg(m_Cpmn.at(j),7,'f',4)
+                    .arg(m_HMom.at(j),7,'f',4)
+                    .arg(m_HFx.at(j), 7,'f',4)
+                    .arg(m_HFy.at(j), 7,'f',4)
+                    .arg(m_XCp.at(j), 7,'f',4);
             out << strong;
             }
     }
@@ -143,34 +153,43 @@ void Polar::exportPolar(QTextStream &out, QString versionName, bool bCSV, bool b
         for (int j=0; j<m_Alpha.size(); j++)
         {
             if(!bCSV) strong=QString(" %1 %2  %3  %4  %5  %6")
-                                            .arg(m_Alpha[j],7,'f',3)
-                                            .arg( m_Re[j],8,'f',0)
-                                            .arg( m_Cl[j],7,'f',4)
-                                            .arg( m_Cd[j],8,'f',5)
-                                            .arg(m_Cdp[j],8,'f',5)
-                                            .arg(m_Cm[j],7,'f',4);
+                                            .arg(m_Alpha.at(j),7,'f',3)
+                                            .arg( m_Re.at(j),  8,'f',0)
+                                            .arg( m_Cl.at(j),  7,'f',4)
+                                            .arg( m_Cd.at(j),  8,'f',5)
+                                            .arg(m_Cdp.at(j),  8,'f',5)
+                                            .arg(m_Cm.at(j),   7,'f',4);
             else      strong=QString(" %1,%2,%3,%4,%5,%6")
-                                            .arg(m_Alpha[j],7,'f',3)
-                                            .arg( m_Re[j],8,'f',0)
-                                            .arg( m_Cl[j],7,'f',4)
-                                            .arg( m_Cd[j],8,'f',5)
-                                            .arg(m_Cdp[j],8,'f',5)
-                                            .arg(m_Cm[j],7,'f',4);
+                                            .arg(m_Alpha.at(j),7,'f',3)
+                                            .arg( m_Re.at(j),  8,'f',0)
+                                            .arg( m_Cl.at(j),  7,'f',4)
+                                            .arg( m_Cd.at(j),  8,'f',5)
+                                            .arg(m_Cdp.at(j),  8,'f',5)
+                                            .arg(m_Cm.at(j),   7,'f',4);
             out << strong;
-            if(m_XTr1[j]<990.0)
+            if(m_XTr1.at(j)<990.0)
             {
-                if(!bCSV) strong=QString("  %1  %2").arg(m_XTr1[j],6,'f',4).arg(m_XTr2[j],6,'f',4);
-                else      strong=QString(",%1,%2").arg(m_XTr1[j],6,'f',4).arg(m_XTr2[j],6,'f',4);
+                if(!bCSV) strong=QString("  %1  %2").arg(m_XTr1.at(j),6,'f',4).arg(m_XTr2.at(j),6,'f',4);
+                else      strong=QString(",%1,%2").arg(m_XTr1.at(j),6,'f',4).arg(m_XTr2.at(j),6,'f',4);
                 out << strong;
             }
-            if(!bCSV) strong=QString("  %1  %2  %3\n").arg(m_Cpmn[j],7,'f',4).arg(m_HMom[j],7,'f',4).arg(m_XCp[j],7,'f',4);
-            else      strong=QString(",%1,%2,%3\n").arg(m_Cpmn[j],7,'f',4).arg(m_HMom[j],7,'f',4).arg(m_XCp[j],7,'f',4);
+            if(!bCSV) strong=QString("  %1  %2  %3  %4  %5\n")
+                    .arg(m_Cpmn.at(j),7,'f',4)
+                    .arg(m_HMom.at(j),7,'f',4)
+                    .arg(m_HFx.at(j), 7,'f',4)
+                    .arg(m_HFy.at(j), 7,'f',4)
+                    .arg(m_XCp.at(j), 7,'f',4);
+            else      strong=QString(",%1,%2,%3,%4,%5\n")
+                    .arg(m_Cpmn.at(j),7,'f',4)
+                    .arg(m_HMom.at(j),7,'f',4)
+                    .arg(m_HFx.at(j), 7,'f',4)
+                    .arg(m_HFy.at(j), 7,'f',4)
+                    .arg(m_XCp.at(j), 7,'f',4);
             out << strong;
         }
     }
     out << "\n\n";
 }
-
 
 
 /**
@@ -186,6 +205,8 @@ void Polar::resetPolar()
     m_XTr1.clear();
     m_XTr2.clear();
     m_HMom.clear();
+    m_HFx.clear();
+    m_HFy.clear();
     m_Cpmn.clear();
     m_ClCd.clear();
     m_RtCl.clear();
@@ -193,7 +214,6 @@ void Polar::resetPolar()
     m_Re.clear();
     m_XCp.clear();
 }
-
 
 
 /**
@@ -272,7 +292,9 @@ void Polar::replaceOppDataAt(int pos, OpPoint const*pOpp)
     m_Cm[pos]    =  pOpp->Cm;
     m_XTr1[pos]  =  pOpp->Xtr1;
     m_XTr2[pos]  =  pOpp->Xtr2;
-    m_HMom[pos]  =  pOpp->m_TEHMom;
+    m_HMom[pos]  =  pOpp->m_TE_HMom;
+    m_HFx[pos]   =  pOpp->m_TE_HFx;
+    m_HFy[pos]   =  pOpp->m_TE_HFy;
     m_Cpmn[pos]  =  pOpp->Cpmn;
     m_ClCd[pos]  =  pOpp->Cl/pOpp->Cd;
     m_XCp[pos]   =  pOpp->m_XCP;
@@ -308,7 +330,9 @@ void Polar::insertOppDataAt(int i, const OpPoint *pOpp)
     m_Cm.insert(   i, pOpp->Cm);
     m_XTr1.insert( i, pOpp->Xtr1);
     m_XTr2.insert( i, pOpp->Xtr2);
-    m_HMom.insert( i, pOpp->m_TEHMom);
+    m_HMom.insert( i, pOpp->m_TE_HMom);
+    m_HFx.insert(  i, pOpp->m_TE_HFx);
+    m_HFy.insert(  i, pOpp->m_TE_HFy);
     m_Cpmn.insert( i, pOpp->Cpmn);
     m_ClCd.insert( i, pOpp->Cl/pOpp->Cd);
     m_XCp.insert(  i, pOpp->m_XCP);
@@ -348,7 +372,8 @@ void Polar::insertOppDataAt(int i, const OpPoint *pOpp)
  * If not, the data is inserted for this index.
  */
 void Polar::addPoint(double Alpha, double Cd, double Cdp, double Cl, double Cm, double Xtr1,
-                     double Xtr2, double HMom, double Cpmn, double Reynolds, double XCp)
+                     double Xtr2, double HMom, double HFx, double HFy,
+                     double Cpmn, double Reynolds, double XCp)
 {
     OpPoint *pOpp = new OpPoint;
     pOpp->m_bViscResults = true;
@@ -359,7 +384,9 @@ void Polar::addPoint(double Alpha, double Cd, double Cdp, double Cl, double Cm, 
     pOpp->Cm         = Cm;
     pOpp->Xtr1       = Xtr1;
     pOpp->Xtr2       = Xtr2;
-    pOpp->m_TEHMom   = HMom;
+    pOpp->m_TE_HMom  = HMom;
+    pOpp->m_TE_HFx   = HFx;
+    pOpp->m_TE_HFy   = HFy;
     pOpp->Cpmn       = Cpmn;
     pOpp->m_Reynolds = Reynolds;
     pOpp->m_XCP      = XCp;
@@ -388,11 +415,13 @@ void Polar::copyPolar(const Polar *pPolar)
         m_Alpha.insert(i,  pPolar->m_Alpha[i]);
         m_Cd.insert(i,     pPolar->m_Cd[i]);
         m_Cdp.insert(i,    pPolar->m_Cdp[i]);
-        m_Cl.insert(i,     pPolar-> m_Cl[i]);
+        m_Cl.insert(i,     pPolar->m_Cl[i]);
         m_Cm.insert(i,     pPolar->m_Cm[i]);
         m_XTr1.insert(i,   pPolar->m_XTr1[i]);
         m_XTr2.insert(i,   pPolar->m_XTr2[i]);
         m_HMom.insert(i,   pPolar->m_HMom[i]);
+        m_HFx.insert(i,    pPolar->m_HFx[i]);
+        m_HFy.insert(i,    pPolar->m_HFy[i]);
         m_Cpmn.insert(i,   pPolar->m_Cpmn[i]);
         m_ClCd.insert(i,   pPolar->m_ClCd[i]);
         m_RtCl.insert(i,   pPolar->m_RtCl[i]);
@@ -410,8 +439,6 @@ void Polar::copyPolar(const Polar *pPolar)
 void Polar::copySpecification(const Polar *pPolar)
 {
     m_PolarType = pPolar->m_PolarType;
-    m_ReType    = pPolar->m_ReType;
-    m_MaType    = pPolar->m_MaType;
     m_Reynolds  = pPolar->m_Reynolds;
     m_ASpec     = pPolar->m_ASpec;
     m_Mach      = pPolar->m_Mach;
@@ -435,6 +462,8 @@ void Polar::removePoint(int i)
     m_XTr1.removeAt(i);
     m_XTr2.removeAt(i);
     m_HMom.removeAt(i);
+    m_HFx.removeAt(i);
+    m_HFy.removeAt(i);
     m_Cpmn.removeAt(i);
     m_ClCd.removeAt(i);
     m_RtCl.removeAt(i);
@@ -604,86 +633,10 @@ void Polar::getLinearizedCl(double &Alpha0, double &slope) const
 }
 
 
-
-/**
-* Returns the name of the variable for a given index
-*@param iVar the index of the variable
-*@param &Name the reference of the QString object to be filled with the variable's name.
-*/
-QString Polar::variableName(int iVar)
-{
-    switch (iVar)
-    {
-        case 0:
-            return "Alpha";
-        case 1:
-            return "Cl";
-        case 2:
-            return "Cd";
-        case 3:
-            return "Cd x 10000";
-        case 4:
-            return "Cdp";
-        case 5:
-            return "Cm";
-        case 6:
-            return "Xtr top";
-        case 7:
-            return "Xtr bot";
-        case 8:
-            return "HMom";
-        case 9:
-            return "Cpmin";
-        case 10:
-            return "Cl/Cd";
-        case 11:
-            return "|Cl|^(3/2)/Cd";
-        case 12:
-            return "1/Rt(Cl)";
-        case 13:
-            return "Re";
-        case 14:
-            return "XCp";
-        default:
-            return "Alpha";
-    }
-}
-
-
-void Polar::setPolarType(xfl::enumPolarType type)
-{
-    m_PolarType=type;
-    switch (m_PolarType)
-    {
-        case xfl::FIXEDSPEEDPOLAR:
-            m_MaType = 1;
-            m_ReType = 1;
-            break;
-        case xfl::FIXEDLIFTPOLAR:
-            m_MaType = 2;
-            m_ReType = 2;
-            break;
-        case xfl::RUBBERCHORDPOLAR:
-            m_MaType = 1;
-            m_ReType = 3;
-            break;
-        case xfl::FIXEDAOAPOLAR:
-            m_MaType = 1;
-            m_ReType = 1;
-            break;
-        default:
-            m_ReType = 1;
-            m_MaType = 1;
-            break;
-    }
-}
-
-
 void Polar::setAutoPolarName()
 {
     m_Name = autoPolarName(m_PolarType, m_Reynolds, m_Mach, m_NCrit, m_ASpec, m_XTop, m_XBot);
 }
-
 
 
 /**
@@ -747,11 +700,6 @@ QString Polar::autoPolarName(xfl::enumPolarType polarType, double Re, double Mac
 }
 
 
-bool Polar::hasOpp(OpPoint const *pOpp) const
-{
-    return (pOpp->foilName()==m_FoilName && pOpp->polarName()==m_Name);
-}
-
 QString Polar::properties() const
 {
     QString props;
@@ -776,45 +724,63 @@ void Polar::getProperties(QString &polarProps) const
     polarProps.clear();
 
     int iPolarNumber = 0;
-    if (m_PolarType==xfl::FIXEDSPEEDPOLAR)     iPolarNumber = 1;
-    else if (m_PolarType==xfl::FIXEDLIFTPOLAR) iPolarNumber = 2;
-    else if (m_PolarType==xfl::FIXEDAOAPOLAR)  iPolarNumber = 4;
-    else if (m_PolarType==xfl::STABILITYPOLAR) iPolarNumber = 7;
-    else if (m_PolarType==xfl::BETAPOLAR)      iPolarNumber = 5;
+    switch(m_PolarType)
+    {
+        case xfl::FIXEDSPEEDPOLAR:   iPolarNumber = 1;   break;
+        case xfl::FIXEDLIFTPOLAR:    iPolarNumber = 2;   break;
+        case xfl::RUBBERCHORDPOLAR:  iPolarNumber = 3;   break;
+        case xfl::FIXEDAOAPOLAR:     iPolarNumber = 4;   break;
+        default:                     iPolarNumber = 0;   break;
+    }
     strong = QString(QObject::tr("Type")+" = %1").arg(iPolarNumber);
 
-    if(m_PolarType==xfl::FIXEDSPEEDPOLAR)      strong += " ("+QObject::tr("Fixed speed") +")\n";
-    else if(m_PolarType==xfl::FIXEDLIFTPOLAR) strong += " ("+QObject::tr("Fixed lift") +")\n";
-    else if(m_PolarType==xfl::FIXEDAOAPOLAR) strong += " ("+QObject::tr("Fixed angle of attack") +")\n";
+    switch(m_PolarType)
+    {
+        case xfl::FIXEDSPEEDPOLAR:   strong += " ("+QObject::tr("Fixed speed") +")\n";             break;
+        case xfl::FIXEDLIFTPOLAR:    strong += " ("+QObject::tr("Fixed lift") +")\n";              break;
+        case xfl::RUBBERCHORDPOLAR:  strong += " ("+QObject::tr("Rubber chord") +")\n";            break;
+        case xfl::FIXEDAOAPOLAR:     strong += " ("+QObject::tr("Fixed angle of attack") +")\n";   break;
+        default:   break;
+    }
     polarProps += strong;
 
-    if(m_PolarType==xfl::FIXEDSPEEDPOLAR)
+    switch(m_PolarType)
     {
-        strong = QString(QObject::tr("Reynolds number")+" = %L1\n").arg(m_Reynolds,0,'f',0);
-        polarProps += strong;
-        strong = QString(QObject::tr("Mach number") + " = %L1\n").arg(m_Mach,5,'f',2);
-        polarProps += strong;
-    }
-    else if(m_PolarType==xfl::FIXEDLIFTPOLAR)
-    {
-        strong = QString("Re.sqrt(Cl) = %L1\n").arg(m_Reynolds,0,'f',0);
-        polarProps += strong;
-        strong = QString("Ma.sqrt(Cl) = %L1\n").arg(m_Mach,5,'f',2);
-        polarProps += strong;
-    }
-    else if(m_PolarType==xfl::RUBBERCHORDPOLAR)
-    {
-        strong = QString(QObject::tr("Re.Cl")+" = %L1\n").arg(m_Reynolds,0,'f',0);
-        polarProps += strong;
-        strong = QString(QObject::tr("Mach number") + " = %L1\n").arg(m_Mach,5,'f',2);
-        polarProps += strong;
-    }
-    else if(m_PolarType==xfl::FIXEDAOAPOLAR)
-    {
-        strong = QString(QObject::tr("Alpha")+" = %L1"+QChar(0260)+"\n").arg(m_ASpec,7,'f',2);
-        polarProps += strong;
-        strong = QString(QObject::tr("Mach number") + " = %L1\n").arg(m_Mach,5,'f',2);
-        polarProps += strong;
+            case xfl::FIXEDSPEEDPOLAR:
+            {
+                strong = QString(QObject::tr("Reynolds number")+" = %L1\n").arg(m_Reynolds,0,'f',0);
+                polarProps += strong;
+                strong = QString(QObject::tr("Mach number") + " = %L1\n").arg(m_Mach,5,'f',2);
+                polarProps += strong;
+                break;
+            }
+            case xfl::FIXEDLIFTPOLAR:
+            {
+                strong = QString("Re.sqrt(Cl) = %L1\n").arg(m_Reynolds,0,'f',0);
+                polarProps += strong;
+                strong = QString("Ma.sqrt(Cl) = %L1\n").arg(m_Mach,5,'f',2);
+                polarProps += strong;
+                break;
+            }
+            case xfl::RUBBERCHORDPOLAR:
+            {
+                strong = QString(QObject::tr("Re.Cl")+" = %L1\n").arg(m_Reynolds,0,'f',0);
+                polarProps += strong;
+                strong = QString(QObject::tr("Mach number") + " = %L1\n").arg(m_Mach,5,'f',2);
+                polarProps += strong;
+                break;
+            }
+            case xfl::FIXEDAOAPOLAR:
+            {
+                strong = QString(QObject::tr("Alpha")+" = %L1"+QChar(0260)+"\n").arg(m_ASpec,7,'f',2);
+                polarProps += strong;
+                strong = QString(QObject::tr("Mach number") + " = %L1\n").arg(m_Mach,5,'f',2);
+                polarProps += strong;
+                break;
+            }
+            default:
+                polarProps += QObject::tr("Unrecognized polar type");
+                break;
     }
 
 
@@ -832,45 +798,124 @@ void Polar::getProperties(QString &polarProps) const
 }
 
 
-
-
-
 /**
 * Returns a pointer to a variable array of a polar object, based on the variable's index
 * @param pPolar the pointer to the polar object
 * @param iVar the index of the variable
 * @return the pointer to the array holding the values of the variable
 */
-QVector<double> const & Polar::getPlrVariable(int iVar) const
+QVector<double> const & Polar::getVariable(int iVar) const
 {
     switch (iVar)
     {
-        case 0:
-            return m_Alpha;
-        case 1:
-            return m_Cl;
-        case 2:
-            return m_Cd;
-        case 3:
-            return m_Cdp;
-        case 4:
-            return m_Cm;
-        case 5:
-            return m_XTr1;
-        case 6:
-            return m_XTr2;
-        case 7:
-            return m_HMom;
-        case 8:
-            return m_Cpmn;
-        case 9:
-            return m_ClCd;
-        case 10:
-            return m_Cl32Cd;
-        case 11:
-            return m_XCp;
         default:
-            return m_Alpha;
+        case 0:            return m_Alpha;
+        case 1:            return m_Cl;
+        case 2:            return m_Cd;
+        case 3:            return m_Cdp;
+        case 4:            return m_Cm;
+        case 5:            return m_XTr1;
+        case 6:            return m_XTr2;
+        case 7:            return m_HMom;
+        case 8:            return m_Cpmn;
+        case 9:            return m_ClCd;
+        case 10:           return m_Cl32Cd;
+        case 11:           return m_XCp;
+    }
+}
+
+
+/**
+* Returns the name of the variable for a given index
+*@param iVar the index of the variable
+*@param &Name the reference of the QString object to be filled with the variable's name.
+*/
+QString Polar::variableName(int iVar)
+{
+    switch (iVar)
+    {
+        default:
+        case 0:            return "Alpha";
+        case 1:            return "Cl";
+        case 2:            return "Cd";
+        case 3:            return "Cd x 10000";
+        case 4:            return "Cdp";
+        case 5:            return "Cm";
+        case 6:            return "Xtr top";
+        case 7:            return "Xtr bot";
+        case 8:            return "Hinge Moment";
+        case 9:            return "Hinge Fx";
+        case 10:           return "Hinge Fy";
+        case 11:           return "Cpmin";
+        case 12:           return "Cl/Cd";
+        case 13:           return "sqrt(Cl³/Cd²)";
+        case 14:           return "1/Rt(Cl)";
+        case 15:           return "Re";
+        case 16:           return "XCp";
+    }
+}
+
+
+/**
+* Returns a void pointer to the array of the specified variable of the input Polar
+* @param pPolar a pointer to the Polar object
+* @param iVar the index of the variable for which a pointer is requested
+* @return a pointer to the array of the requested variable
+*/
+QVector<double> const &Polar::getGraphVariable(int iVar) const
+{
+    switch (iVar)
+    {
+        default:
+        case 0:            return m_Alpha;
+        case 1:            return m_Cl;
+        case 2:            return m_Cd;
+        case 3:            return m_Cd;
+        case 4:            return m_Cdp;
+        case 5:            return m_Cm;
+        case 6:            return m_XTr1;
+        case 7:            return m_XTr2;
+        case 8:            return m_HMom;
+        case 9:            return m_HFx;
+        case 10:           return m_HFy;
+        case 11:           return m_Cpmn;
+        case 12:           return m_ClCd;
+        case 13:           return m_Cl32Cd;
+        case 14:           return m_Cl;
+        case 15:           return m_Re;
+        case 16:           return m_XCp;
+    }
+}
+
+
+int Polar::ReType() const
+{
+    switch(m_PolarType)
+    {
+        default:
+        case xfl::FIXEDSPEEDPOLAR:
+        case xfl::FIXEDAOAPOLAR:
+            return 1;
+        case xfl::FIXEDLIFTPOLAR:
+            return 2;
+        case xfl::RUBBERCHORDPOLAR:
+            return 3;
+    }
+}
+
+
+int Polar::MaType() const
+{
+    switch(m_PolarType)
+    {
+        default:
+        case xfl::FIXEDSPEEDPOLAR:
+        case xfl::FIXEDAOAPOLAR:
+            return 1;
+        case xfl::FIXEDLIFTPOLAR:
+            return 2;
+        case xfl::RUBBERCHORDPOLAR:
+            return 1;
     }
 }
 

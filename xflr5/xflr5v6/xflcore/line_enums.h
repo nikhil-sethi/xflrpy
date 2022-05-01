@@ -28,7 +28,7 @@ namespace Line
     /** @enum The different applications available to the user */
     typedef enum {SOLID, DASH, DOT, DASHDOT, DASHDOTDOT, NOLINE} 	enumLineStipple;
 
-    /**< @enum The different image formats usable to export screen captures*/
+    /**< @enum The different symbols available for line plots*/
     typedef enum {NOSYMBOL,
                   LITTLECIRCLE,   BIGCIRCLE, LITTLESQUARE, BIGSQUARE, TRIANGLE, TRIANGLE_INV,
                   LITTLECIRCLE_F, BIGCIRCLE_F, LITTLESQUARE_F, BIGSQUARE_F, TRIANGLE_F, TRIANGLE_INV_F,

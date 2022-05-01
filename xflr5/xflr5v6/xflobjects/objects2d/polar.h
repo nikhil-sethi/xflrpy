@@ -55,15 +55,15 @@ class Polar : public XflObject
 
 
         void addPoint(double Alpha, double Cd, double Cdp, double Cl, double Cm,
-                      double Xtr1, double Xtr2, double HMom, double Cpmn, double Reynolds, double XCp);
-        void exportPolar(QTextStream &out, QString versionName, bool bCSV, bool bDataOnly=false) const;
+                      double Xtr1, double Xtr2, double HMom, double HFx, double HFy, double Cpmn, double Reynolds, double XCp);
+        void exportPolar(QTextStream &out, QString const &versionName, bool bCSV, bool bDataOnly=false) const;
         void resetPolar();
 
 
         void copySpecification(Polar const*pPolar);
         void copyPolar(Polar const*pPolar);
 
-        bool hasOpp(OpPoint const *pOpp) const;
+        bool hasOpp(OpPoint const *pOpp) const {return (pOpp->foilName()==m_FoilName && pOpp->polarName()==m_Name);}
 
         void replaceOppDataAt(int pos, const OpPoint *pOpp);
         void insertOppDataAt(int pos, OpPoint const*pOpp);
@@ -78,7 +78,7 @@ class Polar : public XflObject
         QString const &foilName() const {return m_FoilName;}
         QString const &polarName() const {return m_Name;}
 
-        void setPolarType(xfl::enumPolarType type);
+        void setPolarType(xfl::enumPolarType type) {m_PolarType=type;}
 
         void setFoilName(QString const &newFoilName) {m_FoilName = newFoilName;}
         void setPolarName(QString const &newPolarName) {m_Name = newPolarName;}
@@ -88,10 +88,7 @@ class Polar : public XflObject
         void getProperties(QString &polarProps) const;
         QString properties() const;
 
-        QVector<double> const &getPlrVariable(int iVar) const;
-
-
-
+        QVector<double> const &getVariable(int iVar) const;
 
         double aoa()      const {return m_ASpec;}
         double Reynolds() const {return m_Reynolds;}
@@ -107,10 +104,8 @@ class Polar : public XflObject
         void setXtrTop(double xtr)  {m_XTop=xtr;}
         void setXtrBot(double xtr)  {m_XBot=xtr;}
 
-        int ReType()  const {return m_ReType;}
-        int MaType()  const {return m_MaType;}
-        void setReType(int type) {m_ReType=type;}
-        void setMaType(int type) {m_MaType=type;}
+        int ReType() const;
+        int MaType() const;
 
         xfl::enumPolarType polarType() const {return m_PolarType;}
 
@@ -119,10 +114,19 @@ class Polar : public XflObject
         bool isFixedaoaPolar()    const {return m_PolarType==xfl::FIXEDAOAPOLAR;}     /**< returns true if the polar is of the FIXEDAOAPOLAR type, false otherwise >*/
         bool isRubberChordPolar() const {return m_PolarType==xfl::RUBBERCHORDPOLAR;}
 
+        double flapAngle() const {return m_FlapAngle;}
+        double xHinge()    const {return m_XHinge;}
+        double yHinge()    const {return m_YHinge;}
+        void setXHinge(double xh) {m_XHinge=xh;}
+        void setYHinge(double yh) {m_YHinge=yh;}
+        void setFlapAngle(double angledeg) {m_FlapAngle=angledeg;}
+        void setFlap(double xh, double yh, double angledeg) {m_XHinge=xh; m_YHinge=yh; m_FlapAngle=angledeg;}
+
 
         static QString autoPolarName(xfl::enumPolarType polarType, double Re, double Mach, double NCrit, double ASpec=0.0, double XTop=1.0, double XBot=1.0);
         static QString variableName(int iVar);
 
+        const QVector<double> &getGraphVariable(int iVar) const;
 
     public:
 
@@ -135,7 +139,9 @@ class Polar : public XflObject
         QVector<double> m_XTr1;              /**< the array of transition points on the top surface */
         QVector<double> m_XTr2;              /**< the array of transition points on the bottom surface */
         QVector<double> m_HMom;              /**< the array of flap hinge moments */
-        QVector<double> m_Cpmn;              /**< the array of Cpmn ? */
+        QVector<double> m_HFx;               /**< the array of flap x-force*/
+        QVector<double> m_HFy;               /**< the array of flap y-force*/
+        QVector<double> m_Cpmn;              /**< the array of Cpmn */
         QVector<double> m_ClCd;              /**< the array of glide ratios */
         QVector<double> m_Cl32Cd;            /**< the array of power factors*/
         QVector<double> m_RtCl;              /**< the array of aoa values */
@@ -147,9 +153,7 @@ class Polar : public XflObject
         QString m_FoilName;                 /**< the name of the parent Foil to which this Polar object is attached */
 
         //Analysis specification
-        xfl::enumPolarType m_PolarType;          /**< the Polar type */
-        int m_ReType;                       /**< the type of Reynolds number input, cf. XFoil documentation */
-        int m_MaType;                       /**< the type of Mach number input, cf. XFoil documentation */
+        xfl::enumPolarType m_PolarType;     /**< the Polar type */
         double m_ASpec;                     /**< the specified aoa in the case of Type 4 polars */
         double m_Mach;                      /**< the Mach number */
         double m_NCrit;                     /**< the transition criterion */
@@ -157,6 +161,9 @@ class Polar : public XflObject
         double m_XBot;                      /**< the point of forced transition on the lower surface */
         double m_Reynolds;                  /**< the Reynolds number for a type 4 analysis */
 
+        double m_XHinge;                    /**< flap hinge x-position as  a fraction of chord;     provision for future coupling with flow5 scripts */
+        double m_YHinge;                    /**< flap hinge x-position as  a fraction of thickness; provision for future coupling with flow5 scripts */
+        double m_FlapAngle;                 /**< flap angle in degrees; provision for future coupling with flow5 scripts */
 };
 
 

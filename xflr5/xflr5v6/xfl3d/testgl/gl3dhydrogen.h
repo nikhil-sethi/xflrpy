@@ -7,11 +7,13 @@
 *****************************************************************************/
 
 #pragma once
-#include <QGroupBox>
-#include <QLabel>
-#include <QPushButton>
-#include <QCheckBox>
+
+#include <complex>
+
 #include <QRadioButton>
+#include <QCheckBox>
+#include <QPushButton>
+#include <QLabel>
 #include <QEvent>
 
 #include <xfl3d/testgl/gl3dtestglview.h>
@@ -19,7 +21,6 @@
 
 class DoubleEdit;
 class IntEdit;
-
 class gl3dHydrogen : public gl3dTestGLView
 {
     Q_OBJECT
@@ -42,26 +43,26 @@ class gl3dHydrogen : public gl3dTestGLView
         void paintElectronInstances(QOpenGLBuffer &vboPosInstances, float radius, QColor const &clr, bool bTwoSided, bool bLight);
 
         double psi(double r, double theta, double phi) const;
+        double psi_1s(double r, double, double);
 
         void collapseBlock(QWidget *pParent) const;
 
     private slots:
         void onCollapse();
-
+        void onObjectRadius(int size);
+        void onRenderer();
 
     private:
         IntEdit *m_piel, *m_piem, *m_pien;
         IntEdit *m_pieNObs;
         DoubleEdit *m_pdeObsRad;
 
-        QRadioButton *m_prbPtShader, *m_prbSurfShader;
+        QRadioButton *m_prbPtShader, *m_prbSurfShader, *m_prbPt2Shader;
 
         QCheckBox *m_pchBohr, *m_pchObsRad;
         QPushButton *m_ppbMake;
 
         QLabel *m_plabNObs;
-
-        DoubleEdit *m_pdePtWidth;
 
         bool m_bResetPositions;
         QOpenGLBuffer m_vboObservations;
@@ -82,8 +83,10 @@ class gl3dHydrogen : public gl3dTestGLView
         static int s_l, s_m, s_n;
         static int s_NObservations;
         static double s_ObsRadius;
-        static double s_PtWidth;
+        static int s_ElectronSize;
+        static int s_iRenderer;
 };
+
 
 
 const QEvent::Type HYDROGEN_EVENT         = static_cast<QEvent::Type>(QEvent::User + 200);

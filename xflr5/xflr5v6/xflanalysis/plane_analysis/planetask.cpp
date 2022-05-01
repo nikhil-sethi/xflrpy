@@ -199,7 +199,6 @@ WPolar* PlaneTask::setWPolarObject(Plane *pCurPlane, WPolar *pCurWPolar)
             if(pWingList[iw])
             {
                 pWingList[iw]->computeChords();
-//for(int i=0; i<pWingList[iw]->m_NStation; i++) qDebug()<<"twist"<<pWingList[iw]->m_Twist[i];
                 NStation = 0;
                 m=0;
                 SpanPos = 0;
@@ -244,10 +243,10 @@ WPolar* PlaneTask::setWPolarObject(Plane *pCurPlane, WPolar *pCurWPolar)
 
     m_pthePanelAnalysis->setWPolar(m_pWPolar);
     m_pthePanelAnalysis->setObjectPointers(pCurPlane, &m_SurfaceList);
-    m_pthePanelAnalysis->setArrayPointers(m_Panel.data(), m_MemPanel.data(), m_WakePanel.data(), m_RefWakePanel.data(),
-                                          m_Node.data(), m_MemNode.data(),
-                                          m_WakeNode.data(), m_RefWakeNode.data(), m_TempWakeNode.data());
-    m_pthePanelAnalysis->setArraySize(m_Panel.size(), m_WakeSize, m_Node.size(), m_WakeNode.size(), m_NWakeColumn);
+    m_pthePanelAnalysis->setMesh(m_Panel, m_WakePanel, m_Node, m_WakeNode);
+
+    Q_ASSERT(m_WakeSize==m_WakePanel.size());
+    m_pthePanelAnalysis->setNWakeColumns(m_NWakeColumn);
 
     /** @todo restore */
     //set sideslip
@@ -330,7 +329,7 @@ bool PlaneTask::initializePanels()
         }
 
 //        Trace("");
-        memsize += MatrixSize;
+//        memsize += MatrixSize;
     }
 
     // all set to create the panels
@@ -344,7 +343,7 @@ bool PlaneTask::initializePanels()
     pWingList[1] = m_pPlane->wing2();
     pWingList[2] = m_pPlane->stab();
     pWingList[3] = m_pPlane->fin();
-
+//qDebug()<<"init"<<m_pWPolar->name()<<m_pWPolar->analysisMethod();
     for(int iw=0; iw<MAXWINGS; iw++)
     {
         Wing *pWing = pWingList[iw];
@@ -367,7 +366,7 @@ bool PlaneTask::initializePanels()
     if(m_pPlane && m_pPlane->body())
     {
         if(!m_pWPolar) bBodyEl = true;//no risk...
-        else if(m_pWPolar->analysisMethod()==xfl::PANEL4METHOD && !m_pWPolar->bIgnoreBodyPanels())
+        else if(m_pWPolar->isPanel4Method() && !m_pWPolar->bIgnoreBodyPanels())
         {
             bBodyEl = true;
         }
@@ -382,12 +381,6 @@ bool PlaneTask::initializePanels()
 //            qDebug()<<m_pPlane->body()->name()<<m_pPlane->body()->firstPanelIndex()<<m_pPlane->body()->nPanels();
         }
     }
-
-    //back-up the current geometry
-    m_MemPanel     = m_Panel;
-    m_RefWakePanel = m_WakePanel;
-    m_RefWakeNode  = m_WakeNode;
-    m_MemNode      = m_Node;
 
     return true;
 }
@@ -871,7 +864,7 @@ int PlaneTask::createSurfaceElements(Plane const*pPlane, WPolar const*pWPolar, S
         for (int l=0; l<pSurface->nXPanels(); l++)
         {
             pSurface->getPanel(k,l,side);
-            Q_ASSERT(!isnan(pSurface->LA.x));
+            Q_ASSERT(!std::isnan(pSurface->LA.x));
             n0 = isNode(pSurface->LA);
             n1 = isNode(pSurface->TA);
             n2 = isNode(pSurface->LB);
@@ -937,7 +930,7 @@ int PlaneTask::createSurfaceElements(Plane const*pPlane, WPolar const*pWPolar, S
             // we are on the bottom or middle surface
             panel.m_iPD = matsize-1;
             panel.m_iPU = matsize+1;
-            if(l==0)                                         panel.m_iPD = -1;// no panel downstream
+            if(l==0)                                               panel.m_iPD = -1;// no panel downstream
             if(l==pSurface->nXPanels()-1 && side==xfl::MIDSURFACE) panel.m_iPU = -1;// no panel upstream
 
             if(side!=xfl::MIDSURFACE)
@@ -962,7 +955,7 @@ int PlaneTask::createSurfaceElements(Plane const*pPlane, WPolar const*pWPolar, S
             if(k==0)                      panel.m_iPR = -1;
             if(k==pSurface->nYPanels()-1) panel.m_iPL = -1;
 
-            if(pWPolar && panel.m_bIsTrailing && pWPolar->analysisMethod()==xfl::PANEL4METHOD)
+            if(pWPolar && panel.m_bIsTrailing)
             {
                 panel.m_iWake = m_WakeSize;//next wake element
                 panel.m_iWakeColumn = m_NWakeColumn;
@@ -1053,7 +1046,7 @@ int PlaneTask::createSurfaceElements(Plane const*pPlane, WPolar const*pWPolar, S
                 if(k==pSurface->nYPanels()-1) panel.m_iPR = -1;
 
 
-                if(pWPolar && panel.m_bIsTrailing && pWPolar->analysisMethod()==xfl::PANEL4METHOD)
+                if(pWPolar && panel.m_bIsTrailing && pWPolar->isPanel4Method())
                 {
                     panel.m_iWake = m_WakeSize;//next wake element
                     panel.m_iWakeColumn = m_NWakeColumn;
@@ -1305,15 +1298,10 @@ int PlaneTask::calculateMatSize()
 void PlaneTask::releasePanelMemory()
 {
     m_Node.clear();
-    m_MemNode.clear();
     m_WakeNode.clear();
-    m_RefWakeNode.clear();
-    m_TempWakeNode.clear();
 
     m_Panel.clear();
-    m_MemPanel.clear();
     m_WakePanel.clear();
-    m_RefWakePanel.clear();
 }
 
 
@@ -1358,7 +1346,6 @@ bool PlaneTask::allocatePanelArrays(int &memsize)
     try
     {
         m_Node.resize(2*m_MaxPanelSize);
-        m_MemNode.resize(2*m_MaxPanelSize);
 
         //Wake Node size
         m_NWakeColumn = 0;
@@ -1367,11 +1354,8 @@ bool PlaneTask::allocatePanelArrays(int &memsize)
         {
             if(m_pPlane->wing(iw))
             {
-//                qDebug()<<"---------"<<iw<<"m_pPlane->wing(iw)->m_NStation"<<m_pPlane->wing(iw)->m_NStation;
                 //calculate chords to initialize Station count
                 m_pPlane->wing(iw)->computeChords();
-//qDebug()<<"chords "<<m_pPlane->wing(iw)->m_NStation;
-//qDebug()<<"count"<<m_pPlane->wing(iw)->NYPanels() ;
                 m_NWakeColumn += m_pPlane->wing(iw)->m_NStation;
                 //add 2 columns for tip and body connection
 
@@ -1384,11 +1368,7 @@ bool PlaneTask::allocatePanelArrays(int &memsize)
         int WakePanelSize = m_NWakeColumn * m_pWPolar->m_NXWakePanels;
 
         m_WakeNode.resize(WakeNodeSize);
-        m_RefWakeNode.resize(WakeNodeSize);
-        m_TempWakeNode.resize(WakeNodeSize);
-
         m_WakePanel.resize(WakePanelSize);
-        m_RefWakePanel.resize(WakePanelSize);
 
     }
     catch(std::exception &)
@@ -1411,9 +1391,6 @@ bool PlaneTask::allocatePanelArrays(int &memsize)
     Panel::s_pWakeNode = m_WakeNode.constData();
 
     Surface::setPanelPointers(m_Panel.data(), m_Node.data());
-
-//    QMiarex::s_pPanel = m_Panel;
-//    QMiarex::s_pNode = m_Node;
 
     return true;
 }
@@ -1627,11 +1604,11 @@ void PlaneTask::PanelAnalyze()
 
     m_pthePanelAnalysis->m_OpBeta = m_pWPolar->Beta();
 
-    if(m_pWPolar->polarType()==xfl::FIXEDAOAPOLAR)
+    if(m_pWPolar->isFixedaoaPolar())
     {
         m_pthePanelAnalysis->m_Alpha  = m_pWPolar->Alpha();
     }
-    else if(m_pWPolar->polarType()==xfl::STABILITYPOLAR)
+    else if(m_pWPolar->isStabilityPolar())
     {
         m_pthePanelAnalysis->m_Alpha  = m_pWPolar->Alpha();
     }

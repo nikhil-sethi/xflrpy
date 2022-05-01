@@ -71,12 +71,12 @@ Foil::Foil()
 
     m_TEGap  = 0.0;
 
-    memset(m_rpExtrados, 0, sizeof(m_rpExtrados));
+/*    memset(m_rpExtrados, 0, sizeof(m_rpExtrados));
     memset(m_rpIntrados, 0, sizeof(m_rpIntrados));
     memset(m_rpMid, 0, sizeof(m_rpMid));
 
     memset(m_BaseExtrados, 0, sizeof(m_BaseExtrados));
-    memset(m_BaseIntrados, 0, sizeof(m_BaseIntrados));
+    memset(m_BaseIntrados, 0, sizeof(m_BaseIntrados)); */
 
     m_bTEFlap     = false;
     m_TEFlapAngle = 0.0;
@@ -1445,6 +1445,15 @@ void Foil::setFlap()
 }
 
 
+void Foil::getHingeAbsolutePos(double &xh, double &yh) const
+{
+    xh = m_TEXHinge/100.0;
+    double ymin = baseLowerY(xh);
+    double ymax = baseUpperY(xh);
+    yh = ymin + (ymax-ymin) * m_TEYHinge/100.0;
+}
+
+
 /** For debug purposes only */
 void Foil::displayCoords(bool bBaseCoords) const
 {
@@ -1501,3 +1510,5 @@ QString Foil::properties() const
 
     return props;
 }
+
+

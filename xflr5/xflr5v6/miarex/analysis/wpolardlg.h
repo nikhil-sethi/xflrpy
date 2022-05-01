@@ -32,13 +32,14 @@
 #include <QRadioButton>
 #include <QTableView>
 #include <QDialogButtonBox>
-#include <QStandardItemModel>
 
 #include <xflobjects/objects3d/wpolar.h>
 
 class Plane;
 class DoubleEdit;
+class CtrlTableModel;
 class CtrlTableDelegate;
+class CPTableView;
 
 /**
 *@class WPolarDlg
@@ -144,9 +145,9 @@ class WPolarDlg : public QDialog
 
         QDialogButtonBox *m_pButtonBox;
 
-        QTableView *m_ptvExtraDragControl;
-        QStandardItemModel *m_pExtraDragControlModel;
-        CtrlTableDelegate *m_pControlDelegate;
+        CPTableView *m_pcptExtraDrag;
+        CtrlTableModel *m_pExtraDragModel;
+        CtrlTableDelegate *m_pExtraDragDelegate;
 
 
         static QByteArray s_Geometry;

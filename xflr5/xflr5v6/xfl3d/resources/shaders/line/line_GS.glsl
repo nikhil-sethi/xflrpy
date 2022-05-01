@@ -9,7 +9,7 @@ layout(triangle_strip, max_vertices = 40) out;
 
 uniform mat4 pvmMatrix;
 uniform mat4 vmMatrix;
-uniform int Thickness;
+uniform float Thickness;
 uniform vec2 Viewport;
 
 in vec4 VtxColor[];
@@ -21,7 +21,7 @@ out vec4 GeomColor;
 
 void main(void)
 {
-    float thck = float(Thickness)/1000.0;
+    float thck = Thickness/1000.0;
 
     //density is independent of line orientation
 //    float max_u_texture = length(pvmMatrix*(gl_in[1].gl_Position - gl_in[0].gl_Position))/max(1,Thickness);

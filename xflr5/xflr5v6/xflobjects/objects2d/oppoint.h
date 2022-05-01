@@ -81,7 +81,7 @@ class OpPoint : public XflObject
 
         double aoa()      const {return m_Alpha;}
         double Reynolds() const {return m_Reynolds;}
-        double Mach()     const {return m_Mach; }
+        double Mach()     const {return m_Mach;}
 
         QString properties(Foil *pFoil, bool bData=false) const;
         void getOppProperties(QString &OpPointProperties, Foil *pFoil, bool bData=false) const;
@@ -115,17 +115,17 @@ class OpPoint : public XflObject
         double Qv[IQX];             /**< the distribution of stream velocity on the surfaces for a viscous analysis */
         double Qi[IQX];             /**< the distribution of stream velocity on the surfaces for an inviscid analysis */
 
-        double m_TEHMom;            /**< the moment on the foil's trailing edge flap */
-        double m_LEHMom;            /**< the moment on the foil's leading edge flap */
-        double XForce;              /**< the y-component of the pressure forces */
-        double YForce;              /**< the y-component of the pressure forces */
+        double m_TE_HMom;           /**< the moment on the foil's trailing edge flap */
+        double m_TE_HFx;            /**< TE hinge force.x */
+        double m_TE_HFy;            /**< TE hinge force.y */
+        double m_LE_HMom;           /**< the moment on the foil's leading edge flap */
         double Cpmn;                /**< @todo check significance in XFoil doc */
 
         BLXFoil blx;                /**< BL data from an XFoil analysis */
 
 
-        QString m_FoilName;        /**< the name of the parent Foil */
-        QString m_PlrName;         /**< the name of the parent Polar */
+        QString m_FoilName;         /**< the name of the parent Foil */
+        QString m_PlrName;          /**< the name of the parent Polar */
 
 
         static bool s_bStoreOpp;          /**< true if the operating points should be stored; */

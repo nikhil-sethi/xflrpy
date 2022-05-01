@@ -48,8 +48,7 @@ See http://raphael.mit.edu/xfoil for more information.
 #include <xfoil_params.h>
 
 
-using namespace std;
-    //------ derived dimensioning limit parameters
+//------ derived dimensioning limit parameters
 
 
 struct blData
@@ -84,7 +83,7 @@ public:
                      double xf2[], double yf2[], int n2, double mixt);
 
     bool CheckAngles();
-    bool Preprocess();
+    bool PreProcess();
     void pangen();
     void pert_process(int kqsp);
     void pert_init(int kqsp);
@@ -93,9 +92,10 @@ public:
     void ExecMDES();
     bool ExecQDES();
     bool initialize();
-    bool initXFoilGeometry(int fn, const double *fx, const double *fy, double *fnx, double *fny);
+    bool initXFoilGeometry(int fn, const double *fx, const double *fy, double *fnx, double *fny,
+                           bool bFLap=false, double xhinge=0.0, double yhinge=0.0);
     bool initXFoilAnalysis(double Re, double alpha, double Mach, double NCrit, double XtrTop, double XtrBot,
-                                  int reType, int maType, bool bViscous, QTextStream &outStream);
+                           int reType, int maType, bool bViscous, QTextStream &outStream);
 
     void splqsp(int kqsp);
     void qspcir();
@@ -157,10 +157,10 @@ private:
     void qccalc(int ispec,double *alfa, double *cl, double *cm,double minf, double qinf, int *ncir, double xcir[], double ycir[], double scir[], double qcir[]);
     void mapgam(int iac, double &alg, double &clg, double &cmg);
     bool eiwset(int nc1);
-    void cgauss(int nn,complex <double> z[IMX4+1][IMX4+1],complex <double> r[IMX4+1]);
+    void cgauss(int nn,std::complex <double> z[IMX4+1][IMX4+1],std::complex <double> r[IMX4+1]);
     void zccalc(int mtest);
     void zcnorm(int mtest);
-    void zlefind(complex<double>*zle,complex<double>zc[],double wc[],int nc,complex<double>piq[], double agte);
+    void zlefind(std::complex<double>*zle, std::complex<double>zc[],double wc[],int nc, std::complex<double>piq[], double agte);
     void piqsum();
     void ftp();
     void scinit(int n, double x[], double xp[], double y[], double yp[], double s[], double sle);
@@ -175,7 +175,8 @@ private:
 
     bool setMach();
     void scheck(double x[], double y[], int *n, double stol, bool *lchange);
-    void sss(double ss, double *s1, double *s2, double del, double xbf, double ybf,    double x[], double xp[], double y[], double yp[], double s[],int n, int iside);
+    void sss(double ss, double *s1, double *s2, double del, double xbf, double ybf,
+             double x[], double xp[], double y[], double yp[], double s[],int n, int iside);
     bool inside(double xb[], double yb[], int nb, double xbf, double ybf);
     void flap();
     int arefine(double x[],double y[], double s[], double xs[], double ys[],
@@ -224,6 +225,9 @@ private:
                double &area, double &radle, double &angte,
                double &ei11a, double &ei22a, double &apx1a, double &apx2a,
                double &ei11t, double &ei22t, double &apx1t, double &apx2t);
+    void tccalc(double x[], double xp[], double y[], double yp[], double s[],
+                int n, double &thick, double &xthick, double &cambr, double &xcambr);
+
     void sopps(double &sopp, double si, double x[], double xp[], double y[], double yp[], double s[],
                   int n, double sle);
     void getcam(double xcm[],double ycm[], int &ncm,double xtk[],double ytk[],int &ntk,
@@ -297,8 +301,8 @@ public:
     double sspec[IBX+1],xspoc[IBX+1],yspoc[IBX+1];
     double qspec[IPX+1][IBX+1],qspecp[IPX+1][IBX+1];
     double alqsp[IPX+1],clqsp[IPX+1],cmqsp[IPX+1];
-    complex<double> dzte, chordz, zleold, zcoldw[ICX+1];
-    complex<double> piq[ICX+1], cn[IMX+1], eiw[ICX+1][IMX+1];
+    std::complex<double> dzte, chordz, zleold, zcoldw[ICX+1];
+    std::complex<double> piq[ICX+1], cn[IMX+1], eiw[ICX+1][IMX+1];
     double dnTrace[100];//... added techwinder
     double dgTrace[100];//... added techwinder
     int QMax;
@@ -361,8 +365,8 @@ private:
 
     double qdof0,qdof1,qdof2,qdof3,ffilt;
 
-    complex<double> zc[ICX+1], zc_cn[ICX+1][IMX4+1];
-    complex<double> cnsav[IMX+1];
+    std::complex<double> zc[ICX+1], zc_cn[ICX+1][IMX4+1];
+    std::complex<double> cnsav[IMX+1];
 
     int retyp, matyp;
     double rlx;
@@ -375,7 +379,7 @@ private:
     int ncam, nthk;
 
     blData blsav[3];
-    complex<double> conjg(complex<double> cplx);
+    std::complex<double> conjg(std::complex<double> cplx);
 
     bool m_bTrace;
 

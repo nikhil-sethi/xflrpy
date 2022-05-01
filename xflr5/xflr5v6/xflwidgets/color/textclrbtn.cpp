@@ -87,7 +87,7 @@ void TextClrBtn::paintEvent(QPaintEvent *)
     opt.initFrom(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);*/
 
-    QFontMetrics fm(m_TextFont);
+//    QFontMetrics fm(m_TextFont);
 
     QBrush backBrush(m_BackgroundColor);
     painter.setBrush(backBrush);

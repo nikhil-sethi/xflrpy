@@ -81,8 +81,8 @@ void RenameDlg::setupLayout()
 
     setLayout(pMainLayout);
 
-    connect(m_plwNameList, SIGNAL(currentRowChanged(int)), this, SLOT(onSelChangeList(int)));
-    connect(m_plwNameList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(onDoubleClickList(QListWidgetItem *)));
+    connect(m_plwNameList, SIGNAL(currentRowChanged(int)), SLOT(onSelChangeList(int)));
+    connect(m_plwNameList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(onDoubleClickList(QListWidgetItem*)));
 //    connect(m_pOverwriteButton, SIGNAL(clicked()), this, SLOT(onOverwrite()));
 }
 

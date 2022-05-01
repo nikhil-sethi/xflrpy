@@ -25,7 +25,7 @@
 
 #include "gl3dplaneview.h"
 #include <xflobjects/objects3d/plane.h>
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/w3dprefs.h>
 
 gl3dPlaneView::gl3dPlaneView(QWidget *pParent) : gl3dXflView(pParent)
 {

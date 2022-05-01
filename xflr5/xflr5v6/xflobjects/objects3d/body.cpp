@@ -153,7 +153,7 @@ void Body::setNURBSKnots()
  */
 void Body::computeAero(double *Cp, double &XCP, double &YCP, double &ZCP,
                        double &GCm, double &GRm, double &GYm, double &Alpha, Vector3d const &CoG,
-                       Panel const*pPanel) const
+                       QVector<Panel> const&panels) const
 {
     Vector3d PanelForce, LeverArm, WindNormal, WindDirection;
     Vector3d GeomMoment;
@@ -168,7 +168,7 @@ void Body::computeAero(double *Cp, double &XCP, double &YCP, double &ZCP,
     for (int p=0; p<m_NElements; p++)
     {
         int ip = m_FirstPanelIndex+p;
-        Panel const &panel = pPanel[ip];
+        Panel const &panel = panels.at(ip);
         PanelForce.x = panel.Normal.x * (-Cp[p]) * panel.Area;
         PanelForce.y = panel.Normal.y * (-Cp[p]) * panel.Area;
         PanelForce.z = panel.Normal.z * (-Cp[p]) * panel.Area; // N/q
@@ -1622,7 +1622,7 @@ bool Body::serializeBodyXFL(QDataStream &ar, bool bIsStoring)
         }
 
         ar << m_VolumeMass;
-        ar << m_PointMass.size();
+        ar << int(m_PointMass.size());
         for(i=0; i<m_PointMass.size(); i++)
         {
             ar << m_PointMass.at(i).mass();
@@ -1800,14 +1800,13 @@ int Body::readValues(QString line, double &x, double &y, double &z) const
  */
 bool Body::importDefinition(QTextStream &inStream, double mtoUnit, QString &errorMessage)
 {
-    int res=0, Line=0, NSideLines=0;
+    int res(0), Line(0), NSideLines(0);
     QString strong;
-    bool bRead, bOK;
-    double xo,yo,zo;
-    xo = yo = zo = 0.0;
+    bool bRead(false), bOK(false);
+    double xo(0), zo(0);
 
     Line = 0;
-    bRead  = xfl::readAVLString(inStream, Line, strong);
+    xfl::readAVLString(inStream, Line, strong);
     m_Name = strong.trimmed();
     m_SplineSurface.clearFrames();
     m_xPanels.clear();
@@ -1847,7 +1846,7 @@ bool Body::importDefinition(QTextStream &inStream, double mtoUnit, QString &erro
             if(values.length()==3)
             {
                 xo  = values.at(0).toDouble();
-                yo  = values.at(1).toDouble();
+//                yo  = values.at(1).toDouble();
                 zo  = values.at(2).toDouble();
                 xo /= mtoUnit;
                 zo /= mtoUnit;

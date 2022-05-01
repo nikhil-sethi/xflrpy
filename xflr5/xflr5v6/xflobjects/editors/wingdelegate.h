@@ -34,7 +34,6 @@ class WingDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
     friend class WingDlg;
-    friend class GL3dWingDlg;
 
     public:
         WingDelegate(QObject *parent = nullptr);

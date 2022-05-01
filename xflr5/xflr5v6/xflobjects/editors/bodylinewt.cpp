@@ -239,7 +239,7 @@ void BodyLineWt::onRemovePt()
     int n =  m_pBody->isFramePos(Vector3d(Real.x, 0.0, Real.y), m_fScale/m_fRefScale);
     if (n>=0)
     {
-        n = m_pBody->removeFrame(n);
+        m_pBody->removeFrame(n);
         emit objectModified();
     }
 }
@@ -286,7 +286,6 @@ void BodyLineWt::drawScaleLegend(QPainter &painter)
 void BodyLineWt::createActions()
 {
     m_ActionList.clear();
-
 
     QAction *pScaleBody = new QAction(tr("Scale Body"), this);
     connect(pScaleBody,  SIGNAL(triggered()), this, SLOT(onScaleBody()));

@@ -85,7 +85,7 @@ class Body
 
         void clearPointMasses() {m_PointMass.clear();}
         void computeAero(double *Cp, double &XCP, double &YCP, double &ZCP,
-                         double &GCm, double &GRm, double &GYm, double &Alpha, const Vector3d &CoG, const Panel *pPanel) const;
+                         double &GCm, double &GRm, double &GYm, double &Alpha, const Vector3d &CoG, const QVector<Panel> &panel) const;
         void duplicate(const Body *pBody);
         void getPoint(double u, double v, bool bRight, Vector3d &Pt) const;
 

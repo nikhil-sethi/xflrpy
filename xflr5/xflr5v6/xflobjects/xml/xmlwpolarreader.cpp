@@ -40,7 +40,7 @@ bool XmlWPolarReader::readXMLPolarFile()
 
     if (readNextStartElement())
     {
-        if (name() == "Plane_Polar" && attributes().value("version") == "1.0")
+        if (name().toString() == "Plane_Polar" && attributes().value("version").toString() == "1.0")
         {
             while(!atEnd() && !hasError() && readNextStartElement() )
             {
@@ -179,7 +179,7 @@ void XmlWPolarReader::readWPolar(WPolar *pWPolar, double lengthunit, double area
         }
         else if (name().compare(QString("Reference_Chord_Length"), Qt::CaseInsensitive)==0)
         {
-            pWPolar->setReferenceChordLength(readElementText().toDouble()*lengthunit);
+            pWPolar->setReferenceMAC(readElementText().toDouble()*lengthunit);
         }
         else if (name().compare(QString("ExtraDrag"),         Qt::CaseInsensitive)==0)
         {

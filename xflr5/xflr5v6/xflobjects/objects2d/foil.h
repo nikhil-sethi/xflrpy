@@ -104,6 +104,8 @@ class Foil : public XflObject
         double xThickness() const {return m_fXThickness;}
         double TEGap() const {return m_TEGap;}
 
+        void getHingeAbsolutePos(double &xh, double &yh) const;
+
         int iHighLight() const {return m_iHighLight;}
         void setHighLight(int iH) {m_iHighLight = iH;}
 

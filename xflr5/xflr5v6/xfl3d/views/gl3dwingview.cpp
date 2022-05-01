@@ -25,7 +25,7 @@
 
 #include "gl3dwingview.h"
 #include <xflobjects/editors/wingdlg.h>
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xflobjects/objects3d/wing.h>
 #include <xflobjects/objects3d/surface.h>
 

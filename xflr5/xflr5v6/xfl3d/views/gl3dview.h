@@ -35,7 +35,7 @@
 #include <xflcore/linestyle.h>
 #include <xfl3d/controls/arcball.h>
 #include <xfl3d/controls/light.h>
-
+#include <xfl3d/views/shadloc.h>
 
 #define PIf 3.141592654f
 
@@ -44,39 +44,6 @@
 #define DEPTHUNITS 1.0f
 
 #define MAXCPCOLORS    21
-
-/** generic shader locations; not all locations are necessary nor defined for each shader */
-struct ShaderLocations
-{
-    // Attribute data
-    int m_attrVertex{-1}, m_attrNormal{-1};
-    int m_attrColor{-1};
-    int m_attrm_UV{-1};
-    int m_attrUV{-1}; // vertex attribute array containing the texture's UV coordinates
-    int m_attrOffset{-1};
-
-    // Uniforms
-    int m_vmMatrix{-1}, m_pvmMatrix{-1};
-    int m_Scale{-1}; // only used if instancing is enabled
-
-    int m_Light{-1};
-    int m_UniColor{-1};
-    int m_ClipPlane{-1};
-
-    int m_TwoSided{-1};
-
-    int m_HasUniColor{-1};
-    int m_HasTexture{-1};    // uniform defining whether a texture is enabled or not
-    int m_IsInstanced{-1};
-
-    int m_Pattern{-1}, m_nPatterns{-1};
-    int m_Thickness{-1}, m_Viewport{-1};
-
-    int m_State{-1};
-    int m_Shape{-1};
-
-    int m_TexSampler{-1}; // the id of the sampler; defaults to 0
-};
 
 
 
@@ -98,7 +65,7 @@ class gl3dView : public QOpenGLWidget, protected QOpenGLExtraFunctions
 
         void setLightVisible(bool bShow) {m_bLightVisible=bShow;}
 
-        void getMemoryStatus(int &total_mem_kb, int &cur_avail_mem_kb);
+//        void getMemoryStatus(int &total_mem_kb, int &cur_avail_mem_kb);
 
         static void setFontStruct(FontStruct const & fntstruct) {s_glFontStruct=fntstruct;}
         static void setTextColor(QColor const &textclr) {s_TextColor=textclr;}
@@ -113,9 +80,6 @@ class gl3dView : public QOpenGLWidget, protected QOpenGLExtraFunctions
         static Light const &light() {return s_Light;}
         static void setLightPos(double x, double y, double z) {s_Light.m_X=x; s_Light.m_Y=y; s_Light.m_Z=z;}
         static void setSpecular(double s) {s_Light.m_Specular=s;}
-
-        static bool bSpinAnimation() {return s_bSpinAnimation;}
-        static double spinDamping() {return s_SpinDamping;}
 
         static void setMultiSample(bool bEnable) {s_bMultiSample=bEnable;}
         static bool bMultiSample() {return s_bMultiSample;}
@@ -216,7 +180,7 @@ class gl3dView : public QOpenGLWidget, protected QOpenGLExtraFunctions
         void paintSegments(QOpenGLBuffer &vbo, LineStyle const &ls, bool bHigh = false);
         void paintSegments(QOpenGLBuffer &vbo, const QColor &clr, int thickness, Line::enumLineStipple stip=Line::SOLID, bool bHigh=false);
         void paintLineStrip(QOpenGLBuffer &vbo, LineStyle const &ls);
-        void paintLineStrip(QOpenGLBuffer &vbo, const QColor &clr, int width, Line::enumLineStipple stipple=Line::SOLID);
+        void paintLineStrip(QOpenGLBuffer &vbo, const QColor &clr, float width, Line::enumLineStipple stipple=Line::SOLID);
         void paintBox(double x, double y, double z, double dx, double dy, double dz, QColor const &clr, bool bLight);
         void paintCube(double x, double y, double z, double side, QColor const &clr, bool bLight);
         void paintColourSegments(QOpenGLBuffer &vbo, LineStyle const &ls);
@@ -255,10 +219,12 @@ class gl3dView : public QOpenGLWidget, protected QOpenGLExtraFunctions
         QOpenGLShaderProgram m_shadLine;
         QOpenGLShaderProgram m_shadSurf;
         QOpenGLShaderProgram m_shadPoint;
+        QOpenGLShaderProgram m_shadPoint2;
 
         ShaderLocations m_locSurf;
         ShaderLocations m_locLine;
         ShaderLocations m_locPoint;
+        ShaderLocations m_locPt2;
 
         int m_uHasShadow;
         int m_uShadowLightViewMatrix;
@@ -327,8 +293,6 @@ class gl3dView : public QOpenGLWidget, protected QOpenGLExtraFunctions
         QMatrix4x4 m_LightViewMatrix;
 
 
-        static bool s_bSpinAnimation;
-        static double s_SpinDamping;
 
         static int s_AnimationTime;
         static bool s_bAnimateTransitions;  // ms
@@ -343,8 +307,5 @@ class gl3dView : public QOpenGLWidget, protected QOpenGLExtraFunctions
         static bool s_bMultiSample;
         static QSurfaceFormat s_GlSurfaceFormat;
 };
-
-GLushort GLStipple(Line::enumLineStipple stipple);
-void GLLineStipple(Line::enumLineStipple stipple);
 
 

@@ -28,9 +28,7 @@
 #include <QMessageBox>
 
 
-
 #include "aerodatadlg.h"
-#include <xflwidgets/customwts/ctrltabledelegate.h>
 #include "wpolardlg.h"
 #include <miarex/miarex.h>
 
@@ -41,6 +39,9 @@
 #include <xflobjects/objects3d/wpolar.h>
 #include <xflobjects/objects_global.h>
 #include <xflwidgets/customwts/doubleedit.h>
+#include <xflwidgets/customwts/cptableview.h>
+#include <xflwidgets/customwts/ctrltabledelegate.h>
+#include <xflwidgets/customwts/ctrltablemodel.h>
 
 QByteArray WPolarDlg::s_Geometry;
 
@@ -62,51 +63,53 @@ WPolarDlg::WPolarDlg(QWidget *pParent) : QDialog(pParent)
 
 WPolarDlg::~WPolarDlg()
 {
-    delete m_pControlDelegate;
+    delete m_pExtraDragDelegate;
 }
 
 
 void WPolarDlg::connectSignals()
 {
-    connect(m_pchAutoName, SIGNAL(toggled(bool)), this, SLOT(onAutoName()));
-    connect(m_prbLLTMethod, SIGNAL(toggled(bool)), this, SLOT(onMethod()));
-    connect(m_prbVLM1Method, SIGNAL(toggled(bool)), this, SLOT(onMethod()));
-    connect(m_prbVLM2Method, SIGNAL(toggled(bool)), this, SLOT(onMethod()));
-    connect(m_prbPanelMethod, SIGNAL(toggled(bool)), this, SLOT(onMethod()));
+    connect(m_pchAutoName,         SIGNAL(toggled(bool)),  SLOT(onAutoName()));
+    connect(m_prbLLTMethod,        SIGNAL(toggled(bool)),  SLOT(onMethod()));
+    connect(m_prbVLM1Method,       SIGNAL(toggled(bool)),  SLOT(onMethod()));
+    connect(m_prbVLM2Method,       SIGNAL(toggled(bool)),  SLOT(onMethod()));
+    connect(m_prbPanelMethod,      SIGNAL(toggled(bool)),  SLOT(onMethod()));
 
-    connect(m_prbUnit1, SIGNAL(toggled(bool)), this, SLOT(onUnit()));
-    connect(m_prbUnit2, SIGNAL(toggled(bool)), this, SLOT(onUnit()));
+    connect(m_prbUnit1,            SIGNAL(toggled(bool)),  SLOT(onUnit()));
+    connect(m_prbUnit2,            SIGNAL(toggled(bool)),  SLOT(onUnit()));
 
-    connect(m_prbType1, SIGNAL(toggled(bool)), this, SLOT(onPolarType()));
-    connect(m_prbType2, SIGNAL(toggled(bool)), this, SLOT(onPolarType()));
-    connect(m_prbType4, SIGNAL(toggled(bool)), this, SLOT(onPolarType()));
-    connect(m_prbType5, SIGNAL(toggled(bool)), this, SLOT(onPolarType()));
+    connect(m_prbType1,            SIGNAL(toggled(bool)),  SLOT(onPolarType()));
+    connect(m_prbType2,            SIGNAL(toggled(bool)),  SLOT(onPolarType()));
+    connect(m_prbType4,            SIGNAL(toggled(bool)),  SLOT(onPolarType()));
+    connect(m_prbType5,            SIGNAL(toggled(bool)),  SLOT(onPolarType()));
 
-    connect(m_pchTiltGeom, SIGNAL(clicked()), this, SLOT(onTiltedGeom()));
-    connect(m_pchViscous, SIGNAL(clicked()), this, SLOT(onViscous()));
-    connect(m_pchIgnoreBodyPanels, SIGNAL(clicked()), this, SLOT(onIgnoreBodyPanels()));
+    connect(m_pchTiltGeom,         SIGNAL(clicked()),      SLOT(onTiltedGeom()));
+    connect(m_pchViscous,          SIGNAL(clicked()),      SLOT(onViscous()));
+    connect(m_pchIgnoreBodyPanels, SIGNAL(clicked()),      SLOT(onIgnoreBodyPanels()));
 
-    connect(m_pchGroundEffect, SIGNAL(clicked()), this, SLOT(onGroundEffect()));
-    connect(m_pchPlaneInertia, SIGNAL(clicked()), this, SLOT(onPlaneInertia()));
+    connect(m_pchGroundEffect,     SIGNAL(clicked()),      SLOT(onGroundEffect()));
+    connect(m_pchPlaneInertia,     SIGNAL(clicked()),      SLOT(onPlaneInertia()));
 
-    connect(m_pdeXCmRef,     SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeZCmRef,     SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeDensity,    SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeViscosity,  SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeAlpha,      SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeBeta,       SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeWeight,     SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeQInf,       SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeHeight,     SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeRefArea,    SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeRefSpan,    SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pdeRefChord,   SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pleWPolarName, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(m_pleWPolarName, SIGNAL(textEdited ( const QString &  )), this, SLOT(onPolarName()));
+    connect(m_pdeXCmRef,           SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pdeZCmRef,           SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pdeDensity,          SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pdeViscosity,        SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pdeAlpha,            SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pdeBeta,             SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pdeWeight,           SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pdeQInf,             SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pdeHeight,           SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pdeRefArea,          SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pdeRefSpan,          SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pdeRefChord,         SIGNAL(valueChanged()), SLOT(onEditingFinished()));
+    connect(m_pleWPolarName,       SIGNAL(editingFinished()), SLOT(onEditingFinished()));
+//    connect(m_pleWPolarName,       SIGNAL(textEdited ( const QString &  )), SLOT(onPolarName()));
 
-    connect(m_prbArea1, SIGNAL(clicked()),this, SLOT(onArea()));
-    connect(m_prbArea2, SIGNAL(clicked()),this, SLOT(onArea()));
-    connect(m_prbArea3, SIGNAL(clicked()),this, SLOT(onArea()));
+    connect(m_prbArea1,            SIGNAL(clicked()),      SLOT(onArea()));
+    connect(m_prbArea2,            SIGNAL(clicked()),      SLOT(onArea()));
+    connect(m_prbArea3,            SIGNAL(clicked()),      SLOT(onArea()));
+
+    connect(m_pExtraDragDelegate,  SIGNAL(closeEditor(QWidget*)), SLOT(onEditingFinished()));
 }
 
 
@@ -329,11 +332,11 @@ void WPolarDlg::initDialog(Plane *pPlane, WPolar *pWPolar)
     else if(m_prbArea3->isChecked())
     {
         m_pdeRefArea->setValue(s_WPolar.referenceArea()*Units::m2toUnit());
-        m_pdeRefSpan->setValue(s_WPolar.referenceSpanLength()*Units::mtoUnit());
+        m_pdeRefSpan->setValue(s_WPolar.referenceSpan()*Units::mtoUnit());
     }
 
-    s_WPolar.setReferenceChordLength(m_pPlane->mac());
-    m_pdeRefChord->setValue(s_WPolar.referenceChordLength()*Units::mtoUnit());
+    s_WPolar.setReferenceMAC(m_pPlane->mac());
+    m_pdeRefChord->setValue(s_WPolar.referenceMAC()*Units::mtoUnit());
 
     s_WPolar.setWakeRollUp(false);
 
@@ -413,7 +416,6 @@ void WPolarDlg::onArea()
     setWPolarName();
     enableControls();
 }
-
 
 
 void WPolarDlg::onEditingFinished()
@@ -523,8 +525,8 @@ void WPolarDlg::readExtraDragData()
 {
     for(int i=0; i<MAXEXTRADRAG; i++)
     {
-        s_WPolar.m_ExtraDragArea[i]= m_pExtraDragControlModel->index(i, 1, QModelIndex()).data().toDouble()/Units::m2toUnit();
-        s_WPolar.m_ExtraDragCoef[i]= m_pExtraDragControlModel->index(i, 2, QModelIndex()).data().toDouble();
+        s_WPolar.m_ExtraDragArea[i]= m_pExtraDragModel->index(i, 1, QModelIndex()).data().toDouble()/Units::m2toUnit();
+        s_WPolar.m_ExtraDragCoef[i]= m_pExtraDragModel->index(i, 2, QModelIndex()).data().toDouble();
     }
 }
 
@@ -559,15 +561,15 @@ void WPolarDlg::onUnit()
     {
         m_UnitType   = 1;
         m_pdeViscosity->setValue(s_WPolar.m_Viscosity);
-        m_plabDensityUnit->setText("kg/m3");
-        m_plabViscosityUnit->setText("m"+QString::fromUtf8("²")+"/s");
+        m_plabDensityUnit->setText("kg/m<sup>3</sup>");
+        m_plabViscosityUnit->setText("m<sup>2</sup>/s");
     }
     else
     {
         m_UnitType   = 2;
         m_pdeViscosity->setValue(s_WPolar.m_Viscosity* 10.7182881);
         m_plabDensityUnit->setText("slugs/ft3");
-        m_plabViscosityUnit->setText("ft"+QString::fromUtf8("²")+"/s");
+        m_plabViscosityUnit->setText("ft<sup>2</sup>/s");
     }
     setDensity();
 }
@@ -667,7 +669,7 @@ void WPolarDlg::readValues()
         s_WPolar.setReferenceSpanLength(m_pdeRefSpan->value() /Units::mtoUnit());
     }
 
-    s_WPolar.setReferenceChordLength(m_pdeRefChord->value() /Units::mtoUnit());
+    s_WPolar.setReferenceMAC(m_pdeRefChord->value() /Units::mtoUnit());
 
     setDensity();
 
@@ -710,7 +712,6 @@ void WPolarDlg::setupLayout()
 
 
     QFont fnt;
-    QFont symbolFont("Symbol");
 
     QFontMetrics fm(fnt);
 
@@ -744,31 +745,29 @@ void WPolarDlg::setupLayout()
 
             QGridLayout *pTypeDataLayout = new QGridLayout;
             {
-                QLabel *lab1 = new QLabel(tr("Free Stream Speed ="));
-                QLabel *lab5 = new QLabel(QString(QChar(0x03B1)) + "=");
-                QLabel *lab6 = new QLabel(QString(QChar(0x03B2)) + "=");
-                lab5->setFont(symbolFont);
-                lab6->setFont(symbolFont);
-                lab1->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-                lab5->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-                lab6->setAlignment(Qt::AlignRight | Qt::AlignCenter);
+                QLabel *pLab1 = new QLabel("<p>V<sub>&infin;</sub>=</p>");
+                QLabel *pLab5 = new QLabel("<p>&alpha;=</p>");
+                QLabel *pLab6 = new QLabel("<p>&beta;=</p>");
+                pLab1->setAlignment(Qt::AlignRight | Qt::AlignCenter);
+                pLab5->setAlignment(Qt::AlignRight | Qt::AlignCenter);
+                pLab6->setAlignment(Qt::AlignRight | Qt::AlignCenter);
                 m_pdeQInf    = new DoubleEdit(10.05);
                 m_pdeQInf->setMin(0.0);
                 m_pdeAlpha   = new DoubleEdit(1.00,2);
                 m_pdeBeta    = new DoubleEdit(0.00,2);
-                QLabel *labSpeedUnit   = new QLabel(strSpeedUnit);
+                QLabel *pLabSpeedUnit   = new QLabel(strSpeedUnit);
+                QLabel *pLab7 = new QLabel("<p>&deg;</p>");
+                QLabel *pLab8 = new QLabel("<p>&deg;</p>");
 
-                QLabel *lab7 = new QLabel(QChar(0260));
-                QLabel *lab8 = new QLabel(QChar(0260));
-                pTypeDataLayout->addWidget(lab1,1,1);
-                pTypeDataLayout->addWidget(lab5,2,1);
-                pTypeDataLayout->addWidget(lab6,3,1);
-                pTypeDataLayout->addWidget(m_pdeQInf,1,2);
-                pTypeDataLayout->addWidget(m_pdeAlpha,2,2);
-                pTypeDataLayout->addWidget(m_pdeBeta,3,2);
-                pTypeDataLayout->addWidget(labSpeedUnit ,1,3);
-                pTypeDataLayout->addWidget(lab7 ,2,3);
-                pTypeDataLayout->addWidget(lab8 ,3,3);
+                pTypeDataLayout->addWidget(pLab1,         1,1);
+                pTypeDataLayout->addWidget(pLab5,         2,1);
+                pTypeDataLayout->addWidget(pLab6,         3,1);
+                pTypeDataLayout->addWidget(m_pdeQInf,     1,2);
+                pTypeDataLayout->addWidget(m_pdeAlpha,    2,2);
+                pTypeDataLayout->addWidget(m_pdeBeta,     3,2);
+                pTypeDataLayout->addWidget(pLabSpeedUnit, 1,3);
+                pTypeDataLayout->addWidget(pLab7,         2,3);
+                pTypeDataLayout->addWidget(pLab8,         3,3);
                 pTypeDataLayout->setRowStretch(4,1);
                 pTypeDataLayout->setColumnStretch(3,1);
             }
@@ -953,11 +952,11 @@ void WPolarDlg::setupLayout()
             {
                 QHBoxLayout *pAeroUnitLayout = new QHBoxLayout;
                 {
-                    QLabel *lab9 = new QLabel(tr("Unit"));
-                    lab9->setAlignment(Qt::AlignRight | Qt::AlignCenter);
+                    QLabel *plab9 = new QLabel(tr("Unit"));
+                    plab9->setAlignment(Qt::AlignRight | Qt::AlignCenter);
                     m_prbUnit1 = new QRadioButton(tr("International"));
                     m_prbUnit2 = new QRadioButton(tr("Imperial"));
-                    pAeroUnitLayout->addWidget(lab9);
+                    pAeroUnitLayout->addWidget(plab9);
                     pAeroUnitLayout->addWidget(m_prbUnit1);
                     pAeroUnitLayout->addWidget(m_prbUnit2);
                     pAeroUnitLayout->addStretch();
@@ -965,26 +964,22 @@ void WPolarDlg::setupLayout()
                 }
                 QGridLayout *pAeroDataValuesLayout = new QGridLayout;
                 {
-                    m_plabRho = new QLabel("r =");
+                    m_plabRho = new QLabel("<p>&rho; =</p>");
                     m_pdeDensity = new DoubleEdit(1.225,6);
-                    m_plabDensityUnit = new QLabel("kg/m3");
-                    m_plabNu = new QLabel("n =");
+                    m_plabDensityUnit = new QLabel("kg/m<sup>3</sup>");
+                    m_plabNu = new QLabel("<p>&nu; =</p>");
                     m_plabRho->setAlignment(Qt::AlignRight | Qt::AlignCenter);
                     m_plabNu->setAlignment(Qt::AlignRight | Qt::AlignCenter);
                     m_pdeViscosity = new DoubleEdit(1.500e-5,3);
-                    m_plabViscosityUnit = new QLabel("m2/s");
-                    m_plabRho->setFont(symbolFont);
-                    m_plabNu->setFont(symbolFont);
-                    m_pdeDensity->setDigits(6);
-                    m_pdeViscosity->setDigits(3);
+                    m_plabViscosityUnit = new QLabel("m<sup>2</sup>/s");
                     m_pdeDensity->setMin(0.0);
                     m_pdeViscosity->setMin(0.0);
-                    pAeroDataValuesLayout->addWidget(m_plabRho,1,1);
-                    pAeroDataValuesLayout->addWidget(m_pdeDensity,1,2);
-                    pAeroDataValuesLayout->addWidget(m_plabDensityUnit,1,3);
-                    pAeroDataValuesLayout->addWidget(m_plabNu,2,1);
-                    pAeroDataValuesLayout->addWidget(m_pdeViscosity,2,2);
-                    pAeroDataValuesLayout->addWidget(m_plabViscosityUnit,2,3);
+                    pAeroDataValuesLayout->addWidget(m_plabRho,           1,1);
+                    pAeroDataValuesLayout->addWidget(m_pdeDensity,        1,2);
+                    pAeroDataValuesLayout->addWidget(m_plabDensityUnit,   1,3);
+                    pAeroDataValuesLayout->addWidget(m_plabNu,            2,1);
+                    pAeroDataValuesLayout->addWidget(m_pdeViscosity,      2,2);
+                    pAeroDataValuesLayout->addWidget(m_plabViscosityUnit, 2,3);
                     pAeroDataValuesLayout->setRowStretch(3,1);
                     pAeroDataValuesLayout->setColumnStretch(1,3);
                     pAeroDataValuesLayout->setColumnStretch(4,3);
@@ -1006,7 +1001,7 @@ void WPolarDlg::setupLayout()
                 QHBoxLayout *pGroundHeightLayout = new QHBoxLayout;
                 {
                     QLabel *lab10 = new QLabel(tr("Height ="));
-                    m_pdeHeight = new DoubleEdit(0.00,2);
+                    m_pdeHeight = new DoubleEdit(0.00);
                     m_pdeHeight->setAlignment(Qt::AlignRight | Qt::AlignCenter);
                     QLabel *labLengthUnit2 = new QLabel(strLengthUnit);
                     pGroundHeightLayout->addStretch();
@@ -1029,35 +1024,35 @@ void WPolarDlg::setupLayout()
 
     QVBoxLayout *pExtraDragPageLayout  = new QVBoxLayout;
     {
-        m_ptvExtraDragControl = new QTableView(this);
-        m_ptvExtraDragControl->setFont(DisplayOptions::tableFont());
+        m_pcptExtraDrag = new CPTableView(this);
+        m_pcptExtraDrag->setFont(DisplayOptions::tableFont());
+        m_pcptExtraDrag->setEditTriggers(QAbstractItemView::CurrentChanged |
+                                         QAbstractItemView::DoubleClicked |
+                                         QAbstractItemView::SelectedClicked |
+                                         QAbstractItemView::EditKeyPressed |
+                                         QAbstractItemView::AnyKeyPressed);
+        m_pcptExtraDrag->setWindowTitle(tr("Extra drag"));
+        m_pcptExtraDrag->setSelectionMode(QAbstractItemView::SingleSelection);
+        m_pcptExtraDrag->setSelectionBehavior(QAbstractItemView::SelectRows);
+        m_pcptExtraDrag->horizontalHeader()->setStretchLastSection(true);
 
-        m_ptvExtraDragControl->setWindowTitle(tr("Extra drag"));
-        m_ptvExtraDragControl->setMinimumWidth(400);
-        m_ptvExtraDragControl->setMinimumHeight(150);
-        m_ptvExtraDragControl->setSelectionMode(QAbstractItemView::SingleSelection);
-        m_ptvExtraDragControl->setSelectionBehavior(QAbstractItemView::SelectRows);
-        m_ptvExtraDragControl->horizontalHeader()->setStretchLastSection(true);
-
-        m_pExtraDragControlModel = new QStandardItemModel(this);
-        m_pExtraDragControlModel->setColumnCount(3);
-        m_pExtraDragControlModel->setHeaderData(0, Qt::Horizontal, tr("Extra drag"));
-        m_pExtraDragControlModel->setHeaderData(1, Qt::Horizontal, tr("Extra area")+" ("+Units::areaUnitLabel()+")");
-        m_pExtraDragControlModel->setHeaderData(2, Qt::Horizontal, tr("Extra drag coef."));
+        m_pExtraDragModel = new CtrlTableModel(this);
+        m_pExtraDragModel->setColumnCount(3);
+        m_pExtraDragModel->setHeaderData(0, Qt::Horizontal, tr("Extra drag"));
+        m_pExtraDragModel->setHeaderData(1, Qt::Horizontal, tr("Extra area")+" ("+Units::areaUnitLabel()+")");
+        m_pExtraDragModel->setHeaderData(2, Qt::Horizontal, tr("Extra drag coef."));
 
 
-        m_ptvExtraDragControl->setModel(m_pExtraDragControlModel);
+        m_pcptExtraDrag->setModel(m_pExtraDragModel);
+        m_pExtraDragDelegate = new CtrlTableDelegate(this);
+        m_pExtraDragDelegate->setEditable({false, true, true});
+        m_pcptExtraDrag->setItemDelegate(m_pExtraDragDelegate);
 
-        m_pControlDelegate = new CtrlTableDelegate(this);
-        m_ptvExtraDragControl->setItemDelegate(m_pControlDelegate);
-
-        connect(m_pControlDelegate,  SIGNAL(closeEditor(QWidget *)), this, SLOT(onEditingFinished()));
-
-        m_pControlDelegate->setPrecision({0,3,5});
+        m_pExtraDragDelegate->setPrecision({0,3,5});
 
         QLabel* pExtraLabel = new QLabel(QString::fromUtf8("D = 1/2 rho V² ( S (CD_induced+CD_Visc) + S_Extra1.CD_Extra1 + ... + S_ExtraN.Cd_ExtraN)"));
 
-        pExtraDragPageLayout->addWidget(m_ptvExtraDragControl);
+        pExtraDragPageLayout->addWidget(m_pcptExtraDrag);
         pExtraDragPageLayout->addWidget(pExtraLabel);
         pAngleControlPage->setLayout(pExtraDragPageLayout);
     }
@@ -1100,22 +1095,22 @@ void WPolarDlg::setupLayout()
 
 void WPolarDlg::fillExtraDragList()
 {
-    m_pExtraDragControlModel->setRowCount(MAXEXTRADRAG);
+    m_pExtraDragModel->setRowCount(MAXEXTRADRAG);
     QString str;
     QModelIndex ind;
     Units::getLengthUnitLabel(str);
 
     for(int i=0; i<MAXEXTRADRAG; i++)
     {
-        ind = m_pExtraDragControlModel->index(i, 0, QModelIndex());
-        m_pExtraDragControlModel->setData(ind, QString("Extra %1").arg(i));
-        ind = m_pExtraDragControlModel->index(i, 1, QModelIndex());
-        m_pExtraDragControlModel->setData(ind, s_WPolar.m_ExtraDragArea[i]*Units::m2toUnit());
-        ind = m_pExtraDragControlModel->index(i, 2, QModelIndex());
-        m_pExtraDragControlModel->setData(ind, s_WPolar.m_ExtraDragCoef[i]);
+        ind = m_pExtraDragModel->index(i, 0, QModelIndex());
+        m_pExtraDragModel->setData(ind, QString("Extra %1").arg(i));
+        ind = m_pExtraDragModel->index(i, 1, QModelIndex());
+        m_pExtraDragModel->setData(ind, s_WPolar.m_ExtraDragArea[i]*Units::m2toUnit());
+        ind = m_pExtraDragModel->index(i, 2, QModelIndex());
+        m_pExtraDragModel->setData(ind, s_WPolar.m_ExtraDragCoef[i]);
     }
 
-    m_ptvExtraDragControl->resizeColumnsToContents();
+    m_pcptExtraDrag->resizeColumnsToContents();
 }
 
 
@@ -1131,11 +1126,11 @@ void WPolarDlg::onTabChanged(int index)
 
 void WPolarDlg::resizeColumns()
 {
-    double wc = double(m_ptvExtraDragControl->width())*.97;
+    double wc = double(m_pcptExtraDrag->width())*.97;
     int wCols  = int(wc/3);
-    m_ptvExtraDragControl->setColumnWidth(0, wCols);
-    m_ptvExtraDragControl->setColumnWidth(1, wCols);
-    m_ptvExtraDragControl->setColumnWidth(2, wCols);
+    m_pcptExtraDrag->setColumnWidth(0, wCols);
+    m_pcptExtraDrag->setColumnWidth(1, wCols);
+    m_pcptExtraDrag->setColumnWidth(2, wCols);
 
 }
 
@@ -1176,12 +1171,12 @@ void WPolarDlg::setReynolds()
     if(s_WPolar.polarType() == xfl::FIXEDSPEEDPOLAR)
     {
         double RRe = m_pPlane->rootChord() * s_WPolar.m_QInfSpec/s_WPolar.m_Viscosity;
-        xfl::ReynoldsFormat(str, RRe);
+        str = xfl::ReynoldsFormat(RRe);
         strange = tr("Root Re =");
         m_plabRRe->setText(strange+str);
 
         double SRe = m_pPlane->tipChord() * s_WPolar.m_QInfSpec/s_WPolar.m_Viscosity;
-        xfl::ReynoldsFormat(str, SRe);
+        str = xfl::ReynoldsFormat(SRe);
         strange = tr("Tip Re =");
         m_plabSRe->setText(strange+str);
 
@@ -1196,20 +1191,20 @@ void WPolarDlg::setReynolds()
         m_plabQInfCl->setText(strange+str);
 
         double RRe = m_pPlane->rootChord() * QCl/s_WPolar.m_Viscosity;
-        xfl::ReynoldsFormat(str, RRe);
+        str = xfl::ReynoldsFormat(RRe);
         strange = tr("Root Re.sqrt(Cl) =");
         m_plabRRe->setText(strange+str);
 
         double SRe = m_pPlane->tipChord() * QCl/s_WPolar.m_Viscosity;
-        xfl::ReynoldsFormat(str, SRe);
+        str = xfl::ReynoldsFormat(SRe);
         strange = tr("Tip Re.sqrt(Cl) =");
         m_plabSRe->setText(strange+str);
     }
     else if(s_WPolar.polarType() ==xfl::FIXEDAOAPOLAR)
     {
-        m_plabQInfCl->setText(" ");
-        m_plabRRe->setText(" ");
-        m_plabSRe->setText(" ");
+        m_plabQInfCl->setText(QString());
+        m_plabRRe->setText(QString());
+        m_plabSRe->setText(QString());
     }
 }
 

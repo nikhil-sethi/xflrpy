@@ -26,9 +26,6 @@
 #include <xflgeom/geom3d/vector3d.h>
 #include <complex>
 
-using namespace std;
-
-
 
 void transpose33(double *l);
 bool invert33(double *l);
@@ -36,15 +33,15 @@ void AV33(const double *A, const double *v, double *p);
 
 
 double det33(const double *aij);
-complex<double> det33(const complex<double> *aij);
+std::complex<double> det33(const std::complex<double> *aij);
 
 
 double det44(const double *aij);
 
-complex<double> det44(const complex<double> *aij);
-complex<double> cofactor44(const complex<double> *aij, int &i, int &j);
+std::complex<double> det44(const std::complex<double> *aij);
+std::complex<double> cofactor44(const std::complex<double> *aij, int &i, int &j);
 
-bool Invert44(const complex<double> *ain, complex<double> *aout);
+bool Invert44(const std::complex<double> *ain, std::complex<double> *aout);
 
 
 bool Gauss(double *A, int n, double *B, int m, bool *pbCancel);
@@ -56,12 +53,12 @@ bool Crout_LU_with_Pivoting_Solve(const double *LU, double B[], int pivot[], dou
 
 void TestEigen();
 void CharacteristicPol(double m[][4], double p[5]);
-bool LinBairstow(double *p, complex<double> *root, int n);
-bool Eigenvector(double a[][4], complex<double> lambda, complex<double> *V);
+bool LinBairstow(double *p, std::complex<double> *root, int n);
+bool Eigenvector(double a[][4], std::complex<double> lambda, std::complex<double> *V);
 
 
-int Compare(complex<double> a, complex<double>b);
-void ComplexSort(complex<double>*array, int ub);
+int Compare(std::complex<double> a, std::complex<double>b);
+void ComplexSort(std::complex<double>*array, int ub);
 
 
 void display_mat(double const *mat, int rows, int cols);

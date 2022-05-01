@@ -20,15 +20,13 @@
 *****************************************************************************/
 
 #include <QApplication>
-#include <QtConcurrent/QtConcurrent>
+#include <QtConcurrent/QtConcurrentRun>
 #include <QFutureSynchronizer>
 #include <QRandomGenerator>
 
 #include "mopsotask.h"
-//#include <xdirect/optim2d/optimevent.h>
 #include <xflcore/constants.h>
 
-#include <QtConcurrent/QtConcurrent>
 
 
 #include "mopsotask.h"
@@ -80,7 +78,12 @@ void MOPSOTask::makeSwarm()
         for (int isw=0; isw<m_Swarm.size(); ++isw)
         {
            Particle &particle = m_Swarm[isw];
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+           futureSync.addFuture(QtConcurrent::run(&MOPSOTask::calcFitness, this, &particle));
+#else
            futureSync.addFuture(QtConcurrent::run(this, &MOPSOTask::calcFitness, &particle));
+#endif
         }
         futureSync.waitForFinished();
     }
@@ -94,7 +97,7 @@ void MOPSOTask::makeSwarm()
         for(int iobj=0; iobj<m_Objective.size(); iobj++)
             m_Swarm[i].setError(iobj, error(&m_Swarm.at(i), iobj));
 
-    outputMsg(QString::asprintf("Made %d random particles\n", m_Swarm.size()));
+    outputMsg(QString::asprintf("Made %d random particles\n", int(m_Swarm.size())));
 
     QApplication::restoreOverrideCursor();
 }
@@ -129,7 +132,11 @@ void MOPSOTask::onIteration()
         for (int isw=0; isw<m_Swarm.size(); ++isw)
         {
            Particle &particle = m_Swarm[isw];
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+           futureSync.addFuture(QtConcurrent::run(&MOPSOTask::moveParticle, this, &particle));
+#else
            futureSync.addFuture(QtConcurrent::run(this, &MOPSOTask::moveParticle, &particle));
+#endif
         }
         futureSync.waitForFinished();
     }
@@ -262,7 +269,7 @@ void MOPSOTask::postPSOEvent(int iBest)
 #define PARTICLEBESTSIZE 3
 void MOPSOTask::makeRandomParticle(Particle *pParticle) const
 {
-    int nBest = std::min(m_Objective.size(), PARTICLEBESTSIZE);
+    int nBest = std::min(int(m_Objective.size()), PARTICLEBESTSIZE);
     pParticle->resizeArrays(m_Variable.size(), m_Objective.size(), nBest);
     double pos=0, vel=0;
     double deltap = 0.0;

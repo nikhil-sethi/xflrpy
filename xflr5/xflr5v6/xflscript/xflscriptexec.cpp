@@ -26,6 +26,8 @@
 #include <QMessageBox>
 #include <QDateTime>
 #include <QThreadPool>
+#include <QtConcurrent/QtConcurrentRun>
+#include <QFutureSynchronizer>
 #include <QDebug>
 
 #include "xflscriptexec.h"
@@ -74,7 +76,7 @@ void XflScriptExec::makeFoilAnalysisList()
 
     // build from the xml files
     QStringList filters = {"*.xml"};
-    QStringList xmlanalyseslist = m_Reader.m_PolarList;
+    QStringList xmlanalyseslist = m_Reader.m_XmlFoilAnalysisList;
     if(m_Reader.bRunAllAnalyses())
     {
         xmlanalyseslist = xfl::findFiles(m_Reader.xmlAnalysisDirPath(), filters, false);
@@ -447,11 +449,12 @@ void XflScriptExec::runFoilAnalyses()
     m_nTaskDone = 0;
     m_nTaskStarted = 0;
 
-    strong = QString::asprintf("Found %d (foil, polar) pairs to analyze.\n",m_FoilExecList.size());
+    strong = QString::asprintf("Found %d (foil, polar) pairs to analyze.\n", int(m_FoilExecList.size()));
     traceLog(strong+"\n");
 
     XFoilTask::s_bCancel = false;
 
+    QFutureSynchronizer<void> futureSync;
     for(int i=0; i<m_FoilExecList.size(); i++)
     {
         XFoilTask *pXFoilTask = new XFoilTask(this);
@@ -471,7 +474,12 @@ void XflScriptExec::runFoilAnalyses()
         strong = "Starting "+Analysis.pFoil->name()+" / "+Analysis.pPolar->polarName()+"\n";
         traceLog(strong);
 
-        QThreadPool::globalInstance()->start(pXFoilTask);
+//        QThreadPool::globalInstance()->start(pXFoilTask);
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+            futureSync.addFuture(QtConcurrent::run(&XFoilTask::run, pXFoilTask));
+#else
+            futureSync.addFuture(QtConcurrent::run(pXFoilTask, &XFoilTask::run));
+#endif
     }
 
     QThreadPool::globalInstance()->waitForDone();

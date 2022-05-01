@@ -131,8 +131,6 @@ double Spline::getY(double const &x) const
 */
 bool Spline::insertPoint(double const &x, double const &y)
 {
-    int k;
-
     if (x>=0.0 && x<=1.0)
     { 
         //No points yet
@@ -157,7 +155,7 @@ bool Spline::insertPoint(double const &x, double const &y)
             else
             {
                 // else if we're in between
-                for (k=0; k<m_CtrlPt.size()-1; k++)
+                for (int k=0; k<m_CtrlPt.size()-1; k++)
                 {
                     if (x>=m_CtrlPt[k].x && x<m_CtrlPt[k+1].x)
                     {
@@ -174,6 +172,7 @@ bool Spline::insertPoint(double const &x, double const &y)
     return true;
 }
 
+
 /**
 * Checks if an input point matches with a control point
 *@param Real the input point to compare with the control points
@@ -181,8 +180,7 @@ bool Spline::insertPoint(double const &x, double const &y)
 */
 int Spline::isControlPoint(Vector3d const &Real) const
 {
-    int k;
-    for (k=0; k<m_CtrlPt.size(); k++)
+    for (int k=0; k<m_CtrlPt.size(); k++)
     {
         if(qAbs(Real.x-m_CtrlPt[k].x)<0.005 && qAbs(Real.y-m_CtrlPt[k].y)<0.005) return k;
     }
@@ -198,14 +196,12 @@ int Spline::isControlPoint(Vector3d const &Real) const
 */
 int Spline::isControlPoint(const Vector3d &Real, double const &ZoomFactor) const
 {
-    int k;
-    for (k=0; k<m_CtrlPt.size(); k++)
+    for (int k=0; k<m_CtrlPt.size(); k++)
     {
         if (qAbs(Real.x-m_CtrlPt[k].x)<0.006/ZoomFactor && qAbs(Real.y-m_CtrlPt[k].y)<0.006/ZoomFactor) return k;
     }
     return -10;
 }
-
 
 
 /**
@@ -217,13 +213,13 @@ int Spline::isControlPoint(const Vector3d &Real, double const &ZoomFactor) const
 */
 int Spline::isControlPoint(double const &x, double const &y, double const &zx, double const &zy) const
 {
-    int k;
-    for (k=0; k<m_CtrlPt.size(); k++)
+    for (int k=0; k<m_CtrlPt.size(); k++)
     {
         if(qAbs((x-m_CtrlPt[k].x)/zx)<11.0 && qAbs((y-m_CtrlPt[k].y)/zy)<11.0) return k;
     }
     return -10;
 }
+
 
 /**
 * Removes a point from the array of control points, only if the remaining number of points is strictly greater than the spline's degree
@@ -244,8 +240,6 @@ bool Spline::removePoint(int const &k)
 }
 
 
-
-
 /**    
  * Calculates the blending value. This is done recursively.
    If the numerator and denominator are 0 the expression is 0.
@@ -258,7 +252,6 @@ bool Spline::removePoint(int const &k)
 */
 double Spline::splineBlend(int const &i,  int const &p, double const &t)
 {
-
     double pres = 1.e-6; //same for all the recursive calls...
 
     if(i+p+1>=m_knot.size())
@@ -296,14 +289,14 @@ double Spline::splineBlend(int const &i,  int const &p, double const &t)
 */
 void Spline::splineCurve()
 {
-    double t=0, increment=0, b=0, w=0;
+    double b(0), w(0);
 
     m_Output.resize(m_iRes);
 
     if (m_CtrlPt.size()>=3)
     {
-        t = 0;
-        increment = 1.0/double(m_iRes - 1);
+        double t = 0;
+        double increment = 1.0/double(m_iRes - 1);
         
         for (int j=0;j<m_iRes;j++)
         {
@@ -328,13 +321,12 @@ void Spline::splineCurve()
     }
 }
 
+
 /**
 *Generates an array of standard knot values for this spline.
 */
 void Spline::splineKnots()
 {
-    double a=0, b=0;
-
     int iDegree = qMin(m_iDegree, m_CtrlPt.size());
 
     double nKnots  = iDegree + m_CtrlPt.size() + 1;
@@ -347,8 +339,8 @@ void Spline::splineKnots()
         {
             if(j<m_CtrlPt.size())
             {
-                a = double(j-iDegree);
-                b = double(nKnots-2*iDegree-1);
+                double a = double(j-iDegree);
+                double b = double(nKnots-2*iDegree-1);
                 if(qAbs(b)>0.0) m_knot.append(a/b);
                 else            m_knot.append(1.0);
             }

@@ -25,7 +25,6 @@
 #include <QLabel>
 #include <QStringList>
 #include <QListWidgetItem>
-#include <QMutableStringListIterator>
 #include <QDir>
 #include <QMessageBox>
 #include <QTranslator>
@@ -37,7 +36,7 @@
 LanguageWt::LanguageWt(QWidget *pParent): QWidget(pParent)
 {
     setWindowTitle(tr("Language settings"));
-    QString LanguageName = tr("English");// will be translated in the ts & qm files and this will be used to fill the QListWidget
+//    QString LanguageName = tr("English");// will be translated in the ts & qm files and this will be used to fill the QListWidget
     m_bChanged = false;
     setupLayout();
 }
@@ -47,7 +46,7 @@ void LanguageWt::setupLayout()
 {
     QLabel *lab = new QLabel(tr("Select the application's default language:"));
     m_plwLanguageList = new QListWidget;
-    connect(m_plwLanguageList, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(readLanguage()));
+    connect(m_plwLanguageList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(readLanguage()));
 
     QVBoxLayout *pMainLayout = new QVBoxLayout;
     {
@@ -110,7 +109,7 @@ QStringList LanguageWt::findQmFiles()
 QString LanguageWt::languageName(const QString &qmFile)
 {
     QTranslator translator;
-    translator.load(qmFile);
+    if(!translator.load(qmFile)) return QString();
 
     return translator.translate("Language", "English");
 }

@@ -1,6 +1,6 @@
 /****************************************************************************
 
-    GL3dWingDlg Class
+    WingDlg Class
     Copyright (C) André Deperrois
 
     This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 
 #include <xflobjects/editors/wingdlg.h>
 
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xfl3d/views/gl3dwingview.h>
 #include <xflcore/displayoptions.h>
 #include <xflcore/units.h>
@@ -264,11 +264,9 @@ void WingDlg::onButton(QAbstractButton *pButton)
 void WingDlg::createXPoints(int NXPanels, int XDist, Foil *pFoilA, Foil *pFoilB, double *xPointA, double *xPointB, int &NXLead, int &NXFlap)
 {
     // the chordwise panel distribution is set i.a.w. with the flap hinges;
-
-    int l;
-    int NXFlapA, NXFlapB, NXLeadA, NXLeadB;
-    double dl, dl2;
-    double xHingeA, xHingeB;
+    int NXFlapA(0), NXFlapB(0), NXLeadA(0), NXLeadB(0);
+    double dl(0), dl2(0);
+    double xHingeA(0), xHingeB(0);
     if(pFoilA && pFoilA->m_bTEFlap) xHingeA=pFoilA->m_TEXHinge/100.0; else xHingeA=1.0;
     if(pFoilB && pFoilB->m_bTEFlap) xHingeB=pFoilB->m_TEXHinge/100.0; else xHingeB=1.0;
 
@@ -283,6 +281,7 @@ void WingDlg::createXPoints(int NXPanels, int XDist, Foil *pFoilA, Foil *pFoilB,
     if(NXFlap>NXPanels/2) NXFlap=int(NXPanels/2);
     NXLead  = NXPanels - NXFlap;
 
+    int l=0;
     for(l=0; l<NXFlapA; l++)
     {
         dl =  double(l);
@@ -708,7 +707,6 @@ void WingDlg::onItemClicked(const QModelIndex &index)
 }
 
 
-
 void WingDlg::onOK()
 {
     readParams();
@@ -773,13 +771,13 @@ void WingDlg::onResetMesh()
 void WingDlg::onScaleWing()
 {
     WingScaleDlg dlg(this);
-    dlg.initDialog(m_pWing->m_PlanformSpan,
+    dlg.initDialog(m_pWing->planformSpan(),
                    m_pWing->Chord(0),
                    m_pWing->averageSweep(),
                    m_pWing->Twist(m_pWing->NWingSection()-1),
-                   m_pWing->m_PlanformArea,
-                   m_pWing->m_AR,
-                   m_pWing->m_TR);
+                   m_pWing->planformArea(),
+                   m_pWing->aspectRatio(),
+                   m_pWing->taperRatio());
 
     if(QDialog::Accepted == dlg.exec())
     {
@@ -877,11 +875,11 @@ void WingDlg::readParams()
 void WingDlg::readSectionData(int sel)
 {
     if(sel>=m_pWingModel->rowCount()) return;
-    double d=0;
+    double d(0);
 
-    bool bOK=false;
+    bool bOK(false);
     QString strong;
-    QStandardItem *pItem=nullptr;
+    QStandardItem *pItem(nullptr);
 
     pItem = m_pWingModel->item(sel,0);
 
@@ -1037,28 +1035,28 @@ void WingDlg::setWingData()
 
     QString str;
 
-    str = QString("%1").arg(m_pWing->m_PlanformArea*Units::m2toUnit(),7,'f',2);
+    str = QString("%1").arg(m_pWing->planformArea()*Units::m2toUnit(),7,'f',2);
     m_plabWingArea->setText(str);
 
-    str = QString("%1").arg(m_pWing->m_PlanformSpan*Units::mtoUnit(),5,'f',2);
+    str = QString("%1").arg(m_pWing->planformSpan()*Units::mtoUnit(),5,'f',2);
     m_plabWingSpan->setText(str);
 
-    str = QString("%1").arg(m_pWing->m_ProjectedArea*Units::m2toUnit(),7,'f',2);
+    str = QString("%1").arg(m_pWing->projectedArea()*Units::m2toUnit(),7,'f',2);
     m_plabProjectedArea->setText(str);
 
-    str = QString("%1").arg(m_pWing->m_ProjectedSpan*Units::mtoUnit(),5,'f',2);
+    str = QString("%1").arg(m_pWing->projectedSpan()*Units::mtoUnit(),5,'f',2);
     m_plabProjectedSpan->setText(str);
 
-    str = QString("%1").arg(m_pWing->m_GChord*Units::mtoUnit(),5,'f',2);
+    str = QString("%1").arg(m_pWing->GChord()*Units::mtoUnit(),5,'f',2);
     m_plabGeomChord->setText(str);
 
-    str = QString("%1").arg(m_pWing->m_MAChord*Units::mtoUnit(),5,'f',2);
+    str = QString("%1").arg(m_pWing->MAC()*Units::mtoUnit(),5,'f',2);
     m_plabMAC->setText(str);
 
-    str = QString("%1").arg(m_pWing->m_AR,5,'f',2);
+    str = QString("%1").arg(m_pWing->aspectRatio(),5,'f',2);
     m_plabAspectRatio->setText(str);
 
-    if(m_pWing->tipChord()>0.0) str = QString("%1").arg(m_pWing->m_TR,0,'f',2);
+    if(m_pWing->tipChord()>0.0) str = QString("%1").arg(m_pWing->taperRatio(),0,'f',2);
     else                        str = tr("Undefined");
     m_plabTaperRatio->setText(str);
 
@@ -1491,9 +1489,9 @@ void WingDlg::resizeEvent(QResizeEvent *)
 
 int WingDlg::VLMGetPanelTotal()
 {
-    double MinPanelSize;
+    double MinPanelSize(0);
     if(Wing::s_MinPanelSize>0.0) MinPanelSize = Wing::s_MinPanelSize;
-    else                         MinPanelSize = m_pWing->m_PlanformSpan/1000.0;
+    else                         MinPanelSize = m_pWing->planformSpan()/1000.0;
 
     int total = 0;
     for (int i=0; i<m_pWing->NWingSection()-1; i++)
@@ -1514,7 +1512,7 @@ bool WingDlg::VLMSetAutoMesh(int total)
     m_bChanged = true;
     //split (NYTotal) panels on each side proportionnaly to length, and space evenly
     //Set VLMMATSIZE/NYTotal panels along chord
-    int NYTotal, size;
+    int NYTotal(0), size(0);
 
     if(!total)
     {
@@ -1537,7 +1535,7 @@ bool WingDlg::VLMSetAutoMesh(int total)
         //        d2 = 5./2./m_pWing->m_Span/m_pWing->m_Span/m_pWing->m_Span *8. * pow(m_pWing->TPos(i+1),3) + 0.5;
         //        m_pWing->NYPanels(i) = (int) (NYTotal * (0.8*d1+0.2*d2)* (m_pWing->TPos(i+1)-m_pWing->TPos(i))/m_pWing->m_Span);
 
-        m_pWing->setNYPanels(i, int(qAbs(m_pWing->YPosition(i+1) - m_pWing->YPosition(i))* double(NYTotal)/m_pWing->m_PlanformSpan));
+        m_pWing->setNYPanels(i, int(qAbs(m_pWing->YPosition(i+1) - m_pWing->YPosition(i))* double(NYTotal)/m_pWing->planformSpan()));
 
         m_pWing->setNXPanels(i, int(size/NYTotal));
 
@@ -1681,7 +1679,7 @@ bool WingDlg::intersectObject(Vector3d AA,  Vector3d U, Vector3d &I)
 
 void WingDlg::loadSettings(QSettings &settings)
 {
-    settings.beginGroup("GL3dWingDlg");
+    settings.beginGroup("WingDlg");
     {
         s_WindowGeometry = settings.value("Geometry").toByteArray();
         s_HSplitterSizes = settings.value("HorizontalSplitterSizes").toByteArray();
@@ -1693,7 +1691,7 @@ void WingDlg::loadSettings(QSettings &settings)
 
 void WingDlg::saveSettings(QSettings &settings)
 {
-    settings.beginGroup("GL3dWingDlg");
+    settings.beginGroup("WingDlg");
     {
         settings.setValue("Geometry", s_WindowGeometry);
         settings.setValue("HorizontalSplitterSizes", s_HSplitterSizes);

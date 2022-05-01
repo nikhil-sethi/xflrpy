@@ -37,7 +37,7 @@
 
 #include <misc/lengthunitdlg.h>
 #include <xfl3d/controls/arcball.h>
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xfl3d/views/gl3dbodyview.h>
 #include <xflcore/displayoptions.h>
 #include <xflcore/units.h>
@@ -148,7 +148,7 @@ void BodyDlg::connectSignals()
 
     connect(&m_gl3dBodyview, SIGNAL(viewModified()), SLOT(onCheckViewIcons()));
 
-    connect(m_pslPanelBunch, SIGNAL(sliderMoved(int)), SLOT(onNURBSPanels()));
+    connect(m_pslPanelBunch, SIGNAL(valueChanged(int)), SLOT(onNURBSPanels()));
 
     connect(m_prbFlatPanels, SIGNAL(clicked()), SLOT(onLineType()));
     connect(m_prbBSplines,   SIGNAL(clicked()), SLOT(onLineType()));
@@ -590,12 +590,8 @@ void BodyDlg::onImportBodyDef()
 }
 
 
-
 void BodyDlg::onImportBodyXML()
 {
-    //    Body memBody;
-    //    memBody.duplicate(m_pBody);
-
     QString PathName;
     PathName = QFileDialog::getOpenFileName(this, tr("Open XML File"),
                                             xfl::s_LastDirName,
@@ -641,12 +637,12 @@ void BodyDlg::onImportBodyXML()
 void BodyDlg::readFrameSectionData(int sel)
 {
     if(sel>=m_pFrameModel->rowCount()) return;
-    double x=0;
-    int k=0;
+    double x(0);
+    int k(0);
 
-    bool bOK=false;
+    bool bOK(false);
     QString strong;
-    QStandardItem *pItem;
+    QStandardItem *pItem(nullptr);
 
     pItem = m_pFrameModel->item(sel,0);
     if(!pItem) return;
@@ -796,10 +792,8 @@ void BodyDlg::onUpdateBody()
     fillFrameDataTable();
     fillPointDataTable();
 
-
     updateView();
 }
-
 
 
 void BodyDlg::onSelChangeXDegree(int sel)
@@ -904,12 +898,12 @@ void BodyDlg::readPointSectionData(int sel)
     if(sel>=m_pPointModel->rowCount()) return;
     if(!m_pFrame) return;
 
-    double d=0;
-    int k=0;
+    double d(0);
+    int k(0);
 
-    bool bOK=false;
+    bool bOK(false);
     QString strong;
-    QStandardItem *pItem;
+    QStandardItem *pItem(nullptr);
 
     pItem = m_pPointModel->item(sel,0);
     if(!pItem) return;
@@ -989,9 +983,6 @@ void BodyDlg::reject()
 
 void BodyDlg::resizeEvent(QResizeEvent *pEvent)
 {
-    //    SetBodyScale();
-    //    SetRectangles();
-
     resizeTables();
     pEvent->accept();
 }
@@ -1009,7 +1000,6 @@ bool BodyDlg::loadSettings(QSettings &settings)
     settings.endGroup();
     return true;
 }
-
 
 
 bool BodyDlg::saveSettings(QSettings &settings)
@@ -1134,7 +1124,6 @@ void BodyDlg::setFrame(Frame *pFrame)
 
     fillPointDataTable();;
 }
-
 
 
 void BodyDlg::setupLayout()

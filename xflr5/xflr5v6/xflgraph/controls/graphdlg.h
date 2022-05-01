@@ -48,11 +48,13 @@ class GraphDlg : public QDialog
         void setGraph(Graph *pGraph);
         Graph* graph() {return m_pGraph;}
         bool bVariableChanged(){return m_bVariableChanged;}
-
-        int &XSel(){return m_XSel;}
-        int &YSel(){return m_YSel;}
+        QSize sizeHint() const override {return QSize(900,550);}
+        void setXSel(int ix) {m_XSel=ix;}
+        void setYSel(int iy) {m_YSel=iy;}
 
         static void setActivePage(int iPage);
+        static void loadSettings(QSettings &settings);
+        static void saveSettings(QSettings &settings);
 
 
 
@@ -86,6 +88,7 @@ class GraphDlg : public QDialog
 
     private:
         void keyPressEvent(QKeyEvent *pEvent) override;
+        void hideEvent(QHideEvent *pEvent) override;
         void showEvent(QShowEvent *pEvent) override;
         void reject() override;
 
@@ -136,5 +139,6 @@ class GraphDlg : public QDialog
         bool m_bVariableChanged;
         static int s_iActivePage;
 
+        static QByteArray s_Geometry;
 };
 

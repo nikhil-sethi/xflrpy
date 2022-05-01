@@ -121,7 +121,7 @@ void PlaneDlg::connectSignals()
     connect(m_ptbZ,          SIGNAL(clicked()), m_pglPlaneView, SLOT(on3dTop()));
     connect(m_ptbFlip,       SIGNAL(clicked()), m_pglPlaneView, SLOT(on3dFlip()));
 
-    connect(m_pslClipPlanePos, SIGNAL(sliderMoved(int)), m_pglPlaneView, SLOT(onClipPlane(int)));
+    connect(m_pslClipPlanePos, SIGNAL(valueChanged(int)), m_pglPlaneView, SLOT(onClipPlane(int)));
 }
 
 
@@ -810,19 +810,19 @@ void PlaneDlg::setResults()
     //    double area = m_pPlane->Wing()->s_Area;
     //    if(m_pPlane->m_bBiplane) area += m_pPlane->Wing2()->m_Area;
 
-    str = QString("%1").arg(m_pPlane->wing()->m_PlanformArea*Units::m2toUnit(),7,'f',2);
+    str = QString("%1").arg(m_pPlane->wing()->planformArea()*Units::m2toUnit(),7,'f',2);
     m_plabWingSurface->setText(str);
 
-    if(m_pPlane->stab())   str = QString("%1").arg(m_pPlane->stab()->m_PlanformArea*Units::m2toUnit(),7,'f',2);
+    if(m_pPlane->stab())   str = QString("%1").arg(m_pPlane->stab()->planformArea()*Units::m2toUnit(),7,'f',2);
     else str = " ";
     m_plabStabSurface->setText(str);
 
-    if(m_pPlane->fin())    str = QString("%1").arg(m_pPlane->fin()->m_PlanformArea*Units::m2toUnit(),7,'f',2);
+    if(m_pPlane->fin())    str = QString("%1").arg(m_pPlane->fin()->planformArea()*Units::m2toUnit(),7,'f',2);
     else str=" ";
     m_plabFinSurface->setText(str);
 
-    double span = m_pPlane->wing()->m_PlanformSpan;
-    if(m_pPlane->wing2()) span = qMax(m_pPlane->wing()->m_PlanformSpan, m_pPlane->wing2()->m_PlanformSpan);
+    double span = m_pPlane->wing()->planformSpan();
+    if(m_pPlane->wing2()) span = qMax(m_pPlane->wing()->planformSpan(), m_pPlane->wing2()->planformSpan());
     str = QString("%1").arg(span*Units::mtoUnit(),5,'f',2);
     m_plabWingSpan->setText(str);
 

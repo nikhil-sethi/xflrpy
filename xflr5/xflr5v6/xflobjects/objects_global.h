@@ -54,5 +54,10 @@ namespace xfl
     bool serializeFoil(Foil*pFoil, QDataStream &ar, bool bIsStoring);
     bool serializePolar(Polar *pPolar, QDataStream &ar, bool bIsStoring);
 
+    Vector3d windDirection(double alpha, double beta);
+    Vector3d windSide(double alpha, double beta);
+    Vector3d windNormal(double alpha, double beta);
+    Vector3d windToGeomAxes(Vector3d const &Vw, double alpha, double beta);
+    Vector3d geomToWindAxes(Vector3d const &Vw, double alpha, double beta);
 
 }

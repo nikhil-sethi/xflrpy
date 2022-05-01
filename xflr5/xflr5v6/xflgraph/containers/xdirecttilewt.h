@@ -35,7 +35,6 @@ class XDirectTileWidget : public GraphTileWidget
 
     public:
         XDirectTileWidget(QWidget *pParent = nullptr);
-        ~XDirectTileWidget();
 
     public:
         void connectSignals() override;
@@ -50,7 +49,6 @@ class XDirectTileWidget : public GraphTileWidget
     private:
         void setupMainLayout() override;
 
-        //    QStackedWidget *m_pLegendStack;
         OpPointWt *m_pOpPointWidget;
 
         QGridLayout *m_pMainGridLayout;

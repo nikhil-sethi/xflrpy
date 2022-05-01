@@ -30,7 +30,7 @@
 
 #include <globals/mainframe.h>
 
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xfl3d/views/gl3dbodyview.h>
 #include <xflcore/displayoptions.h>
 #include <xflcore/units.h>
@@ -245,12 +245,12 @@ void EditBodyDlg::setupLayout()
 
     QItemSelectionModel *selectionModel = new QItemSelectionModel(m_pModel);
     m_pStruct->setSelectionModel(selectionModel);
-    connect(selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onItemClicked(QModelIndex)));
+    connect(selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), SLOT(onItemClicked(QModelIndex)));
 
 
     m_pDelegate = new EditObjectDelegate(this);
     m_pStruct->setItemDelegate(m_pDelegate);
-    connect(m_pDelegate,  SIGNAL(closeEditor(QWidget *)), this, SLOT(onRedraw()));
+    connect(m_pDelegate,  SIGNAL(closeEditor(QWidget*)), SLOT(onRedraw()));
 
 
     QSizePolicy szPolicyMinimumExpanding;
@@ -375,7 +375,6 @@ void EditBodyDlg::setupLayout()
             }
             m_pBodyLineWidget = new BodyLineWt(this);
             m_pBodyLineWidget->setSizePolicy(szPolicyMaximum);
-            m_pBodyLineWidget->sizePolicy().setVerticalStretch(2);
 
             m_pglBodyView = new gl3dBodyView(this);
             m_pglBodyView->m_bOutline    = s_bOutline;
@@ -385,8 +384,6 @@ void EditBodyDlg::setupLayout()
             m_pglBodyView->m_bShowMasses = s_bShowMasses;
             m_pglBodyView->m_bFoilNames  = s_bFoilNames;
 
-            m_pglBodyView->sizePolicy().setVerticalStretch(5);
-            p3DCtrlBox->sizePolicy().setVerticalStretch(2);
 
             m_pMiddleSplitter->addWidget(m_pBodyLineWidget);
             m_pMiddleSplitter->addWidget(m_pglBodyView);
@@ -921,6 +918,8 @@ void EditBodyDlg::readBodyTree(QModelIndex indexLevel)
                             readBodyFrameTree(pFrame, pSubItem->child(0,0)->index());
                             m_pBody->m_SplineSurface.appendFrame(pFrame);
                         }
+                        else
+                            delete pFrame;
                     }
 
                     subIndex = subIndex.sibling(subIndex.row()+1,0);

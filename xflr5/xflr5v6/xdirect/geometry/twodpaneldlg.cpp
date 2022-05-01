@@ -201,7 +201,7 @@ void TwoDPanelDlg::onApply()
     s_pXFoil->lflap = false;
     s_pXFoil->lbflap = false;
 
-    if(s_pXFoil->Preprocess())
+    if(s_pXFoil->PreProcess())
     {
         s_pXFoil->CheckAngles();
     }

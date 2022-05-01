@@ -20,13 +20,13 @@
 *****************************************************************************/
 
 #include <QDebug>
-#include <QtConcurrent/QtConcurrentRun>
+#include <QtConcurrent/QtConcurrent>
+#include <QFuture>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QMessageBox>
 #include <QApplication>
 #include <QDateTime>
-#include <QDesktopWidget>
 #include <QTimer>
 #include <QDir>
 #include <QKeyEvent>
@@ -213,7 +213,7 @@ void PanelAnalysisDlg::analyze()
 
     clock.start(); // put some pressure
 
-    QString strange = "\n" + QString(VERSIONNAME) +"\n";
+    QString strange = "\n" + QString(xfl::versionName()) +"\n";
     updateOutput(strange);
     QDateTime dt = QDateTime::currentDateTime();
     strange = dt.toString("dd.MM.yyyy  hh:mm:ss\n\n");
@@ -229,7 +229,11 @@ void PanelAnalysisDlg::analyze()
     //run the instance asynchronously
     disconnect(m_pTheTask, nullptr, nullptr, nullptr);
     connect(m_pTheTask,  SIGNAL(taskFinished()),   this,  SLOT(onTaskFinished()));
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+    QFuture<void> future = QtConcurrent::run(&PlaneTask::run, m_pTheTask);
+#else
     QFuture<void> future = QtConcurrent::run(m_pTheTask, &PlaneTask::run);
+#endif
 }
 
 
@@ -286,7 +290,7 @@ void PanelAnalysisDlg::onTaskFinished()
         outstream << m_pteOutput->toPlainText();
         outstream << "\n";
         QDateTime dt = QDateTime::currentDateTime();
-        QString str = dt.toString(Qt::DefaultLocaleLongDate);
+        QString str = dt.toString(Qt::TextDate);
         outstream << "Analysis ended "<<str<<"\n";
         outstream << "Elapsed: "<<double(clock.elapsed())/1000.0<<" s";
         outstream << "\n";

@@ -125,7 +125,6 @@ void GraphWt::paintEvent(QPaintEvent *pEvent)
 }
 
 
-
 void GraphWt::resizeEvent (QResizeEvent * pEvent )
 {
     QRect r = rect();
@@ -175,8 +174,6 @@ void GraphWt::keyPressEvent(QKeyEvent *pEvent)
 }
 
 
-
-
 void GraphWt::mouseDoubleClickEvent (QMouseEvent *pEvent)
 {
     Q_UNUSED(pEvent);
@@ -187,9 +184,7 @@ void GraphWt::mouseDoubleClickEvent (QMouseEvent *pEvent)
 
 void GraphWt::mouseMoveEvent(QMouseEvent *pEvent)
 {
-    bool bCtrl;
     QPoint point;
-    double xu, yu, x1, y1, xmin, xmax, ymin, ymax;
 
     if(!m_pGraph) return;
 
@@ -197,7 +192,7 @@ void GraphWt::mouseMoveEvent(QMouseEvent *pEvent)
 
     point = pEvent->pos();
 
-    bCtrl = false;
+    bool bCtrl(false);
     if(pEvent->modifiers() & Qt::ControlModifier) bCtrl =true;
 
     if(!rect().contains(pEvent->pos()))
@@ -210,22 +205,22 @@ void GraphWt::mouseMoveEvent(QMouseEvent *pEvent)
     {
         // we translate the curves inside the graph
         m_pGraph->setAuto(false);
-        x1 =  m_pGraph->clientTox(m_LastPoint.x()) ;
-        y1 =  m_pGraph->clientToy(m_LastPoint.y()) ;
+        double x1 =  m_pGraph->clientTox(m_LastPoint.x()) ;
+        double y1 =  m_pGraph->clientToy(m_LastPoint.y()) ;
 
-        xu = m_pGraph->clientTox(point.x());
-        yu = m_pGraph->clientToy(point.y());
+        double xu = m_pGraph->clientTox(point.x());
+        double yu = m_pGraph->clientToy(point.y());
 
-        xmin = m_pGraph->xMin() - xu+x1;
-        xmax = m_pGraph->xMax() - xu+x1;
-        ymin = m_pGraph->yMin() - yu+y1;
-        ymax = m_pGraph->yMax() - yu+y1;
+        double xmin = m_pGraph->xMin() - xu+x1;
+        double xmax = m_pGraph->xMax() - xu+x1;
+        double ymin = m_pGraph->yMin() - yu+y1;
+        double ymax = m_pGraph->yMax() - yu+y1;
 
         m_pGraph->setWindow(xmin, xmax, ymin, ymax);
         update();
     }
 
-    else if ((pEvent->buttons() & Qt::MidButton) && !bCtrl)
+    else if ((pEvent->buttons() & Qt::MiddleButton) && !bCtrl)
     //scaling
     {
         //zoom graph
@@ -236,7 +231,7 @@ void GraphWt::mouseMoveEvent(QMouseEvent *pEvent)
         update();
     }
     // we zoom the graph or the foil
-    else if ((pEvent->buttons() & Qt::MidButton) || pEvent->modifiers().testFlag(Qt::AltModifier))
+    else if ((pEvent->buttons() & Qt::MiddleButton) || pEvent->modifiers().testFlag(Qt::AltModifier))
     {
         if(m_pGraph)
         {
@@ -249,12 +244,9 @@ void GraphWt::mouseMoveEvent(QMouseEvent *pEvent)
     }
     else if(m_pGraph->isInDrawRect(point))
     {
-        update();
     }
-    else
-    {
-//        update();
-    }
+
+    update();
 
     m_LastPoint = point;
 }
@@ -344,9 +336,6 @@ void GraphWt::onGraphSettings()
     GraphDlg grDlg(this);
     grDlg.setGraph(m_pGraph);
 
-//    QAction *action = qobject_cast<QAction *>(sender());
-//    grDlg.setActivePage(0);
-
     if(grDlg.exec() == QDialog::Accepted)
     {
         switch(m_pGraph->graphType())
@@ -426,8 +415,6 @@ void GraphWt::onGraphSettings()
 
     update();
 }
-
-
 
 
 void GraphWt::setOverlayedRect(bool bShow, double tlx, double tly, double brx, double bry)

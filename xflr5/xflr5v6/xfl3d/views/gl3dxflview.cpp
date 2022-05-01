@@ -24,7 +24,8 @@
 
 #include "gl3dxflview.h"
 
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/gl_globals.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xflanalysis/plane_analysis/lltanalysis.h>
 #include <xflcore/displayoptions.h>
 #include <xflcore/units.h>
@@ -72,7 +73,11 @@ gl3dXflView::~gl3dXflView()
 }
 
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+void gl3dXflView::enterEvent(QEnterEvent *pEvent)
+#else
 void gl3dXflView::enterEvent(QEvent *pEvent)
+#endif
 {
     setFocus();
     gl3dView::enterEvent(pEvent);
@@ -317,13 +322,13 @@ void gl3dXflView::glMakeFuseFlatPanelsOutline(const Body *pBody)
     buffersize += pBody->frameCount()             //
                  * (pBody->sideLineCount()-1) *2  // number of segments/frame
                  * 2                              // 2 vertices
-                 * 3;                             // 3 components
+                 * 4;                             // 4 components
 
 
     buffersize += pBody->sideLineCount()          //
                  * (pBody->frameCount()-1) *2     // number of segments/frame
                  * 2                              // 2 vertices
-                 * 3;                             // 3 components
+                 * 4;                             // 4 components
 
     QVector<float>OutlineVertexArray(buffersize);
 
@@ -339,19 +344,23 @@ void gl3dXflView::glMakeFuseFlatPanelsOutline(const Body *pBody)
             OutlineVertexArray[iv++] = P1.xf();
             OutlineVertexArray[iv++] = P1.yf();
             OutlineVertexArray[iv++] = P1.zf();
+            OutlineVertexArray[iv++] = 1.0f;
 
             OutlineVertexArray[iv++] = P2.xf();
             OutlineVertexArray[iv++] = P2.yf();
             OutlineVertexArray[iv++] = P2.zf();
+            OutlineVertexArray[iv++] = 1.0f;
 
             // left side segment
             OutlineVertexArray[iv++] =  P1.xf();
             OutlineVertexArray[iv++] = -P1.yf();
             OutlineVertexArray[iv++] =  P1.zf();
+            OutlineVertexArray[iv++] = 1.0f;
 
             OutlineVertexArray[iv++] =  P2.xf();
             OutlineVertexArray[iv++] = -P2.yf();
             OutlineVertexArray[iv++] =  P2.zf();
+            OutlineVertexArray[iv++] = 1.0f;
         }
     }
 
@@ -366,19 +375,23 @@ void gl3dXflView::glMakeFuseFlatPanelsOutline(const Body *pBody)
             OutlineVertexArray[iv++] = P1.xf();
             OutlineVertexArray[iv++] = P1.yf();
             OutlineVertexArray[iv++] = P1.zf();
+            OutlineVertexArray[iv++] = 1.0f;
 
             OutlineVertexArray[iv++] = P2.xf();
             OutlineVertexArray[iv++] = P2.yf();
             OutlineVertexArray[iv++] = P2.zf();
+            OutlineVertexArray[iv++] = 1.0f;
 
             // left side segment
             OutlineVertexArray[iv++] =  P1.xf();
             OutlineVertexArray[iv++] = -P1.yf();
             OutlineVertexArray[iv++] =  P1.zf();
+            OutlineVertexArray[iv++] = 1.0f;
 
             OutlineVertexArray[iv++] =  P2.xf();
             OutlineVertexArray[iv++] = -P2.yf();
             OutlineVertexArray[iv++] =  P2.zf();
+            OutlineVertexArray[iv++] = 1.0f;
         }
     }
 
@@ -621,7 +634,7 @@ void gl3dXflView::glMakeFuseSplinesOutline(Body const*pBody)
     int outlinesize =   pBody->frameCount()*(NHOOOP+1)*2 // frames
                       + (NXXXX+1)                       // top outline
                       + (NXXXX+1);                      // bot outline
-    outlinesize *=3; // x3 vertices components
+    outlinesize *=4; // x4 vertex components
 
     std::vector<float> OutlineVertexArray(outlinesize);
 
@@ -639,6 +652,7 @@ void gl3dXflView::glMakeFuseSplinesOutline(Body const*pBody)
             OutlineVertexArray[iv++] = Point.x;
             OutlineVertexArray[iv++] = Point.y;
             OutlineVertexArray[iv++] = Point.z;
+            OutlineVertexArray[iv++] = 1.0f;
         }
 
         for (int j=NHOOOP; j>=0; j--)
@@ -648,6 +662,7 @@ void gl3dXflView::glMakeFuseSplinesOutline(Body const*pBody)
             OutlineVertexArray[iv++] = Point.x;
             OutlineVertexArray[iv++] = Point.y ;
             OutlineVertexArray[iv++] = Point.z;
+            OutlineVertexArray[iv++] = 1.0f;
         }
     }
 
@@ -659,6 +674,7 @@ void gl3dXflView::glMakeFuseSplinesOutline(Body const*pBody)
         OutlineVertexArray[iv++] = Point.x;
         OutlineVertexArray[iv++] = Point.y;
         OutlineVertexArray[iv++] = Point.z;
+        OutlineVertexArray[iv++] = 1.0f;
     }
 
     //bottom line: NX+1
@@ -669,6 +685,7 @@ void gl3dXflView::glMakeFuseSplinesOutline(Body const*pBody)
         OutlineVertexArray[iv++] = Point.x;
         OutlineVertexArray[iv++] = Point.y;
         OutlineVertexArray[iv++] = Point.z;
+        OutlineVertexArray[iv++] = 1.0f;
     }
     Q_ASSERT(iv==outlinesize);
 
@@ -689,7 +706,7 @@ void gl3dXflView::paintSectionHighlight()
         m_shadLine.enableAttributeArray(m_locLine.m_attrVertex);
         m_shadLine.setUniformValue(m_locLine.m_UniColor, QColor(255,0,0));
         m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(Line::SOLID));
-        m_shadLine.setUniformValue(m_locLine.m_Thickness, 3);
+        m_shadLine.setUniformValue(m_locLine.m_Thickness, 3.0f);
         m_vboHighlight.bind();
         {
             m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex, GL_FLOAT, 0, 3, 3 * sizeof(GLfloat));
@@ -723,7 +740,7 @@ void gl3dXflView::paintEditWingMesh(QOpenGLBuffer &vbo)
         m_shadLine.setUniformValue(m_locLine.m_pvmMatrix, m_matProj*m_matView*m_matModel);
         m_shadLine.setUniformValue(m_locLine.m_UniColor, W3dPrefs::s_VLMStyle.m_Color);
         m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(W3dPrefs::s_VLMStyle.m_Stipple));
-        m_shadLine.setUniformValue(m_locLine.m_Thickness, W3dPrefs::s_VLMStyle.m_Width);
+        m_shadLine.setUniformValue(m_locLine.m_Thickness, float(W3dPrefs::s_VLMStyle.m_Width));
 
         vbo.bind();
         {
@@ -916,8 +933,8 @@ void gl3dXflView::paintMasses(Plane const *pPlane)
     {
         if(pPlane->wingAt(iw))
         {
-            paintMasses(pPlane->wingAt(iw)->m_VolumeMass, pPlane->wingLE(iw),
-                        pPlane->wingAt(iw)->m_Name,   pPlane->wingAt(iw)->m_PointMass);
+            paintMasses(pPlane->wingAt(iw)->volumeMass(), pPlane->wingLE(iw),
+                        pPlane->wingAt(iw)->name(),   pPlane->wingAt(iw)->m_PointMass);
         }
     }
 
@@ -1221,7 +1238,7 @@ void gl3dXflView::paintNormals(QOpenGLBuffer &vbo)
         m_shadLine.setUniformValue(m_locLine.m_UniColor, QColor(135,105,35));
 
         if(m_bUse120StyleShaders) glLineWidth(2);
-        else m_shadLine.setUniformValue(m_locLine.m_Thickness, 1);
+        else m_shadLine.setUniformValue(m_locLine.m_Thickness, 1.0f);
 
         m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(Line::SOLID));
 
@@ -1253,7 +1270,7 @@ void gl3dXflView::paintMesh(QOpenGLBuffer &vbo, bool bBackGround)
         m_shadLine.enableAttributeArray(m_locLine.m_attrVertex);
         m_shadLine.setUniformValue(m_locLine.m_UniColor, W3dPrefs::s_VLMStyle.m_Color);
         m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(W3dPrefs::s_VLMStyle.m_Stipple));
-        m_shadLine.setUniformValue(m_locLine.m_Thickness, W3dPrefs::s_VLMStyle.m_Width);
+        m_shadLine.setUniformValue(m_locLine.m_Thickness, float(W3dPrefs::s_VLMStyle.m_Width));
 
         vbo.bind();
         {
@@ -1329,7 +1346,7 @@ void gl3dXflView::glMakeWingOutline(Wing const *pWing, Body const *pBody, QOpenG
 
     Vector3d Pt, N;
 
-    int stride = 3;
+    int stride = 4;
     int nSegs = pWing->surfaceCount()
                 *(CHORDPOINTS-1)
                 *2                 // top and bottom
@@ -1382,116 +1399,131 @@ void gl3dXflView::glMakeWingOutline(Wing const *pWing, Body const *pBody, QOpenG
             OutlineVA[iv++] = PtBotLeft.at(l).xf();
             OutlineVA[iv++] = PtBotLeft.at(l).yf();
             OutlineVA[iv++] = PtBotLeft.at(l).zf();
+            OutlineVA[iv++] = 1.0f;
             OutlineVA[iv++] = PtBotLeft.at(l+1).xf();
             OutlineVA[iv++] = PtBotLeft.at(l+1).yf();
             OutlineVA[iv++] = PtBotLeft.at(l+1).zf();
+            OutlineVA[iv++] = 1.0f;
 
             OutlineVA[iv++] = PtTopLeft.at(l).xf();
             OutlineVA[iv++] = PtTopLeft.at(l).yf();
             OutlineVA[iv++] = PtTopLeft.at(l).zf();
+            OutlineVA[iv++] = 1.0f;
             OutlineVA[iv++] = PtTopLeft.at(l+1).xf();
             OutlineVA[iv++] = PtTopLeft.at(l+1).yf();
             OutlineVA[iv++] = PtTopLeft.at(l+1).zf();
+            OutlineVA[iv++] = 1.0f;
 
             OutlineVA[iv++] = PtBotRight.at(l).xf();
             OutlineVA[iv++] = PtBotRight.at(l).yf();
             OutlineVA[iv++] = PtBotRight.at(l).zf();
+            OutlineVA[iv++] = 1.0f;
             OutlineVA[iv++] = PtBotRight.at(l+1).xf();
             OutlineVA[iv++] = PtBotRight.at(l+1).yf();
             OutlineVA[iv++] = PtBotRight.at(l+1).zf();
+            OutlineVA[iv++] = 1.0f;
 
             OutlineVA[iv++] = PtTopRight.at(l).xf();
             OutlineVA[iv++] = PtTopRight.at(l).yf();
             OutlineVA[iv++] = PtTopRight.at(l).zf();
+            OutlineVA[iv++] = 1.0f;
             OutlineVA[iv++] = PtTopRight.at(l+1).xf();
             OutlineVA[iv++] = PtTopRight.at(l+1).yf();
             OutlineVA[iv++] = PtTopRight.at(l+1).zf();
+            OutlineVA[iv++] = 1.0f;
         }
         //LE & TE
         surf.getSidePoint(0.0, false, xfl::TOPSURFACE, Pt, N);
         OutlineVA[iv++] = Pt.xf();
         OutlineVA[iv++] = Pt.yf();
         OutlineVA[iv++] = Pt.zf();
+        OutlineVA[iv++] = 1.0f;
         surf.getSidePoint(0.0, true, xfl::TOPSURFACE, Pt, N);
         OutlineVA[iv++] = Pt.xf();
         OutlineVA[iv++] = Pt.yf();
         OutlineVA[iv++] = Pt.zf();
+        OutlineVA[iv++] = 1.0f;
 
         surf.getSidePoint(1.0, false, xfl::TOPSURFACE, Pt, N);
         OutlineVA[iv++] = Pt.xf();
         OutlineVA[iv++] = Pt.yf();
         OutlineVA[iv++] = Pt.zf();
+        OutlineVA[iv++] = 1.0f;
         surf.getSidePoint(1.0, true, xfl::TOPSURFACE, Pt, N);
         OutlineVA[iv++] = Pt.xf();
         OutlineVA[iv++] = Pt.yf();
         OutlineVA[iv++] = Pt.zf();
-
+        OutlineVA[iv++] = 1.0f;
 
         Foil const *pFoilA = pWing->surface(j)->m_pFoilA;
         Foil const *pFoilB = pWing->surface(j)->m_pFoilB;
         if(pFoilA && pFoilB && pFoilA->m_bTEFlap && pFoilB->m_bTEFlap)
         {
             surf.getSurfacePoint(surf.m_pFoilA->m_TEXHinge/100.0,
-                                   pFoilA->m_TEXHinge/100.0,
-                                   0.0, xfl::TOPSURFACE, Pt, N);
+                                 pFoilA->m_TEXHinge/100.0,
+                                 0.0, xfl::TOPSURFACE, Pt, N);
             OutlineVA[iv++] = Pt.xf();
             OutlineVA[iv++] = Pt.yf();
             OutlineVA[iv++] = Pt.zf();
+            OutlineVA[iv++] = 1.0f;
 
             surf.getSurfacePoint(surf.m_pFoilB->m_TEXHinge/100.0,
-                                   pFoilB->m_TEXHinge/100.0,
-                                   1.0, xfl::TOPSURFACE, Pt, N);
+                                 pFoilB->m_TEXHinge/100.0,
+                                 1.0, xfl::TOPSURFACE, Pt, N);
             OutlineVA[iv++] = Pt.xf();
             OutlineVA[iv++] = Pt.yf();
             OutlineVA[iv++] = Pt.zf();
-
+            OutlineVA[iv++] = 1.0f;
 
             surf.getSurfacePoint(surf.m_pFoilA->m_TEXHinge/100.0,
-                                   pFoilA->m_TEXHinge/100.0,
-                                   0.0, xfl::BOTSURFACE, Pt, N);
+                                 pFoilA->m_TEXHinge/100.0,
+                                 0.0, xfl::BOTSURFACE, Pt, N);
             OutlineVA[iv++] = Pt.xf();
             OutlineVA[iv++] = Pt.yf();
             OutlineVA[iv++] = Pt.zf();
-
+            OutlineVA[iv++] = 1.0f;
 
             surf.getSurfacePoint(surf.m_pFoilB->m_TEXHinge/100.0,
-                                   pFoilB->m_TEXHinge/100.0,
-                                   1.0, xfl::BOTSURFACE, Pt, N);
+                                 pFoilB->m_TEXHinge/100.0,
+                                 1.0, xfl::BOTSURFACE, Pt, N);
             OutlineVA[iv++] = Pt.xf();
             OutlineVA[iv++] = Pt.yf();
             OutlineVA[iv++] = Pt.zf();
+            OutlineVA[iv++] = 1.0f;
         }
         if(pFoilA && pFoilB && pFoilA->m_bLEFlap && pFoilB->m_bLEFlap)
         {
             surf.getSurfacePoint(surf.m_pFoilA->m_LEXHinge/100.0,
-                                   pFoilA->m_TEXHinge/100.0,
-                                   0.0, xfl::TOPSURFACE, Pt, N);
+                                 pFoilA->m_TEXHinge/100.0,
+                                 0.0, xfl::TOPSURFACE, Pt, N);
             OutlineVA[iv++] = Pt.xf();
             OutlineVA[iv++] = Pt.yf();
             OutlineVA[iv++] = Pt.zf();
+            OutlineVA[iv++] = 1.0f;
 
             surf.getSurfacePoint(surf.m_pFoilB->m_LEXHinge/100.0,
-                                   pFoilB->m_TEXHinge/100.0,
-                                   1.0, xfl::TOPSURFACE, Pt, N);
+                                 pFoilB->m_TEXHinge/100.0,
+                                 1.0, xfl::TOPSURFACE, Pt, N);
             OutlineVA[iv++] = Pt.xf();
             OutlineVA[iv++] = Pt.yf();
             OutlineVA[iv++] = Pt.zf();
-
+            OutlineVA[iv++] = 1.0f;
 
             surf.getSurfacePoint(surf.m_pFoilA->m_LEXHinge/100.0,
-                                   pFoilA->m_TEXHinge/100.0,
-                                   0.0, xfl::BOTSURFACE, Pt, N);
+                                 pFoilA->m_TEXHinge/100.0,
+                                 0.0, xfl::BOTSURFACE, Pt, N);
             OutlineVA[iv++] = Pt.xf();
             OutlineVA[iv++] = Pt.yf();
             OutlineVA[iv++] = Pt.zf();
-
+            OutlineVA[iv++] = 1.0f;
 
             surf.getSurfacePoint(surf.m_pFoilB->m_LEXHinge/100.0,
-                                   pFoilB->m_TEXHinge/100.0,
-                                   1.0, xfl::BOTSURFACE, Pt, N);
+                                 pFoilB->m_TEXHinge/100.0,
+                                 1.0, xfl::BOTSURFACE, Pt, N);
             OutlineVA[iv++] = Pt.xf();
             OutlineVA[iv++] = Pt.yf();
             OutlineVA[iv++] = Pt.zf();
+            OutlineVA[iv++] = 1.0f;
         }
     }
     Q_ASSERT(iv==buffersize);

@@ -20,6 +20,8 @@
 *****************************************************************************/
 
 #include <QCoreApplication>
+#include <QDebug>
+
 #include "xfoiltask.h"
 #include <xflcore/xflevents.h>
 #include <xflcore/constants.h>
@@ -28,7 +30,6 @@
 
 #include <QThread>
 #include <QCoreApplication>
-#include <QDebug>
 
 
 int XFoilTask::s_IterLim=100;
@@ -42,8 +43,6 @@ bool XFoilTask::s_bSkipPolar = false;
 */
 XFoilTask::XFoilTask(QObject *pParent)
 {
-    setAutoDelete(true);
-
     m_pParent = pParent;
     m_pFoil  = nullptr;
     m_pPolar = nullptr;
@@ -57,7 +56,6 @@ XFoilTask::XFoilTask(QObject *pParent)
     m_bFromZero = false;
     m_bInitBL   = true;
 
-    m_OutMessage.clear();
     m_OutStream.setDevice(nullptr);
 
     m_bErrors = false;
@@ -65,7 +63,6 @@ XFoilTask::XFoilTask(QObject *pParent)
 
 
 /**
-* Implements the run method of the QRunnable virtual base method
 * Asssumes that XFoil has been initialized with Foil and Polar
 */
 void XFoilTask::run()
@@ -84,7 +81,7 @@ void XFoilTask::run()
     // post an event to notify the parent window that the task is done
     if(m_pParent)
     {
-        qApp->postEvent(m_pParent, new XFoilTaskEvent(m_pFoil, m_pPolar));
+        qApp->postEvent(m_pParent, new XFoilTaskEvent(this, m_pFoil, m_pPolar));
     }
 }
 
@@ -124,11 +121,19 @@ bool XFoilTask::initializeXFoilTask(Foil const*pFoil, Polar *pPolar, bool bVisco
 
     m_XFoilStream.setString(&m_XFoilLog);
     double nx[IBX], ny[IBX];     //needed because XFoil requires a const Foil
-    if(!m_XFoilInstance.initXFoilGeometry(m_pFoil->m_n, m_pFoil->m_x,m_pFoil->m_y, nx, ny))  return false;
+
+    double xh(0), yh(0);
+    if(m_pFoil->m_bTEFlap) m_pFoil->getHingeAbsolutePos(xh, yh);
+
+    if(!m_XFoilInstance.initXFoilGeometry(m_pFoil->m_n, m_pFoil->m_x,m_pFoil->m_y, nx, ny,
+                                          m_pFoil->m_bTEFlap, xh, yh))
+        return false;
+
     if(!m_XFoilInstance.initXFoilAnalysis(m_pPolar->Reynolds(), m_pPolar->aoa(), m_pPolar->Mach(),
                                           m_pPolar->NCrit(), m_pPolar->XtrTop(), m_pPolar->XtrBot(),
                                           m_pPolar->ReType(), m_pPolar->MaType(),
-                                          bViscous, m_XFoilStream)) return false;
+                                          bViscous, m_XFoilStream))
+        return false;
 
     return true;
 }
@@ -179,7 +184,7 @@ bool XFoilTask::alphaSequence()
 {
     QString str;
 
-    double SpMin=0, SpMax=0, SpInc=0;
+    double SpMin(0), SpMax(0), SpInc(0);
 
     int MaxSeries = 1;
     if(m_bAlpha)
@@ -328,8 +333,6 @@ bool XFoilTask::alphaSequence()
 bool XFoilTask::ReSequence()
 {
     QString str;
-    int ia;
-    double Re;
 
     if(m_ReMax< m_ReMin) m_ReInc = -qAbs(m_ReInc);
 
@@ -339,7 +342,7 @@ bool XFoilTask::ReSequence()
 
     QString strange;
 
-    for (ia=0; ia<=total; ia++)
+    for (int ia=0; ia<=total; ia++)
     {
         if(s_bCancel) break;
         if(s_bSkipPolar)
@@ -351,7 +354,7 @@ bool XFoilTask::ReSequence()
             return false;
         }
 
-        Re = m_ReMin+ia*m_ReInc;
+        double Re = m_ReMin+ia*m_ReInc;
         strange =QString("Re = %1 ........ ").arg(Re,0,'f',0);
         traceLog(strange);
         m_XFoilInstance.reinf1 = Re;
@@ -393,6 +396,7 @@ bool XFoilTask::ReSequence()
             pOpPoint->setPolarName(m_pPolar->name());
             pOpPoint->setTheStyle(m_pPolar->theStyle());
             addXFoilData(pOpPoint, &m_XFoilInstance, m_pFoil);
+            m_pPolar->addOpPointData(pOpPoint); // store the data on the fly; a polar is only used by one task at a time
             qApp->postEvent(m_pParent, new XFoilOppEvent(pOpPoint));
         }
 
@@ -491,7 +495,11 @@ void XFoilTask::traceLog(const QString &str)
     if(m_OutStream.device() || m_OutStream.string())
     {
         m_OutStream << str;
-        m_OutMessage += str;
+    }
+
+    if(m_pParent)
+    {
+        qApp->postEvent(m_pParent, new MessageEvent(str));
     }
 }
 
@@ -548,9 +556,11 @@ void XFoilTask::addXFoilData(OpPoint *pOpp, XFoil *pXFoil, Foil const*pFoil)
     if(pOpp->m_bTEFlap || pOpp->m_bLEFlap)
     {
         pOpp->setHingeMoments(pFoil);
-        pOpp->m_TEHMom = pXFoil->hmom;
-        pOpp->XForce   = pXFoil->hfx;
-        pOpp->YForce   = pXFoil->hfy;
+//qDebug("XFoilTask::xfl    %11f %11f %11f", pOpp->m_TEHMom, pOpp->XForce, pOpp->YForce);
+        pOpp->m_TE_HMom = pXFoil->hmom;
+        pOpp->m_TE_HFx   = pXFoil->hfx;
+        pOpp->m_TE_HFy   = pXFoil->hfy;
+//qDebug("XFoilTask::xfoil  %11f %11f %11f", pOpp->m_TEHMom, pOpp->XForce, pOpp->YForce);
     }
 
     if(!pXFoil->lvisc || !pXFoil->lvconv)    return;

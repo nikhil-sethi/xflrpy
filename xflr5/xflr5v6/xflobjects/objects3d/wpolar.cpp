@@ -1914,8 +1914,8 @@ QString WPolar::getProperties(QString &PolarProps, const Plane *pPlane,
     else if(referenceDim()==xfl::PROJECTEDREFDIM) PolarProps += QObject::tr("Ref. dimensions = ")+QObject::tr("Projected")+"\n";
 
     PolarProps += QObject::tr("Ref. area  =") + QString("%1").arg(referenceArea()*areaunit,7,'f',3) + arealab +"\n";
-    PolarProps += QObject::tr("Ref. span  =") + QString("%1").arg(referenceSpanLength()*lenunit,7,'f',3) +lenlab +"\n";
-    PolarProps += QObject::tr("Ref. chord =") + QString("%1").arg(referenceChordLength()*lenunit,7,'f',3) + lenlab +"\n";
+    PolarProps += QObject::tr("Ref. span  =") + QString("%1").arg(referenceSpan()*lenunit,7,'f',3) +lenlab +"\n";
+    PolarProps += QObject::tr("Ref. chord =") + QString("%1").arg(referenceMAC()*lenunit,7,'f',3) + lenlab +"\n";
 
 
     if(bTilted()) PolarProps += QObject::tr("Tilted geometry")+"\n";

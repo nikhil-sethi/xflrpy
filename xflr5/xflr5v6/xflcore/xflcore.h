@@ -33,15 +33,12 @@
 #include <QPainter>
 #include <QTextStream>
 #include <QStandardItem>
-#include <QNetworkReply>
 #include <QThread>
 
 
 #include <xflcore/linestyle.h>
 #include <xflcore/core_enums.h>
 
-
-using namespace std;
 
 
 namespace xfl
@@ -53,7 +50,7 @@ namespace xfl
 
     extern QVector <QColor> s_ColorList;
 
-    QString versionName(bool bFull);
+    QString versionName(bool bFull=true);
 
     inline QColor getColor(int index){return s_ColorList.at(index%s_ColorList.size());}
 
@@ -65,11 +62,6 @@ namespace xfl
 
     inline void setPlrDirName(QString dirname) {s_plrDirName=dirname;}
     inline QString plrDirName() {return s_plrDirName;}
-
-    float GLGetRed(float tau);
-    float GLGetGreen(float tau);
-    float GLGetBlue(float tau);
-
 
     QColor randomColor(bool bLightColor);
     inline QString colorNameARGB(QColor const &colour) {return QString::asprintf("rgba(%d,%d,%3d,%g)", colour.red(), colour.green(), colour.blue(), colour.alphaF());}
@@ -105,7 +97,7 @@ namespace xfl
 
 
 
-    void ReynoldsFormat(QString &str, double f);
+    QString ReynoldsFormat(double f);
 
 
 
@@ -170,8 +162,6 @@ namespace xfl
     bool writeXmlFile(QIODevice &device, const QSettings::SettingsMap &map); // dummy argument function
 
     void listSysInfo(QString &info);
-
-    void getNetworkError(QNetworkReply::NetworkError neterror, QString &errorstring);
 
 
     QList<QStandardItem *> prepareRow(const QString &first, const QString &second=QString(), const QString &third=QString(),  const QString &fourth=QString());

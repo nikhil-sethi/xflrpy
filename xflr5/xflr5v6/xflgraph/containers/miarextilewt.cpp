@@ -1,7 +1,7 @@
 /****************************************************************************
 
     MiarexTileWidget Class
-        Copyright (C) 2015 André Deperrois
+        Copyright (C) André Deperrois
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -50,11 +50,6 @@ MiarexTileWidget::MiarexTileWidget(QWidget *pParent) : GraphTileWidget(pParent)
 }
 
 
-MiarexTileWidget::~MiarexTileWidget()
-{
-}
-
-
 void MiarexTileWidget::connectSignals()
 {
     for(int igw=0; igw<m_GraphWidget.count(); igw++)
@@ -74,7 +69,6 @@ void MiarexTileWidget::setupMainLayout()
                 if(3*i+j<m_GraphWidget.count()) m_pMainGridLayout->addWidget(m_GraphWidget.at(3*i+j),i,j);
 
         m_pMainGridLayout->setSpacing(0);
-        m_pMainGridLayout->setMargin(0);
     }
 
     setLayout(m_pMainGridLayout);
@@ -196,8 +190,6 @@ void MiarexTileWidget::adjustLayout()
 }
 
 
-
-
 void MiarexTileWidget::setMiarexGraphList(xfl::enumMiarexViews miarexView, QVector<Graph*>pGraphList,
                                           int nGraphs, int iGraphWidget, Qt::Orientation orientation)
 {
@@ -230,14 +222,11 @@ void MiarexTileWidget::setMiarexGraphList(xfl::enumMiarexViews miarexView, QVect
 }
 
 
-void MiarexTileWidget::onSplitterMoved(int pos, int index)
+void MiarexTileWidget::onSplitterMoved(int , int )
 {
-    Q_UNUSED(pos);
-    Q_UNUSED(index);
     if(m_MiarexView==xfl::WOPPVIEW)
     {
         m_pWingWidget->setWingScale();
-        //        update();
     }
 }
 

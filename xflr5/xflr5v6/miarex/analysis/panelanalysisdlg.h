@@ -83,7 +83,7 @@ class PanelAnalysisDlg : public QDialog
         void onTaskFinished();
 
     signals:
-        void analysisFinished() const;
+        void analysisFinished();
 
     private:
         void showEvent(QShowEvent *event) override;

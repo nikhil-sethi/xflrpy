@@ -74,19 +74,21 @@
 #include <xdirect/xdirect.h>
 
 
-#include <xfl3d/controls/w3dprefs.h>
 #include <xfl3d/glinfo/opengldlg.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xfl3d/testgl/gl2dfractal.h>
-#include <xfl3d/testgl/gl3dtestglview.h>
+#include <xfl3d/testgl/gl2dnewton.h>
+#include <xfl3d/testgl/gl3dlorenz.h>
+#include <xfl3d/testgl/gl3dlorenz2.h>
+#include <xfl3d/testgl/gl3dattractors.h>
 #include <xfl3d/testgl/gl3dboids.h>
 #include <xfl3d/testgl/gl3dhydrogen.h>
-#include <xfl3d/testgl/gl3dspace.h>
-#include <xfl3d/testgl/gl3dshadow.h>
 #include <xfl3d/testgl/gl3doptim2d.h>
-#include <xfl3d/testgl/gl3dattractor.h>
-#include <xfl3d/testgl/gl3dattractors.h>
-#include <xfl3d/testgl/gl3dsolarsys.h>
 #include <xfl3d/testgl/gl3dsagittarius.h>
+#include <xfl3d/testgl/gl3dshadow.h>
+#include <xfl3d/testgl/gl3dsolarsys.h>
+#include <xfl3d/testgl/gl3dspace.h>
+#include <xfl3d/testgl/gl3dtestglview.h>
 #include <xflcore/displayoptions.h>
 #include <xflcore/trace.h>
 #include <xflcore/units.h>
@@ -97,9 +99,9 @@
 #include <xflgraph/containers/miarextilewt.h>
 #include <xflgraph/containers/xdirecttilewt.h>
 #include <xflgraph/controls/graphdlg.h>
+#include <xflobjects/editors/bodydlg.h>
 #include <xflobjects/editors/bodytransdlg.h>
 #include <xflobjects/editors/editobjectdelegate.h>
-#include <xflobjects/editors/bodydlg.h>
 #include <xflobjects/editors/inertiadlg.h>
 #include <xflobjects/editors/planedlg.h>
 #include <xflobjects/editors/renamedlg.h>
@@ -114,9 +116,9 @@
 #include <xflscript/xflscriptexec.h>
 #include <xflscript/xflscriptreader.h>
 #include <xflwidgets/color/colorpicker.h>
+#include <xflwidgets/customwts/cptableview.h>
 #include <xflwidgets/customwts/plaintextoutput.h>
 #include <xflwidgets/customwts/popup.h>
-#include <xflwidgets/customwts/cptableview.h>
 #include <xflwidgets/line/legendbtn.h>
 #include <xflwidgets/line/linepicker.h>
 #include <xflwidgets/mvc/expandabletreeview.h>
@@ -144,7 +146,7 @@ bool MainFrame::s_bOpenGL = true;
 MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(parent, flags)
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    setWindowTitle(VERSIONNAME);
+    setWindowTitle(xfl::versionName());
     setWindowIcon(QIcon(":/images/xflr5_64.png"));
 
 //    testConfiguration();
@@ -181,7 +183,7 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
     m_bAutoLoadLast = false;
     m_bAutoSave     = false;
     m_bSaveOpps     = false;
-    m_bSaveWOpps    = true;
+    m_bSavePOpps    = true;
     m_bSaveSettings = true;
 
     m_SaveInterval = 10;
@@ -192,7 +194,7 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
 #if defined Q_OS_MAC && defined MAC_NATIVE_PREFS
     QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #elif defined Q_OS_LINUX
-    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5v649");
+    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #else
     QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
 #endif
@@ -214,31 +216,9 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
         }
     }
 
-    if(loadSettings())
-    {
-        Settings::loadSettings(settings);
-
-        m_pAFoil->loadSettings(settings);
-        m_pXDirect->loadSettings(settings);
-        m_pMiarex->loadSettings(settings);
-        m_pXInverse->loadSettings(settings);
-
-        LogWt::loadSettings(settings);
-        GL3DScales::loadSettings(settings);
-        W3dPrefs::loadSettings(settings);
-        Units::loadSettings(settings);
-        gl2dFractal::loadSettings(settings);
-        gl3dBoids::loadSettings(settings);
-        gl3dHydrogen::loadSettings(settings);
-        gl3dSpace::loadSettings(settings);
-        gl3dOptim2d::loadSettings(settings);
-        gl3dAttractor::loadSettings(settings);
-        gl3dAttractors::loadSettings(settings);
-        gl3dSolarSys::loadSettings(settings);
-        gl3dSagittarius::loadSettings(settings);
-    }
-
+    loadSettings();
     pushSettings();
+    m_pMiarex->updateUnits();
 
     if(m_pSaveTimer)
     {
@@ -316,6 +296,12 @@ void MainFrame::aboutXFLR5()
 {
     AboutQ5 dlg(this);
     dlg.exec();
+}
+
+
+void MainFrame::onReleaseNotes()
+{
+    QDesktopServices::openUrl(QUrl("https://xflr5.tech/ReleaseNotes.htm"));
 }
 
 
@@ -401,51 +387,51 @@ void MainFrame::createActions()
     connect(m_pSaveProjectAsAct, SIGNAL(triggered()), this, SLOT(onSaveProjectAs()));
 
     m_pExecuteScript = new QAction(tr("Execute script"), this);
-    m_pExecuteScript->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_X));
+    m_pExecuteScript->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_X));
     connect(m_pExecuteScript, SIGNAL(triggered()), SLOT(onExecuteScript()));
 
     m_pCloseProjectAct = new QAction(QIcon(":/images/new.png"), tr("Close the Project"), this);
-    m_pCloseProjectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4));
+    m_pCloseProjectAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F4));
     m_pCloseProjectAct->setStatusTip(tr("Save and close the current project"));
     connect(m_pCloseProjectAct, SIGNAL(triggered()), this, SLOT(onNewProject()));
 
     m_pInsertAct = new QAction(tr("Insert Project"), this);
     m_pInsertAct->setStatusTip(tr("Insert an existing project in the current project"));
-    m_pInsertAct->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_I));
+    m_pInsertAct->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_I));
     connect(m_pInsertAct, SIGNAL(triggered()), this, SLOT(onInsertProject()));
 
     m_pOnAFoilAct = new QAction(tr("Direct Foil Design"), this);
-    m_pOnAFoilAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_1));
+    m_pOnAFoilAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_1));
     m_pOnAFoilAct->setStatusTip(tr("Open Foil Design application"));
     connect(m_pOnAFoilAct, SIGNAL(triggered()), this, SLOT(onAFoil()));
 
     m_pOnXInverseAct = new QAction(tr("XFoil Inverse Design"), this);
-    m_pOnXInverseAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_3));
+    m_pOnXInverseAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_3));
     m_pOnXInverseAct->setStatusTip(tr("Open XFoil inverse analysis application"));
     connect(m_pOnXInverseAct, SIGNAL(triggered()), this, SLOT(onXInverse()));
 
     m_pOnMixedInverseAct = new QAction(tr("XFoil Mixed Inverse Design"), this);
-    m_pOnMixedInverseAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_4));
+    m_pOnMixedInverseAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_4));
     m_pOnMixedInverseAct->setStatusTip(tr("Open XFoil Mixed Inverse analysis application"));
     connect(m_pOnMixedInverseAct, SIGNAL(triggered()), this, SLOT(onXInverseMixed()));
 
     m_pOnXDirectAct = new QAction(tr("XFoil Direct Analysis"), this);
-    m_pOnXDirectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_5));
+    m_pOnXDirectAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_5));
     m_pOnXDirectAct->setStatusTip(tr("Open XFoil direct analysis application"));
     connect(m_pOnXDirectAct, SIGNAL(triggered()), this, SLOT(onXDirect()));
 
     m_pOnMiarexAct = new QAction(tr("Wing and Plane Design"), this);
-    m_pOnMiarexAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_6));
+    m_pOnMiarexAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_6));
     m_pOnMiarexAct->setStatusTip(tr("Open Wing/plane design and analysis application"));
     connect(m_pOnMiarexAct, SIGNAL(triggered()), this, SLOT(onMiarex()));
 
     m_pNoAppAct = new QAction(tr("Close all"), this);
-    m_pNoAppAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
+    m_pNoAppAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_0));
     m_pNoAppAct->setStatusTip(tr("Close all modules, but do not unload the active project"));
     connect(m_pNoAppAct, SIGNAL(triggered()), SLOT(onSetNoApp()));
 
     m_pLoadLastProjectAction = new QAction(tr("Load Last Project"), this);
-    m_pLoadLastProjectAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_O));
+    m_pLoadLastProjectAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
     m_pLoadLastProjectAction->setStatusTip(tr("Loads the last saved project"));
     connect(m_pLoadLastProjectAction, SIGNAL(triggered()), this, SLOT(onLoadLastProject()));
 
@@ -458,7 +444,7 @@ void MainFrame::createActions()
     connect(m_pRestoreToolbarsAct, SIGNAL(triggered()), this, SLOT(onRestoreToolbars()));
 
     m_pSaveViewToImageFileAct = new QAction(tr("Save View to Image File"), this);
-    m_pSaveViewToImageFileAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_I));
+    m_pSaveViewToImageFileAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_I));
     m_pSaveViewToImageFileAct->setStatusTip(tr("Saves the current view to a file on disk"));
     connect(m_pSaveViewToImageFileAct, SIGNAL(triggered()), this, SLOT(onSaveViewToImageFile()));
 
@@ -493,8 +479,11 @@ void MainFrame::createActions()
     connect(m_pExitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     m_pOpenGLAct = new QAction(tr("OpenGL settings"), this);
-    m_pOpenGLAct->setShortcut(QKeySequence(Qt::CTRL+Qt::ALT+Qt::Key_O));
+    m_pOpenGLAct->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_O));
     connect(m_pOpenGLAct, SIGNAL(triggered()), this, SLOT(onOpenGLInfo()));
+
+    m_pReleaseNotes = new QAction(tr("Release notes"), this);
+    connect(m_pReleaseNotes, SIGNAL(triggered()), SLOT(onReleaseNotes()));
 
     m_pAboutAct = new QAction(tr("About"), this);
     m_pAboutAct->setStatusTip(tr("More information about XFLR5"));
@@ -576,7 +565,7 @@ void MainFrame::createAFoilActions()
     connect(m_pAFoilRefineGlobalFoil, SIGNAL(triggered()), m_pAFoil, SLOT(onAFoilPanels()));
 
     m_pAFoilRefineLocalFoil = new QAction(tr("Refine Locally")/*+"\t(Shift+F3)"*/, this);
-    m_pAFoilRefineLocalFoil->setShortcut(QKeySequence(Qt::SHIFT+Qt::Key_F3));
+    m_pAFoilRefineLocalFoil->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3));
     connect(m_pAFoilRefineLocalFoil, SIGNAL(triggered()), m_pAFoil, SLOT(onAFoilCadd()));
 
     m_pAFoilEditCoordsFoil = new QAction(tr("Edit Foil Coordinates"), this);
@@ -605,7 +594,7 @@ void MainFrame::createAFoilActions()
     connect(m_pAFoilInterpolateFoils, SIGNAL(triggered()), m_pAFoil, SLOT(onAFoilInterpolateFoils()));
 
     m_pAFoilNacaFoils = new QAction(tr("Naca Foils"), this);
-    m_pAFoilNacaFoils->setShortcut(QKeySequence(Qt::ALT+Qt::Key_N));
+    m_pAFoilNacaFoils->setShortcut(QKeySequence(Qt::ALT | Qt::Key_N));
     connect(m_pAFoilNacaFoils, SIGNAL(triggered()), m_pAFoil, SLOT(onAFoilNacaFoils()));
 
     m_pAFoilTableColumns = new QAction(tr("Set Table Columns"), this);
@@ -871,7 +860,7 @@ void MainFrame::createDockWindows()
     m_pMiarexTileWidget  = new MiarexTileWidget(this);
 
     m_pXDirect = new XDirect(this);
-    m_pXDirect->setObjectName("XDirect ???");
+    m_pXDirect->setObjectName("XDirect");
     m_pdwXDirect->setWidget(m_pXDirect);
     m_pdwXDirect->setVisible(false);
     m_pdwXDirect->setFloating(false);
@@ -950,9 +939,6 @@ void MainFrame::createDockWindows()
 
     m_pMiarex->m_pgl3dMiarexView = m_pgl3dMiarexView;
 
-    m_pXDirect->m_poaFoil  = Objects2d::pOAFoil();
-    m_pXDirect->m_poaPolar = Objects2d::pOAPolar();
-    m_pXDirect->m_poaOpp   = Objects2d::pOAOpp();
     m_pXDirect->m_pOpPointWidget = m_pXDirectTileWidget->opPointWidget();
     OpPointWt::setMainFrame(this);
     OpPointWt::setXDirect(m_pXDirect);
@@ -1038,7 +1024,7 @@ void MainFrame::createMenus()
 
     m_pGraphMenu = menuBar()->addMenu(tr("Graphs"));
     {
-        for(int ig=0; ig<MAXGRAPHS; ig++)
+        for(int ig=0; ig<MAXGRAPHS-1; ig++)
             m_pGraphMenu->addAction(m_pSingleGraph[ig]);
         m_pGraphMenu->addSeparator();
         m_pGraphMenu->addAction(m_pTwoGraphs);
@@ -1053,6 +1039,8 @@ void MainFrame::createMenus()
 
     m_pHelpMenu = menuBar()->addMenu(tr("?"));
     {
+        m_pHelpMenu->addAction(m_pReleaseNotes);
+        m_pHelpMenu->addSeparator();
         m_pHelpMenu->addAction(m_pAboutQtAct);
         m_pHelpMenu->addAction(m_pAboutAct);
     }
@@ -1196,43 +1184,43 @@ void MainFrame::createMiarexActions()
     connect(m_pDefinePlaneAct, SIGNAL(triggered()), m_pMiarex, SLOT(onNewPlane()));
 
     m_pDefinePlaneObjectAct = new QAction(tr("Define (Advanced users)")/*+"\tF3"*/, this);
-    m_pDefinePlaneObjectAct->setShortcut(QKeySequence(Qt::SHIFT+Qt::Key_F3));
+    m_pDefinePlaneObjectAct->setShortcut(QKeySequence(Qt::SHIFT|Qt::Key_F3));
     m_pDefinePlaneObjectAct->setStatusTip(tr("Shows a dialogbox to create a new plane definition"));
     connect(m_pDefinePlaneObjectAct, SIGNAL(triggered()), m_pMiarex, SLOT(onNewPlaneObject()));
 
     m_pEditPlaneAct = new QAction(tr("Edit"), this);
     m_pEditPlaneAct->setStatusTip(tr("Shows a form to edit the currently selected plane"));
-    m_pEditPlaneAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_P));
+    m_pEditPlaneAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_P));
     connect(m_pEditPlaneAct, SIGNAL(triggered()), m_pMiarex, SLOT(onEditCurPlane()));
 
     m_pEditObjectAct = new QAction(tr("Edit (advanced users)"), this);
     m_pEditObjectAct->setStatusTip(tr("Shows a form to edit the currently selected plane"));
-    m_pEditObjectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT+Qt::Key_P));
+    m_pEditObjectAct->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT|Qt::Key_P));
     connect(m_pEditObjectAct, SIGNAL(triggered()), m_pMiarex, SLOT(onEditCurObject()));
 
     m_pEditWingAct = new QAction(tr("Edit wing"), this);
     m_pEditWingAct->setStatusTip(tr("Shows a form to edit the wing of the currently selected plane"));
-    m_pEditWingAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_W));
+    m_pEditWingAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_W));
     m_pEditWingAct->setData(0);
     connect(m_pEditWingAct, SIGNAL(triggered()), m_pMiarex, SLOT(onEditCurWing()));
 
     m_pEditStabAct = new QAction(tr("Edit elevator"), this);
     m_pEditStabAct->setData(2);
-    m_pEditStabAct->setShortcut(Qt::CTRL + Qt::Key_E);
+    m_pEditStabAct->setShortcut(Qt::CTRL | Qt::Key_E);
     connect(m_pEditStabAct, SIGNAL(triggered()), m_pMiarex, SLOT(onEditCurWing()));
 
     m_pEditFinAct = new QAction(tr("Edit fin"), this);
     m_pEditFinAct->setData(3);
-    m_pEditFinAct->setShortcut(Qt::CTRL + Qt::Key_F);
+    m_pEditFinAct->setShortcut(Qt::CTRL | Qt::Key_F);
     connect(m_pEditFinAct, SIGNAL(triggered()), m_pMiarex, SLOT(onEditCurWing()));
 
     m_pEditBodyAct = new QAction(tr("Edit body"), this);
     m_pEditBodyAct->setStatusTip(tr("Shows a form to edit the body of the currently selected plane"));
-    m_pEditBodyAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
+    m_pEditBodyAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
     connect(m_pEditBodyAct, SIGNAL(triggered()), m_pMiarex, SLOT(onEditCurBody()));
 
     m_pEditBodyObjectAct= new QAction(tr("Edit body (advanced users)"), this);
-    m_pEditBodyObjectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_B));
+    m_pEditBodyObjectAct->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_B));
     connect(m_pEditBodyObjectAct, SIGNAL(triggered()), m_pMiarex, SLOT(onEditCurBodyObject()));
 
     m_pRenameCurPlaneAct = new QAction(tr("Rename")+"\tF2", this);
@@ -1357,7 +1345,7 @@ void MainFrame::createMiarexActions()
     connect(m_pHidePlaneWPlrs, SIGNAL(triggered()), m_pMiarex, SLOT(onHidePlaneWPolars()));
 
     m_pShowPlaneWPlrsOnly = new QAction(tr("Show only associated Polars"), this);
-    m_pShowPlaneWPlrsOnly->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_U));
+    m_pShowPlaneWPlrsOnly->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
     connect(m_pShowPlaneWPlrsOnly, SIGNAL(triggered()), m_pMiarex, SLOT(onShowPlaneWPolarsOnly()));
 
     m_pShowPlaneWPlrs = new QAction(tr("Show Associated Polars"), this);
@@ -1454,7 +1442,6 @@ void MainFrame::createMiarexMenus()
         m_pMiarexViewMenu->addSeparator();
         m_pMiarexViewMenu->addAction(m_pSaveViewToImageFileAct);
     }
-
 
     m_pPlaneMenu = menuBar()->addMenu(tr("Plane"));
     {
@@ -2162,7 +2149,7 @@ void MainFrame::createXDirectActions()
     connect(m_pDeleteFoilPolars, SIGNAL(triggered()), m_pXDirect, SLOT(onDeleteFoilPolars()));
 
     m_pShowFoilPolarsOnly = new QAction(tr("Show only associated polars"), this);
-    m_pShowFoilPolarsOnly->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_U));
+    m_pShowFoilPolarsOnly->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
     connect(m_pShowFoilPolarsOnly, SIGNAL(triggered()), m_pXDirect, SLOT(onShowFoilPolarsOnly()));
 
     m_pShowFoilPolars = new QAction(tr("Show associated polars"), this);
@@ -2201,12 +2188,12 @@ void MainFrame::createXDirectActions()
     connect(m_pDefinePolarAct, SIGNAL(triggered()), m_pXDirect, SLOT(onDefinePolar()));
 
     m_pMultiThreadedBatchAct = new QAction(tr("Batch Analysis"), this);
-    m_pMultiThreadedBatchAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F6));
+    m_pMultiThreadedBatchAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F6));
     m_pMultiThreadedBatchAct->setStatusTip(tr("Launches a batch of analysis calculation using all available computer CPU cores"));
     connect(m_pMultiThreadedBatchAct, SIGNAL(triggered()), m_pXDirect, SLOT(onMultiThreadedBatchAnalysis()));
 
     m_pBatchCtrlAct = new QAction(tr("Batch flap analysis")/*+"\tCtrl+F6"*/, this);
-    m_pBatchCtrlAct->setShortcut(QKeySequence(Qt::ALT + Qt::Key_F6));
+    m_pBatchCtrlAct->setShortcut(QKeySequence(Qt::ALT | Qt::Key_F6));
     m_pBatchCtrlAct->setStatusTip(tr("Experimental"));
     connect(m_pBatchCtrlAct, SIGNAL(triggered()), m_pXDirect, SLOT(onBatchCtrlAnalysis()));
 
@@ -2245,7 +2232,7 @@ void MainFrame::createXDirectActions()
     connect(m_pManageFoilsAct, SIGNAL(triggered()), this, SLOT(onManageFoils()));
 
     m_pRenamePolarAct = new QAction(tr("Rename")/*+"\t(Shift+F2)"*/, this);
-    m_pRenamePolarAct->setShortcut(QKeySequence(Qt::SHIFT +Qt::Key_F2));
+    m_pRenamePolarAct->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F2));
     connect(m_pRenamePolarAct, SIGNAL(triggered()), m_pXDirect, SLOT(onRenameCurPolar()));
 
     m_pShowInviscidCurve = new QAction(tr("Show Inviscid Curve"), this);
@@ -2284,7 +2271,7 @@ void MainFrame::createXDirectActions()
     connect(m_pNormalizeFoil, SIGNAL(triggered()), m_pXDirect, SLOT(onNormalizeFoil()));
 
     m_pRefineLocalFoil = new QAction(tr("Refine Locally")/*+"\t(Shift+F3)"*/, this);
-    m_pRefineLocalFoil->setShortcut(QKeySequence(Qt::SHIFT +Qt::Key_F3));
+    m_pRefineLocalFoil->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3));
     connect(m_pRefineLocalFoil, SIGNAL(triggered()), m_pXDirect, SLOT(onCadd()));
 
     m_pRefineGlobalFoil = new QAction(tr("Refine Globally")/*+"\t(F3)"*/, this);
@@ -2313,7 +2300,7 @@ void MainFrame::createXDirectActions()
     connect(m_pInterpolateFoils, SIGNAL(triggered()), m_pXDirect, SLOT(onInterpolateFoils()));
 
     m_pNacaFoils = new QAction(tr("Naca Foils"), this);
-    m_pNacaFoils->setShortcut(QKeySequence(Qt::ALT+Qt::Key_N));
+    m_pNacaFoils->setShortcut(QKeySequence(Qt::ALT | Qt::Key_N));
     connect(m_pNacaFoils, SIGNAL(triggered()), m_pXDirect, SLOT(onNacaFoils()));
 
     m_psetCpVarGraph = new QAction(tr("Cp Variable"), this);
@@ -2921,14 +2908,6 @@ void MainFrame::keyPressEvent(QKeyEvent *pEvent)
                 if(bCtrl) onMiarex();
                 break;
             }
-                /*            case Qt::Key_7:
-            {
-                if(bCtrl)
-                {
-                    onloadLastProject();
-                }
-                break;
-            }*/
             case Qt::Key_8:
             {
                 break;
@@ -2940,21 +2919,18 @@ void MainFrame::keyPressEvent(QKeyEvent *pEvent)
             }
             case Qt::Key_F2:
             {
-                gl2dFractal *pTestView = new gl2dFractal;
-                pTestView->setAttribute(Qt::WA_DeleteOnClose);
-                pTestView->show();
-                pTestView->activateWindow();
+                gl2dView *p2dView = new gl2dFractal;
+                p2dView->setAttribute(Qt::WA_DeleteOnClose);
+                p2dView->show();
+                p2dView->activateWindow();
                 break;
             }
             case Qt::Key_F3:
             {
-                gl3dTestGLView *pTestView = new gl3dTestGLView;
-                pTestView->setAttribute(Qt::WA_DeleteOnClose);
-//                pTestView->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-//                pTestView->showMaximized();
-                pTestView->show();
-                pTestView->activateWindow();
-
+                gl2dView *p2dView = new gl2dNewton;
+                p2dView->setAttribute(Qt::WA_DeleteOnClose);
+                p2dView->show();
+                p2dView->activateWindow();
                 break;
             }
             case Qt::Key_F4:
@@ -2977,7 +2953,16 @@ void MainFrame::keyPressEvent(QKeyEvent *pEvent)
             }
             case Qt::Key_F6:
             {
-                gl3dAttractor *pTestView = new gl3dAttractor;
+                gl3dTestGLView *pTestView(nullptr);
+#ifdef Q_OS_MAC
+//            Compute shaders require OpenGL 4.3< whereas macOS only supports OpenGL 4.1
+                pTestView = new gl3dLorenz;
+#else
+                if(bCtrl)
+                    pTestView = new gl3dLorenz;
+                else
+                    pTestView = new gl3dLorenz2;
+#endif
                 pTestView->setAttribute(Qt::WA_DeleteOnClose);
                 pTestView->show();
                 pTestView->activateWindow();
@@ -3213,17 +3198,15 @@ bool MainFrame::loadSettings()
 #if defined Q_OS_MAC && defined MAC_NATIVE_PREFS
     QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #elif defined Q_OS_LINUX
-    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5v649");
+    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #else
     QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
 #endif
 
+    if(!QFile(settings.fileName()).exists()) return false;
+
     settings.beginGroup("MainFrame");
     {
-        int SettingsFormat = settings.value("SettingsFormat").toInt();
-        if(SettingsFormat != SETTINGSFORMAT) return false;
-
-
         Settings::s_StyleName = settings.value("StyleName","").toString();
 
         Settings::setStyleName(settings.value("Style", Settings::styleName()).toString());
@@ -3280,8 +3263,8 @@ bool MainFrame::loadSettings()
         m_ImageDirName = settings.value("ImageDirName").toString();
         m_ExportLastDirName = settings.value("ExportLastDirName").toString();
 
-
         Graph::setOppHighlighting(settings.value("HighlightOpp").toBool());
+        Graph::setOppHighlighting(true);
 
         switch(settings.value("ImageFormat").toInt())
         {
@@ -3301,7 +3284,7 @@ bool MainFrame::loadSettings()
 
         m_bAutoLoadLast = settings.value("AutoLoadLastProject").toBool();
         m_bSaveOpps   = settings.value("SaveOpps").toBool();
-        m_bSaveWOpps  = settings.value("SaveWOpps").toBool();
+        m_bSavePOpps  = settings.value("SaveWOpps").toBool();
 
         m_bAutoSave = settings.value("AutoSaveProject", false).toBool();
 
@@ -3325,6 +3308,32 @@ bool MainFrame::loadSettings()
 
         ManageFoilsDlg::s_Geometry = settings.value("ManageFoilsDlgGeom").toByteArray();
     }
+    settings.endGroup();
+
+    Settings::loadSettings(settings);
+
+    m_pAFoil->loadSettings(settings);
+    m_pXDirect->loadSettings(settings);
+    m_pMiarex->loadSettings(settings);
+    m_pXInverse->loadSettings(settings);
+
+    GraphDlg::loadSettings(settings);
+    LogWt::loadSettings(settings);
+    GL3DScales::loadSettings(settings);
+    W3dPrefs::loadSettings(settings);
+    Units::loadSettings(settings);
+    OpenGlDlg::loadSettings(settings);
+    gl2dFractal::loadSettings(settings);
+    gl2dNewton::loadSettings(settings);
+    gl3dBoids::loadSettings(settings);
+    gl3dHydrogen::loadSettings(settings);
+    gl3dSpace::loadSettings(settings);
+    gl3dOptim2d::loadSettings(settings);
+    gl3dLorenz::loadSettings(settings);
+    gl3dLorenz2::loadSettings(settings);
+    gl3dAttractors::loadSettings(settings);
+    gl3dSolarSys::loadSettings(settings);
+    gl3dSagittarius::loadSettings(settings);
 
     return true;
 }
@@ -3484,9 +3493,10 @@ xfl::enumApp MainFrame::loadXFLR5File(QString pathname)
         QApplication::setOverrideCursor(Qt::WaitCursor);
         if(!serializeProjectXFL(ar, false))
         {
+            QApplication::restoreOverrideCursor();
             QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
         }
-        QApplication::restoreOverrideCursor();
+        else QApplication::restoreOverrideCursor();
 
         addRecentFile(pathname);
         setSaveState(true);
@@ -3495,7 +3505,7 @@ xfl::enumApp MainFrame::loadXFLR5File(QString pathname)
         XFile.close();
 
         if(Objects3d::planeCount()) return xfl::MIAREX;
-        else                            return xfl::XFOILANALYSIS;
+        else                        return xfl::XFOILANALYSIS;
     }
 
 
@@ -3778,7 +3788,7 @@ void MainFrame::onResetSettings()
 #if defined Q_OS_MAC && defined MAC_NATIVE_PREFS
         QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #elif defined Q_OS_LINUX
-        QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5v649");
+        QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #else
         QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
 #endif
@@ -4027,18 +4037,21 @@ void MainFrame::onXDirect()
     m_pdwXDirect->show();
     m_pdwFoilTreeView->show();
 
-    m_pXDirect->setFoil();
-    m_pXDirect->m_pFoilTreeView->fillModelView();
-    m_pXDirect->m_pFoilTreeView->selectObjects();
-    m_pXDirect->m_pFoilTreeView->setObjectProperties();
+    if(m_pXDirect)
+    {
+        m_pXDirect->setFoil();
+        m_pXDirect->m_pFoilTreeView->fillModelView();
+        m_pXDirect->m_pFoilTreeView->selectObjects();
+        m_pXDirect->m_pFoilTreeView->setObjectProperties();
 
-    setMainFrameCentralWidget();
-    setMenus();
-    checkGraphActions();
+        setMainFrameCentralWidget();
+        setMenus();
+        checkGraphActions();
 
-    m_pXDirect->setControls();
-    m_pXDirect->setFoilScale();
-    m_pXDirect->updateView();
+        m_pXDirect->setControls();
+        m_pXDirect->setFoilScale();
+        m_pXDirect->updateView();
+    }
 }
 
 
@@ -4053,20 +4066,25 @@ void MainFrame::onMiarex()
     m_pdwMiarex->show();
     m_pdwPlaneTreeView->show();
 
-    m_pMiarex->m_pPlaneTreeView->fillModelView();
-    m_pMiarex->setPlane();
-    m_pMiarex->setWPolar();
-    m_pMiarex->setPlaneOpp(nullptr);
-    m_pMiarex->updateTreeView();
-    m_pMiarex->m_pPlaneTreeView->selectObjects();
-    m_pMiarex->m_pPlaneTreeView->setObjectProperties();
+    if(m_pMiarex && m_pMiarex->m_pPlaneTreeView)
+        m_pMiarex->m_pPlaneTreeView->fillModelView();
 
-    setMenus();
-    setMainFrameCentralWidget();
-    checkGraphActions();
-    m_pMiarex->setControls();
+    if(m_pMiarex)
+    {
+        m_pMiarex->setPlane();
+        m_pMiarex->setWPolar();
+        m_pMiarex->setPlaneOpp(nullptr);
+        m_pMiarex->updateTreeView();
+        m_pMiarex->m_pPlaneTreeView->selectObjects();
+        m_pMiarex->m_pPlaneTreeView->setObjectProperties();
 
-    m_pMiarex->setAnalysisParams();
+        setMenus();
+        setMainFrameCentralWidget();
+        checkGraphActions();
+        m_pMiarex->setControls();
+        m_pMiarex->setAnalysisParams();
+    }
+
     updateView();
 }
 
@@ -4103,12 +4121,15 @@ void MainFrame::onXInverseMixed()
     m_ptbXInverse->show();
     m_pdwXInverse->show();
 
-    m_pXInverse->m_bFullInverse = false;
-    setMainFrameCentralWidget();
-    setMenus();
-    checkGraphActions();
-    m_pXInverse->setParams();
-    m_pXInverse->updateView();
+    if(m_pXInverse)
+    {
+        m_pXInverse->m_bFullInverse = false;
+        setMainFrameCentralWidget();
+        setMenus();
+        checkGraphActions();
+        m_pXInverse->setParams();
+        m_pXInverse->updateView();
+    }
 }
 
 
@@ -4478,13 +4499,12 @@ void MainFrame::saveSettings()
 #if defined Q_OS_MAC && defined MAC_NATIVE_PREFS
     QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #elif defined Q_OS_LINUX
-    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5v649");
+    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #else
     QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
 #endif
     settings.beginGroup("MainFrame");
     {
-        settings.setValue("SettingsFormat", SETTINGSFORMAT);
         settings.setValue("FrameGeometryx", frameGeometry().x());
         settings.setValue("FrameGeometryy", frameGeometry().y());
         settings.setValue("SizeWidth",      size().width());
@@ -4533,7 +4553,7 @@ void MainFrame::saveSettings()
         settings.setValue("AutoSaveInterval", m_SaveInterval);
         settings.setValue("AutoLoadLastProject",m_bAutoLoadLast);
         settings.setValue("SaveOpps", m_bSaveOpps);
-        settings.setValue("SaveWOpps", m_bSaveWOpps);
+        settings.setValue("SaveWOpps", m_bSavePOpps);
         settings.setValue("RecentFileSize", m_RecentFiles.size());
 
 
@@ -4558,17 +4578,22 @@ void MainFrame::saveSettings()
     m_pXDirect->saveSettings(settings);
     m_pMiarex->saveSettings(settings);
     m_pXInverse->saveSettings(settings);
+
     Settings::saveSettings(settings);
+    GraphDlg::saveSettings(settings);
     LogWt::saveSettings(settings);
     gl3dView::saveSettings(settings);
     GL3DScales::saveSettings(settings);
     W3dPrefs::saveSettings(settings);
     Units::saveSettings(settings);
+    OpenGlDlg::saveSettings(settings);
     gl2dFractal::saveSettings(settings);
+    gl2dNewton::saveSettings(settings);
     gl3dBoids::saveSettings(settings);
     gl3dHydrogen::saveSettings(settings);
     gl3dOptim2d::saveSettings(settings);
-    gl3dAttractor::saveSettings(settings);
+    gl3dLorenz::saveSettings(settings);
+    gl3dLorenz2::saveSettings(settings);
     gl3dAttractors::saveSettings(settings);
     gl3dSolarSys::saveSettings(settings);
     gl3dSpace::saveSettings(settings);
@@ -4624,10 +4649,10 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
     Polar *pPolar(nullptr);
     OpPoint *pOpp(nullptr);
 
-    int i=0, n=0;
-    float f=0;
-    double dble=0;
-    bool boolean=false;
+    int n(0);
+    float f(0);
+    double dble(0);
+    bool boolean(false);
 
     if (bIsStoring)
     {
@@ -4649,8 +4674,8 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
         WPolarDlg::s_WPolar.serializeWPlrXFL(ar, true);
 
         // save the planes...
-        ar << Objects3d::s_oaPlane.size();
-        for (i=0; i<Objects3d::planeCount();i++)
+        ar << int(Objects3d::planeCount());
+        for (int i=0; i<Objects3d::planeCount();i++)
         {
             pPlane = Objects3d::planeAt(i);
             pPlane->serializePlaneXFL(ar, bIsStoring);
@@ -4658,17 +4683,17 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
 
         // save the WPolars
         ar << Objects3d::polarCount();
-        for (i=0; i<Objects3d::polarCount();i++)
+        for (int i=0; i<Objects3d::polarCount(); i++)
         {
             pWPolar = Objects3d::polarAt(i);
             pWPolar->serializeWPlrXFL(ar, bIsStoring);
         }
 
-        if(m_bSaveWOpps)
+        if(m_bSavePOpps)
         {
             // not forgetting their POpps
             ar << Objects3d::planeOppCount();
-            for (i=0; i<Objects3d::planeOppCount();i++)
+            for (int i=0; i<Objects3d::planeOppCount();i++)
             {
                 pPOpp = Objects3d::planeOppAt(i);
                 pPOpp->serializePOppXFL(ar, bIsStoring);
@@ -4771,26 +4796,31 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
             ar >> boolean;  WPolarDlg::s_WPolar.setTilted(boolean);
             ar >> boolean;  WPolarDlg::s_WPolar.setWakeRollUp(boolean);
         }
-        else if(ArchiveFormat==200002) WPolarDlg::s_WPolar.serializeWPlrXFL(ar, false);
+        else if(ArchiveFormat>=200002)
+        {
+            if(!WPolarDlg::s_WPolar.serializeWPlrXFL(ar, false))
+            {
+                return false;
+            }
+        }
 
         // load the planes...
-        // assumes all object have been deleted and the array cleared.
+        // assumes that all objects have been deleted and the array cleared.
         ar >> n;
-        for(i=0; i<n; i++)
+        for(int i=0; i<n; i++)
         {
             pPlane = new Plane();
             if(pPlane->serializePlaneXFL(ar, bIsStoring)) Objects3d::appendPlane(pPlane);
             else
             {
                 delete pPlane;
-                QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
         }
 
         // load the WPolars
         ar >> n;
-        for(i=0; i<n; i++)
+        for(int i=0; i<n; i++)
         {
             pWPolar = new WPolar();
             if(pWPolar->serializeWPlrXFL(ar, bIsStoring))
@@ -4804,17 +4834,17 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
                     {
                         pWPolar->setReferenceSpanLength(pPlane->planformSpan());
                         double area  = pPlane->planformArea();
-                        if(pPlane->biPlane()) area += pPlane->wing2()->m_PlanformArea;
+                        if(pPlane->biPlane()) area += pPlane->wing2()->planformArea();
                         pWPolar->setReferenceArea(area);
                     }
                     else if(pWPolar->referenceDim()==xfl::PROJECTEDREFDIM)
                     {
                         pWPolar->setReferenceSpanLength(pPlane->projectedSpan());
                         double area = pPlane->projectedArea();
-                        if(pPlane->biPlane()) area += pPlane->wing2()->m_ProjectedArea;
+                        if(pPlane->biPlane()) area += pPlane->wing2()->projectedArea();
                         pWPolar->setReferenceArea(area);
                     }
-                    pWPolar->setReferenceChordLength(pPlane->mac());
+                    pWPolar->setReferenceMAC(pPlane->mac());
                 }
                 else
                 {
@@ -4823,39 +4853,35 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
             else
             {
                 delete pWPolar;
-                QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
         }
 
         // the PlaneOpps
         ar >> n;
-        for(i=0; i<n; i++)
+        for(int i=0; i<n; i++)
         {
             pPOpp = new PlaneOpp();
             if(pPOpp->serializePOppXFL(ar, bIsStoring))
             {
-                //just append, since POpps have been sorted when first inserted
+                //just append, since PlaneOpps have been sorted when first inserted
                 pPlane = Objects3d::getPlane(pPOpp->planeName());
                 pWPolar = Objects3d::getWPolar(pPlane, pPOpp->polarName());
 
-                // clean up : the project may be carrying useless PlaneOpps due to past programming errors
+                // clean up: the project may be carrying useless PlaneOpps due to past programming errors
                 if(pPlane && pWPolar) Objects3d::insertPOpp(pPOpp);
-                else
-                {
-                }
+                else delete pPOpp;
             }
             else
             {
                 delete pPOpp;
-                QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
         }
 
         // load the Foils
         ar >> n;
-        for(i=0; i<n; i++)
+        for(int i=0; i<n; i++)
         {
             Foil *pFoil = new Foil();
             if(serializeFoilXFL(pFoil, ar, bIsStoring))
@@ -4869,7 +4895,6 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
             else
             {
                 delete pFoil;
-                QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
         }
@@ -4877,28 +4902,26 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
         // load the Polars
         ar >> n;
 
-        for(i=0; i<n; i++)
+        for(int i=0; i<n; i++)
         {
             pPolar = new Polar();
             if(serializePolarXFL(pPolar, ar, bIsStoring)) Objects2d::appendPolar(pPolar);
             else
             {
                 delete pPolar;
-                QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
         }
 
         // OpPoints
         ar >> n;
-        for(i=0; i<n; i++)
+        for(int i=0; i<n; i++)
         {
             pOpp = new OpPoint();
             if(pOpp->serializeOppXFL(ar, bIsStoring))  Objects2d::appendOpp(pOpp);
             else
             {
                 delete pOpp;
-                QMessageBox::warning(this,tr("Warning"), tr("Error reading the file")+"\n"+tr("Saved the valid part"));
                 return false;
             }
         }
@@ -5399,13 +5422,13 @@ void MainFrame::updateRecentFileActions()
     for (int i=0; i<numRecentFiles; ++i)
     {
         text = tr("&%1 %2").arg(i + 1).arg(shortenFileName(m_RecentFiles[i]));
-        if(i==0) text +="\tCtrl+7";
+        if(i==0) text +="\tCtrl+Shift+O";
 
         m_pRecentFileActs[i]->setText(text);
         m_pRecentFileActs[i]->setData(m_RecentFiles[i]);
         m_pRecentFileActs[i]->setVisible(true);
     }
-    for (int j = numRecentFiles; j < MAXRECENTFILES; ++j)
+    for (int j=numRecentFiles; j<MAXRECENTFILES; j++)
         m_pRecentFileActs[j]->setVisible(false);
 
     m_pSeparatorAct->setVisible(numRecentFiles > 0);
@@ -5428,7 +5451,8 @@ void MainFrame::updateView()
         }
         case xfl::MIAREX:
         {
-            m_pMiarex->updateView();
+            if(m_pMiarex)
+                m_pMiarex->updateView();
             break;
         }
         case xfl::INVERSEDESIGN:
@@ -5520,16 +5544,6 @@ void MainFrame::setupDataDir()
     s_TranslationDir.setPath("/usr/local/share/xflr5/translations");
     s_StylesheetDir.setPath("/usr/local/share/xflr5/qss");
 #endif
-
-/*    qDebug()<<QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    qDebug()<<QStandardPaths::standardLocations(QStandardPaths::DesktopLocation);
-    qDebug()<<QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-    qDebug()<<QStandardPaths::standardLocations(QStandardPaths::ApplicationsLocation);
-    qDebug()<<QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-    qDebug()<<QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-    qDebug()<<QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
-    qDebug()<<QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    qDebug()<<QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);*/
 }
 
 
@@ -5776,6 +5790,7 @@ void MainFrame::onLoadLastProject()
     if(!m_RecentFiles.size()) return;
 
     xfl::enumApp iApp = loadXFLR5File(m_RecentFiles.at(0));
+
     if(m_iApp==xfl::NOAPP) m_iApp = iApp;
     if(m_iApp==xfl::XFOILANALYSIS)
     {
@@ -5936,7 +5951,6 @@ void MainFrame::showEvent(QShowEvent *)
     // the foil operating point view
     m_pXDirect->m_CpGraph.initializeGraph(m_pswCentralWidget->width(), m_pswCentralWidget->height());
 
-
     switch(m_iApp)
     {
         case xfl::NOAPP: break;
@@ -5958,7 +5972,6 @@ void MainFrame::showEvent(QShowEvent *)
         }
         case xfl::MIAREX:
         {
-            onXDirect();
             onMiarex();
             m_pMiarex->setScale();
             break;
@@ -6060,7 +6073,7 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
 {
     double dble(0);
     bool boolean(false);
-    int i(0), k(0), n(0);
+    int k(0), n(0);
     // identifies the format of the file
     // 100005: new style format
     int ArchiveFormat=100005;
@@ -6069,12 +6082,9 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
     {
         ar << ArchiveFormat; // first format for XFL file
 
-        ar << pPolar->m_FoilName;
+        ar << pPolar->foilName();
         ar << pPolar->name();
 
-/*        ar << pPolar->m_Style << pPolar->m_Width;
-        writeColor(ar, pPolar->m_red, pPolar->m_green, pPolar->m_blue, pPolar->m_alphaChannel);
-        ar << pPolar->m_bIsVisible << false;*/
         pPolar->theStyle().serializeXfl(ar, bIsStoring);
 
         if     (pPolar->m_PolarType==xfl::FIXEDSPEEDPOLAR)  ar<<1;
@@ -6083,19 +6093,20 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
         else if(pPolar->m_PolarType==xfl::FIXEDAOAPOLAR)    ar<<4;
         else                                                ar<<1;
 
-        ar << pPolar->m_MaType << pPolar->m_ReType;
+        ar << pPolar->MaType() << pPolar->ReType(); // redundant
         ar << pPolar->m_Reynolds << pPolar->m_Mach;
         ar << pPolar->m_ASpec;
         ar << pPolar->m_XTop << pPolar->m_XBot;
         ar << pPolar->m_NCrit;
 
-        ar << pPolar->m_Alpha.size();
-        for (i=0; i< pPolar->m_Alpha.size(); i++)
+        ar << int(pPolar->m_Alpha.size());
+        for (int i=0; i<pPolar->m_Alpha.size(); i++)
         {
-            ar << float(pPolar->m_Alpha[i]) << float(pPolar->m_Cd[i]) ;
+            ar << float(pPolar->m_Alpha[i]) << float(pPolar->m_Cd[i]);
             ar << float(pPolar->m_Cdp[i])   << float(pPolar->m_Cl[i]) << float(pPolar->m_Cm[i]);
             ar << float(pPolar->m_XTr1[i])  << float(pPolar->m_XTr2[i]);
-            ar << float(pPolar->m_HMom[i])  << float(pPolar->m_Cpmn[i]);
+            ar << float(pPolar->m_HMom[i]);
+            ar << float(pPolar->m_Cpmn[i]);
             ar << float(pPolar->m_Re[i]);
             ar << float(pPolar->m_XCp[i]);
         }
@@ -6112,7 +6123,8 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
     {
         //read variables
         QString strange;
-        float Alpha(0), Cd(0), Cdp(0), Cl(0), Cm(0), XTr1(0), XTr2(0), HMom(0), Cpmn(0), Re(0), XCp(0);
+        float Alpha(0), Cd(0), Cdp(0), Cl(0), Cm(0), XTr1(0), XTr2(0), HMom(0);
+        float Cpmn(0), Re(0), XCp(0);
 
         ar >> ArchiveFormat;
         if (ArchiveFormat <100000 || ArchiveFormat>110000) return false;
@@ -6135,12 +6147,12 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
         }
 
         ar >> n;
-        if     (n==1) pPolar->m_PolarType=xfl::FIXEDSPEEDPOLAR;
-        else if(n==2) pPolar->m_PolarType=xfl::FIXEDLIFTPOLAR;
+        if     (n==2) pPolar->m_PolarType=xfl::FIXEDLIFTPOLAR;
         else if(n==3) pPolar->m_PolarType=xfl::RUBBERCHORDPOLAR;
         else if(n==4) pPolar->m_PolarType=xfl::FIXEDAOAPOLAR;
+        else          pPolar->setPolarType(xfl::FIXEDSPEEDPOLAR);
 
-        ar >> pPolar->m_MaType >> pPolar->m_ReType;
+        ar >> k >> k;  // formerly MaType and ReType
         ar >> pPolar->m_Reynolds >> pPolar->m_Mach;
         ar >> pPolar->m_ASpec;
         ar >> pPolar->m_XTop >> pPolar->m_XBot;
@@ -6148,11 +6160,14 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
 
         ar >> n;
 
-        for (i=0; i< n; i++)
+        for (int i=0; i< n; i++)
         {
-            ar >> Alpha >> Cd >> Cdp >> Cl >> Cm >> XTr1 >> XTr2 >> HMom >> Cpmn >> Re >> XCp;
+            ar >> Alpha >> Cd >> Cdp >> Cl >> Cm >> XTr1 >> XTr2 >> HMom;
+            ar >> Cpmn >> Re >> XCp;
             pPolar->addPoint(double(Alpha), double(Cd), double(Cdp), double(Cl), double(Cm),
-                             double(XTr1), double(XTr2), double(HMom), double(Cpmn), double(Re), double(XCp));
+                             double(XTr1), double(XTr2),
+                             double(HMom), 0.0, 0.0,
+                             double(Cpmn), double(Re), double(XCp));
         }
 
         if(ArchiveFormat<100005)
@@ -6170,7 +6185,7 @@ bool MainFrame::serializePolarXFL(Polar *pPolar, QDataStream &ar, bool bIsStorin
 
 
 /**
- * The user has requested of the graph data to a text file
+ * The user has requested the export of the graph data to a text file
  */
 void MainFrame::exportGraph(Graph *pGraph)
 {
@@ -6207,7 +6222,7 @@ void MainFrame::exportGraph(Graph *pGraph)
 void MainFrame::onPreferences()
 {
     PreferencesDlg dlg(this);
-    dlg.m_pSaveOptionsWt->initWidget(m_bAutoLoadLast, m_bSaveOpps, m_bSaveWOpps, m_bAutoSave, m_SaveInterval);
+    dlg.m_pSaveOptionsWt->initWidget(m_bAutoLoadLast, m_bSaveOpps, m_bSavePOpps, m_bAutoSave, m_SaveInterval);
     dlg.m_pUnitsWt->initWidget();
     dlg.m_pDisplayOptionsWt->initWidget();
     dlg.m_pLanguageWt->initWidget();
@@ -6218,7 +6233,7 @@ void MainFrame::onPreferences()
         m_bAutoSave     = dlg.m_pSaveOptionsWt->m_bAutoSave;
         m_SaveInterval  = dlg.m_pSaveOptionsWt->m_SaveInterval;
         m_bSaveOpps     = dlg.m_pSaveOptionsWt->m_bOpps;
-        m_bSaveWOpps    = dlg.m_pSaveOptionsWt->m_bWOpps;
+        m_bSavePOpps    = dlg.m_pSaveOptionsWt->m_bWOpps;
 
         if(m_bAutoSave)
         {
@@ -6256,6 +6271,7 @@ void MainFrame::onPreferences()
     gl3dMiarexView::s_bResetglBody = true;
     gl3dMiarexView::s_bResetglLegend = true;
 
+    m_pMiarex->updateUnits();
     m_pMiarex->m_CpGraph.setInverted(true);
     m_pMiarex->m_bResetTextLegend = true;
     m_pMiarex->setControls();
@@ -6322,7 +6338,7 @@ void MainFrame::setPlainColorsFromFile()
     {
         QString colorline = stream.readLine().simplified();
 #if QT_VERSION >= 0x050F00
-        QStringList colorpair = colorline.split(QRegExp("[,\\s\t]"), Qt::SkipEmptyParts);
+        QStringList colorpair = colorline.split(QRegularExpression("[,\\s\t]"), Qt::SkipEmptyParts);
 #else
         QStringList colorpair = colorline.split(QRegExp("[,\\s\t]"), QString::SkipEmptyParts);
 #endif
@@ -6364,7 +6380,6 @@ void MainFrame::pushSettings()
 
     PlainTextOutput::setTableFontStruct(DisplayOptions::tableFontStruct());
     LineBtn::setBackgroundColor(DisplayOptions::backgroundColor());
-    update();
 }
 
 

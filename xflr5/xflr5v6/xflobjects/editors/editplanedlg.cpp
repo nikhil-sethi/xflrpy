@@ -34,7 +34,7 @@
 #include <globals/mainframe.h>
 #include <xflobjects/editors/editobjectdelegate.h>
 
-#include <xfl3d/controls/w3dprefs.h>
+#include <xfl3d/globals/w3dprefs.h>
 #include <xfl3d/views/gl3dplaneview.h>
 #include <xflcore/displayoptions.h>
 #include <xflcore/units.h>
@@ -248,11 +248,11 @@ void EditPlaneDlg::setupLayout()
 
     QItemSelectionModel *selectionModel = new QItemSelectionModel(m_pModel);
     m_pStruct->setSelectionModel(selectionModel);
-    connect(selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onItemClicked(QModelIndex)));
+    connect(selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), SLOT(onItemClicked(QModelIndex)));
 
     m_pDelegate = new EditObjectDelegate(this);
     m_pStruct->setItemDelegate(m_pDelegate);
-    connect(m_pDelegate,  SIGNAL(closeEditor(QWidget *)), this, SLOT(onEndEdit()));
+    connect(m_pDelegate,  SIGNAL(closeEditor(QWidget*)), SLOT(onEndEdit()));
 
     QSizePolicy szPolicyMinimumExpanding;
     szPolicyMinimumExpanding.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
@@ -388,8 +388,6 @@ void EditPlaneDlg::setupLayout()
                 }
                 p3DCtrlBox->setLayout(pThreeDViewControlsLayout);
             }
-            m_pglPlaneView->sizePolicy().setVerticalStretch(5);
-            p3DCtrlBox->sizePolicy().setVerticalStretch(1);
 
             m_pRightSideSplitter->addWidget(m_pglPlaneView);
             m_pRightSideSplitter->addWidget(p3DCtrlBox);
@@ -419,9 +417,6 @@ void EditPlaneDlg::setupLayout()
                 }
                 pCommandWidget->setLayout(pCommandLayout);
             }
-
-            m_pStruct->sizePolicy().setVerticalStretch(17);
-            pCommandWidget->sizePolicy().setVerticalStretch(1);
 
             m_pLeftSideSplitter->addWidget(m_pStruct);
             m_pLeftSideSplitter->addWidget(pCommandWidget);
@@ -596,7 +591,7 @@ void EditPlaneDlg::connectSignals()
     connect(m_ptbZ,          SIGNAL(clicked()), m_pglPlaneView, SLOT(on3dTop()));
     connect(m_ptbFlip,       SIGNAL(clicked()), m_pglPlaneView, SLOT(on3dFlip()));
 
-    connect(m_pslClipPlanePos, SIGNAL(sliderMoved(int)), m_pglPlaneView, SLOT(onClipPlane(int)));
+    connect(m_pslClipPlanePos, SIGNAL(valueChanged(int)), m_pglPlaneView, SLOT(onClipPlane(int)));
 
     connect(m_pHorizontalSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(onResize()));
 
@@ -1327,8 +1322,6 @@ void EditPlaneDlg::readWingTree(Wing *pWing, Vector3d &wingLE, double &tiltAngle
 
     } while(indexLevel.isValid());
 }
-
-
 
 
 void EditPlaneDlg::readBodyTree(Body *pBody, QModelIndex indexLevel)
@@ -2067,7 +2060,7 @@ void EditPlaneDlg::paintPlaneLegend(QPainter &painter, Plane *pPlane, QRect draw
 
     str1 = QString(tr("TailVolume     =")+"%1").arg(pPlane->tailVolume(), 10,'f',3);
     painter.drawText(LeftPos, ZPos+D, str1);
-    D+=dheight;
+//    D+=dheight;
 
     painter.restore();
 }

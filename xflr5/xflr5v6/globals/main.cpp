@@ -58,7 +58,7 @@ void customLogHandler(QtMsgType type, const QMessageLogContext& context, const Q
             break;
     }
 
-    if(g_bTrace) Trace(msg);
+    if(g_bTrace) trace(msg);
 }
 
 
@@ -69,7 +69,7 @@ void setOGLDefaultFormat(int version)
 #if defined Q_OS_MAC && defined MAC_NATIVE_PREFS
     QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #elif defined Q_OS_LINUX
-    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5v649");
+    QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"sourceforge.net","xflr5");
 #else
     QSettings settings(QSettings::IniFormat,QSettings::UserScope,"XFLR5");
 #endif
@@ -121,42 +121,6 @@ void setOGLDefaultFormat(int version)
 */
 int main(int argc, char *argv[])
 {
-//    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-
-#ifdef Q_OS_MACX
-    /*
-    if ( QSysInfo::MacintoshVersion > QSysInfo::MV_10_8 )
-    {
-        // fix Mac OS X 10.9 (mavericks) font issue
-        // https://bugreports.qt-project.org/browse/QTBUG-32789
-        QFont::insertSubstitution(".Lucida Grande UI", "Lucida Grande");
-    }
-    */
-#endif
-
-/* Note: Calling QSurfaceFormat::setDefaultFormat() before constructing the QApplication instance
- * is mandatory on some platforms (for example, OS X) when an OpenGL core profile context is requested.
- * This is to ensure that resource sharing between contexts stays functional as all internal contexts
- *  are created using the correct version and profile.
- *
- * */
-/*
- *  https://www.opengl.org/wiki/Core_And_Compatibility_in_Contexts
- *  Platform Issue (MacOSX): When MacOSX 10.7 introduced support for OpenGL beyond 2.1, they also
- *  introduced the core/compatibility dichotomy. However, they did not introduce support for the
- *  compatibility profile itself. Instead, MacOSX gives you a choice: core profile for versions 3.2 or
- *  higher, or just version 2.1.
- *  There is no way to get access to features after 2.1 and still access the Fixed Function Pipeline.
- */
-
-
-#ifdef QT_DEBUG
-/*    QString strange;
-    strange = QString::asprintf("Default OpengGl format:%d.%d", QSurfaceFormat::defaultFormat().majorVersion(),QSurfaceFormat::defaultFormat().minorVersion());
-    qDebug()<<strange;*/
-#endif
-
-
     qInstallMessageHandler(&customLogHandler);
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -167,8 +131,6 @@ int main(int argc, char *argv[])
      * This will trigger sharing between all QOpenGLWidget instances without any further steps.*/
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 //    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-//    QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
-//    qDebug()<<QCoreApplication::testAttribute(Qt::AA_ShareOpenGLContexts);
 
     int version = -1;
     for(int i=0; i<argc; i++)
@@ -181,7 +143,7 @@ int main(int argc, char *argv[])
         }
     }
     setOGLDefaultFormat(version);
-    qInstallMessageHandler(&customLogHandler);
+
     XFLR5App app(argc, argv);
 
     if(app.done())	return 0;

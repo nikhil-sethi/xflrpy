@@ -65,9 +65,9 @@ GL3DScales::GL3DScales(QWidget *pParent) : QWidget(pParent)
     connect(m_pdeLegendMin, SIGNAL(editingFinished()), this, SLOT(onCpScale()));
     connect(m_pdeLegendMax, SIGNAL(editingFinished()), this, SLOT(onCpScale()));
 
-    connect(m_peslLiftScaleSlider, SIGNAL(sliderMoved(int)), this, SLOT(onLiftScale()));
-    connect(m_peslDragScaleSlider, SIGNAL(sliderMoved(int)), this, SLOT(onDragScale()));
-    connect(m_peslVelocityScaleSlider, SIGNAL(sliderMoved(int)), this, SLOT(onVelocityScale()));
+    connect(m_peslLiftScaleSlider, SIGNAL(valueChanged(int)), this, SLOT(onLiftScale()));
+    connect(m_peslDragScaleSlider, SIGNAL(valueChanged(int)), this, SLOT(onDragScale()));
+    connect(m_peslVelocityScaleSlider, SIGNAL(valueChanged(int)), this, SLOT(onVelocityScale()));
 
     connect(m_pdeLiftScale, SIGNAL(editingFinished()), this, SLOT(onLiftEdit()));
     connect(m_pdeDragScale, SIGNAL(editingFinished()), this, SLOT(onDragEdit()));

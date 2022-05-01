@@ -663,8 +663,7 @@ void Optim2d::onMakeSwarm(bool bShow)
     outputText("\nCreating particles...\n");
 
     // update the polar with the latest user data
-    m_pPolar->setReType(1);
-    m_pPolar->setMaType(1);
+    m_pPolar->setPolarType(xfl::FIXEDSPEEDPOLAR);
     m_pPolar->setReynolds(s_Re);
     m_pPolar->setNCrit(s_NCrit);
     m_pPolar->setXtrTop(s_XtrTop);
@@ -885,8 +884,7 @@ void Optim2d::onAnalyze()
     s_Alpha = m_pdeAlpha->value();
 
     Polar polar;
-    polar.setReType(1);
-    polar.setMaType(1);
+    polar.setPolarType(xfl::FIXEDSPEEDPOLAR);
     polar.setReynolds(s_Re);
     polar.setNCrit(s_NCrit);
     polar.setXtrTop(s_XtrTop);

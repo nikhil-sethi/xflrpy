@@ -33,27 +33,14 @@
 #include <QDialogButtonBox>
 
 #include <xflanalysis/analysis3d_params.h>
+
 class Plane;
 class Wing;
 class WPolar;
 class DoubleEdit;
 class CtrlTableDelegate;
-
-
-class CtrlTableModel: public QStandardItemModel
-{
-public:
-    CtrlTableModel(QObject * parent=nullptr) : QStandardItemModel(parent)  { }
-
-    Qt::ItemFlags flags(const QModelIndex & index) const
-    {
-        if (index.column() == 0)
-            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-        else
-            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
-    }
-};
-
+class CPTableView;
+class CtrlTableModel;
 
 class StabPolarDlg : public QDialog
 {
@@ -111,17 +98,17 @@ class StabPolarDlg : public QDialog
 
         QDialogButtonBox *m_pButtonBox;
 
-        QTableView *m_ptvInertiaControl;
-        CtrlTableModel *m_pInertiaControlModel;
+        CPTableView *m_cptInertia;
+        CtrlTableModel *m_pInertiaModel;
         QTabWidget *m_ptwMain;
 
-        QTableView *m_ptvAngleControl;
-        CtrlTableModel *m_pAngleControlModel;
+        QTableView *m_pcptAngle;
+        CtrlTableModel *m_pAngleModel;
 
-        QTableView *m_ptvExtraDragControl;
+        QTableView *m_pcptExtraDrag;
         CtrlTableModel *m_pExtraDragControlModel;
 
-        CtrlTableDelegate *m_pMassCtrlDelegate, *m_pAngleCtrlDelegate, *m_pDragCtrlDelegate;
+        CtrlTableDelegate *m_pInertiaDelegate, *m_pAngleCtrlDelegate, *m_pExtraDragDelegate;
 
         DoubleEdit *m_pdeDensity;
         DoubleEdit *m_pdeViscosity;

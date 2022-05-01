@@ -26,17 +26,19 @@
 
 #include "gl3dbodyview.h"
 
-#include <xfl3d/controls/w3dprefs.h>
-#include <xflobjects/editors/bodydlg.h>
 #include <globals/mainframe.h>
-#include <xflobjects/objects3d/body.h>
+#include <xfl3d/globals/w3dprefs.h>
+#include <xfl3d/globals/gl_globals.h>
 #include <xflcore/displayoptions.h>
+#include <xflobjects/editors/bodydlg.h>
+#include <xflobjects/objects3d/body.h>
 
 gl3dBodyView::gl3dBodyView(QWidget *pParent) : gl3dXflView(pParent)
 {
     m_pBody = nullptr;
     m_bResetglFrameHighlight   = true;
-    m_bResetglBody        = true;//otherwise endless repaint if no body present
+    m_bResetglBody        = true;
+    m_bNormals = false;
 }
 
 
@@ -73,6 +75,8 @@ void gl3dBodyView::glRenderView()
                 paintLineStrip(m_vboFuseOutline, W3dPrefs::s_OutlineStyle);
         }
 
+        if(m_bNormals)
+            paintNormals(m_vboNormals);
 
         if(m_pBody->activeFrame()) paintSectionHighlight();
         if(m_bShowMasses)
@@ -125,6 +129,9 @@ void gl3dBodyView::glMake3dObjects()
             QVector<Vector3d> nodes;
             m_pBody->makePanels(0, Vector3d(), panels, nodes);
             glMakePanels(m_vboEditBodyMesh, panels.size(), nodes.constData(), panels.constData());
+
+            glMakePanelNormals(panels, 0.1f, m_vboNormals);
+
         }
     }
 }

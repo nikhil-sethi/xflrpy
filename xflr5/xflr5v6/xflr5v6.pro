@@ -6,15 +6,7 @@
 # message(Qt version: $$[QT_VERSION])
 
 #Qt5.4 required for QOpenGLWidget instead of QGLWidget
-lessThan(QT_MAJOR_VERSION, 5) {
-  error("Qt5.4 or greater is required for xflr5 v6")
-}
-else
-{
-    lessThan(QT_MINOR_VERSION, 4) {
-      error("Qt5.4 or greater is required for xflr5 v6")
-    }
-}
+!versionAtLeast(QT_VERSION, 5.4.0):error("Qt version 5.4+ is required for xflr5 v6")
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -30,10 +22,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #   Uncomment the following line to print the name of the variable OUT_PWD in the console
 #message($$OUT_PWD)
 
-VERSION = 6.49
+VERSION = 6.55
 
 CONFIG += qt
-QT += widgets opengl network xml
+QT += widgets opengl xml
+
+equals(QT_MAJOR_VERSION, 6){
+   QT += openglwidgets
+}
 
 TEMPLATE = app
 TARGET = xflr5
@@ -96,9 +92,9 @@ macx{
     QMAKE_MAC_SDK = macosx
 #    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.4
 
-    OTHER_FILES += ./mac/Info.plist
-    QMAKE_INFO_PLIST = ./mac/Info.plist
-    ICON = ./mac/xflr5.icns
+    OTHER_FILES += ../mac/Info.plist
+    QMAKE_INFO_PLIST = ../mac/Info.plist
+    ICON = ../mac/xflr5.icns
 
 #message($$OUT_PWD)
 #    LIBS += -F$$OUT_PWD/../XFoil-lib

@@ -12,7 +12,7 @@
 #include <QCheckBox>
 
 #include "gl3dsolarsys.h"
-#include <xfl3d/gl_globals.h>
+#include <xfl3d/globals/gl_globals.h>
 #include <xflcore/xflcore.h>
 #include <xflwidgets/customwts/doubleedit.h>
 #include <xflwidgets/customwts/intedit.h>
@@ -24,13 +24,16 @@ double gl3dSolarSys::s_PlanetSize = 1000.0;
 #define SCALEFACTOR 1.0e9
 
 
+
 gl3dSolarSys::gl3dSolarSys(QWidget *pParent) : gl3dTestGLView(pParent)
 {
     setWindowTitle("Solar system");
 
-    m_bResetPlanet = true;
-    m_bResetStars  = true;
-    m_bHalley = false;
+    m_bResetPlanets = true;
+
+    m_bCeres        = false;
+    m_bHalley       = false;
+
     m_Elapsed = QDate::currentDate();
 
     connect(&m_Timer, SIGNAL(timeout()), SLOT(onMovePlanets()));
@@ -79,23 +82,30 @@ gl3dSolarSys::gl3dSolarSys(QWidget *pParent) : gl3dTestGLView(pParent)
             m_plabDate->setFont(fnt);
 
             m_plabHalley = new QLabel("\n\n\n\n");
-            m_plabHalley->setPalette(palette);
+//            m_plabHalley->setPalette(palette);
             m_plabHalley->setFont(fnt);
 
             m_plabHalley->setMinimumWidth(fm.averageCharWidth()*30);
             m_plabHalley->setMinimumHeight(fm.height()*6);
 
-            QCheckBox *pchAxes = new QCheckBox("Axes");
+            QCheckBox *pchCeres = new QCheckBox("Ceres");
+            pchCeres->setChecked(m_bCeres);
+
             QCheckBox *pchHalleyPlane = new QCheckBox("Halley's comet");
-            pchAxes->setChecked(m_bAxes);
             pchHalleyPlane->setChecked(m_bHalley);
-            connect(pchAxes, SIGNAL(clicked(bool)), SLOT(onAxes(bool)));
+
+            QCheckBox *pchAxes = new QCheckBox("Axes - ecliptic");
+            pchAxes->setToolTip("The ecliptic is the plane of Earth's orbit around the Sun");
+            pchAxes->setChecked(m_bAxes);
+            connect(pchAxes,        SIGNAL(clicked(bool)), SLOT(onAxes(bool)));
             connect(pchHalleyPlane, SIGNAL(clicked(bool)), SLOT(onHalley(bool)));
+            connect(pchCeres,       SIGNAL(clicked(bool)), SLOT(onCeres(bool)));
 
             pMainLayout->addLayout(pParamsLayout);
             pMainLayout->addWidget(m_plabDate);
             pMainLayout->addWidget(m_plabHalley);
             pMainLayout->addWidget(pchHalleyPlane);
+            pMainLayout->addWidget(pchCeres);
             pMainLayout->addWidget(pchAxes);
         }
 
@@ -106,7 +116,6 @@ gl3dSolarSys::gl3dSolarSys(QWidget *pParent) : gl3dTestGLView(pParent)
 
     makePlanets();
 
-
     // save the current light
     m_RefLight = s_Light;
     // position the light at the Sun's center
@@ -114,9 +123,10 @@ gl3dSolarSys::gl3dSolarSys(QWidget *pParent) : gl3dTestGLView(pParent)
     setSpecular(0);
 
     setReferenceLength(m_Planet.last().distance()/SCALEFACTOR);
-    reset3dScale();
 
     onRestart();
+
+    reset3dScale();
 }
 
 
@@ -181,27 +191,27 @@ void gl3dSolarSys::glRenderView()
     for(int i=0; i<m_Planet.size(); i++)
     {
         Planet const &planet = m_Planet.at(i);
-        pos = planet.position()/SCALEFACTOR; // million km
 
-        m_matModel.setToIdentity();
-        m_matModel.rotate(planet.m_omega, 0.0f,0.0f,1.0f);
-        m_matModel.rotate(planet.m_i,     0.0f,1.0f,0.0f);
+        m_matModel = planet.orbitMat();
 
         vmMat = m_matView*m_matModel;
         pvmMat = m_matProj*vmMat;
 
         m_shadSurf.bind();
         {
+            m_shadSurf.setUniformValue(m_locSurf.m_vmMatrix, vmMat);
             m_shadSurf.setUniformValue(m_locSurf.m_pvmMatrix, pvmMat);
         }
         m_shadSurf.release();
         m_shadLine.bind();
         {
+            m_shadLine.setUniformValue(m_locLine.m_vmMatrix, vmMat);
             m_shadLine.setUniformValue(m_locLine.m_pvmMatrix, pvmMat);
         }
         m_shadLine.release();
 
-        paintSegments(m_vboCircle[i], planet.m_Color, 1, Line::SOLID, false);
+        pos = planet.position()/SCALEFACTOR; // million km
+        paintLineStrip(m_vboCircle[i], planet.m_Color, 1.0f, Line::SOLID);
         paintSphere(pos, planet.m_Radius/SCALEFACTOR*s_PlanetSize, planet.m_Color, true);
         glRenderText(pos.x, pos.y, pos.z+planet.m_Radius/SCALEFACTOR*s_PlanetSize*1.1,
                      planet.m_Name, planet.m_Color);
@@ -244,11 +254,7 @@ void gl3dSolarSys::glRenderView()
 
     if(m_bHalley)
     {
-        //paint Halley's comet
-
-        m_matModel.setToIdentity();
-        m_matModel.rotate(m_Halley.m_omega, 0.0f,0.0f,1.0f);
-        m_matModel.rotate(m_Halley.m_i,     0.0f,1.0f,0.0f);
+        m_matModel = m_Halley.orbitMat();
 
         QMatrix4x4 vmMat(m_matView*m_matModel);
         QMatrix4x4 pvmMat(m_matProj*vmMat);
@@ -266,7 +272,28 @@ void gl3dSolarSys::glRenderView()
 
         pos = m_Halley.position()/SCALEFACTOR; // million km
         paintSphere(pos, 0.005/m_glScalef, m_Halley.m_Color, true);
-        glRenderText(pos.x, pos.y, pos.z*s_PlanetSize*1.1, m_Halley.m_Name, s_TextColor);
+        glRenderText(pos.x, pos.y, pos.z*s_PlanetSize*1.1, m_Halley.m_Name, m_Halley.m_Color);
+    }
+
+    if(m_bCeres)
+    {
+        m_matModel = m_Ceres.orbitMat();
+
+        QMatrix4x4 vmMat(m_matView*m_matModel);
+        QMatrix4x4 pvmMat(m_matProj*vmMat);
+
+        m_shadLine.bind();
+        {
+            m_shadLine.setUniformValue(m_locLine.m_vmMatrix,  vmMat);
+            m_shadLine.setUniformValue(m_locLine.m_pvmMatrix, pvmMat);
+        }
+        m_shadLine.release();
+
+        paintLineStrip(m_vboCeresEllipse, m_Ceres.m_Color, 0.3f, Line::SOLID);
+
+        pos = m_Ceres.position()/SCALEFACTOR; // million km
+        paintSphere(pos, m_Ceres.m_Radius/SCALEFACTOR*s_PlanetSize, m_Ceres.m_Color, true);
+        glRenderText(pos.x, pos.y, pos.z*s_PlanetSize*1.1, m_Ceres.m_Name, m_Ceres.m_Color);
     }
 
     // paint the sun
@@ -296,9 +323,10 @@ void gl3dSolarSys::glRenderView()
 }
 
 
+#define NSEGS 300
 void gl3dSolarSys::glMake3dObjects()
 {
-    if(m_bResetPlanet)
+    if(m_bResetPlanets)
     {
         for(int i=0; i<m_vboCircle.size(); i++)
         {
@@ -308,37 +336,19 @@ void gl3dSolarSys::glMake3dObjects()
         for(int i=0; i<m_Planet.size(); i++)
         {
             Planet const &planet = m_Planet.at(i);
-            glMakeCircle(planet.distance()/SCALEFACTOR, Vector3d(), m_vboCircle[i]);
+            glMakeEllipseLineStrip(planet.m_a/SCALEFACTOR, planet.m_e, Vector3d(), m_vboCircle[i]);
         }
         glMakeDisk(270.0e6/2.0/SCALEFACTOR, Vector3d(), m_vboSaturnDisk); // 270 000 km diameter
 
+        // make Ceres's ellipse
+        glMakeEllipseLineStrip(m_Ceres.m_a/SCALEFACTOR, m_Ceres.m_e, Vector3d(), m_vboCeresEllipse);
+
         // make Halley's ellipse
-        double a = 17.834 * 1.495978707e11; // semi-major axis length
-        double e = 0.96714; //excentricity
-        glMakeEllipseFan(a/SCALEFACTOR, e, Vector3d(), m_vboHalleyEllipse);
+        glMakeEllipseFan(m_Halley.m_a/SCALEFACTOR, m_Halley.m_e, Vector3d(), m_vboHalleyEllipse);
 
-       m_bResetPlanet = false;
+       m_bResetPlanets = false;
     }
 
-    if(m_bResetStars)
-    {
-        int buffersize = m_Stars.size()*4;
-        QVector<float> pts(buffersize);
-        int iv =0;
-        for(int i=0; i<m_Stars.size(); i++)
-        {
-            pts[iv++] = m_Stars.at(i).m_Position.xf()/SCALEFACTOR;
-            pts[iv++] = m_Stars.at(i).m_Position.yf()/SCALEFACTOR;
-            pts[iv++] = m_Stars.at(i).m_Position.zf()/SCALEFACTOR;
-            pts[iv++] = 1.0f;
-        }
-
-        if(m_vboStars.isCreated()) m_vboStars.destroy();
-        m_vboStars.create();
-        m_vboStars.bind();
-        m_vboStars.allocate(pts.data(), buffersize * int(sizeof(GLfloat)));
-        m_vboStars.release();
-    }
 }
 
 
@@ -382,6 +392,13 @@ void gl3dSolarSys::saveSettings(QSettings &settings)
 }
 
 
+void gl3dSolarSys::onCeres(bool bShow)
+{
+    m_bCeres = bShow;
+    update();
+}
+
+
 void gl3dSolarSys::onHalley(bool bShow)
 {
     m_bHalley = bShow;
@@ -393,9 +410,7 @@ void gl3dSolarSys::makePlanets()
 {
     Planet::setCentralMass(1.98847e30); //kg
 
-    double Distance(0), angle(0), v(0);
-
-    m_Planet.resize(8);
+    m_Planet.resize(9);
 
     int p=0;
     m_Planet[p].m_Name     = "Mercury";
@@ -404,11 +419,8 @@ void gl3dSolarSys::makePlanets()
     m_Planet[p].m_i = 7.005; // degrees
     m_Planet[p].m_a = 57.909e9; // meters
     m_Planet[p].m_e = 0.205630;
+    m_Planet[p].m_Omega= 48.331; // degrees
     m_Planet[p].m_omega= 29.124; // degrees
-    Distance = 57.91e9;
-    angle =  (double(rand())/double(RAND_MAX) )*2.0*PI;
-    m_Planet[p].setPosition(Distance*cos(angle), Distance*sin(angle));
-    m_Planet[p].setCircularVelocity();
 
     p++;
     m_Planet[p].m_Name     = "Venus";
@@ -417,24 +429,18 @@ void gl3dSolarSys::makePlanets()
     m_Planet[p].m_i = 3.39458; // degrees
     m_Planet[p].m_a = 108.208e9; // meters
     m_Planet[p].m_e = 0.006772;
+    m_Planet[p].m_Omega= 76.680;
     m_Planet[p].m_omega= 54.884;
-    Distance = 108.2e9;
-    angle =  (double(rand())/double(RAND_MAX) )*2.0*PI;
-    m_Planet[p].setPosition(Distance*cos(angle), Distance*sin(angle));
-    m_Planet[p].setCircularVelocity();
 
     p++;
     m_Planet[p].m_Name     = "Earth";
     m_Planet[p].m_Color    = QColor(100, 100, 255);
     m_Planet[p].m_Radius   = 6.371 * 1.e6;
-    m_Planet[p].m_i = 3.39458; // degrees
+    m_Planet[p].m_i = 0.0; // The ecliptic is the plane of Earth's orbit around the Sun
     m_Planet[p].m_a = 149.256e9; // meters
     m_Planet[p].m_e = 0.0167086;
+    m_Planet[p].m_Omega= -11.260; // degrees
     m_Planet[p].m_omega= 114.20783;
-    Distance = 149.6e9;
-    angle =  (double(rand())/double(RAND_MAX) )*2.0*PI;
-    m_Planet[p].setPosition(Distance*cos(angle), Distance*sin(angle));
-    m_Planet[p].setCircularVelocity();
 
     p++;
     m_Planet[p].m_Name     = "Mars";
@@ -443,11 +449,8 @@ void gl3dSolarSys::makePlanets()
     m_Planet[p].m_i = 1.850; // degrees
     m_Planet[p].m_a = 227.9392e9; // meters
     m_Planet[p].m_e = 0.0934;
+    m_Planet[p].m_Omega= 49.558; // degrees
     m_Planet[p].m_omega= 286.502; // degrees
-    Distance = 227.9e9;
-    angle =  (double(rand())/double(RAND_MAX) )*2.0*PI;
-    m_Planet[p].setPosition(Distance*cos(angle), Distance*sin(angle));
-    m_Planet[p].setCircularVelocity();
 
     p++;
     m_Planet[p].m_Name     = "Jupiter";
@@ -456,11 +459,8 @@ void gl3dSolarSys::makePlanets()
     m_Planet[p].m_i = 1.303; // degrees
     m_Planet[p].m_a = 778.57e9; // meters
     m_Planet[p].m_e = 0.0489;
+    m_Planet[p].m_Omega= 100.464; // degrees
     m_Planet[p].m_omega= 273.867; // degrees
-    Distance = 778.5e9;
-    angle =  (double(rand())/double(RAND_MAX) )*2.0*PI;
-    m_Planet[p].setPosition(Distance*cos(angle), Distance*sin(angle));
-    m_Planet[p].setCircularVelocity();
 
     p++;
     m_Planet[p].m_Name     = "Saturn";
@@ -469,59 +469,70 @@ void gl3dSolarSys::makePlanets()
     m_Planet[p].m_i = 2.485; // degrees
     m_Planet[p].m_a = 1433.53e9; // meters
     m_Planet[p].m_e = 0.0565;
+    m_Planet[p].m_Omega= 113.665; // degrees
     m_Planet[p].m_omega= 339.392; // degrees
-    Distance = 1434e9;
-    angle =  (double(rand())/double(RAND_MAX) )*2.0*PI;
-    m_Planet[p].setPosition(Distance*cos(angle), Distance*sin(angle));
-    m_Planet[p].setCircularVelocity();
 
     p++;
     m_Planet[p].m_Name     = "Uranus";
     m_Planet[p].m_Color    = QColor(100, 35, 55);
     m_Planet[p].m_Radius   = 25.362 * 1.e6;
     m_Planet[p].m_i = 0.773; // degrees
-    m_Planet[p].m_a = 2875.04e9; // meters
+    m_Planet[p].m_a = 19.191 * AU; // meters
     m_Planet[p].m_e = 0.046381;
+    m_Planet[p].m_Omega= 74.006; // degrees
     m_Planet[p].m_omega= 96.998857; // degrees
-    Distance = 2871e9;
-    angle =  (double(rand())/double(RAND_MAX) )*2.0*PI;
-    m_Planet[p].setPosition(Distance*cos(angle), Distance*sin(angle));
-    m_Planet[p].setCircularVelocity();
 
     p++;
     m_Planet[p].m_Name     = "Neptune";
     m_Planet[p].m_Color    = QColor(50, 50, 175);
     m_Planet[p].m_Radius   = 24.622 * 1.e6;
     m_Planet[p].m_i = 1.767975; // degrees
-    m_Planet[p].m_a = 4495e9; // meters
+    m_Planet[p].m_a = 30.07 * AU; // meters
     m_Planet[p].m_e = 0.008678;
-    m_Planet[p].m_omega= 276.336; // degrees
-    Distance = 4495e9;
-    angle =  (double(rand())/double(RAND_MAX) )*2.0*PI;
-    m_Planet[p].setPosition(Distance*cos(angle), Distance*sin(angle));
-    m_Planet[p].setCircularVelocity();
+    m_Planet[p].m_Omega= 131.783; // degrees
+    m_Planet[p].m_omega= 273.187; // degrees
+
+
+    p++;
+    m_Planet[p].m_Name     = "Pluto";
+    m_Planet[p].m_Color    = QColor(137,137,137);
+    m_Planet[p].m_Radius   = 1.1883 * 1.e6;
+    m_Planet[p].m_i = 17.16; // degrees
+    m_Planet[p].m_a = 39.482 * AU; // meters
+    m_Planet[p].m_e = 0.2488;
+    m_Planet[p].m_Omega= 110.299; // degrees
+    m_Planet[p].m_omega= 113.834; // degrees
+
+    for(int i=0; i<m_Planet.size(); i++)    m_Planet[i].initializeOrbit();
+
+    m_Ceres.m_Name = "Ceres";
+    m_Ceres.m_Color = Qt::gray;
+
+    m_Ceres.m_Radius = 469.73e3;
+    m_Ceres.m_a = 2.77 * AU;
+    m_Ceres.m_e = 0.0785;
+    m_Ceres.m_i = 10.6;
+    m_Ceres.m_omega = 73.6;
+    m_Ceres.m_Omega = 80.3;
+    m_Ceres.initializeOrbit();
 
     m_Halley.m_Name = "Halley";
-    m_Halley.m_Color = Qt::gray;
-
+    m_Halley.m_Color = Qt::lightGray;
     m_Halley.m_Radius = 1.0; // whatever
-    m_Halley.m_a = 17.834 * 1.495978707e11; // semi-major axis length
+    m_Halley.m_a = 17.834 * AU; // semi-major axis length
     m_Halley.m_e = 0.96714; //excentricity
-    m_Halley.m_i = -180.0f+162.26f;
+    m_Halley.m_i = 162.26;
     m_Halley.m_omega = 111.33;
-    Distance = m_Halley.m_a*(m_Halley.m_e+1.0); // apogee distance to Sun
-    m_Halley.setPosition(Distance, 0.0);
-    v = sqrt(GRAVITY*Planet::s_CentralMass*(2.0/m_Halley.distance()-1.0/m_Halley.m_a)); // vis-viva equation
+    m_Halley.m_Omega = 58.42;
     // Halley's orbit is retrograde; it orbits the Sun in the opposite direction to the planets,
     // or clockwise from above the Sun's north pole
-    m_Halley.setVelocity(0,-v);
+    m_Halley.initializeOrbit();
     m_Halley.setRefEnergy();
 }
 
 
 void gl3dSolarSys::onMovePlanets()
 {
-//    if(m_DynTimer.isActive()) return;
     s_PlanetSize = m_pdePlanetSize->value();
 
     s_dt = m_pdeDt->value(); // days
@@ -534,8 +545,9 @@ void gl3dSolarSys::onMovePlanets()
     {
         m_Planet[p].rk4_step(dt, nSteps);
     }
-//    m_Moon.rk4_step(dt, nSteps);
+
     m_Halley.rk4_step(dt, nSteps);
+    m_Ceres.rk4_step(dt, nSteps);
 
 
     m_plabDate->setText(QString::asprintf("%2d years %2d months %3d days", m_Elapsed.year()-QDate::currentDate().year(), m_Elapsed.month(), m_Elapsed.day()));
@@ -546,3 +558,8 @@ void gl3dSolarSys::onMovePlanets()
 
     update();
 }
+
+
+
+
+

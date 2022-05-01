@@ -21,7 +21,7 @@
 
 
 #include <cmath>
-
+#include <QDebug>
 #include <QPainter>
 #include <QFontMetrics>
 #include <QTextStream>
@@ -33,7 +33,7 @@
 #define MININTERVAL  0.000000001
 
 
-bool Graph::s_bHighlightPoint = false;
+bool Graph::s_bHighlightPoint = true;
 
 
 QColor Graph::s_CurveColors[] = {QColor(255,   0,   0), QColor(  0,   0, 255), QColor(  0, 255,   0), QColor(255, 255,   0),
@@ -152,14 +152,14 @@ void Graph::drawGraph(QPainter &painter)
 void Graph::drawCurve(int nIndex, QPainter &painter)
 {
     painter.save();
-    double scaley;
+
     QPoint To, Min, Max;
     QRect rViewRect;
 
     int ptside = 5;
     Curve* pCurve = curve(nIndex);
 
-    scaley = m_scaley;
+    double scaley = m_scaley;
 
     QBrush FillBrush(m_BkColor);
     painter.setBrush(FillBrush);
@@ -199,9 +199,8 @@ void Graph::drawCurve(int nIndex, QPainter &painter)
         if(point>=0)
         {
             //highlight
-            QColor HighColor(200, 100, 77);
-            CurvePen.setWidth(pCurve->width()+1);
-            CurvePen.setColor(HighColor);
+            CurvePen.setWidth(pCurve->width()+2);
+            CurvePen.setColor(Qt::red);
             painter.setPen(CurvePen);
             To.setX(int(pCurve->x(point)/m_scalex+m_ptoffset.x()));
             To.setY(int(pCurve->y(point)/scaley  +m_ptoffset.y()));
@@ -829,7 +828,7 @@ void Graph::loadSettings(QSettings &settings)
         yunit    = settings.value("YUnit",   0.2).toDouble();
 
 
-        clr  = settings.value("BackgroundColor", QColor(15,19,20)).value<QColor>();
+        clr  = settings.value("BackgroundColor", QColor(0,0,0)).value<QColor>();
         setBkColor(clr);
 
         m_iMargin = settings.value("margin", 61).toInt();
@@ -972,12 +971,11 @@ void Graph::deleteCurve(Curve *pCurve)
 }
 
 
-void Graph::deleteCurve(QString CurveTitle)
+void Graph::deleteCurve(QString const &CurveTitle)
 {
-    Curve *pOldCurve = nullptr;
     for(int i=0; i<m_oaCurves.size(); i++)
     {
-        pOldCurve = m_oaCurves.at(i);
+        Curve *pOldCurve = m_oaCurves.at(i);
         if(pOldCurve->m_CurveName==CurveTitle)
         {
             m_oaCurves.removeAt(i);

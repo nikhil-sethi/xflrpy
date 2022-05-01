@@ -15,8 +15,8 @@
 
 #include "gl3doptim2d.h"
 
-#include <xfl3d/controls/w3dprefs.h>
-#include <xfl3d/gl_globals.h>
+#include <xfl3d/globals/w3dprefs.h>
+#include <xfl3d/globals/gl_globals.h>
 #include <xfl3d/testgl/gl3dsurfaceplot.h>
 #include <xflwidgets/customwts/doubleedit.h>
 #include <xflwidgets/customwts/intedit.h>
@@ -453,8 +453,8 @@ void gl3dOptim2d::glRenderView()
             m_shadLine.setUniformValue(m_locLine.m_vmMatrix, m_matView*vmMat);
             m_shadLine.setUniformValue(m_locLine.m_pvmMatrix, pvmMat);
             m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(Line::SOLID));
-            if(m_bUse120StyleShaders) glLineWidth(2);
-            else m_shadLine.setUniformValue(m_locLine.m_Thickness, 2);
+            if(m_bUse120StyleShaders) glLineWidth(2.0f);
+            else m_shadLine.setUniformValue(m_locLine.m_Thickness, 2.0f);
         }
         m_shadLine.release();
 
@@ -479,7 +479,7 @@ void gl3dOptim2d::glMake3dObjects()
         glMakeSurface();
         QVector<double> nodevalues(m_PointArray.size());
         for(int i=0; i<m_PointArray.size(); i++) nodevalues[i] = m_PointArray.at(i).z;
-        glMakeQuadContoursOnGrid( m_vboContourLines, m_Size_x, m_Size_y, m_PointArray, nodevalues, true);
+        glMakeQuadContoursOnGrid(m_vboContourLines, m_Size_x, m_Size_y, m_PointArray, nodevalues, true);
     }
 
     if(m_bglResetTriangle)

@@ -47,10 +47,10 @@ FoilGeomDlg::FoilGeomDlg(QWidget *pParent) : QDialog(pParent)
     connect(m_pdeThickness, SIGNAL(editingFinished()), this, SLOT(onThickness()));
     connect(m_pdeXThickness, SIGNAL(editingFinished()), this, SLOT(onXThickness()));
 
-    connect(m_pslCamberSlide, SIGNAL(sliderMoved(int)), this, SLOT(onCamberSlide(int)));
-    connect(m_pslXCamberSlide, SIGNAL(sliderMoved(int)), this, SLOT(onXCamberSlide(int)));
-    connect(m_pslThickSlide, SIGNAL(sliderMoved(int)), this, SLOT(onThickSlide(int)));
-    connect(m_pslXThickSlide, SIGNAL(sliderMoved(int)), this, SLOT(onXThickSlide(int)));
+    connect(m_pslCamberSlide, SIGNAL(valueChanged(int)), this, SLOT(onCamberSlide(int)));
+    connect(m_pslXCamberSlide, SIGNAL(valueChanged(int)), this, SLOT(onXCamberSlide(int)));
+    connect(m_pslThickSlide, SIGNAL(valueChanged(int)), this, SLOT(onThickSlide(int)));
+    connect(m_pslXThickSlide, SIGNAL(valueChanged(int)), this, SLOT(onXThickSlide(int)));
 }
 
 
@@ -306,12 +306,11 @@ void FoilGeomDlg::apply()
 }
 
 
-
-bool FoilGeomDlg::isXFoilOk () const
+bool FoilGeomDlg::isXFoilOk() const
 {
     for (int j=0; j< s_pXFoil->nb; j++)
     {
-        if (isnan(s_pXFoil->xb[j+1]) || isnan(s_pXFoil->xb[j+1]))
+        if (std::isnan(s_pXFoil->xb[j+1]) || std::isnan(s_pXFoil->xb[j+1]))
         {
             return false;
         }
