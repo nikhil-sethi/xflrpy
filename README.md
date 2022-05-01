@@ -1,6 +1,6 @@
 # XFLR5 for Ubuntu
 
-*This repo provides the latest [XFLR5](http://www.xflr5.com/xflr5.htm) (currently v6.50) patched for Ubuntu 20.04 LTS*
+*This repo provides the latest [XFLR5](http://www.xflr5.tech/xflr5.htm) (currently v6.56) patched for Ubuntu 20.04 LTS*
 
 ## Installation
 
@@ -31,7 +31,7 @@ At this point, you should be all ready to go. You can check by running XFLR5 fro
 
 **4.** Finally, in order to run the software more easily, link the provided `*.desktop` file to your preferred location:
 ```
-ln -s /usr/local/share/xflr5/xflr5.desktop ~/.local/share/applications/
+ln -sf /usr/local/share/xflr5/xflr5.desktop ~/.local/share/applications/
 ```
 And now you should be able to launch *XFLR5* from the Activities Overview.
 
