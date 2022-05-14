@@ -6,7 +6,7 @@
 
 **1.** First of all, start by installing the required dependencies:
 ```
-sudo apt install build-essential libgl1-mesa-dev qt5-default
+sudo apt install build-essential libgl1-mesa-dev qt5-default libqt5opengl5-dev
 ```
 
 **2.** Download the files from this repo and extract them:
