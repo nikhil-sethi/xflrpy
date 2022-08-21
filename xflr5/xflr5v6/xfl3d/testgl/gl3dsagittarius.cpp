@@ -113,7 +113,7 @@ gl3dSagittarius::gl3dSagittarius(QWidget *pParent) : gl3dTestGLView(pParent)
 
             m_pGraphDistWt = new GraphWt;
             m_pGraphDistWt->setGraph(&m_GraphDist);
-            m_pGraphDistWt->setDefaultSize(QSize(300,175));
+            m_pGraphDistWt->setDefaultSize(QSize(300,250));
 
             m_GraphDist.setScaleType(2);
             m_GraphDist.setAuto(true);
@@ -123,7 +123,7 @@ gl3dSagittarius::gl3dSagittarius(QWidget *pParent) : gl3dTestGLView(pParent)
 
             m_pGraphVelWt = new GraphWt;
             m_pGraphVelWt->setGraph(&m_GraphVel);
-            m_pGraphVelWt->setDefaultSize(QSize(300,175));
+            m_pGraphVelWt->setDefaultSize(QSize(300,250));
             m_GraphVel.setScaleType(2);
             m_GraphVel.setAuto(true);
             m_GraphVel.setXTitle("Years");

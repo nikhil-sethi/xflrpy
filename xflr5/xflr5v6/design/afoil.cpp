@@ -326,17 +326,17 @@ void AFoil::loadSettings(QSettings &settings)
     {
         m_pSF->theStyle().loadSettings(settings, "SplineFoil");
 
-        m_pSF->m_bOutPoints  = settings.value("SFOutPoints").toBool();
-        m_pSF->m_bCenterLine = settings.value("SFCenterLine").toBool();
+        m_pSF->m_bOutPoints  = settings.value("SFOutPoints", m_pSF->m_bOutPoints).toBool();
+        m_pSF->m_bCenterLine = settings.value("SFCenterLine", m_pSF->m_bCenterLine).toBool();
 
-        m_pSF->m_Intrados.m_iRes =  qMax(settings.value("LowerRes",79).toInt(), 10);
-        m_pSF->m_Extrados.m_iRes =  qMax(settings.value("UpperRes",79).toInt(), 10);
+        m_pSF->m_Intrados.m_iRes =  qMax(settings.value("LowerRes",m_pSF->m_Intrados.m_iRes).toInt(), 10);
+        m_pSF->m_Extrados.m_iRes =  qMax(settings.value("UpperRes",m_pSF->m_Extrados.m_iRes).toInt(), 10);
 
         m_pSF->m_Extrados.splineCurve();
         m_pSF->m_Intrados.splineCurve();
 
-        m_p2dWidget->m_bLECircle          = settings.value("LECircle").toBool();
-        m_p2dWidget->m_bShowLegend        = settings.value("Legend").toBool();
+        m_p2dWidget->m_bLECircle          = settings.value("LECircle", m_p2dWidget->m_bLECircle).toBool();
+        m_p2dWidget->m_bShowLegend        = settings.value("Legend", m_p2dWidget->m_bShowLegend).toBool();
 
         QString str;
         for(int i=0; i<16; i++)

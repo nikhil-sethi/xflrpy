@@ -931,11 +931,11 @@ QString Plane::planeData(bool) const
     str1 += length;
     props += str1+"\n";
 
-    str1 = QString(QObject::tr("Wing Area      =")+"%1 ").arg(planformArea() * Units::m2toUnit(),10,'f',3);
+    str1 = QString(QObject::tr("Wing Area      =")+"%1 ").arg(planformArea(m_bBiplane) * Units::m2toUnit(),10,'f',3);
     str1 += surface;
     props += str1+"\n";
 
-    str1 = QString(QObject::tr("xyProj. Area   =")+"%1 ").arg(projectedArea() * Units::m2toUnit(),10,'f',3);
+    str1 = QString(QObject::tr("xyProj. Area   =")+"%1 ").arg(projectedArea(m_bBiplane) * Units::m2toUnit(),10,'f',3);
     str1 += surface;
     props += str1+"\n";
 
@@ -945,7 +945,7 @@ QString Plane::planeData(bool) const
     props += str1+"\n";
 
     Units::getAreaUnitLabel(strong);
-    str1 = QString(QObject::tr("Wing Load      =")+"%1 ").arg(totalMass()*Units::kgtoUnit()/projectedArea()/Units::m2toUnit(),10,'f',3);
+    str1 = QString(QObject::tr("Wing Load      =")+"%1 ").arg(totalMass()*Units::kgtoUnit()/projectedArea(m_bBiplane)/Units::m2toUnit(),10,'f',3);
     str1 += str + "/" + strong;
     props += str1+"\n";
 
@@ -973,4 +973,20 @@ QString Plane::planeData(bool) const
     props += str1;
 
     return props;
+}
+
+
+double Plane::projectedArea(bool bOtherWing) const
+{
+    double area = m_Wing[0].projectedArea();
+    if(bOtherWing && m_bBiplane) area += m_Wing[1].projectedArea();
+    return area;
+}
+
+
+double Plane::planformArea(bool bOtherWing)  const
+{
+    double area = m_Wing[0].planformArea();
+    if(bOtherWing && m_bBiplane) area += m_Wing[1].planformArea();
+    return area;
 }

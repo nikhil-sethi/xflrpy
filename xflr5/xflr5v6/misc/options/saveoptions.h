@@ -1,7 +1,7 @@
 /****************************************************************************
 
     SaveOptions Class
-    Copyright (C) 2018 André Deperrois
+    Copyright (C) André Deperrois
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,17 +24,32 @@
 
 #include <QWidget>
 #include <QCheckBox>
+#include <QSettings>
 
 class IntEdit;
 
 class SaveOptions : public QWidget
 {
-    friend class MainFrame;
     Q_OBJECT
     public:
         SaveOptions(QWidget *parent = nullptr);
 
-        void initWidget(bool bAutoLoadLast=false, bool bOpps=false, bool bWOpps = true, bool bAutoSave=true, int saveInterval=10);
+        void initWidget();
+
+        static void saveOpps(bool b)  {s_bOpps=b;}
+        static void savePOpps(bool b)  {s_bPOpps=b;}
+        static bool bOpps() {return s_bOpps;}
+        static bool bPOpps() {return s_bPOpps;}
+
+        static void setAutoLoadLast(bool b) {s_bAutoLoadLast=b;}
+        static void setAutoSave(bool b) {s_bAutoSave=b;}
+        static bool bAutoLoadLast() {return s_bAutoLoadLast;}
+        static bool bAutoSave() {return s_bAutoSave;}
+
+        static int saveInterval() {return s_SaveInterval;}
+
+        static void loadSettings(QSettings &settings);
+        static void saveSettings(QSettings &settings);
 
     public slots:
         void onOK();
@@ -43,8 +58,8 @@ class SaveOptions : public QWidget
         void setupLayout();
         void readParams();
 
-        bool m_bOpps, m_bWOpps, m_bAutoSave, m_bAutoLoadLast;
-        int m_SaveInterval;
+        static bool s_bOpps, s_bPOpps, s_bAutoSave, s_bAutoLoadLast;
+        static int s_SaveInterval;
 
         IntEdit *m_pieInterval;
         QCheckBox *m_pchOpps, *m_pchWOpps;

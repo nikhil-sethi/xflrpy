@@ -643,7 +643,7 @@ void XInverse::loadSettings(QSettings &settings)
 {
     settings.beginGroup("XInverse");
     {
-        m_bFullInverse = settings.value("FullInverse").toBool();
+        m_bFullInverse = settings.value("FullInverse", m_bFullInverse).toBool();
 
         m_Spline.theStyle().loadSettings(settings, "InverseSpline");
 

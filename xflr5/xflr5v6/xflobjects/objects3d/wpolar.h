@@ -148,6 +148,8 @@ class WPolar : public XflObject
         void setReferenceSpanLength(double l) {m_RefSpan=l;}
         void setReferenceMAC(double c) {m_RefChord=c;}
 
+        bool bIncludeWing2Area() const {return m_bWing2Area;}
+        void setIncludeWing2Area(bool bInclude) {m_bWing2Area=bInclude;}
 
         double velocity()     const {return m_QInfSpec;}
         double Alpha()        const {return m_AlphaSpec;}
@@ -201,6 +203,7 @@ class WPolar : public XflObject
 
         xfl::enumBC m_BoundaryCondition;
         xfl::enumRefDimension  m_ReferenceDim;        /**< Describes the origin of the refernce area : 1 if planform area, else projected area */
+        bool m_bWing2Area;  /**< If true, the area of the second and other wings will be included in the reference area */
 
         QString  m_PlaneName;          /**< the name of the parent wing or plane */
 

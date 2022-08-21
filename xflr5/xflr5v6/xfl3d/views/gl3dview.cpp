@@ -213,8 +213,6 @@ void gl3dView::on3dFlip()
     m_QuatEnd = m_QuatStart*qtflip;
     m_ArcBall.setQuat(m_QuatEnd);
 
-//    memcpy(m_ArcBall.m_MatCurrent, ab_new, 16*sizeof(float));
-
     startRotationTimer();
     emit viewModified();
 }
@@ -238,9 +236,7 @@ void gl3dView::on3dBot()
     stopDynamicTimer();
     m_QuatStart = m_ArcBall.m_Quat;
 
-    Quaternion qtTop(sqrt(2.0)/2.0, 0.0, 0.0, -sqrt(2.0)/2.0);
-    Quaternion qtflip(180.0, Vector3d(0.0,1.0,0.0));
-    m_QuatEnd = qtflip*qtTop;
+    m_QuatEnd.fromEulerAngles(180,-90,0);
     m_ArcBall.setQuat(m_QuatEnd);
 
     startRotationTimer();
@@ -1605,7 +1601,7 @@ void gl3dView::onRotationIncrement()
     }
     Quaternion qtrot;
     double t = double(m_iTimerInc)/double(ANIMATIONFRAMES);
-    Quaternion::slerp(m_QuatStart, m_QuatEnd, t, qtrot);
+    qtrot.slerp(m_QuatStart, m_QuatEnd, t);
     m_ArcBall.setQuat(qtrot);
 
     reset3dRotationCenter();
@@ -2174,7 +2170,7 @@ void gl3dView::paintSegments(QOpenGLBuffer &vbo, QColor const &clr, int thicknes
             m_shadLine.enableAttributeArray(m_locLine.m_attrVertex);
             m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex, GL_FLOAT, 0, 4, stride*sizeof(GLfloat));
 
-            int nSegs = vbo.size()/2/stride/int(sizeof(float)); // 2 vertices and (3 position components)
+            int nSegs = vbo.size()/2/stride/int(sizeof(float)); // 2 vertices and (stride float components)
 
             if(bHigh)
             {

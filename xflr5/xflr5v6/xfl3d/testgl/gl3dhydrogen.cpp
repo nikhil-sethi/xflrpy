@@ -599,6 +599,8 @@ void gl3dHydrogen::collapseBlock(QWidget *pParent) const
     int iv = 0;
     do
     {
+        if(m_bCancel) break;
+
         rho   = pow(QRandomGenerator::global()->generateDouble(),0.33333)*s_ObsRadius;
         r = rho*A0;// in Bohr radius units
 
@@ -629,7 +631,7 @@ void gl3dHydrogen::collapseBlock(QWidget *pParent) const
             }
         }
     }
-    while(counter<m_BlockSize && !m_bCancel);
+    while(counter<m_BlockSize);
 }
 
 

@@ -52,6 +52,31 @@ void getMemoryStatus(int &total_mem_kb, int &cur_avail_mem_kb)
 }
 
 
+void glPrintBuffer(QOpenGLBuffer &vbo, int stride)
+{
+    vbo.bind();
+    {
+        int buffersize = vbo.size();
+        int count = vbo.size()/stride/int(sizeof(float));
+        QVector<float> output(buffersize);
+        output.fill(1.0f);
+        if(!vbo.read(0, output.data(), buffersize))
+            qDebug()<<"Out buffer read error";
+        else
+        {
+            for(int i=0; i<count; i++)
+            {
+                QString str;
+                for(int j=0; j<stride; j++)
+                    str += QString::asprintf(" %11g",  output.at(stride*i+j));
+                qDebug("%s", str.toStdString().c_str());
+            }
+            qDebug("_______________________");
+        }
+    }
+    vbo.release();
+}
+
 
 /**
 * Returns the red component of a color scale depending on an input parameter with value between 0 and 1.
@@ -1349,4 +1374,157 @@ void glMakePanelNormals(QVector<Panel> const &panel, float length, QOpenGLBuffer
     vbo.bind();
     vbo.allocate(NormalVertexArray.data(), NormalVertexArray.size() * int(sizeof(GLfloat)));
     vbo.release();
+}
+
+
+void glMakePanels(QOpenGLBuffer &vboPanels,
+                  QVector<Vector3d> const &nodes, QVector<Panel> const &panels, QColor backcolor)
+{
+    Vector3d TA,LA, TB, LB;
+
+    int nPanels = panels.size();
+    //
+    // vertices array size:
+    //      nPanels
+    //      x2 triangles per panels
+    //      x3 nodes per triangle
+    //      x6 = 3 vertex components + 3 color components
+
+    int nodeVertexSize = nPanels * 2 * 3 * 6;
+    QVector<float>nodeVertexArray(nodeVertexSize);
+
+    Q_ASSERT(nPanels==nPanels);
+
+    int iv=0;
+    for (int p=0; p<nPanels; p++)
+    {
+        TA.copy(nodes.at(panels.at(p).m_iTA));
+        TB.copy(nodes.at(panels.at(p).m_iTB));
+        LA.copy(nodes.at(panels.at(p).m_iLA));
+        LB.copy(nodes.at(panels.at(p).m_iLB));
+        // each quad is two triangles
+        // write the first
+        nodeVertexArray[iv++] = LB.xf();
+        nodeVertexArray[iv++] = LB.yf();
+        nodeVertexArray[iv++] = LB.zf();
+        nodeVertexArray[iv++] = float(backcolor.redF());
+        nodeVertexArray[iv++] = float(backcolor.greenF());
+        nodeVertexArray[iv++] = float(backcolor.blueF());
+
+        nodeVertexArray[iv++] = LA.xf();
+        nodeVertexArray[iv++] = LA.yf();
+        nodeVertexArray[iv++] = LA.zf();
+        nodeVertexArray[iv++] = float(backcolor.redF());
+        nodeVertexArray[iv++] = float(backcolor.greenF());
+        nodeVertexArray[iv++] = float(backcolor.blueF());
+
+        nodeVertexArray[iv++] = TA.xf();
+        nodeVertexArray[iv++] = TA.yf();
+        nodeVertexArray[iv++] = TA.zf();
+        nodeVertexArray[iv++] = float(backcolor.redF());
+        nodeVertexArray[iv++] = float(backcolor.greenF());
+        nodeVertexArray[iv++] = float(backcolor.blueF());
+
+
+        // write the second one
+        nodeVertexArray[iv++] = TA.xf();
+        nodeVertexArray[iv++] = TA.yf();
+        nodeVertexArray[iv++] = TA.zf();
+        nodeVertexArray[iv++] = float(backcolor.redF());
+        nodeVertexArray[iv++] = float(backcolor.greenF());
+        nodeVertexArray[iv++] = float(backcolor.blueF());
+
+        nodeVertexArray[iv++] = TB.xf();
+        nodeVertexArray[iv++] = TB.yf();
+        nodeVertexArray[iv++] = TB.zf();
+        nodeVertexArray[iv++] = float(backcolor.redF());
+        nodeVertexArray[iv++] = float(backcolor.greenF());
+        nodeVertexArray[iv++] = float(backcolor.blueF());
+
+        nodeVertexArray[iv++] = LB.xf();
+        nodeVertexArray[iv++] = LB.yf();
+        nodeVertexArray[iv++] = LB.zf();
+        nodeVertexArray[iv++] = float(backcolor.redF());
+        nodeVertexArray[iv++] = float(backcolor.greenF());
+        nodeVertexArray[iv++] = float(backcolor.blueF());
+    }
+
+    Q_ASSERT(iv==nodeVertexSize);
+    Q_ASSERT(iv==nPanels*2*3*6);
+
+    vboPanels.destroy();
+    vboPanels.create();
+    vboPanels.bind();
+    vboPanels.allocate(nodeVertexArray.data(), nodeVertexSize * int(sizeof(GLfloat)));
+    vboPanels.release();
+}
+void glMakePanelEdges(QOpenGLBuffer &vboEdges,
+                      QVector<Vector3d> const &nodes, QVector<Panel> const &panels)
+{
+    // Edges:
+    //      nPanels
+    //      x 4 edges
+    //      x 2 vertices
+    //      x 4 components
+//    int nSegs = 4 * nPanels;
+
+    Vector3d TA,LA, TB, LB;
+
+    int nPanels = panels.size();
+    int nSegs = nPanels*4;
+    int EdgeVertexSize  = nSegs * 2 * 4;
+    QVector<float>EdgeVertexArray(EdgeVertexSize);
+
+    int iv = 0;
+    for (int p=0; p<nPanels; p++)
+    {
+        TA.copy(nodes[panels[p].m_iTA]);
+        TB.copy(nodes[panels[p].m_iTB]);
+        LA.copy(nodes[panels[p].m_iLA]);
+        LB.copy(nodes[panels[p].m_iLB]);
+
+        EdgeVertexArray[iv++] = LA.xf();
+        EdgeVertexArray[iv++] = LA.yf();
+        EdgeVertexArray[iv++] = LA.zf();
+        EdgeVertexArray[iv++] = 1.0f;
+        EdgeVertexArray[iv++] = LB.xf();
+        EdgeVertexArray[iv++] = LB.yf();
+        EdgeVertexArray[iv++] = LB.zf();
+        EdgeVertexArray[iv++] = 1.0f;
+
+        EdgeVertexArray[iv++] = LB.xf();
+        EdgeVertexArray[iv++] = LB.yf();
+        EdgeVertexArray[iv++] = LB.zf();
+        EdgeVertexArray[iv++] = 1.0f;
+        EdgeVertexArray[iv++] = TB.xf();
+        EdgeVertexArray[iv++] = TB.yf();
+        EdgeVertexArray[iv++] = TB.zf();
+        EdgeVertexArray[iv++] = 1.0f;
+
+        EdgeVertexArray[iv++] = TB.xf();
+        EdgeVertexArray[iv++] = TB.yf();
+        EdgeVertexArray[iv++] = TB.zf();
+        EdgeVertexArray[iv++] = 1.0f;
+        EdgeVertexArray[iv++] = TA.xf();
+        EdgeVertexArray[iv++] = TA.yf();
+        EdgeVertexArray[iv++] = TA.zf();
+        EdgeVertexArray[iv++] = 1.0f;
+
+        EdgeVertexArray[iv++] = TA.xf();
+        EdgeVertexArray[iv++] = TA.yf();
+        EdgeVertexArray[iv++] = TA.zf();
+        EdgeVertexArray[iv++] = 1.0f;
+        EdgeVertexArray[iv++] = LA.xf();
+        EdgeVertexArray[iv++] = LA.yf();
+        EdgeVertexArray[iv++] = LA.zf();
+        EdgeVertexArray[iv++] = 1.0f;
+    }
+
+    Q_ASSERT(iv==EdgeVertexSize);
+
+    vboEdges.destroy();
+    vboEdges.create();
+    vboEdges.bind();
+    vboEdges.allocate(EdgeVertexArray.data(), EdgeVertexSize * int(sizeof(GLfloat)));
+    vboEdges.release();
 }

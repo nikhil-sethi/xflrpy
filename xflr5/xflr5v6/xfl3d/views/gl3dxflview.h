@@ -53,7 +53,7 @@ class gl3dXflView : public gl3dView
         ~gl3dXflView();
 
     protected:
-        void glMakeWingEditMesh(QOpenGLBuffer &vbo, const Wing *pWing);
+        void glMakeWingEditMesh(QOpenGLBuffer &vboPanels, QOpenGLBuffer &vboPanelEdges, const Wing *pWing);
         void glMakeFuseFlatPanels(const Body *pBody);
         void glMakeFuseFlatPanelsOutline(const Body *pBody);
         void glMakeFuseSplines(Body const *pBody);
@@ -71,7 +71,7 @@ class gl3dXflView : public gl3dView
         void paintSectionHighlight();
         void paintFoilNames(const Wing *pWing);
         void paintNormals(QOpenGLBuffer &vbo);
-        void paintMesh(QOpenGLBuffer &vbo, bool bBackGround);
+        void paintMesh(QOpenGLBuffer &vbo);
         void setSpanStations(Plane const *pPlane, WPolar const *pWPolar, PlaneOpp const *pPOpp);
 
     private:
@@ -91,8 +91,8 @@ class gl3dXflView : public gl3dView
     protected:
 
         QOpenGLBuffer m_vboWingSurface[MAXWINGS], m_vboWingOutline[MAXWINGS];
-        QOpenGLBuffer m_vboEditWingMesh[MAXWINGS];
-        QOpenGLBuffer m_vboEditBodyMesh;
+        QOpenGLBuffer m_vboEditWingMesh[MAXWINGS], m_vboEditMeshEdges[MAXWINGS];
+        QOpenGLBuffer m_vboEditBodyMesh, m_vboEditBodyMeshEdges;
         QOpenGLBuffer m_vboHighlight;
 
         QOpenGLBuffer m_vboBody;

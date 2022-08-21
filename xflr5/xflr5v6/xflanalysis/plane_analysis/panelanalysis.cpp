@@ -527,12 +527,12 @@ bool PanelAnalysis::initializeAnalysis()
     {
         if(m_pWPolar->referenceDim()==xfl::PLANFORMREFDIM)
         {
-            m_pWPolar->setReferenceArea(m_pPlane->planformArea());
+            m_pWPolar->setReferenceArea(m_pPlane->planformArea(m_pWPolar->bIncludeWing2Area()));
             m_pWPolar->setReferenceSpanLength(m_pPlane->planformSpan());
         }
         else if(m_pWPolar->referenceDim()==xfl::PLANFORMREFDIM)
         {
-            m_pWPolar->setReferenceArea(m_pPlane->projectedArea());
+            m_pWPolar->setReferenceArea(m_pPlane->projectedArea(m_pWPolar->bIncludeWing2Area()));
             m_pWPolar->setReferenceSpanLength(m_pPlane->projectedSpan());
         }
     }
@@ -3973,7 +3973,7 @@ void PanelAnalysis::computeControlDerivatives()
 
     double DeltaAngle = 0.001;
 
-    int pos = 0;
+//    int pos = 0;
 
     int NCtrls = 0;
 
@@ -3997,7 +3997,7 @@ void PanelAnalysis::computeControlDerivatives()
             }
         }
 
-        pos = m_pWingList[0]->m_nPanels;
+//        pos = m_pWingList[0]->m_nPanels;
         NCtrls = 1;
     }
 
@@ -4020,7 +4020,7 @@ void PanelAnalysis::computeControlDerivatives()
                 panel.rotateBC(m_pPlane->wingLE(2), Quat);
             }
         }
-        pos += m_pWingList[2]->m_nPanels;
+//        pos += m_pWingList[2]->m_nPanels;
         NCtrls = 2;
     }
 
@@ -4397,7 +4397,7 @@ void PanelAnalysis::computePhillipsFormulae(double Alpha)
     double Fdr(0),zeta_dr(0),Fph(0),zeta_ph(0);
 
     MTOW_des = m_pWPolar->mass();
-    AWing    = m_pPlane->planformArea();
+    AWing    = m_pPlane->planformArea(m_pWPolar->bIncludeWing2Area());
     Vmax_C   = m_QInf;
     Span     = m_pPlane->planformSpan();
     Chord    = m_pPlane->mac();

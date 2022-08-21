@@ -60,10 +60,12 @@ gl3dXflView::~gl3dXflView()
     for(int iWing=0; iWing<MAXWINGS; iWing++)
     {
         m_vboEditWingMesh[iWing].destroy();
+        m_vboEditMeshEdges[iWing].destroy();
     }
 
     m_vboBody.destroy();
     m_vboEditBodyMesh.destroy();
+    m_vboEditBodyMeshEdges.destroy();
 
     for(int iWing=0; iWing<MAXWINGS; iWing++)
     {
@@ -734,7 +736,7 @@ void gl3dXflView::paintEditWingMesh(QOpenGLBuffer &vbo)
 
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
-    m_shadLine.bind();
+/*    m_shadLine.bind();
     {
         m_shadLine.setUniformValue(m_locLine.m_vmMatrix, m_matView*m_matModel);
         m_shadLine.setUniformValue(m_locLine.m_pvmMatrix, m_matProj*m_matView*m_matModel);
@@ -767,7 +769,7 @@ void gl3dXflView::paintEditWingMesh(QOpenGLBuffer &vbo)
         vbo.release();
         m_shadLine.disableAttributeArray(m_locLine.m_attrVertex);
     }
-    m_shadLine.release();
+    m_shadLine.release();*/
 
     m_shadSurf.bind();
     {
@@ -966,26 +968,34 @@ void gl3dXflView::paintMasses(Plane const *pPlane)
 
 
 /** Default mesh, if no polar has been defined */
-void gl3dXflView::glMakeWingEditMesh(QOpenGLBuffer &vbo, Wing const *pWing)
-{    //not necessarily the same Nx for all surfaces, so we need to count the quad panels
-    int bufferSize = 0;
+void gl3dXflView::glMakeWingEditMesh(QOpenGLBuffer &vboPanels, QOpenGLBuffer &vboPanelEdges, Wing const *pWing)
+{
+    //not necessarily the same Nx for all surfaces, so we need to count the quad panels
+    int nQuads = 0;
     for (int j=0; j<pWing->surfaceCount(); j++)
     {
         Surface const &surf = pWing->m_Surface.at(j);
         //tip patches
-        if(surf.isTipLeft())  bufferSize += (surf.nXPanels());
-        if(surf.isTipRight()) bufferSize += (surf.nXPanels());
+        if(surf.isTipLeft())  nQuads += (surf.nXPanels());
+        if(surf.isTipRight()) nQuads += (surf.nXPanels());
 
         // top and bottom surfaces
-        bufferSize += surf.nXPanels()*2 * (surf.nYPanels());
+        nQuads += surf.nXPanels()*2 * (surf.nYPanels());
     }
-    bufferSize *=2;    // 2 triangles/quad
-    bufferSize *=3;    // 3 vertex for each triangle
-    bufferSize *=3;    // 3 components for each node
 
-    QVector<float> meshVertexArray(bufferSize);
+    int PanelBufferSize = nQuads;
+    PanelBufferSize *=2;    // 2 triangles/quad
+    PanelBufferSize *=3;    // 3 vertex for each triangle
+    PanelBufferSize *=3;    // 3 components for each node
 
-    int iv=0;
+    QVector<float> MeshVertexArray(PanelBufferSize);
+
+
+    int EdgeBufferSize = nQuads * 4 * 2 *4; //4 edges, 2 vertices, 4 components
+    QVector<float> EdgeVertexArray(EdgeBufferSize);
+
+    int ip=0;
+    int ie=0;
 
     Vector3d A,B,C,D;
 
@@ -1005,26 +1015,63 @@ void gl3dXflView::glMakeWingEditMesh(QOpenGLBuffer &vbo, Wing const *pWing)
                 D = surf.TA;
 
                 //first triangle
-                meshVertexArray[iv++] = A.xf();
-                meshVertexArray[iv++] = A.yf();
-                meshVertexArray[iv++] = A.zf();
-                meshVertexArray[iv++] = B.xf();
-                meshVertexArray[iv++] = B.yf();
-                meshVertexArray[iv++] = B.zf();
-                meshVertexArray[iv++] = C.xf();
-                meshVertexArray[iv++] = C.yf();
-                meshVertexArray[iv++] = C.zf();
+                MeshVertexArray[ip++] = A.xf();
+                MeshVertexArray[ip++] = A.yf();
+                MeshVertexArray[ip++] = A.zf();
+                MeshVertexArray[ip++] = B.xf();
+                MeshVertexArray[ip++] = B.yf();
+                MeshVertexArray[ip++] = B.zf();
+                MeshVertexArray[ip++] = C.xf();
+                MeshVertexArray[ip++] = C.yf();
+                MeshVertexArray[ip++] = C.zf();
 
                 //second triangle
-                meshVertexArray[iv++] = C.xf();
-                meshVertexArray[iv++] = C.yf();
-                meshVertexArray[iv++] = C.zf();
-                meshVertexArray[iv++] = D.xf();
-                meshVertexArray[iv++] = D.yf();
-                meshVertexArray[iv++] = D.zf();
-                meshVertexArray[iv++] = A.xf();
-                meshVertexArray[iv++] = A.yf();
-                meshVertexArray[iv++] = A.zf();
+                MeshVertexArray[ip++] = C.xf();
+                MeshVertexArray[ip++] = C.yf();
+                MeshVertexArray[ip++] = C.zf();
+                MeshVertexArray[ip++] = D.xf();
+                MeshVertexArray[ip++] = D.yf();
+                MeshVertexArray[ip++] = D.zf();
+                MeshVertexArray[ip++] = A.xf();
+                MeshVertexArray[ip++] = A.yf();
+                MeshVertexArray[ip++] = A.zf();
+
+                // 4 edges
+                EdgeVertexArray[ie++] = A.xf();
+                EdgeVertexArray[ie++] = A.yf();
+                EdgeVertexArray[ie++] = A.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = B.xf();
+                EdgeVertexArray[ie++] = B.yf();
+                EdgeVertexArray[ie++] = B.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = B.xf();
+                EdgeVertexArray[ie++] = B.yf();
+                EdgeVertexArray[ie++] = B.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = C.xf();
+                EdgeVertexArray[ie++] = C.yf();
+                EdgeVertexArray[ie++] = C.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = C.xf();
+                EdgeVertexArray[ie++] = C.yf();
+                EdgeVertexArray[ie++] = C.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = D.xf();
+                EdgeVertexArray[ie++] = D.yf();
+                EdgeVertexArray[ie++] = D.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = D.xf();
+                EdgeVertexArray[ie++] = D.yf();
+                EdgeVertexArray[ie++] = D.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = A.xf();
+                EdgeVertexArray[ie++] = A.yf();
+                EdgeVertexArray[ie++] = A.zf();
+                EdgeVertexArray[ie++] = 1.0f;
             }
         }
         if(surf.isTipRight())
@@ -1039,26 +1086,64 @@ void gl3dXflView::glMakeWingEditMesh(QOpenGLBuffer &vbo, Wing const *pWing)
                 D = surf.TB;
 
                 //first triangle
-                meshVertexArray[iv++] = C.xf();
-                meshVertexArray[iv++] = C.yf();
-                meshVertexArray[iv++] = C.zf();
-                meshVertexArray[iv++] = B.xf();
-                meshVertexArray[iv++] = B.yf();
-                meshVertexArray[iv++] = B.zf();
-                meshVertexArray[iv++] = A.xf();
-                meshVertexArray[iv++] = A.yf();
-                meshVertexArray[iv++] = A.zf();
+                MeshVertexArray[ip++] = C.xf();
+                MeshVertexArray[ip++] = C.yf();
+                MeshVertexArray[ip++] = C.zf();
+                MeshVertexArray[ip++] = B.xf();
+                MeshVertexArray[ip++] = B.yf();
+                MeshVertexArray[ip++] = B.zf();
+                MeshVertexArray[ip++] = A.xf();
+                MeshVertexArray[ip++] = A.yf();
+                MeshVertexArray[ip++] = A.zf();
 
                 //second triangle
-                meshVertexArray[iv++] = A.xf();
-                meshVertexArray[iv++] = A.yf();
-                meshVertexArray[iv++] = A.zf();
-                meshVertexArray[iv++] = D.xf();
-                meshVertexArray[iv++] = D.yf();
-                meshVertexArray[iv++] = D.zf();
-                meshVertexArray[iv++] = C.xf();
-                meshVertexArray[iv++] = C.yf();
-                meshVertexArray[iv++] = C.zf();
+                MeshVertexArray[ip++] = A.xf();
+                MeshVertexArray[ip++] = A.yf();
+                MeshVertexArray[ip++] = A.zf();
+                MeshVertexArray[ip++] = D.xf();
+                MeshVertexArray[ip++] = D.yf();
+                MeshVertexArray[ip++] = D.zf();
+                MeshVertexArray[ip++] = C.xf();
+                MeshVertexArray[ip++] = C.yf();
+                MeshVertexArray[ip++] = C.zf();
+
+
+                // 4 edges
+                EdgeVertexArray[ie++] = A.xf();
+                EdgeVertexArray[ie++] = A.yf();
+                EdgeVertexArray[ie++] = A.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = B.xf();
+                EdgeVertexArray[ie++] = B.yf();
+                EdgeVertexArray[ie++] = B.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = B.xf();
+                EdgeVertexArray[ie++] = B.yf();
+                EdgeVertexArray[ie++] = B.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = C.xf();
+                EdgeVertexArray[ie++] = C.yf();
+                EdgeVertexArray[ie++] = C.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = C.xf();
+                EdgeVertexArray[ie++] = C.yf();
+                EdgeVertexArray[ie++] = C.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = D.xf();
+                EdgeVertexArray[ie++] = D.yf();
+                EdgeVertexArray[ie++] = D.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = D.xf();
+                EdgeVertexArray[ie++] = D.yf();
+                EdgeVertexArray[ie++] = D.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = A.xf();
+                EdgeVertexArray[ie++] = A.yf();
+                EdgeVertexArray[ie++] = A.zf();
+                EdgeVertexArray[ie++] = 1.0f;
             }
         }
     }
@@ -1074,74 +1159,150 @@ void gl3dXflView::glMakeWingEditMesh(QOpenGLBuffer &vbo, Wing const *pWing)
                 surf.getPanel(k,l,xfl::TOPSURFACE);
 
                 // first triangle
-                meshVertexArray[iv++] = surf.LA.xf();
-                meshVertexArray[iv++] = surf.LA.yf();
-                meshVertexArray[iv++] = surf.LA.zf();
-                meshVertexArray[iv++] = surf.TA.xf();
-                meshVertexArray[iv++] = surf.TA.yf();
-                meshVertexArray[iv++] = surf.TA.zf();
-                meshVertexArray[iv++] = surf.TB.xf();
-                meshVertexArray[iv++] = surf.TB.yf();
-                meshVertexArray[iv++] = surf.TB.zf();
+                MeshVertexArray[ip++] = surf.LA.xf();
+                MeshVertexArray[ip++] = surf.LA.yf();
+                MeshVertexArray[ip++] = surf.LA.zf();
+                MeshVertexArray[ip++] = surf.TA.xf();
+                MeshVertexArray[ip++] = surf.TA.yf();
+                MeshVertexArray[ip++] = surf.TA.zf();
+                MeshVertexArray[ip++] = surf.TB.xf();
+                MeshVertexArray[ip++] = surf.TB.yf();
+                MeshVertexArray[ip++] = surf.TB.zf();
 
                 //second triangle
-                meshVertexArray[iv++] = surf.TB.xf();
-                meshVertexArray[iv++] = surf.TB.yf();
-                meshVertexArray[iv++] = surf.TB.zf();
-                meshVertexArray[iv++] = surf.LB.xf();
-                meshVertexArray[iv++] = surf.LB.yf();
-                meshVertexArray[iv++] = surf.LB.zf();
-                meshVertexArray[iv++] = surf.LA.xf();
-                meshVertexArray[iv++] = surf.LA.yf();
-                meshVertexArray[iv++] = surf.LA.zf();
+                MeshVertexArray[ip++] = surf.TB.xf();
+                MeshVertexArray[ip++] = surf.TB.yf();
+                MeshVertexArray[ip++] = surf.TB.zf();
+                MeshVertexArray[ip++] = surf.LB.xf();
+                MeshVertexArray[ip++] = surf.LB.yf();
+                MeshVertexArray[ip++] = surf.LB.zf();
+                MeshVertexArray[ip++] = surf.LA.xf();
+                MeshVertexArray[ip++] = surf.LA.yf();
+                MeshVertexArray[ip++] = surf.LA.zf();
+
+
+                // 4 edges
+                EdgeVertexArray[ie++] = surf.LA.xf();
+                EdgeVertexArray[ie++] = surf.LA.yf();
+                EdgeVertexArray[ie++] = surf.LA.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = surf.TA.xf();
+                EdgeVertexArray[ie++] = surf.TA.yf();
+                EdgeVertexArray[ie++] = surf.TA.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = surf.TA.xf();
+                EdgeVertexArray[ie++] = surf.TA.yf();
+                EdgeVertexArray[ie++] = surf.TA.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = surf.TB.xf();
+                EdgeVertexArray[ie++] = surf.TB.yf();
+                EdgeVertexArray[ie++] = surf.TB.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = surf.TB.xf();
+                EdgeVertexArray[ie++] = surf.TB.yf();
+                EdgeVertexArray[ie++] = surf.TB.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = surf.LB.xf();
+                EdgeVertexArray[ie++] = surf.LB.yf();
+                EdgeVertexArray[ie++] = surf.LB.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = surf.LB.xf();
+                EdgeVertexArray[ie++] = surf.LB.yf();
+                EdgeVertexArray[ie++] = surf.LB.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = surf.LA.xf();
+                EdgeVertexArray[ie++] = surf.LA.yf();
+                EdgeVertexArray[ie++] = surf.LA.zf();
+                EdgeVertexArray[ie++] = 1.0f;
             }
 
             for (int l=0; l<surf.nXPanels(); l++)
             {
                 surf.getPanel(k,l,xfl::BOTSURFACE);
                 //first triangle
-                meshVertexArray[iv++] = surf.TB.xf();
-                meshVertexArray[iv++] = surf.TB.yf();
-                meshVertexArray[iv++] = surf.TB.zf();
-                meshVertexArray[iv++] = surf.TA.xf();
-                meshVertexArray[iv++] = surf.TA.yf();
-                meshVertexArray[iv++] = surf.TA.zf();
-                meshVertexArray[iv++] = surf.LA.xf();
-                meshVertexArray[iv++] = surf.LA.yf();
-                meshVertexArray[iv++] = surf.LA.zf();
+                MeshVertexArray[ip++] = surf.TB.xf();
+                MeshVertexArray[ip++] = surf.TB.yf();
+                MeshVertexArray[ip++] = surf.TB.zf();
+                MeshVertexArray[ip++] = surf.TA.xf();
+                MeshVertexArray[ip++] = surf.TA.yf();
+                MeshVertexArray[ip++] = surf.TA.zf();
+                MeshVertexArray[ip++] = surf.LA.xf();
+                MeshVertexArray[ip++] = surf.LA.yf();
+                MeshVertexArray[ip++] = surf.LA.zf();
 
                 //second triangle
-                meshVertexArray[iv++] = surf.LA.xf();
-                meshVertexArray[iv++] = surf.LA.yf();
-                meshVertexArray[iv++] = surf.LA.zf();
-                meshVertexArray[iv++] = surf.LB.xf();
-                meshVertexArray[iv++] = surf.LB.yf();
-                meshVertexArray[iv++] = surf.LB.zf();
-                meshVertexArray[iv++] = surf.TB.xf();
-                meshVertexArray[iv++] = surf.TB.yf();
-                meshVertexArray[iv++] = surf.TB.zf();
+                MeshVertexArray[ip++] = surf.LA.xf();
+                MeshVertexArray[ip++] = surf.LA.yf();
+                MeshVertexArray[ip++] = surf.LA.zf();
+                MeshVertexArray[ip++] = surf.LB.xf();
+                MeshVertexArray[ip++] = surf.LB.yf();
+                MeshVertexArray[ip++] = surf.LB.zf();
+                MeshVertexArray[ip++] = surf.TB.xf();
+                MeshVertexArray[ip++] = surf.TB.yf();
+                MeshVertexArray[ip++] = surf.TB.zf();
+
+                // 4 edges
+                EdgeVertexArray[ie++] = surf.LA.xf();
+                EdgeVertexArray[ie++] = surf.LA.yf();
+                EdgeVertexArray[ie++] = surf.LA.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = surf.TA.xf();
+                EdgeVertexArray[ie++] = surf.TA.yf();
+                EdgeVertexArray[ie++] = surf.TA.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = surf.TA.xf();
+                EdgeVertexArray[ie++] = surf.TA.yf();
+                EdgeVertexArray[ie++] = surf.TA.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = surf.TB.xf();
+                EdgeVertexArray[ie++] = surf.TB.yf();
+                EdgeVertexArray[ie++] = surf.TB.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = surf.TB.xf();
+                EdgeVertexArray[ie++] = surf.TB.yf();
+                EdgeVertexArray[ie++] = surf.TB.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = surf.LB.xf();
+                EdgeVertexArray[ie++] = surf.LB.yf();
+                EdgeVertexArray[ie++] = surf.LB.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+
+                EdgeVertexArray[ie++] = surf.LB.xf();
+                EdgeVertexArray[ie++] = surf.LB.yf();
+                EdgeVertexArray[ie++] = surf.LB.zf();
+                EdgeVertexArray[ie++] = 1.0f;
+                EdgeVertexArray[ie++] = surf.LA.xf();
+                EdgeVertexArray[ie++] = surf.LA.yf();
+                EdgeVertexArray[ie++] = surf.LA.zf();
+                EdgeVertexArray[ie++] = 1.0f;
             }
         }
     }
 
+    Q_ASSERT(ip==PanelBufferSize);
+    Q_ASSERT(ie==EdgeBufferSize);
 
-    Q_ASSERT(iv==bufferSize);
+    vboPanels.destroy();
+    vboPanels.create();
+    vboPanels.bind();
+    vboPanels.allocate(MeshVertexArray.data(), PanelBufferSize * int(sizeof(GLfloat)));
+    vboPanels.release();
 
-
-    Q_ASSERT(iv==bufferSize);
-
-    //    m_iWingMeshElems = ii/3;
-    vbo.destroy();
-    vbo.create();
-    vbo.bind();
-    vbo.allocate(meshVertexArray.data(), bufferSize * int(sizeof(GLfloat)));
-    vbo.release();
+    vboPanelEdges.destroy();
+    vboPanelEdges.create();
+    vboPanelEdges.bind();
+    vboPanelEdges.allocate(EdgeVertexArray.data(), EdgeBufferSize * int(sizeof(GLfloat)));
+    vboPanelEdges.release();
 }
 
 
 void gl3dXflView::glMakeBodyFrameHighlight(const Body *pBody, const Vector3d &bodyPos, int iFrame)
 {
-    //    int NXXXX = W3dPrefsDlg::bodyAxialRes();
     int NHOOOP = W3dPrefs::bodyHoopRes();
 
     Vector3d Point;
@@ -1261,79 +1422,35 @@ void gl3dXflView::paintNormals(QOpenGLBuffer &vbo)
 }
 
 
-void gl3dXflView::paintMesh(QOpenGLBuffer &vbo, bool bBackGround)
+void gl3dXflView::paintMesh(QOpenGLBuffer &vbo)
 {
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
-    m_shadLine.bind();
+    m_shadSurf.bind();
     {
-        m_shadLine.enableAttributeArray(m_locLine.m_attrVertex);
-        m_shadLine.setUniformValue(m_locLine.m_UniColor, W3dPrefs::s_VLMStyle.m_Color);
-        m_shadLine.setUniformValue(m_locLine.m_Pattern, GLStipple(W3dPrefs::s_VLMStyle.m_Stipple));
-        m_shadLine.setUniformValue(m_locLine.m_Thickness, float(W3dPrefs::s_VLMStyle.m_Width));
+        m_shadSurf.setUniformValue(m_locSurf.m_UniColor, DisplayOptions::backgroundColor());
+        m_shadSurf.setUniformValue(m_locSurf.m_HasUniColor, 1);
+        m_shadSurf.setUniformValue(m_locSurf.m_HasTexture, 0);
 
         vbo.bind();
         {
-            m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex, GL_FLOAT, 0, 3, 6 * sizeof(GLfloat));
+            m_shadSurf.enableAttributeArray(m_locSurf.m_attrVertex);
+            m_shadSurf.setAttributeBuffer(m_locSurf.m_attrVertex, GL_FLOAT, 0, 3, 6 * sizeof(GLfloat));
 
             int nPanels = vbo.size()/3/6/int(sizeof(float)); // three vertices and 6 components
+            glDisable(GL_CULL_FACE);
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glPolygonOffset(DEPTHFACTOR, DEPTHUNITS);
+            glDrawArrays(GL_TRIANGLES, 0, nPanels*3);
+            glDisable(GL_POLYGON_OFFSET_FILL);
 
-            glLineWidth(W3dPrefs::s_VLMStyle.m_Width);
-            glEnable(GL_LINE_STIPPLE);
-            GLLineStipple(W3dPrefs::s_VLMStyle.m_Stipple);
-            int pos = 0;
-            for(int p=0; p<nPanels*2; p++)
-            {
-                glDrawArrays(GL_LINE_STRIP, pos, 3);
-                pos +=3 ;
-            }
-            glDisable (GL_LINE_STIPPLE);
 
-/*            m_shadLine.setUniformValue(m_locLine.m_UniColor, DisplayOptions::backgroundColor());
-
-            if(bBackGround)
-            {
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                glEnable(GL_POLYGON_OFFSET_FILL);
-                glPolygonOffset(DEPTHFACTOR, DEPTHUNITS);
-                glDrawArrays(GL_TRIANGLES, 0, nPanels*3);
-                glDisable(GL_POLYGON_OFFSET_FILL);
-
-            }
-            m_shadLine.disableAttributeArray(m_locLine.m_attrVertex);*/
+            m_shadSurf.disableAttributeArray(m_locSurf.m_attrVertex);
         }
         vbo.release();
     }
-    m_shadLine.release();
-
-    if(bBackGround)
-    {
-        m_shadSurf.bind();
-        {
-            m_shadSurf.setUniformValue(m_locSurf.m_UniColor, DisplayOptions::backgroundColor());
-            m_shadSurf.setUniformValue(m_locSurf.m_HasUniColor, 1);
-            m_shadSurf.setUniformValue(m_locSurf.m_HasTexture, 0);
-
-            vbo.bind();
-            {
-                m_shadSurf.enableAttributeArray(m_locSurf.m_attrVertex);
-                m_shadSurf.setAttributeBuffer(m_locSurf.m_attrVertex, GL_FLOAT, 0, 3, 6 * sizeof(GLfloat));
-
-                int nPanels = vbo.size()/3/6/int(sizeof(float)); // three vertices and 6 components
-                glDisable(GL_CULL_FACE);
-                glEnable(GL_POLYGON_OFFSET_FILL);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                glPolygonOffset(DEPTHFACTOR, DEPTHUNITS);
-                glDrawArrays(GL_TRIANGLES, 0, nPanels*3);
-                glDisable(GL_POLYGON_OFFSET_FILL);
-
-
-                m_shadSurf.disableAttributeArray(m_locSurf.m_attrVertex);
-            }
-            vbo.release();
-        }
-        m_shadSurf.release();
-    }
+    m_shadSurf.release();
 }
 
 
@@ -1384,8 +1501,6 @@ void gl3dXflView::glMakeWingOutline(Wing const *pWing, Body const *pBody, QOpenG
 
     int iv=0; //index of outline vertex components
 
-
-    //SURFACE
     for (int j=0; j<pWing->m_Surface.size(); j++)
     {
         Surface const &surf = pWing->m_Surface.at(j);
@@ -1834,5 +1949,4 @@ void gl3dXflView::glMakeWingSurface(Wing const *pWing, Body const *pBody, QOpenG
     vboSurf.allocate(SurfaceVA.data(), SurfaceVA.size() * int(sizeof(GLfloat)));
     vboSurf.release();
 }
-
 

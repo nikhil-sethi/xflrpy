@@ -80,14 +80,13 @@ void Quaternion::toEulerAngles(double &roll, double &pitch, double &yaw) const
 }
 
 
-
 /**
  * In computer graphics, Slerp is shorthand for spherical linear interpolation, introduced by Ken Shoemake
  * in the context of quaternion interpolation for the purpose of animating 3D rotation.
  * It refers to constant-speed motion along a unit-radius great circle arc,
  * given the ends and an interpolation parameter between 0 and 1.
  */
-void Quaternion::slerp(Quaternion const &qt0, Quaternion const &qt1, double t, Quaternion &qslerp)
+void Quaternion::slerp(Quaternion const &qt0, Quaternion const &qt1, double t)
 {
     Quaternion q0, q1;
     q0.set(qt0.normalized());
@@ -100,27 +99,26 @@ void Quaternion::slerp(Quaternion const &qt0, Quaternion const &qt1, double t, Q
         dot = -dot;
     }
 
-    const double DOT_THRESHOLD = 0.9995;
-    if (dot > DOT_THRESHOLD)
-    {
-        // If the inputs are too close for comfort, linearly interpolate
-        // and normalize the result.
-
-        qslerp = q0 + (q1 - q0)*t;
-        qslerp.normalize();
-        return;
-    }
+    dot = std::min(dot, 1.0);
 
     double theta_0 = acos(dot);        // theta_0 = angle between input vectors
     double theta = theta_0*t;          // theta = angle between v0 and result
     double sin_theta = sin(theta);     // compute this value only once
     double sin_theta_0 = sin(theta_0); // compute this value only once
-
-    double s0 = cos(theta) - dot * sin_theta / sin_theta_0;
-    double s1 = sin_theta / sin_theta_0;
+    double s0(0), s1(0);
+    if(fabs(sin_theta_0)>0.001)
+    {
+        s0 = cos(theta) - dot * sin_theta / sin_theta_0;
+        s1 = sin_theta / sin_theta_0;
+    }
+    else
+    {
+        s0 = cos(theta);
+        s1 = 1.0;
+    }
 
     q0 *= s0;
     q1 *= s1;
-    qslerp = q0 + q1;
-    qslerp.normalize();
+    set(q0 + q1);
+    normalize();
 }

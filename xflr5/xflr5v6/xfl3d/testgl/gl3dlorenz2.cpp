@@ -25,8 +25,6 @@
 #include <xflwidgets/customwts/intedit.h>
 #include <xflwidgets/wt_globals.h>
 
-#define GROUP_SIZE 64 //max. value hardcoded in the CS
-
 
 int gl3dLorenz2::s_NGroups(1024);
 

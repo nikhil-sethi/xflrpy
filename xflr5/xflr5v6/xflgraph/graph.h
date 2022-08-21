@@ -138,7 +138,7 @@ class Graph
         void setAutoXUnit();
         void setAutoYUnit();
 
-        void setBkColor(QColor cr){m_BkColor = cr;}
+        void setBkColor(QColor cr){m_BackColor = cr;}
         void setBorder(bool bBorder) {m_BorderStyle.m_bIsVisible = bBorder;}
 
         void setBorderStyle(LineStyle const &ls2) {m_BorderStyle=ls2;}
@@ -147,10 +147,10 @@ class Graph
         void setInverted(bool bInverted);
         void setScaleType(int scaleType){ m_AutoScaleType = scaleType;}
 
-        void setX0(double f){    xo = f;}
+        void setX0(double f){    m_xo = f;}
 
-        void setXMax(double f) {xmax = f;}
-        void setXMin(double f) {xmin = f;}
+        void setXMax(double f) {m_xmax = f;}
+        void setXMin(double f) {m_xmin = f;}
 
         void setXTitle(const QString &str);
         void setYTitle(const QString &str);
@@ -180,18 +180,18 @@ class Graph
 
         bool bInverted() const{    return m_bYInverted;}
 
-        double xOrigin() const{    return xo;}
+        double xOrigin() const{    return m_xo;}
 
 
-        double xMin()    const {return xmin;}
-        double xMax()    const {return xmax;}
+        double xMin()    const {return m_xmin;}
+        double xMax()    const {return m_xmax;}
         double xScale()  const {return m_scalex;}
-        double xUnit()   const {return xunit;}
+        double xUnit()   const {return m_xunit;}
         int xVariable()  const {return m_X;}
-        double yOrigin() const {return yo;}
-        double yMin()    const {return ymin;}
-        double yMax()    const {return ymax;}
-        double yUnit()   const {return yunit;}
+        double yOrigin() const {return m_yo;}
+        double yMin()    const {return m_ymin;}
+        double yMax()    const {return m_ymax;}
+        double yUnit()   const {return m_yunit;}
         double yScale()  const {return m_scaley;}
         int yVariable()  const {return m_Y;}
 
@@ -240,7 +240,7 @@ class Graph
         QPointF toClient(double x, double y) const {return QPointF(xToClient(x), yToClient(y));}
 
 
-        QColor backgroundColor() const {return m_BkColor;}
+        QColor backgroundColor() const {return m_BackColor;}
         QColor borderColor() const {return m_BorderStyle.m_Color;}
         LineStyle borderStyle() const {return m_BorderStyle;}
         int borderStipple() const {return m_BorderStyle.m_Stipple;}
@@ -276,9 +276,9 @@ class Graph
         QPoint m_ptoffset; //in screen coordinates, w.r.t. the client area
 
         int exp_x, exp_y;
-        double xo, yo;
-        double xunit, yunit;
-        double xmin, ymin, xmax, ymax;
+        double m_xo, m_yo;
+        double m_xunit, m_yunit;
+        double m_xmin, m_ymin, m_xmax, m_ymax;
         double Cxmin, Cxmax, Cymin, Cymax;
         double m_scalex, m_scaley;
         double m_h, m_w; //graph width and height
@@ -287,7 +287,7 @@ class Graph
         QColor m_TitleColor;
         QColor m_LabelColor;
 
-        QColor m_BkColor;
+        QColor m_BackColor;
 
 
         int m_X, m_Y; //index of X and Y variables

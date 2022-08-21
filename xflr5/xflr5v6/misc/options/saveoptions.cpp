@@ -1,7 +1,7 @@
 /****************************************************************************
 
     SaveOptions Class
-    Copyright (C) 2018 André Deperrois
+    Copyright (C) André Deperrois
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,13 +30,14 @@
 #include <xflwidgets/customwts/intedit.h>
 #include "saveoptions.h"
 
+bool SaveOptions::s_bOpps(false);
+bool SaveOptions::s_bPOpps(true);
+bool SaveOptions::s_bAutoSave(true);
+bool SaveOptions::s_bAutoLoadLast(false);
+int SaveOptions::s_SaveInterval(17);
+
 SaveOptions::SaveOptions(QWidget *parent) : QWidget(parent)
 {
-    m_bOpps = false;
-    m_bWOpps = true;
-    m_bAutoSave = true;
-    m_bAutoLoadLast = false;
-    m_SaveInterval = 17;
     setupLayout();
 }
 
@@ -73,7 +74,7 @@ void SaveOptions::setupLayout()
         {
             m_pchAutoSave = new QCheckBox("Autosave");
             QLabel *pctrlIntervalLabel = new QLabel(tr("Every"));
-            m_pieInterval = new IntEdit(m_SaveInterval);
+            m_pieInterval = new IntEdit(s_SaveInterval);
             QLabel *pctrlMinutes = new QLabel("mn");
             pSaveTimerLayout->addWidget(m_pchAutoSave);
             pSaveTimerLayout->addWidget(pctrlIntervalLabel);
@@ -97,30 +98,53 @@ void SaveOptions::setupLayout()
 }
 
 
-void SaveOptions::initWidget(bool bAutoLoadLast, bool bOpps, bool bWOpps, bool bAutoSave, int saveInterval)
+void SaveOptions::initWidget()
 {
-    m_bAutoLoadLast = bAutoLoadLast;
-    m_bAutoSave = bAutoSave;
-    m_SaveInterval = saveInterval;
-    m_bOpps  = bOpps;
-    m_bWOpps = bWOpps;
-    m_pchOpps->setChecked(m_bOpps);
-    m_pchWOpps->setChecked(m_bWOpps);
+    m_pchOpps->setChecked(s_bOpps);
+    m_pchWOpps->setChecked(s_bPOpps);
 
-    m_pchAutoLoadLast->setChecked(m_bAutoLoadLast);
-    m_pchAutoSave->setChecked(m_bAutoSave);
-    m_pieInterval->setValue(m_SaveInterval);
-    m_pieInterval->setEnabled(m_bAutoSave);
+    m_pchAutoLoadLast->setChecked(s_bAutoLoadLast);
+    m_pchAutoSave->setChecked(s_bAutoSave);
+    m_pieInterval->setValue(s_SaveInterval);
+    m_pieInterval->setEnabled(s_bAutoSave);
 }
 
 
 void SaveOptions::onOK()
 {
-    m_bAutoLoadLast = m_pchAutoLoadLast->isChecked();
-    m_bOpps = m_pchOpps->isChecked();
-    m_bWOpps = m_pchWOpps->isChecked();
-    m_bAutoSave = m_pchAutoSave->isChecked();
-    m_SaveInterval = m_pieInterval->value();
+    s_bAutoLoadLast = m_pchAutoLoadLast->isChecked();
+    s_bOpps = m_pchOpps->isChecked();
+    s_bPOpps = m_pchWOpps->isChecked();
+    s_bAutoSave = m_pchAutoSave->isChecked();
+    s_SaveInterval = m_pieInterval->value();
+}
+
+
+void SaveOptions::loadSettings(QSettings &settings)
+{
+    settings.beginGroup("SaveOptions");
+    {
+        s_bAutoLoadLast = settings.value("AutoLoadLastProject", s_bAutoLoadLast).toBool();
+        s_bOpps         = settings.value("SaveOpps",            s_bOpps).toBool();
+        s_bPOpps        = settings.value("SaveWOpps",           s_bPOpps).toBool();
+        s_bAutoSave     = settings.value("AutoSaveProject",     s_bAutoSave).toBool();
+        s_SaveInterval  = settings.value("AutoSaveInterval",    s_SaveInterval).toInt();
+    }
+    settings.endGroup();
+}
+
+
+void SaveOptions::saveSettings(QSettings &settings)
+{
+    settings.beginGroup("SaveOptions");
+    {
+        settings.setValue("AutoSaveProject",     s_bAutoSave);
+        settings.setValue("AutoSaveInterval",    s_SaveInterval);
+        settings.setValue("AutoLoadLastProject", s_bAutoLoadLast);
+        settings.setValue("SaveOpps",            s_bOpps);
+        settings.setValue("SaveWOpps",           s_bPOpps);
+    }
+    settings.endGroup();
 }
 
 

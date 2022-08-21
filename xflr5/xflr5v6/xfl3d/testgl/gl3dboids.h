@@ -12,16 +12,10 @@
 #include <QSlider>
 #include <QLabel>
 
+#include <xfl3d/testgl/boid.h>
 #include <xfl3d/testgl/gl3dtestglview.h>
 #include <xflgeom/geom3d/vector3d.h>
 
-
-struct Boid
-{
-    int Index{-1};
-    Vector3d m_Position;
-    Vector3d m_Velocity;
-};
 
 
 class IntEdit;

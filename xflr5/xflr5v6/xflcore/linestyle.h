@@ -242,10 +242,10 @@ struct LineStyle
 
     void loadSettings(QSettings &settings, QString const &name)
     {
-        if(settings.contains(name+"_visible")) m_bIsVisible = settings.value(name+"_visible", true).toBool();
-        if(settings.contains(name+"_color"))   m_Color      = settings.value(name+"_color", QColor(205,205,205)).value<QColor>();
-        if(settings.contains(name+"_width"))   m_Width      = settings.value(name+"_width", 1).toInt();
-        if(settings.contains(name+"_tag"))     m_Tag        = settings.value(name+"_tag", QString()).toString();
+        if(settings.contains(name+"_visible")) m_bIsVisible = settings.value(name+"_visible", m_bIsVisible).toBool();
+        if(settings.contains(name+"_color"))   m_Color      = settings.value(name+"_color",   m_Color).value<QColor>();
+        if(settings.contains(name+"_width"))   m_Width      = settings.value(name+"_width",   m_Width).toInt();
+        if(settings.contains(name+"_tag"))     m_Tag        = settings.value(name+"_tag",     QString()).toString();
 
         if(settings.contains(name+"_line"))
         {
@@ -253,12 +253,12 @@ struct LineStyle
             switch (istyle)
             {
                 default:
-                case 0: m_Stipple = Line::SOLID; break;
-                case 1: m_Stipple = Line::DASH; break;
-                case 2: m_Stipple = Line::DOT; break;
-                case 3: m_Stipple = Line::DASHDOT; break;
+                case 0: m_Stipple = Line::SOLID;      break;
+                case 1: m_Stipple = Line::DASH;       break;
+                case 2: m_Stipple = Line::DOT;        break;
+                case 3: m_Stipple = Line::DASHDOT;    break;
                 case 4: m_Stipple = Line::DASHDOTDOT; break;
-                case 5: m_Stipple = Line::NOLINE; break;
+                case 5: m_Stipple = Line::NOLINE;     break;
             }
         }
         if(settings.contains(name+"_pts"))

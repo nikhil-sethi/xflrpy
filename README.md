@@ -1,6 +1,6 @@
 # XFLR5 for Ubuntu
 
-*This repo provides the latest [XFLR5](http://www.xflr5.tech/xflr5.htm) (currently v6.56) patched for Ubuntu 20.04 LTS*
+*This repo provides the latest [XFLR5](http://www.xflr5.tech/xflr5.htm) (currently v6.57) patched for Ubuntu 20.04 LTS*
 
 ## Installation
 

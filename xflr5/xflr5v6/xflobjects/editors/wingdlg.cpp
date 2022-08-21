@@ -158,11 +158,11 @@ bool WingDlg::checkWing()
         }
     }
 
-    int NYPanels = 0;
+/*    int NYPanels = 0;
     for(int j=0; j<m_pWing->NWingSection()-1; j++)
     {
         NYPanels += m_pWing->NYPanels(j);
-    }
+    }*/
 
     if(m_pWing->m_nFlaps>=20)
     {

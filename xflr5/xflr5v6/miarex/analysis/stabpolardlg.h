@@ -125,6 +125,7 @@ class StabPolarDlg : public QDialog
         QRadioButton *m_prbArea1, *m_prbArea2, *m_prbArea3;
 
         DoubleEdit *m_pdeRefChord, *m_pdeRefArea, *m_pdeRefSpan;
+        QCheckBox *m_pchBiPlane;
 
         QStackedWidget *m_pswAnalysisControls;
         QRadioButton *m_prbWingMethod2, *m_prbWingMethod3;

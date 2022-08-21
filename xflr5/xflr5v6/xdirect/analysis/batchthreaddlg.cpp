@@ -157,8 +157,8 @@ void BatchThreadDlg::onAnalyze()
     m_ppbAnalyze->setText(tr("Cancel"));
 
 //    int nRe = s_ReList.count();
-    int nRe = 0;
-    for(int i=0; i<s_ActiveList.size(); i++) nRe += s_ActiveList.at(i) ? 1 : 0;
+/*    int nRe = 0;
+    for(int i=0; i<s_ActiveList.size(); i++) nRe += s_ActiveList.at(i) ? 1 : 0;*/
 
     //    QThreadPool::globalInstance()->setExpiryTimeout(60000);//ms
 

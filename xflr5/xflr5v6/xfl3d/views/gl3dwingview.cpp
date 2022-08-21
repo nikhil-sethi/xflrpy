@@ -44,12 +44,6 @@ gl3dWingView::gl3dWingView(QWidget *pParent) : gl3dXflView(pParent)
 void gl3dWingView::setWing(Wing const*pWing)
 {
     m_pWing = pWing;
-/*    qDebug()<<m_pWing->NWingSection()<<m_pWing->surfaceCount();
-    for(int is=0; is<m_pWing->NWingSection(); is++)
-    {
-        WingSection const *pWS = m_pWing->m_Section.at(is);
-        qDebug()<<pWS->rightFoilName()<<pWS->leftFoilName()<< pWS->m_NXPanels << pWS->m_NYPanels << pWS->m_XPanelDist << pWS->m_YPanelDist <<pWS-> m_Chord;
-    }*/
 }
 
 
@@ -86,14 +80,39 @@ void gl3dWingView::glMakeWingSectionHighlight(Wing const*pWing, int iSectionHigh
         //define the inner left side surface
         if(!pWing->isFin())  jSurf = pWing->m_Surface.size()/2 - 1;
         else                 jSurf = pWing->m_Surface.size()   - 1;
+
         Surface const *pSurf =  pWing->surface(jSurf);
-//        if(pSurf)
+        for (int lx=0; lx<CHORDPOINTS; lx++)
         {
+            double xRel = double(lx)/double(CHORDPOINTS-1);
+            pSurf->getSidePoint(xRel, true, xfl::TOPSURFACE, Point, Normal);
+
+            pHighlightVertexArray[iv++] = Point.xf();
+            pHighlightVertexArray[iv++] = Point.yf();
+            pHighlightVertexArray[iv++] = Point.zf();
+        }
+        for (int lx=CHORDPOINTS-1; lx>=0; lx--)
+        {
+            double xRel = double(lx)/double(CHORDPOINTS-1);
+            pSurf->getSidePoint(xRel, true, xfl::BOTSURFACE, Point, Normal);
+            pHighlightVertexArray[iv++] = Point.xf();
+            pHighlightVertexArray[iv++] = Point.yf();
+            pHighlightVertexArray[iv++] = Point.zf();
+        }
+
+    }
+    else
+    {
+        if((pWing->isSymetric() || bRightSide) && !pWing->isFin())
+        {
+            m_nHighlightLines++;
+            jSurf = pWing->m_Surface.size()/2 + iSection -1;
+
+            Surface const *pSurf =  pWing->surface(jSurf);
             for (int lx=0; lx<CHORDPOINTS; lx++)
             {
                 double xRel = double(lx)/double(CHORDPOINTS-1);
                 pSurf->getSidePoint(xRel, true, xfl::TOPSURFACE, Point, Normal);
-
                 pHighlightVertexArray[iv++] = Point.xf();
                 pHighlightVertexArray[iv++] = Point.yf();
                 pHighlightVertexArray[iv++] = Point.zf();
@@ -106,35 +125,7 @@ void gl3dWingView::glMakeWingSectionHighlight(Wing const*pWing, int iSectionHigh
                 pHighlightVertexArray[iv++] = Point.yf();
                 pHighlightVertexArray[iv++] = Point.zf();
             }
-        }
-    }
-    else
-    {
-        if((pWing->isSymetric() || bRightSide) && !pWing->isFin())
-        {
-            m_nHighlightLines++;
-            jSurf = pWing->m_Surface.size()/2 + iSection -1;
 
-            Surface const *pSurf =  pWing->surface(jSurf);
-//            if(pSurf)
-            {
-                for (int lx=0; lx<CHORDPOINTS; lx++)
-                {
-                    double xRel = double(lx)/double(CHORDPOINTS-1);
-                    pSurf->getSidePoint(xRel, true, xfl::TOPSURFACE, Point, Normal);
-                    pHighlightVertexArray[iv++] = Point.xf();
-                    pHighlightVertexArray[iv++] = Point.yf();
-                    pHighlightVertexArray[iv++] = Point.zf();
-                }
-                for (int lx=CHORDPOINTS-1; lx>=0; lx--)
-                {
-                    double xRel = double(lx)/double(CHORDPOINTS-1);
-                    pSurf->getSidePoint(xRel, true, xfl::BOTSURFACE, Point, Normal);
-                    pHighlightVertexArray[iv++] = Point.xf();
-                    pHighlightVertexArray[iv++] = Point.yf();
-                    pHighlightVertexArray[iv++] = Point.zf();
-                }
-            }
         }
 
         if(pWing->isSymetric() || !bRightSide)
@@ -172,7 +163,6 @@ void gl3dWingView::glMakeWingSectionHighlight(Wing const*pWing, int iSectionHigh
     m_vboHighlight.bind();
     m_vboHighlight.allocate(pHighlightVertexArray.data(), bufferSize*int(sizeof(float)));
     m_vboHighlight.release();
-
 }
 
 
@@ -196,7 +186,7 @@ void gl3dWingView::glMake3dObjects()
         glMakeWingSurface(m_pWing, nullptr, m_vboSurface);
         glMakeWingOutline(m_pWing, nullptr, m_vboOutline);
 //        glMakeWingGeometry(0, m_pWing, nullptr);
-        glMakeWingEditMesh(m_vboEditWingMesh[0], m_pWing);
+        glMakeWingEditMesh(m_vboPanels, m_vboPanelEdges, m_pWing);
     }
 }
 
@@ -227,7 +217,11 @@ void gl3dWingView::glRenderView()
             paintSegments(m_vboOutline, W3dPrefs::s_OutlineStyle, false);
 
         if(m_bFoilNames)  paintFoilNames(m_pWing);
-        if(m_bVLMPanels)  paintEditWingMesh(m_vboEditWingMesh[0]);
+        if(m_bVLMPanels)
+        {
+            paintEditWingMesh(m_vboPanels);
+            paintSegments(m_vboPanelEdges, W3dPrefs::s_VLMStyle);
+        }
         if(m_bShowMasses)
             paintMasses(m_pWing->volumeMass(), Vector3d(0.0,0.0,0.0), "Structural mass", m_pWing->m_PointMass);
         if(m_pGL3dWingDlg->iSection()>=0) paintSectionHighlight();

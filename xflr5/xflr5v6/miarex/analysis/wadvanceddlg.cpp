@@ -45,7 +45,6 @@ WAdvancedDlg::WAdvancedDlg(QWidget *pParent) : QDialog(pParent)
 
     m_MaxWakeIter     = 1;
     m_CoreSize        = 0.0001;// 0.1mm
-    m_WakeInterNodes  = 6;
     m_MinPanelSize    = .001;
 
     m_InducedDragPoint = 0;
@@ -293,7 +292,6 @@ void WAdvancedDlg::onResetDefaults()
     m_MaxWakeIter      = 5;
     m_CoreSize         = 0.0001;
     m_MinPanelSize     = .001;
-    m_WakeInterNodes   = 6;
     m_bLogFile         = true;
     m_VortexPos        = 0.25;
     m_ControlPos       = 0.75;

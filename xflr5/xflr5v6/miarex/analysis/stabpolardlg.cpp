@@ -94,6 +94,7 @@ void StabPolarDlg::connectSignals()
     connect(m_prbArea1,            SIGNAL(clicked()),             SLOT(onArea()));
     connect(m_prbArea2,            SIGNAL(clicked()),             SLOT(onArea()));
     connect(m_prbArea3,            SIGNAL(clicked()),             SLOT(onArea()));
+    connect(m_pchBiPlane,          SIGNAL(clicked(bool)),         SLOT(onArea()));
 
     connect(m_prbWingMethod2,      SIGNAL(toggled(bool)),         SLOT(onMethod()));
     connect(m_prbWingMethod3,      SIGNAL(toggled(bool)),         SLOT(onMethod()));
@@ -370,18 +371,19 @@ void StabPolarDlg::initDialog(Plane *pPlane, WPolar *pWPolar)
         s_StabWPolar.duplicateSpec(pWPolar);
     }
 
+    m_pchBiPlane->setChecked(s_StabWPolar.bIncludeWing2Area());
     m_prbArea1->setChecked(s_StabWPolar.referenceDim()==xfl::PLANFORMREFDIM);
     m_prbArea2->setChecked(s_StabWPolar.referenceDim()==xfl::PROJECTEDREFDIM);
     m_prbArea3->setChecked(s_StabWPolar.referenceDim()==xfl::MANUALREFDIM);
 
     if(m_prbArea1->isChecked())
     {
-        m_pdeRefArea->setValue(m_pPlane->planformArea()*Units::m2toUnit());
+        m_pdeRefArea->setValue(m_pPlane->planformArea(s_StabWPolar.bIncludeWing2Area())*Units::m2toUnit());
         m_pdeRefSpan->setValue(m_pPlane->planformSpan()*Units::mtoUnit());
     }
     else if(m_prbArea2->isChecked())
     {
-        m_pdeRefArea->setValue(m_pPlane->projectedArea()*Units::m2toUnit());
+        m_pdeRefArea->setValue(m_pPlane->projectedArea(s_StabWPolar.bIncludeWing2Area())*Units::m2toUnit());
         m_pdeRefSpan->setValue(m_pPlane->projectedSpan()*Units::mtoUnit());
     }
     else if(m_prbArea3->isChecked())
@@ -493,17 +495,19 @@ void StabPolarDlg::keyPressEvent(QKeyEvent *event)
 
 void StabPolarDlg::onArea()
 {
+    s_StabWPolar.setIncludeWing2Area(m_pchBiPlane->isChecked());
+
     if(m_prbArea1->isChecked())
     {
         s_StabWPolar.setReferenceDim(xfl::PLANFORMREFDIM);
-        m_pdeRefArea->setValue(m_pPlane->planformArea()*Units::m2toUnit());
+        m_pdeRefArea->setValue(m_pPlane->planformArea(s_StabWPolar.bIncludeWing2Area())*Units::m2toUnit());
         m_pdeRefChord->setValue(m_pPlane->mac()*Units::mtoUnit());
         m_pdeRefSpan->setValue(m_pPlane->planformSpan()*Units::mtoUnit());
     }
     else if(m_prbArea2->isChecked())
     {
         s_StabWPolar.setReferenceDim(xfl::PROJECTEDREFDIM);
-        m_pdeRefArea->setValue(m_pPlane->projectedArea()*Units::m2toUnit());
+        m_pdeRefArea->setValue(m_pPlane->projectedArea(s_StabWPolar.bIncludeWing2Area())*Units::m2toUnit());
         m_pdeRefSpan->setValue(m_pPlane->projectedSpan()*Units::mtoUnit());
         m_pdeRefChord->setValue(m_pPlane->mac()*Units::mtoUnit());
     }
@@ -700,16 +704,17 @@ void StabPolarDlg::readData()
     s_StabWPolar.setIgnoreBodyPanels(m_pchIgnoreBodyPanels->isChecked());
 
 
+    s_StabWPolar.setIncludeWing2Area(m_pchBiPlane->isChecked());
     if(m_prbArea1->isChecked())
     {
         s_StabWPolar.setReferenceDim(xfl::PLANFORMREFDIM);
-        s_StabWPolar.setReferenceArea(m_pPlane->planformArea());
+        s_StabWPolar.setReferenceArea(m_pPlane->planformArea(s_StabWPolar.bIncludeWing2Area()));
         s_StabWPolar.setReferenceSpanLength(m_pPlane->planformSpan());
     }
     else if(m_prbArea2->isChecked())
     {
         s_StabWPolar.setReferenceDim(xfl::PROJECTEDREFDIM);
-        s_StabWPolar.setReferenceArea(m_pPlane->projectedArea());
+        s_StabWPolar.setReferenceArea(m_pPlane->projectedArea(s_StabWPolar.bIncludeWing2Area()));
         s_StabWPolar.setReferenceSpanLength(m_pPlane->projectedSpan());
     }
     else if(m_prbArea3->isChecked())
@@ -871,6 +876,7 @@ void StabPolarDlg::setupLayout()
                 m_prbArea1 = new QRadioButton(tr("Wing Planform"));
                 m_prbArea2 = new QRadioButton(tr("Wing Planform projected on xy plane"));
                 m_prbArea3 = new QRadioButton(tr("Manual input"));
+                m_pchBiPlane = new QCheckBox(tr("Include area of second wing"));
 
                 QGridLayout *pRefAreaLayout = new QGridLayout;
                 {
@@ -887,27 +893,22 @@ void StabPolarDlg::setupLayout()
                     QLabel *plabLengthUnit4 = new QLabel(strUnit);
                     QLabel *plabLengthUnit5 = new QLabel(strUnit);
 
-                    plabRefArea->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-                    plabRefSpan->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-                    plabRefChord->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-                    plabAreaUnit->setAlignment(Qt::AlignLeft | Qt::AlignCenter);
-                    plabLengthUnit4->setAlignment(Qt::AlignLeft | Qt::AlignCenter);
-
-                    pRefAreaLayout->addWidget(plabRefArea,     1,1);
+                    pRefAreaLayout->addWidget(plabRefArea,     1,1, Qt::AlignRight | Qt::AlignCenter);
                     pRefAreaLayout->addWidget(m_pdeRefArea,    1,2);
-                    pRefAreaLayout->addWidget(plabAreaUnit,    1,3);
-                    pRefAreaLayout->addWidget(plabRefSpan,     2,1);
+                    pRefAreaLayout->addWidget(plabAreaUnit,    1,3, Qt::AlignLeft | Qt::AlignCenter);
+                    pRefAreaLayout->addWidget(plabRefSpan,     2,1, Qt::AlignRight | Qt::AlignCenter);
                     pRefAreaLayout->addWidget(m_pdeRefSpan,    2,2);
-                    pRefAreaLayout->addWidget(plabLengthUnit4, 2,3);
-                    pRefAreaLayout->addWidget(plabRefChord,    3,1);
+                    pRefAreaLayout->addWidget(plabLengthUnit4, 2,3, Qt::AlignLeft | Qt::AlignCenter);
+                    pRefAreaLayout->addWidget(plabRefChord,    3,1, Qt::AlignRight | Qt::AlignCenter);
                     pRefAreaLayout->addWidget(m_pdeRefChord,   3,2);
-                    pRefAreaLayout->addWidget(plabLengthUnit5, 3,3);
+                    pRefAreaLayout->addWidget(plabLengthUnit5, 3,3, Qt::AlignLeft | Qt::AlignCenter);
                     pRefAreaLayout->setColumnStretch(1,1);
                 }
 
                 pAreaOptions->addWidget(m_prbArea1);
                 pAreaOptions->addWidget(m_prbArea2);
                 pAreaOptions->addWidget(m_prbArea3);
+                pAreaOptions->addWidget(m_pchBiPlane);
                 pAreaOptions->addLayout(pRefAreaLayout);
                 pAreaOptions->addStretch();
             }

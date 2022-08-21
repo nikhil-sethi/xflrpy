@@ -1,11 +1,10 @@
 /****************************************************************************
 
-    xflr5v6
-    Copyright (C) André Deperrois
+    xflr5 v6
+    Copyright (C) Andre Deperrois
     GNU General Public License v3
 
 *****************************************************************************/
-
 
 
 #include <QOpenGLWidget>

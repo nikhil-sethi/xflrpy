@@ -48,7 +48,7 @@ class gl3dWingView : public gl3dXflView
         WingDlg *m_pGL3dWingDlg;
 
         QOpenGLBuffer m_vboSurface, m_vboOutline;
-
+        QOpenGLBuffer m_vboPanels, m_vboPanelEdges;
         bool m_bResetglWing;
         bool m_bResetglSectionHighlight;
 

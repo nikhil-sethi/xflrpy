@@ -82,6 +82,7 @@
 #include <xfl3d/testgl/gl3dlorenz2.h>
 #include <xfl3d/testgl/gl3dattractors.h>
 #include <xfl3d/testgl/gl3dboids.h>
+#include <xfl3d/testgl/gl3dboids2.h>
 #include <xfl3d/testgl/gl3dhydrogen.h>
 #include <xfl3d/testgl/gl3doptim2d.h>
 #include <xfl3d/testgl/gl3dsagittarius.h>
@@ -126,21 +127,15 @@
 #include <xinverse/xinverse.h>
 
 
-#ifdef Q_OS_MAC
-#include <CoreFoundation/CoreFoundation.h>
-#endif
 
+QPointer<MainFrame> MainFrame::_self(nullptr);
 
-QPointer<MainFrame> MainFrame::_self = nullptr;
-
-QString MainFrame::s_ProjectName = "";
-QString MainFrame::s_LanguageFilePath = "";
-QDir MainFrame::s_StylesheetDir;
+QString MainFrame::s_ProjectName;
+QString MainFrame::s_LanguageFilePath;
 QDir MainFrame::s_TranslationDir;
 
 
 bool MainFrame::s_bSaved = true;
-bool MainFrame::s_bOpenGL = true;
 
 
 MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(parent, flags)
@@ -180,13 +175,8 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
     m_ImageFormat = xfl::PNG;
     Settings::s_ExportFileType = xfl::TXT;
 
-    m_bAutoLoadLast = false;
-    m_bAutoSave     = false;
-    m_bSaveOpps     = false;
-    m_bSavePOpps    = true;
     m_bSaveSettings = true;
 
-    m_SaveInterval = 10;
     m_GraphExportFilter = "Comma Separated Values (*.csv)";
 
     m_pSaveTimer = nullptr;
@@ -226,10 +216,10 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
         delete m_pSaveTimer;
     }
 
-    if(m_bAutoSave)
+    if(SaveOptions::bAutoSave())
     {
         m_pSaveTimer = new QTimer(this);
-        m_pSaveTimer->setInterval(m_SaveInterval*60*1000);
+        m_pSaveTimer->setInterval(SaveOptions::saveInterval()*60*1000);
         m_pSaveTimer->start();
         connect(m_pSaveTimer, SIGNAL(timeout()), this, SLOT(onSaveTimer()));
     }
@@ -1142,7 +1132,6 @@ void MainFrame::createMiarexActions()
         m_pW3DAct->setStatusTip(tr("Switch to the 3D view"));
         m_pW3DAct->setActionGroup(m_pMiarexViewActGroup);
         connect(m_pW3DAct, SIGNAL(triggered()), m_pMiarex, SLOT(on3DView()));
-        if(!hasOpenGL()) m_pW3DAct->setEnabled(false);
         //end action group
 
         m_pCpViewAct = new QAction(QIcon(":/images/OnCpView.png"), tr("Cp View")+"\tF9", this);
@@ -2955,7 +2944,7 @@ void MainFrame::keyPressEvent(QKeyEvent *pEvent)
             {
                 gl3dTestGLView *pTestView(nullptr);
 #ifdef Q_OS_MAC
-//            Compute shaders require OpenGL 4.3< whereas macOS only supports OpenGL 4.1
+//            Compute shaders require OpenGL 4.3+ whereas macOS only supports OpenGL 4.1
                 pTestView = new gl3dLorenz;
 #else
                 if(bCtrl)
@@ -3016,7 +3005,16 @@ void MainFrame::keyPressEvent(QKeyEvent *pEvent)
             }
             case Qt::Key_F12:
             {
-                gl3dBoids *pTestView = new gl3dBoids;
+                gl3dTestGLView *pTestView(nullptr);
+#ifdef Q_OS_MAC
+//            Compute shaders require OpenGL 4.3+ whereas macOS only supports OpenGL 4.1
+                pTestView = new gl3dLorenz;
+#else
+                if(bCtrl)
+                    pTestView = new gl3dBoids;
+                else
+                    pTestView = new gl3dBoids2;
+#endif
                 pTestView->setAttribute(Qt::WA_DeleteOnClose);
                 pTestView->show();
                 pTestView->activateWindow();
@@ -3282,14 +3280,6 @@ bool MainFrame::loadSettings()
                 break;
         }
 
-        m_bAutoLoadLast = settings.value("AutoLoadLastProject").toBool();
-        m_bSaveOpps   = settings.value("SaveOpps").toBool();
-        m_bSavePOpps  = settings.value("SaveWOpps").toBool();
-
-        m_bAutoSave = settings.value("AutoSaveProject", false).toBool();
-
-        m_SaveInterval = settings.value("AutoSaveInterval", 10).toInt();
-
         //        a = settings.value("RecentFileSize").toInt();
         QString RecentF,strange;
         m_RecentFiles.clear();
@@ -3317,6 +3307,7 @@ bool MainFrame::loadSettings()
     m_pMiarex->loadSettings(settings);
     m_pXInverse->loadSettings(settings);
 
+    SaveOptions::loadSettings(settings);
     GraphDlg::loadSettings(settings);
     LogWt::loadSettings(settings);
     GL3DScales::loadSettings(settings);
@@ -3326,6 +3317,7 @@ bool MainFrame::loadSettings()
     gl2dFractal::loadSettings(settings);
     gl2dNewton::loadSettings(settings);
     gl3dBoids::loadSettings(settings);
+    gl3dBoids2::loadSettings(settings);
     gl3dHydrogen::loadSettings(settings);
     gl3dSpace::loadSettings(settings);
     gl3dOptim2d::loadSettings(settings);
@@ -3599,7 +3591,7 @@ void MainFrame::onInsertProject()
     {
         m_pMiarex->m_pPlaneTreeView->fillModelView();
         m_pMiarex->setPlane();
-        Miarex::s_bResetCurves = true;
+        m_pMiarex->resetCurves();
     }
     else if(m_iApp == xfl::XFOILANALYSIS)
     {
@@ -3623,7 +3615,7 @@ void MainFrame::onHighlightOperatingPoint()
 
     if(m_iApp == xfl::MIAREX)
     {
-        Miarex::s_bResetCurves = true;
+        m_pMiarex->resetCurves();
         m_pMiarex->updateView();
     }
     else if(m_iApp == xfl::XFOILANALYSIS)
@@ -3632,7 +3624,6 @@ void MainFrame::onHighlightOperatingPoint()
         m_pXDirect->updateView();
     }
 }
-
 
 
 void MainFrame::onLoadFile()
@@ -3794,6 +3785,7 @@ void MainFrame::onResetSettings()
 #endif
 
         settings.clear();
+
         xfl::setLastDirName(QDir::homePath());
         xfl::setXmlDirName(QDir::homePath());
         xfl::setPlrDirName(QDir::homePath());
@@ -4549,11 +4541,7 @@ void MainFrame::saveSettings()
 
         settings.setValue("LanguageFilePath", s_LanguageFilePath);
         settings.setValue("ImageFormat", m_ImageFormat);
-        settings.setValue("AutoSaveProject", m_bAutoSave);
-        settings.setValue("AutoSaveInterval", m_SaveInterval);
-        settings.setValue("AutoLoadLastProject",m_bAutoLoadLast);
-        settings.setValue("SaveOpps", m_bSaveOpps);
-        settings.setValue("SaveWOpps", m_bSavePOpps);
+
         settings.setValue("RecentFileSize", m_RecentFiles.size());
 
 
@@ -4580,6 +4568,7 @@ void MainFrame::saveSettings()
     m_pXInverse->saveSettings(settings);
 
     Settings::saveSettings(settings);
+    SaveOptions::saveSettings(settings);
     GraphDlg::saveSettings(settings);
     LogWt::saveSettings(settings);
     gl3dView::saveSettings(settings);
@@ -4590,6 +4579,7 @@ void MainFrame::saveSettings()
     gl2dFractal::saveSettings(settings);
     gl2dNewton::saveSettings(settings);
     gl3dBoids::saveSettings(settings);
+    gl3dBoids2::saveSettings(settings);
     gl3dHydrogen::saveSettings(settings);
     gl3dOptim2d::saveSettings(settings);
     gl3dLorenz::saveSettings(settings);
@@ -4689,7 +4679,7 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
             pWPolar->serializeWPlrXFL(ar, bIsStoring);
         }
 
-        if(m_bSavePOpps)
+        if(SaveOptions::bPOpps())
         {
             // not forgetting their POpps
             ar << Objects3d::planeOppCount();
@@ -4718,7 +4708,7 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
         }
 
         //the oppoints
-        if(m_bSaveOpps)
+        if(SaveOptions::bOpps())
         {
             ar << Objects2d::oppCount();
             for (int i=0; i<Objects2d::oppCount();i++)
@@ -4833,14 +4823,14 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
                     if(pWPolar->referenceDim()==xfl::PLANFORMREFDIM)
                     {
                         pWPolar->setReferenceSpanLength(pPlane->planformSpan());
-                        double area  = pPlane->planformArea();
+                        double area  = pPlane->planformArea(pWPolar->bIncludeWing2Area());
                         if(pPlane->biPlane()) area += pPlane->wing2()->planformArea();
                         pWPolar->setReferenceArea(area);
                     }
                     else if(pWPolar->referenceDim()==xfl::PROJECTEDREFDIM)
                     {
                         pWPolar->setReferenceSpanLength(pPlane->projectedSpan());
-                        double area = pPlane->projectedArea();
+                        double area = pPlane->projectedArea(pWPolar->bIncludeWing2Area());
                         if(pPlane->biPlane()) area += pPlane->wing2()->projectedArea();
                         pWPolar->setReferenceArea(area);
                     }
@@ -5534,15 +5524,12 @@ void MainFrame::setupDataDir()
 {
 #ifdef Q_OS_MAC
     s_TranslationDir.setPath(qApp->applicationDirPath()+"/translations/");
-    s_StylesheetDir.setPath(qApp->applicationDirPath()+"/qss/");
 #endif
 #ifdef Q_OS_WIN
     s_TranslationDir.setPath(qApp->applicationDirPath()+"/translations/xfl");
-    s_StylesheetDir.setPath(qApp->applicationDirPath()+"/qss");
 #endif
 #ifdef Q_OS_LINUX
     s_TranslationDir.setPath("/usr/local/share/xflr5/translations");
-    s_StylesheetDir.setPath("/usr/local/share/xflr5/qss");
 #endif
 }
 
@@ -6219,23 +6206,23 @@ void MainFrame::exportGraph(Graph *pGraph)
 }
 
 
+bool MainFrame::bAutoLoadLast() const
+{
+    return SaveOptions::bAutoLoadLast();
+}
+
+
 void MainFrame::onPreferences()
 {
     PreferencesDlg dlg(this);
-    dlg.m_pSaveOptionsWt->initWidget(m_bAutoLoadLast, m_bSaveOpps, m_bSavePOpps, m_bAutoSave, m_SaveInterval);
+    dlg.m_pSaveOptionsWt->initWidget();
     dlg.m_pUnitsWt->initWidget();
     dlg.m_pDisplayOptionsWt->initWidget();
     dlg.m_pLanguageWt->initWidget();
 
     if(dlg.exec()==QDialog::Accepted)
     {
-        m_bAutoLoadLast = dlg.m_pSaveOptionsWt->m_bAutoLoadLast;
-        m_bAutoSave     = dlg.m_pSaveOptionsWt->m_bAutoSave;
-        m_SaveInterval  = dlg.m_pSaveOptionsWt->m_SaveInterval;
-        m_bSaveOpps     = dlg.m_pSaveOptionsWt->m_bOpps;
-        m_bSavePOpps    = dlg.m_pSaveOptionsWt->m_bWOpps;
-
-        if(m_bAutoSave)
+        if(SaveOptions::bAutoSave())
         {
             if(m_pSaveTimer)
             {
@@ -6243,7 +6230,7 @@ void MainFrame::onPreferences()
                 delete m_pSaveTimer;
             }
             m_pSaveTimer = new QTimer(this);
-            m_pSaveTimer->setInterval(m_SaveInterval*60*1000);
+            m_pSaveTimer->setInterval(SaveOptions::saveInterval()*60*1000);
             m_pSaveTimer->start();
             connect(m_pSaveTimer, SIGNAL(timeout()), SLOT(onSaveTimer()));
         }

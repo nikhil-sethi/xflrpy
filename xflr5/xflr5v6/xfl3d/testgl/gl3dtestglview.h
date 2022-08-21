@@ -21,6 +21,8 @@
 
 #pragma once
 
+#define GROUP_SIZE 64
+
 #include <xfl3d/views/gl3dview.h>
 #include <xflgeom/geom3d/vector3d.h>
 

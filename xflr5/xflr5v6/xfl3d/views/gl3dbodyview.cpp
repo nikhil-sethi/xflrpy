@@ -60,7 +60,10 @@ void gl3dBodyView::glRenderView()
         m_shadLine.release();
 
         if(m_bVLMPanels)
-            paintMesh(m_vboEditBodyMesh, true);
+        {
+            paintMesh(m_vboEditBodyMesh);
+            paintSegments(m_vboEditBodyMeshEdges, W3dPrefs::s_VLMStyle);
+        }
 
         if(m_bSurfaces)
         {
@@ -128,8 +131,8 @@ void gl3dBodyView::glMake3dObjects()
             QVector<Panel> panels;
             QVector<Vector3d> nodes;
             m_pBody->makePanels(0, Vector3d(), panels, nodes);
-            glMakePanels(m_vboEditBodyMesh, panels.size(), nodes.constData(), panels.constData());
-
+            glMakePanels(m_vboEditBodyMesh, nodes, panels, DisplayOptions::backgroundColor());
+            glMakePanelEdges(m_vboEditBodyMeshEdges, nodes, panels);
             glMakePanelNormals(panels, 0.1f, m_vboNormals);
 
         }
@@ -147,95 +150,6 @@ void gl3dBodyView::on3dReset()
 {
     setReferenceLength(m_pBody->length());
     gl3dXflView::on3dReset();
-}
-
-
-void gl3dBodyView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, const Vector3d *pNode, const Panel *pPanel)
-{
-    if(!pPanel || !pNode || !nPanels) return;
-
-
-    Vector3d TA,LA, TB, LB;
-
-    QColor clr = DisplayOptions::backgroundColor();
-
-    // unfortunately we can't just use nodes and colors, because the trailing edges are merged
-    // and the colors would be mixed
-    // so write as many nodes as there are triangles.
-    //
-    // vertices array size:
-    //      nPanels
-    //      x2 triangles per panels
-    //      x3 nodes per triangle
-    //      x6 = 3 vertex components + 3 color components
-
-    int nodeVertexSize = nPanels * 2 * 3 * 6;
-    QVector<float>nodeVertexArray(nodeVertexSize);
-
-    Q_ASSERT(nPanels==nPanels);
-
-    int iv=0;
-    for (int p=0; p<nPanels; p++)
-    {
-        TA.copy(pNode[pPanel[p].m_iTA]);
-        TB.copy(pNode[pPanel[p].m_iTB]);
-        LA.copy(pNode[pPanel[p].m_iLA]);
-        LB.copy(pNode[pPanel[p].m_iLB]);
-        // each quad is two triangles
-        // write the first
-        nodeVertexArray[iv++] = LB.xf();
-        nodeVertexArray[iv++] = LB.yf();
-        nodeVertexArray[iv++] = LB.zf();
-        nodeVertexArray[iv++] = float(clr.redF());
-        nodeVertexArray[iv++] = float(clr.greenF());
-        nodeVertexArray[iv++] = float(clr.blueF());
-
-        nodeVertexArray[iv++] = LA.xf();
-        nodeVertexArray[iv++] = LA.yf();
-        nodeVertexArray[iv++] = LA.zf();
-        nodeVertexArray[iv++] = float(clr.redF());
-        nodeVertexArray[iv++] = float(clr.greenF());
-        nodeVertexArray[iv++] = float(clr.blueF());
-
-        nodeVertexArray[iv++] = TA.xf();
-        nodeVertexArray[iv++] = TA.yf();
-        nodeVertexArray[iv++] = TA.zf();
-        nodeVertexArray[iv++] = float(clr.redF());
-        nodeVertexArray[iv++] = float(clr.greenF());
-        nodeVertexArray[iv++] = float(clr.blueF());
-
-
-        // write the second one
-        nodeVertexArray[iv++] = TA.xf();
-        nodeVertexArray[iv++] = TA.yf();
-        nodeVertexArray[iv++] = TA.zf();
-        nodeVertexArray[iv++] = float(clr.redF());
-        nodeVertexArray[iv++] = float(clr.greenF());
-        nodeVertexArray[iv++] = float(clr.blueF());
-
-        nodeVertexArray[iv++] = TB.xf();
-        nodeVertexArray[iv++] = TB.yf();
-        nodeVertexArray[iv++] = TB.zf();
-        nodeVertexArray[iv++] = float(clr.redF());
-        nodeVertexArray[iv++] = float(clr.greenF());
-        nodeVertexArray[iv++] = float(clr.blueF());
-
-        nodeVertexArray[iv++] = LB.xf();
-        nodeVertexArray[iv++] = LB.yf();
-        nodeVertexArray[iv++] = LB.zf();
-        nodeVertexArray[iv++] = float(clr.redF());
-        nodeVertexArray[iv++] = float(clr.greenF());
-        nodeVertexArray[iv++] = float(clr.blueF());
-    }
-
-    Q_ASSERT(iv==nodeVertexSize);
-    Q_ASSERT(iv==nPanels*2*3*6);
-
-    vbo.destroy();
-    vbo.create();
-    vbo.bind();
-    vbo.allocate(nodeVertexArray.data(), nodeVertexSize * int(sizeof(GLfloat)));
-    vbo.release();
 }
 
 

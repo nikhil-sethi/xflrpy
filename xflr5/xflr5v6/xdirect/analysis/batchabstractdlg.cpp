@@ -798,8 +798,8 @@ void BatchAbstractDlg::saveSettings(QSettings &settings)
         settings.setValue("bAlpha",       s_bAlpha);
         settings.setValue("bFromZero",    s_bFromZero);
 
-        settings.setValue("XTrTop", s_XTop);
-        settings.setValue("XTrBot", s_XBot);
+        settings.setValue("XTrTop",       s_XTop);
+        settings.setValue("XTrBot",       s_XBot);
 
         settings.setValue("AlphaMin",     s_AlphaMin);
         settings.setValue("AlphaMax",     s_AlphaMax);

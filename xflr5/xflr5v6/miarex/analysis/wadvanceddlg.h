@@ -72,7 +72,6 @@ class WAdvancedDlg : public QDialog
 
         int m_Iter;
         int m_NLLTStation;
-        int m_WakeInterNodes;
         int m_MaxWakeIter;
         int m_InducedDragPoint;
 

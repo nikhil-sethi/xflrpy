@@ -1999,7 +1999,7 @@ void Body::exportSTLBinarySplines(QDataStream &outStream, int nXPanels, int nHoo
     short zero = 0;
 
     N.set(0.0, 0.0, 0.0);
-    int iTriangles = 0;
+//    int iTriangles = 0;
 
     char buffer[12];
 
@@ -2054,7 +2054,7 @@ void Body::exportSTLBinarySplines(QDataStream &outStream, int nXPanels, int nHoo
             memcpy(buffer, &zero, sizeof(short));
             outStream.writeRawData(buffer, 2);
 
-            iTriangles+=2;
+//            iTriangles+=2;
             p++;
         }
         p++;
@@ -2110,7 +2110,7 @@ void Body::exportSTLBinarySplines(QDataStream &outStream, int nXPanels, int nHoo
             memcpy(buffer, &zero, sizeof(short));
             outStream.writeRawData(buffer, 2);
 
-            iTriangles+=2;
+//            iTriangles+=2;
             p++;
         }
         p++;

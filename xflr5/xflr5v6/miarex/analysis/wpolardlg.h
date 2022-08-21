@@ -134,6 +134,7 @@ class WPolarDlg : public QDialog
         QRadioButton *m_prbArea1, *m_prbArea2, *m_prbArea3;
 
         DoubleEdit *m_pdeRefChord, *m_pdeRefArea, *m_pdeRefSpan;
+        QCheckBox *m_pchBiPlane;
 
         QLabel *m_plabSRe;
         QLabel *m_plabRRe;

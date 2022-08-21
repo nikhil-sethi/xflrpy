@@ -141,8 +141,6 @@ XFLR5App::XFLR5App(int &argc, char** argv) : QApplication(argc, argv)
     if(!bScript)
     {
         splash.show();
-    //else            - JX mod: fix of r1230
-    //{
 #ifdef Q_OS_WIN
 #ifndef QT_DEBUG
         ShowWindow(GetConsoleWindow(), SW_HIDE);
@@ -253,7 +251,6 @@ bool XFLR5App::event(QEvent *pEvent)
     }
     return QApplication::event(pEvent);
 }
-
 
 
 void XFLR5App::parseCmdLine(XFLR5App &xflapp,

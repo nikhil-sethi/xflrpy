@@ -326,18 +326,6 @@ void gl2dFractal::paintGL()
         QMatrix4x4 vmMat(matView*matModel);
         QMatrix4x4 pvmMat(matProj*vmMat);
 
-        m_shadPoint.bind();
-        {
-            float m_ClipPlanePos(500.0);
-            m_shadPoint.setUniformValue(m_locPoint.m_ClipPlane, m_ClipPlanePos);
-            m_shadPoint.setUniformValue(m_locPoint.m_Viewport, QVector2D(float(m_GLViewRect.width()), float(m_GLViewRect.height())));
-            m_shadPoint.setUniformValue(m_locPoint.m_vmMatrix,  vmMat);
-            m_shadPoint.setUniformValue(m_locPoint.m_pvmMatrix, pvmMat);
-        }
-        m_shadPoint.release();
-
-        paintPoints(m_vboRoots, 1.0, 0, false, Qt::white, 4);
-
         if(m_prbMandelbrot->isChecked())
         {
             m_shadLine.bind();
@@ -351,6 +339,19 @@ void gl2dFractal::paintGL()
             m_shadLine.release();
             paintSegments(m_vboSegs, Qt::darkCyan, 1.0f, Line::SOLID, false);
         }
+
+        m_shadPoint.bind();
+        {
+            float m_ClipPlanePos(500.0);
+            m_shadPoint.setUniformValue(m_locPoint.m_ClipPlane, m_ClipPlanePos);
+            m_shadPoint.setUniformValue(m_locPoint.m_Viewport, QVector2D(float(m_GLViewRect.width()), float(m_GLViewRect.height())));
+            m_shadPoint.setUniformValue(m_locPoint.m_vmMatrix,  vmMat);
+            m_shadPoint.setUniformValue(m_locPoint.m_pvmMatrix, pvmMat);
+        }
+        m_shadPoint.release();
+
+        paintPoints(m_vboRoots, 1.0, 0, false, Qt::white, 4);
+
     }
 
     m_plabScale->setText(QString::asprintf("Scale = %g", m_Scale));

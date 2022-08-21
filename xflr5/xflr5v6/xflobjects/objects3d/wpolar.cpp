@@ -68,12 +68,14 @@ WPolar::WPolar()
     m_BetaSpec  = 0.0;
     m_QInfSpec  = 10.0;
     m_Mass      = 1.0;
-    m_RefArea     = 0.0;
+    m_RefArea   = 0.0;
     m_RefChord  = 0.0;
-    m_RefSpan     = 0.0;
+    m_RefSpan   = 0.0;
     m_Height    = 0.0;
     m_Density   = 1.225;
     m_Viscosity = 1.5e-5;//m2/s
+
+    m_bWing2Area = false;
 
     m_nControls = 0;
     m_ControlGain.clear();
@@ -529,6 +531,7 @@ void WPolar::duplicateSpec(const WPolar *pWPolar)
     m_RefArea        = pWPolar->m_RefArea;//for lift and drag calculations
     m_RefChord = pWPolar->m_RefChord;// for moment calculations
     m_RefSpan  = pWPolar->m_RefSpan;//for moment calculations
+    m_bWing2Area = pWPolar->m_bWing2Area;
 
     //Inertia properties
     m_Mass = pWPolar->m_Mass;
@@ -1492,7 +1495,8 @@ bool WPolar::serializeWPlrXFL(QDataStream &ar, bool bIsStoring)
 
         // space allocation for the future storage of more data, without need to change the format
         for (int i=0; i<19; i++) ar << k;
-        ar << k; //m_Symbol;
+        if(m_bWing2Area) ar<<1; else ar<<0;
+
         for (int i=0; i<35; i++) ar << 0.0;
         for (int ix=0; ix<MAXEXTRADRAG; ix++) ar << m_ExtraDragArea[ix];
         for (int ix=0; ix<MAXEXTRADRAG; ix++) ar << m_ExtraDragCoef[ix];
@@ -1624,6 +1628,7 @@ bool WPolar::serializeWPlrXFL(QDataStream &ar, bool bIsStoring)
     // space allocation
     for (int i=0; i<19; i++) ar >> k;
     ar >>k; // m_Symbol;
+    m_bWing2Area = k==1 ? true : false;
 
     for (int i=0; i<35; i++) ar >> dble;
     for (int ix=0; ix<MAXEXTRADRAG; ix++) ar>> m_ExtraDragArea[ix];

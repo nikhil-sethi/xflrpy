@@ -465,13 +465,13 @@ void XFoilAnalysisDlg::saveSettings(QSettings &settings)
 {
     settings.beginGroup("XFoilAnalysisDlg");
     {
-        settings.setValue("WindowGeom", s_Geometry);
+        settings.setValue("WindowGeom",    s_Geometry);
 
-        settings.setValue("Sequence",     s_bSequence);
+        settings.setValue("Sequence",      s_bSequence);
 
-        settings.setValue("AlphaMin",     s_Alpha);
-        settings.setValue("AlphaMax",     s_AlphaMax);
-        settings.setValue("AlphaDelta",   s_AlphaDelta);
+        settings.setValue("AlphaMin",      s_Alpha);
+        settings.setValue("AlphaMax",      s_AlphaMax);
+        settings.setValue("AlphaDelta",    s_AlphaDelta);
 
         settings.setValue("ClMin",         s_Cl);
         settings.setValue("ClMax",         s_ClMax);

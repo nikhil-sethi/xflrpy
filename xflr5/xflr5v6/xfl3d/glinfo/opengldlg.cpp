@@ -1,7 +1,7 @@
 /****************************************************************************
 
-    xflr5v6
-    Copyright (C) André Deperrois
+    xflr5 v6
+    Copyright (C) Andre Deperrois
     GNU General Public License v3
 
 *****************************************************************************/
@@ -36,6 +36,7 @@
 #include <xfl3d/testgl/gl3dlorenz2.h>
 #include <xfl3d/testgl/gl3dattractors.h>
 #include <xfl3d/testgl/gl3dboids.h>
+#include <xfl3d/testgl/gl3dboids2.h>
 #include <xfl3d/testgl/gl3doptim2d.h>
 #include <xfl3d/testgl/gl3dhydrogen.h>
 #include <xfl3d/testgl/gl3dsolarsys.h>
@@ -389,12 +390,18 @@ void OpenGlDlg::setupLayout()
                 QAction *pLorenzAct      = new QAction("Lorenz (CPU)",       this);
                 QAction *pLorenz2Act     = new QAction("Lorenz (GPU)",       this);
                 QAction *pAttractorsAct  = new QAction("Attractors",         this);
-                QAction *pBoidsAct       = new QAction("Boids",              this);
+                QAction *pBoidsAct       = new QAction("Boids (CPU)",        this);
+                QAction *pBoids2Act      = new QAction("Boids (GPU)",        this);
                 QAction *pPSOAct         = new QAction("2d optimization",    this);
                 QAction *pHydrogenAct    = new QAction("Hydrogen atom",      this);
                 QAction *pSolarSysAct    = new QAction("Solar system",       this);
                 QAction *pSagittariusAct = new QAction("Sagittarius A*",     this);
                 QAction *pSpaceAct       = new QAction("The final frontier", this);
+
+#ifdef Q_OS_MAC
+                pLorenz2Act->setEnabled(false);
+                pBoids2Act->setEnabled(false);
+#endif
 
                 pMandelbrotAct->setData(  0);
                 pNewtonAct->setData(      1);
@@ -403,11 +410,12 @@ void OpenGlDlg::setupLayout()
                 pLorenz2Act->setData(     4);
                 pAttractorsAct->setData(  5);
                 pBoidsAct->setData(       6);
-                pPSOAct->setData(         7);
-                pHydrogenAct->setData(    8);
-                pSolarSysAct->setData(    9);
-                pSagittariusAct->setData(10);
-                pSpaceAct->setData(      11);
+                pBoids2Act->setData(      7);
+                pPSOAct->setData(         8);
+                pHydrogenAct->setData(    9);
+                pSolarSysAct->setData(   10);
+                pSagittariusAct->setData(11);
+                pSpaceAct->setData(      12);
 
                 connect(pMandelbrotAct,  SIGNAL(triggered()), SLOT(onViewType()));
                 connect(pNewtonAct,      SIGNAL(triggered()), SLOT(onViewType()));
@@ -416,6 +424,7 @@ void OpenGlDlg::setupLayout()
                 connect(pLorenz2Act,     SIGNAL(triggered()), SLOT(onViewType()));
                 connect(pAttractorsAct,  SIGNAL(triggered()), SLOT(onViewType()));
                 connect(pBoidsAct,       SIGNAL(triggered()), SLOT(onViewType()));
+                connect(pBoids2Act,      SIGNAL(triggered()), SLOT(onViewType()));
                 connect(pPSOAct,         SIGNAL(triggered()), SLOT(onViewType()));
                 connect(pHydrogenAct,    SIGNAL(triggered()), SLOT(onViewType()));
                 connect(pSolarSysAct,    SIGNAL(triggered()), SLOT(onViewType()));
@@ -429,6 +438,7 @@ void OpenGlDlg::setupLayout()
                 pViewSelMenu->addAction(pLorenz2Act);
                 pViewSelMenu->addAction(pAttractorsAct);
                 pViewSelMenu->addAction(pBoidsAct);
+                pViewSelMenu->addAction(pBoids2Act);
                 pViewSelMenu->addAction(pPSOAct);
                 pViewSelMenu->addAction(pHydrogenAct);
                 pViewSelMenu->addAction(pSolarSysAct);
@@ -471,6 +481,7 @@ void OpenGlDlg::onCreateContext()
 
     m_pptglOutput->clear();
     m_pStackWt->removeWidget(m_pglTestView);
+    m_pglTestView->close();
     delete m_pglTestView;
     m_pglTestView = getView(s_iView);
 
@@ -480,7 +491,6 @@ void OpenGlDlg::onCreateContext()
     gl3dTestGLView *pgl3dTestView = dynamic_cast<gl3dTestGLView*>(m_pglTestView);
     if(pgl3dTestView)
         connect(pgl3dTestView, SIGNAL(ready()), SLOT(onRenderWindowReady()));
- //    connect(m_pglTestView, SIGNAL(ready()), SLOT(onRenderWindowReady()));
 
     m_pStackWt->addWidget(m_pglTestView);
     m_pStackWt->setCurrentWidget(m_pglTestView);
@@ -508,11 +518,12 @@ QOpenGLWidget *OpenGlDlg::getView(int iView)
         case 4:  return new gl3dLorenz2;
         case 5:  return new gl3dAttractors;
         case 6:  return new gl3dBoids;
-        case 7:  return new gl3dOptim2d;
-        case 8:  return new gl3dHydrogen;
-        case 9:  return new gl3dSolarSys;
-        case 10: return new gl3dSagittarius;
-        case 11: return new gl3dSpace;
+        case 7:  return new gl3dBoids2;
+        case 8:  return new gl3dOptim2d;
+        case 9:  return new gl3dHydrogen;
+        case 10: return new gl3dSolarSys;
+        case 11: return new gl3dSagittarius;
+        case 12: return new gl3dSpace;
     }
     return nullptr;
 }
@@ -570,18 +581,6 @@ void OpenGlDlg::printFormat(QSurfaceFormat const &format, QString &log, bool bFu
             break;
     }
     log += "   Swap behaviour:  "+strange + "\n";
-
-/*    switch (format.colorSpace())
-    {
-        case QSurfaceFormat::DefaultColorSpace:
-            strange = "The default";
-            break;
-        case QSurfaceFormat::sRGBColorSpace:
-            strange = "sRGB-capable default framebuffer";
-            break;
-    }
-    log += "   Colour space:    "+strange +"\n"; */
-
 
     QString opts = "   Options: ";
     if(format.testOption(QSurfaceFormat::StereoBuffers))       opts += " Stereo buffers / ";
@@ -699,8 +698,6 @@ void OpenGlDlg::onRenderWindowReady()
     const char *gltype[] = { "Desktop", "GLES 2", "GLES 1" };
     m_pptglOutput->appendPlainText(QString("   Qt OpenGL configuration  : %1")
                      .arg(QString::fromLatin1(gltype[QOpenGLContext::openGLModuleType()])));
-/*    m_pptglOutput->appendPlainText(QString("   Qt OpenGL library handle : %1")
-                     .arg(QString::number(qintptr(QOpenGLContext::openGLModuleHandle()), 16)));*/
 
     m_pptglOutput->moveCursor(QTextCursor::Start);
 
@@ -753,6 +750,7 @@ void OpenGlDlg::showEvent(QShowEvent *)
 {
     restoreGeometry(s_Geometry);
     if(s_HSplitterSizes.length()>0) m_pHSplitter->restoreState(s_HSplitterSizes);
+//    if(m_pglTestView) m_pglTestView->reset3dScale();
 }
 
 

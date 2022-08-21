@@ -96,28 +96,28 @@ void Grid::loadSettings(QSettings &settings)
 {
     settings.beginGroup("Grid");
     {
-        if(settings.contains("XAxis")) m_bXAxis = settings.value("XAxis", true).toBool();
+        if(settings.contains("XAxis")) m_bXAxis = settings.value("XAxis", m_bXAxis).toBool();
         m_XAxisStyle.loadSettings(settings,"XAxisStyle");
 
-        if(settings.contains("YAxis")) m_bYAxis = settings.value("YAxis", true).toBool();
+        if(settings.contains("YAxis")) m_bYAxis = settings.value("YAxis", m_bYAxis).toBool();
         m_YAxisStyle.loadSettings(settings,"YAxisStyle");
 
-        if(settings.contains("XGrid")) m_bXMajGrid = settings.value("XGrid", true).toBool();
+        if(settings.contains("XGrid")) m_bXMajGrid = settings.value("XGrid", m_bXMajGrid).toBool();
         m_XMajStyle.loadSettings(settings, "XMajStyle");
 
-        if(settings.contains("XMinGrid")) m_bXMinGrid = settings.value("XMinGrid", false).toBool();
+        if(settings.contains("XMinGrid")) m_bXMinGrid = settings.value("XMinGrid", m_bXMinGrid).toBool();
         m_XMinStyle.loadSettings(settings, "XMinStyle");
 
-        if(settings.contains("Y0Grid")) m_bYMajGrid[0] = settings.value("Y0Grid", true).toBool();
+        if(settings.contains("Y0Grid")) m_bYMajGrid[0] = settings.value("Y0Grid", m_bYMajGrid[0]).toBool();
         m_YMajStyle[0].loadSettings(settings, "Y0MajStyle");
 
-        if(settings.contains("Y0MinGrid")) m_bYMinGrid[0] = settings.value("Y0MinGrid", false).toBool();
+        if(settings.contains("Y0MinGrid")) m_bYMinGrid[0] = settings.value("Y0MinGrid", m_bYMinGrid[0]).toBool();
         m_YMinStyle[0].loadSettings(settings, "Y0MinStyle");
 
-        if(settings.contains("Y1Grid")) m_bYMajGrid[1] = settings.value("Y1Grid", true).toBool();
+        if(settings.contains("Y1Grid")) m_bYMajGrid[1] = settings.value("Y1Grid", m_bYMajGrid[1]).toBool();
         m_YMajStyle[1].loadSettings(settings, "Y1MajStyle");
 
-        if(settings.contains("Y1MinGrid")) m_bYMinGrid[1] = settings.value("Y1MinGrid", false).toBool();
+        if(settings.contains("Y1MinGrid")) m_bYMinGrid[1] = settings.value("Y1MinGrid", m_bYMinGrid[1]).toBool();
         m_YMinStyle[1].loadSettings(settings, "Y1MinStyle");
     }
     settings.endGroup();

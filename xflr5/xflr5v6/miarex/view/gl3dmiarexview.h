@@ -43,7 +43,7 @@ class gl3dMiarexView : public gl3dXflView
         void glMakeDownwash(int iWing, Wing const *pWing, WPolar const*pWPolar, WingOpp const*pWOpp);
         void glMakeDragStrip(int iWing, Wing const *pWing, WPolar const *pWPolar, WingOpp const *pWOpp, double beta);
         void glMakePanelForces(int nPanels, Panel const*pPanel, WPolar const*pWPolar, PlaneOpp const*pPOpp);
-        void glMakePanels(QOpenGLBuffer &vbo, int nPanels, int nNodes, Vector3d const *pNode, Panel const *pPanel, PlaneOpp const *pPOpp);
+        void glMakePanels(QOpenGLBuffer &vboPanels, const QVector<Vector3d> &nodes, const QVector<Panel> &pPanel, PlaneOpp const *pPOpp);
 
         void paintLift(int iWing);
         void paintMoments();
@@ -66,7 +66,7 @@ class gl3dMiarexView : public gl3dXflView
         QOpenGLBuffer m_vboSurfaceVelocities, m_vboPanelCp, m_vboPanelForces, m_vboStreamLines;
         QOpenGLBuffer m_vboLiftForce, m_vboMoments;
         QOpenGLBuffer m_vboICd[MAXWINGS], m_vboVCd[MAXWINGS], m_vboLiftStrips[MAXWINGS], m_vboTransitions[MAXWINGS], m_vboDownwash[MAXWINGS];
-        QOpenGLBuffer m_vboMesh, m_vboLegendColor;
+        QOpenGLBuffer m_vboMesh, m_vboLegendColor, m_vboPanelEdges;
 
         int m_NStreamLines;
 

@@ -1,6 +1,8 @@
 
 
 HEADERS += \
+    $$PWD/testgl/boid.h \
+    $$PWD/testgl/gl3dboids2.h \
     xfl3d/controls/arcball.h \
     xfl3d/controls/gllightdlg.h \
     xfl3d/controls/light.h \
@@ -34,6 +36,7 @@ HEADERS += \
 
 
 SOURCES += \
+    $$PWD/testgl/gl3dboids2.cpp \
     xfl3d/controls/arcball.cpp \
     xfl3d/controls/gllightdlg.cpp \
     xfl3d/glinfo/opengldlg.cpp \
@@ -66,4 +69,7 @@ SOURCES += \
 RESOURCES += \
     xfl3d/resources/shaders.qrc \
     xfl3d/resources/text_files.qrc
+
+DISTFILES += \
+    $$PWD/resources/shaders/boids2/boids2_CS.glsl
 

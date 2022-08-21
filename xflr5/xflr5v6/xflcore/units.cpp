@@ -955,14 +955,14 @@ void Units::loadSettings(QSettings &settings)
 {
     settings.beginGroup("Units");
     {
-        setLengthUnitIndex(  settings.value("LengthUnit").toInt());
-        setAreaUnitIndex(    settings.value("AreaUnit").toInt());
-        setWeightUnitIndex(  settings.value("WeightUnit").toInt());
-        setSpeedUnitIndex(   settings.value("SpeedUnit").toInt());
-        setForceUnitIndex(   settings.value("ForceUnit").toInt());
-        setMomentUnitIndex(  settings.value("MomentUnit").toInt());
-        setPressureUnitIndex(settings.value("PressureUnit").toInt());
-        setInertiaUnitIndex( settings.value("InertiaUnit").toInt());
+        s_LengthUnitIndex   =  settings.value("LengthUnit",   s_LengthUnitIndex).toInt();
+        s_AreaUnitIndex     =  settings.value("AreaUnit",     s_AreaUnitIndex).toInt();
+        s_WeightUnitIndex   =  settings.value("WeightUnit",   s_WeightUnitIndex).toInt();
+        s_SpeedUnitIndex    =  settings.value("SpeedUnit",    s_SpeedUnitIndex).toInt();
+        s_ForceUnitIndex    =  settings.value("ForceUnit",    s_ForceUnitIndex).toInt();
+        s_MomentUnitIndex   =  settings.value("MomentUnit",   s_MomentUnitIndex).toInt();
+        s_PressureUnitIndex =  settings.value("PressureUnit", s_PressureUnitIndex).toInt();
+        s_InertiaUnitIndex  =  settings.value("InertiaUnit",  s_InertiaUnitIndex).toInt();
 
         setUnitConversionFactors();
     }

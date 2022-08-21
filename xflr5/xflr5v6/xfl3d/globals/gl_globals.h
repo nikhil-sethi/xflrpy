@@ -30,12 +30,17 @@ class Vector3d;
 class Panel;
 
 void getMemoryStatus(int &total_mem_kb, int &cur_avail_mem_kb);
+void glPrintBuffer(QOpenGLBuffer &vbo, int stride);
+
 GLushort GLStipple(Line::enumLineStipple stipple);
 void GLLineStipple(Line::enumLineStipple stipple);
 
 float glGetRed(float tau);
 float glGetGreen(float tau);
 float glGetBlue(float tau);
+
+
+
 
 void glMakeCircle(double radius, Vector3d const &O, QOpenGLBuffer &vbo);
 void glMakeDisk(double radius, Vector3d const &O, QOpenGLBuffer &vbo);
@@ -65,7 +70,9 @@ void makeQuadContour(double threshold, int nrows,
 void lookUpQuadKey(int key, int *i);
 void glMakeQuadTex(double side, QOpenGLBuffer &vbo);
 
+void glMakePanels(QOpenGLBuffer &vboPanels, QVector<Vector3d> const &nodes, QVector<Panel> const &panels, QColor backcolor);
 void glMakePanelNormals(QVector<Panel> const &panel, float length, QOpenGLBuffer &vbo);
+void glMakePanelEdges(QOpenGLBuffer &vboEdges, QVector<Vector3d> const &nodes, QVector<Panel> const &panels);
 
 
 /* external temp variables for multithreading  */

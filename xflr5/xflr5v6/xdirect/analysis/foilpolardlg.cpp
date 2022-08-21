@@ -586,18 +586,18 @@ void FoilPolarDlg::loadSettings(QSettings &settings)
     {
         s_WindowGeometry = settings.value("WindowGeom", QByteArray()).toByteArray();
 
-        s_UnitType      = settings.value("UnitType", 1).toInt();
-        s_Chord         = settings.value("Chord", 1.0).toDouble();
-        s_Span          = settings.value("Span", 1.0).toDouble();
-        s_Mass          = settings.value("Mass", 1.0).toDouble();
-        s_Density       = settings.value("Density", 1.225).toDouble();
-        s_Viscosity     = settings.value("Viscosity", 1.5e-5).toDouble();
+        s_UnitType      = settings.value("UnitType",  s_UnitType).toInt();
+        s_Chord         = settings.value("Chord",     s_Chord).toDouble();
+        s_Span          = settings.value("Span",      s_Span).toDouble();
+        s_Mass          = settings.value("Mass",      s_Mass).toDouble();
+        s_Density       = settings.value("Density",   s_Density).toDouble();
+        s_Viscosity     = settings.value("Viscosity", s_Viscosity).toDouble();
 
-        s_RefPolar.setNCrit( settings.value("NCrit").toDouble());
-        s_RefPolar.setXtrTop(settings.value("XTopTr").toDouble());
-        s_RefPolar.setXtrBot(settings.value("XBotTr").toDouble());
-        s_RefPolar.setMach(  settings.value("Mach").toDouble());
-        s_RefPolar.setAoa(   settings.value("ASpec").toDouble());
+        s_RefPolar.setNCrit( settings.value("NCrit",  s_RefPolar.NCrit()).toDouble());
+        s_RefPolar.setXtrTop(settings.value("XTopTr", s_RefPolar.XtrTop()).toDouble());
+        s_RefPolar.setXtrBot(settings.value("XBotTr", s_RefPolar.XtrBot()).toDouble());
+        s_RefPolar.setMach(  settings.value("Mach",   s_RefPolar.Mach()).toDouble());
+        s_RefPolar.setAoa(   settings.value("ASpec",  s_RefPolar.aoa()).toDouble());
 
         int b = settings.value("Type").toInt();
         if     (b==1) s_RefPolar.setPolarType(xfl::FIXEDSPEEDPOLAR);
@@ -616,11 +616,11 @@ void FoilPolarDlg::saveSettings(QSettings &settings)
     {
         settings.setValue("WindowGeom", s_WindowGeometry);
 
-        settings.setValue("UnitType", s_UnitType);
-        settings.setValue("Chord", s_Chord);
-        settings.setValue("Span", s_Span);
-        settings.setValue("Mass", s_Mass);
-        settings.setValue("Density", s_Density);
+        settings.setValue("UnitType",  s_UnitType);
+        settings.setValue("Chord",     s_Chord);
+        settings.setValue("Span",      s_Span);
+        settings.setValue("Mass",      s_Mass);
+        settings.setValue("Density",   s_Density);
         settings.setValue("Viscosity", s_Viscosity);
 
         settings.setValue("NCrit",  s_RefPolar.NCrit());

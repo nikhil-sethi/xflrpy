@@ -94,7 +94,7 @@ class Quaternion
 
         inline void from2UnitVectors(Vector3d const &A, Vector3d const &B);
 
-        static void slerp(const Quaternion &qt0, const Quaternion &qt1, double t, Quaternion &qslerp);
+        void slerp(const Quaternion &qt0, const Quaternion &qt1, double t);
 
     private:
         double t2, t3, t4, t5, t6, t7, t8, t9, t10;

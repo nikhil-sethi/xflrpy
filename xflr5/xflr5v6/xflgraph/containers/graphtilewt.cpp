@@ -248,7 +248,7 @@ void GraphTileWidget::onResetCurves(Graph *pGraph)
         }
         case xfl::MIAREX:
         {
-            Miarex::s_bResetCurves = true;
+            s_pMiarex->resetCurves();;
             s_pMiarex->updateView();
             break;
         }

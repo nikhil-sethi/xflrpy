@@ -2003,12 +2003,12 @@ void EditPlaneDlg::paintPlaneLegend(QPainter &painter, Plane *pPlane, QRect draw
     painter.drawText(LeftPos,ZPos+D, str1);
     D+=dheight;
 
-    str1 = QString(tr("Wing Area      =")+"%1 ").arg(pPlane->planformArea() * Units::m2toUnit(),10,'f',3);
+    str1 = QString(tr("Wing Area      =")+"%1 ").arg(pPlane->planformArea(pPlane->hasSecondWing()) * Units::m2toUnit(),10,'f',3);
     str1 += surface;
     painter.drawText(LeftPos,ZPos+D, str1);
     D+=dheight;
 
-    str1 = QString(tr("xyProj. Area   =")+"%1 ").arg(pPlane->projectedArea() * Units::m2toUnit(),10,'f',3);
+    str1 = QString(tr("xyProj. Area   =")+"%1 ").arg(pPlane->projectedArea(pPlane->hasSecondWing()) * Units::m2toUnit(),10,'f',3);
     str1 += surface;
     painter.drawText(LeftPos,ZPos+D, str1);
     D+=dheight;
@@ -2020,7 +2020,7 @@ void EditPlaneDlg::paintPlaneLegend(QPainter &painter, Plane *pPlane, QRect draw
     D+=dheight;
 
     Units::getAreaUnitLabel(strong);
-    Result = QString(tr("Wing Load      =")+"%1 ").arg(Mass*Units::kgtoUnit()/pPlane->projectedArea()/Units::m2toUnit(),10,'f',3);
+    Result = QString(tr("Wing Load      =")+"%1 ").arg(Mass*Units::kgtoUnit()/pPlane->projectedArea(pPlane->hasSecondWing())/Units::m2toUnit(),10,'f',3);
     Result += str + "/" + strong;
     painter.drawText(LeftPos, ZPos+D, Result);
     D+=dheight;

@@ -39,7 +39,6 @@ class gl3dBodyView : public gl3dXflView
         bool intersectTheObject(Vector3d const &AA,  Vector3d const &BB, Vector3d &I) override;
 
         void glMake3dObjects() override;
-        void glMakePanels(QOpenGLBuffer &vbo, int nPanels, const Vector3d *pNode, const Panel *pPanel);
 
 
     private slots:

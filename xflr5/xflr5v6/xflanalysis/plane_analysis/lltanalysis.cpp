@@ -198,12 +198,12 @@ void LLTAnalysis::computeWing(double QInf, double Alpha, QString &ErrorMessage)
     double Integral0(0);
     double Integral1(0);
     double Integral2(0);
-    double Integral3(0);
+//    double Integral3(0);
     double InducedDrag(0);
     double ViscousDrag(0);
     double InducedYawingMoment(0);
     double ViscousYawingMoment(0);
-    double PitchingMoment(0);
+//    double PitchingMoment(0);
     double VCm(0);
     double ICm(0);
     double eta(0), sigma(0);
@@ -282,13 +282,13 @@ void LLTAnalysis::computeWing(double QInf, double Alpha, QString &ErrorMessage)
         Integral0           += eta   * m_Cl[m]   * m_Chord[m];
         Integral1           += sigma * m_Cl[m]   * m_Chord[m];
         Integral2           += eta   * m_Cl[m]   * m_Chord[m] * (m_Offset[m]+m_XCPSpanRel[m]*m_Chord[m]);
-        Integral3           += eta   * m_Cl[m]   * m_Chord[m] * (zpos*m_Chord[m]);
+//        Integral3           += eta   * m_Cl[m]   * m_Chord[m] * (zpos*m_Chord[m]);
         //        Integral3           += eta   * m_Cl[m]  * m_Chord[m] * ((m_XCPSpanRel[m]*m_Chord[m]*cos(-m_Twist[m]*PI/180.0)+m_Offset[m]) * sin(-Alpha*PI/180.0) + (zpos*m_Chord[m]+m_XCPSpanRel[m]*m_Chord[m]*sin(-m_Twist[m]*PI/180.0)) * cos(-Alpha*PI/180.0));
         InducedDrag         += eta   * m_Cl[m]   * m_Chord[m] * (-m_Ai[m]);
         ViscousDrag         += eta   * m_PCd[m]  * m_Chord[m];
         InducedYawingMoment += sigma * m_Cl[m]   * m_Chord[m] * (-m_Ai[m]);
         ViscousYawingMoment += sigma * m_PCd[m]  * m_Chord[m];
-        PitchingMoment      += eta   * m_Cm[m]   * m_Chord[m] * m_Chord[m];
+//        PitchingMoment      += eta   * m_Cm[m]   * m_Chord[m] * m_Chord[m];
         VCm                 += eta   * Cm_v * m_Chord[m] * m_Chord[m];
         ICm                 += eta   * Cm_i * m_Chord[m] * m_Chord[m];
 

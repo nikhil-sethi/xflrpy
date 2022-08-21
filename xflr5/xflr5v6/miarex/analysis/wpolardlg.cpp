@@ -51,9 +51,9 @@ WPolarDlg::WPolarDlg(QWidget *pParent) : QDialog(pParent)
 {
     setWindowTitle(tr("Analysis Definition"));
 
-    m_pPlane     = nullptr;
+    m_pPlane    = nullptr;
     m_bAutoName = true;
-    m_WingLoad   = 0.0;
+    m_WingLoad  = 0.0;
     m_UnitType  = 1;
 
     setupLayout();
@@ -108,6 +108,7 @@ void WPolarDlg::connectSignals()
     connect(m_prbArea1,            SIGNAL(clicked()),      SLOT(onArea()));
     connect(m_prbArea2,            SIGNAL(clicked()),      SLOT(onArea()));
     connect(m_prbArea3,            SIGNAL(clicked()),      SLOT(onArea()));
+    connect(m_pchBiPlane,          SIGNAL(clicked(bool)),  SLOT(onArea()));
 
     connect(m_pExtraDragDelegate,  SIGNAL(closeEditor(QWidget*)), SLOT(onEditingFinished()));
 }
@@ -185,6 +186,9 @@ void WPolarDlg::enableControls()
     m_pdeRefArea->setEnabled(m_prbArea3->isChecked());
     m_pdeRefChord->setEnabled(m_prbArea3->isChecked());
     m_pdeRefSpan->setEnabled(m_prbArea3->isChecked());
+
+    m_pchBiPlane->setEnabled(m_pPlane->hasSecondWing());
+    if(!m_pPlane->hasSecondWing()) m_pchBiPlane->setChecked(false);
 }
 
 
@@ -317,26 +321,25 @@ void WPolarDlg::initDialog(Plane *pPlane, WPolar *pWPolar)
 
     if(m_prbArea1->isChecked())
     {
-        s_WPolar.setReferenceArea(m_pPlane->planformArea());
+        s_WPolar.setReferenceArea(m_pPlane->planformArea(s_WPolar.bIncludeWing2Area()));
         s_WPolar.setReferenceSpanLength(m_pPlane->planformSpan());
-        m_pdeRefArea->setValue(m_pPlane->planformArea()*Units::m2toUnit());
-        m_pdeRefSpan->setValue(m_pPlane->planformSpan()*Units::mtoUnit());
     }
     else if(m_prbArea2->isChecked())
     {
-        s_WPolar.setReferenceArea(m_pPlane->projectedArea());
+        s_WPolar.setReferenceArea(m_pPlane->projectedArea(s_WPolar.bIncludeWing2Area()));
         s_WPolar.setReferenceSpanLength(m_pPlane->projectedSpan());
-        m_pdeRefArea->setValue(m_pPlane->projectedArea()*Units::m2toUnit());
-        m_pdeRefSpan->setValue(m_pPlane->projectedSpan()*Units::mtoUnit());
     }
     else if(m_prbArea3->isChecked())
     {
-        m_pdeRefArea->setValue(s_WPolar.referenceArea()*Units::m2toUnit());
-        m_pdeRefSpan->setValue(s_WPolar.referenceSpan()*Units::mtoUnit());
     }
+
+    m_pdeRefArea->setValue(s_WPolar.referenceArea()*Units::m2toUnit());
+    m_pdeRefSpan->setValue(s_WPolar.referenceSpan()*Units::mtoUnit());
 
     s_WPolar.setReferenceMAC(m_pPlane->mac());
     m_pdeRefChord->setValue(s_WPolar.referenceMAC()*Units::mtoUnit());
+
+    m_pchBiPlane->setChecked(s_WPolar.bIncludeWing2Area());
 
     s_WPolar.setWakeRollUp(false);
 
@@ -394,17 +397,18 @@ void WPolarDlg::keyPressEvent(QKeyEvent *pEvent)
 
 void WPolarDlg::onArea()
 {
+    s_WPolar.setIncludeWing2Area(m_pchBiPlane->isChecked());
     if(m_prbArea1->isChecked())
     {
         s_WPolar.setReferenceDim(xfl::PLANFORMREFDIM);
-        m_pdeRefArea->setValue(m_pPlane->planformArea()*Units::m2toUnit());
+        m_pdeRefArea->setValue(m_pPlane->planformArea(s_WPolar.bIncludeWing2Area())*Units::m2toUnit());
         m_pdeRefChord->setValue(m_pPlane->mac()*Units::mtoUnit());
         m_pdeRefSpan->setValue(m_pPlane->planformSpan()*Units::mtoUnit());
     }
     else if(m_prbArea2->isChecked())
     {
         s_WPolar.setReferenceDim(xfl::PROJECTEDREFDIM);
-        m_pdeRefArea->setValue(m_pPlane->projectedArea()*Units::m2toUnit());
+        m_pdeRefArea->setValue(m_pPlane->projectedArea(s_WPolar.bIncludeWing2Area())*Units::m2toUnit());
         m_pdeRefSpan->setValue(m_pPlane->projectedSpan()*Units::mtoUnit());
         m_pdeRefChord->setValue(m_pPlane->mac()*Units::mtoUnit());
     }
@@ -650,16 +654,17 @@ void WPolarDlg::readValues()
         s_WPolar.setViscosity(m_pdeViscosity->value() / 10.7182881);
     }
 
+    s_WPolar.setIncludeWing2Area(m_pchBiPlane->isChecked());
     if(m_prbArea1->isChecked())
     {
         s_WPolar.setReferenceDim(xfl::PLANFORMREFDIM);
-        s_WPolar.setReferenceArea(m_pPlane->planformArea());
+        s_WPolar.setReferenceArea(m_pPlane->planformArea(s_WPolar.bIncludeWing2Area()));
         s_WPolar.setReferenceSpanLength(m_pPlane->planformSpan());
     }
     else if(m_prbArea2->isChecked())
     {
         s_WPolar.setReferenceDim(xfl::PROJECTEDREFDIM);
-        s_WPolar.setReferenceArea(m_pPlane->projectedArea());
+        s_WPolar.setReferenceArea(m_pPlane->projectedArea(s_WPolar.bIncludeWing2Area()));
         s_WPolar.setReferenceSpanLength(m_pPlane->projectedSpan());
     }
     else if(m_prbArea3->isChecked())
@@ -853,15 +858,15 @@ void WPolarDlg::setupLayout()
 
                 QGridLayout *pInertiaDataLayout = new QGridLayout;
                 {
-                    QLabel *lab2 = new QLabel(tr("Plane Mass ="));
-                    QLabel *lab3 = new QLabel(tr("X_CoG ="));
-                    QLabel *lab4 = new QLabel(tr("Z_CoG ="));
-                    lab2->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-                    lab3->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-                    lab4->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-                    pInertiaDataLayout->addWidget(lab2,1,1);
-                    pInertiaDataLayout->addWidget(lab3,2,1);
-                    pInertiaDataLayout->addWidget(lab4,3,1);
+                    QLabel *plab2 = new QLabel(tr("Plane Mass ="));
+                    QLabel *plab3 = new QLabel(tr("X_CoG ="));
+                    QLabel *plab4 = new QLabel(tr("Z_CoG ="));
+                    plab2->setAlignment(Qt::AlignRight | Qt::AlignCenter);
+                    plab3->setAlignment(Qt::AlignRight | Qt::AlignCenter);
+                    plab4->setAlignment(Qt::AlignRight | Qt::AlignCenter);
+                    pInertiaDataLayout->addWidget(plab2,1,1);
+                    pInertiaDataLayout->addWidget(plab3,2,1);
+                    pInertiaDataLayout->addWidget(plab4,3,1);
                     m_pdeWeight  = new DoubleEdit(0,3);
                     m_pdeWeight->setMin(0.0);
                     m_pdeXCmRef  = new DoubleEdit(100.00,3);
@@ -873,9 +878,9 @@ void WPolarDlg::setupLayout()
                     QLabel *labLengthUnit1 = new QLabel(strLengthUnit);
                     QLabel *labLengthUnit3 = new QLabel(strLengthUnit);
 
-                    pInertiaDataLayout->addWidget(labWeightUnit ,1,3);
-                    pInertiaDataLayout->addWidget(labLengthUnit1 ,2,3);
-                    pInertiaDataLayout->addWidget(labLengthUnit3 ,3,3);
+                    pInertiaDataLayout->addWidget(labWeightUnit, 1,3);
+                    pInertiaDataLayout->addWidget(labLengthUnit1,2,3);
+                    pInertiaDataLayout->addWidget(labLengthUnit3,3,3);
                     pInertiaDataLayout->setColumnStretch(1,1);
                 }
                 pInertiaLayout->addWidget(m_pchPlaneInertia);
@@ -898,35 +903,29 @@ void WPolarDlg::setupLayout()
                 m_prbArea1 = new QRadioButton(tr("Wing Planform"));
                 m_prbArea2 = new QRadioButton(tr("Wing Planform projected on xy plane"));
                 m_prbArea3 = new QRadioButton(tr("User defined"));
+                m_pchBiPlane = new QCheckBox(tr("Include area of second wing"));
 
                 QGridLayout *pRefAreaLayout = new QGridLayout;
                 {
-                    QLabel *labRefArea  = new QLabel(tr("Ref. area="));
-                    QLabel *labRefSpan  = new QLabel(tr("Ref. span length="));
-                    QLabel *labRefChord = new QLabel(tr("Ref. chord length="));
+                    QLabel *plabRefArea  = new QLabel(tr("Ref. area="));
+                    QLabel *plabRefSpan  = new QLabel(tr("Ref. span length="));
+                    QLabel *plabRefChord = new QLabel(tr("Ref. chord length="));
                     m_pdeRefArea  = new DoubleEdit(0.0, 3);
                     m_pdeRefChord = new DoubleEdit(0.0, 3);
                     m_pdeRefSpan  = new DoubleEdit(0.0, 3);
-                    QLabel *labAreaUnit = new QLabel(Units::areaUnitLabel());
-                    QLabel *labLengthUnit4 = new QLabel(Units::lengthUnitLabel());
-                    QLabel *labLengthUnit5 = new QLabel(Units::lengthUnitLabel());
+                    QLabel *plabAreaUnit = new QLabel(Units::areaUnitLabel());
+                    QLabel *plabLengthUnit4 = new QLabel(Units::lengthUnitLabel());
+                    QLabel *plabLengthUnit5 = new QLabel(Units::lengthUnitLabel());
 
-                    labRefArea->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-                    labRefSpan->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-                    labRefChord->setAlignment(Qt::AlignRight | Qt::AlignCenter);
-
-                    labAreaUnit->setAlignment(Qt::AlignLeft | Qt::AlignCenter);
-                    labLengthUnit4->setAlignment(Qt::AlignLeft | Qt::AlignCenter);
-
-                    pRefAreaLayout->addWidget(labRefArea,1,1);
-                    pRefAreaLayout->addWidget(m_pdeRefArea,1,2);
-                    pRefAreaLayout->addWidget(labAreaUnit,1,3);
-                    pRefAreaLayout->addWidget(labRefSpan,2,1);
-                    pRefAreaLayout->addWidget(m_pdeRefSpan,2,2);
-                    pRefAreaLayout->addWidget(labLengthUnit4,2,3);
-                    pRefAreaLayout->addWidget(labRefChord,3,1);
-                    pRefAreaLayout->addWidget(m_pdeRefChord,3,2);
-                    pRefAreaLayout->addWidget(labLengthUnit5,3,3);
+                    pRefAreaLayout->addWidget(plabRefArea,    1,1, Qt::AlignRight | Qt::AlignCenter);
+                    pRefAreaLayout->addWidget(m_pdeRefArea,   1,2);
+                    pRefAreaLayout->addWidget(plabAreaUnit,    1,3, Qt::AlignLeft | Qt::AlignCenter);
+                    pRefAreaLayout->addWidget(plabRefSpan,    2,1, Qt::AlignRight | Qt::AlignCenter);
+                    pRefAreaLayout->addWidget(m_pdeRefSpan,   2,2);
+                    pRefAreaLayout->addWidget(plabLengthUnit4, 2,3, Qt::AlignLeft | Qt::AlignCenter);
+                    pRefAreaLayout->addWidget(plabRefChord,   3,1, Qt::AlignRight | Qt::AlignCenter);
+                    pRefAreaLayout->addWidget(m_pdeRefChord,  3,2);
+                    pRefAreaLayout->addWidget(plabLengthUnit5, 3,3, Qt::AlignLeft | Qt::AlignCenter);
 
                     pRefAreaLayout->setColumnStretch(1,1);
                 }
@@ -934,6 +933,7 @@ void WPolarDlg::setupLayout()
                 pAreaOptions->addWidget(m_prbArea1);
                 pAreaOptions->addWidget(m_prbArea2);
                 pAreaOptions->addWidget(m_prbArea3);
+                pAreaOptions->addWidget(m_pchBiPlane);
                 pAreaOptions->addLayout(pRefAreaLayout);
                 pAreaOptions->addStretch();
             }

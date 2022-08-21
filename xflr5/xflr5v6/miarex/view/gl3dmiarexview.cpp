@@ -81,6 +81,7 @@ gl3dMiarexView::~gl3dMiarexView()
     m_vboLiftForce.destroy();
     m_vboMoments.destroy();
     m_vboMesh.destroy();
+    m_vboPanelEdges.destroy();
     m_vboLegendColor.destroy();
     for(int iWing=0; iWing<MAXWINGS; iWing++)
     {
@@ -187,16 +188,23 @@ void gl3dMiarexView::glRenderView()
                 for(int iw=0; iw<MAXWINGS; iw++)
                 {
                     if(s_pMiarex->m_pCurPlane->wing(iw))
+                    {
                         paintEditWingMesh(m_vboEditWingMesh[iw]);
+                        paintSegments(m_vboEditMeshEdges[iw], W3dPrefs::s_VLMStyle);
+                    }
                 }
 
                 if(s_pMiarex->m_pCurPlane->body())
-                    paintMesh(m_vboEditBodyMesh, true);
+                {
+                    paintMesh(m_vboEditBodyMesh);
+                    paintSegments(m_vboEditBodyMeshEdges, W3dPrefs::s_VLMStyle);
+                }
             }
             else
             {
                 bool bBackground = (!s_pMiarex->m_pCurPOpp || !s_pMiarex->m_b3DCp);
-                paintMesh(m_vboMesh, bBackground);
+                if(bBackground) paintMesh(m_vboMesh);
+                paintSegments(m_vboPanelEdges, W3dPrefs::s_VLMStyle);
             }
         }
     }
@@ -448,7 +456,6 @@ bool gl3dMiarexView::glMakeStreamLines(Wing const *PlaneWing[MAXWINGS], Vector3d
     VInf.set(pPOpp->m_QInf,0.0,0.0);
 
     int i=0;
-    int m = 0;
 
     m_NStreamLines = 0;
     for(int iw=0; iw<MAXWINGS; iw++)
@@ -459,7 +466,6 @@ bool gl3dMiarexView::glMakeStreamLines(Wing const *PlaneWing[MAXWINGS], Vector3d
     int streamArraySize = m_NStreamLines * int(GL3DScales::s_NX) * 3;
     QVector<float> StreamVertexArray(streamArraySize, 0.0f);
 
-    int p0=0;
     int iv = 0;
     for (int iWing=0; iWing<MAXWINGS; iWing++)
     {
@@ -467,7 +473,6 @@ bool gl3dMiarexView::glMakeStreamLines(Wing const *PlaneWing[MAXWINGS], Vector3d
         {
             Wing const *pWing = PlaneWing[iWing];
 
-            int nVertex = 0;
             for (int p=0; p<pWing->nPanels(); p++)
             {
                 bFound = false;
@@ -565,7 +570,7 @@ bool gl3dMiarexView::glMakeStreamLines(Wing const *PlaneWing[MAXWINGS], Vector3d
                         StreamVertexArray[iv++] = C.yf()+TC.yf();
                         StreamVertexArray[iv++] = C.zf()+TC.zf();
                         ds *= GL3DScales::s_XFactor;
-                        nVertex +=2;
+//                        nVertex +=2;
 
                         for (i=2; i<GL3DScales::s_NX ;i++)
                         {
@@ -577,7 +582,7 @@ bool gl3dMiarexView::glMakeStreamLines(Wing const *PlaneWing[MAXWINGS], Vector3d
                             StreamVertexArray[iv++] = C.xf()+TC.xf();
                             StreamVertexArray[iv++] = C.yf()+TC.yf();
                             StreamVertexArray[iv++] = C.zf()+TC.zf();
-                            nVertex +=1;
+//                            nVertex +=1;
                             ds *= GL3DScales::s_XFactor;
                         }
                     }
@@ -599,7 +604,7 @@ bool gl3dMiarexView::glMakeStreamLines(Wing const *PlaneWing[MAXWINGS], Vector3d
                     StreamVertexArray[iv++] = D.yf()+TD.yf();
                     StreamVertexArray[iv++] = D.zf()+TD.zf();
                     ds *= GL3DScales::s_XFactor;
-                    nVertex +=2;
+//                    nVertex +=2;
 
                     for (int i=2; i<GL3DScales::s_NX; i++)
                     {
@@ -612,14 +617,12 @@ bool gl3dMiarexView::glMakeStreamLines(Wing const *PlaneWing[MAXWINGS], Vector3d
                         StreamVertexArray[iv++] = D.yf()+TD.yf();
                         StreamVertexArray[iv++] = D.zf()+TD.zf();
                         ds *= GL3DScales::s_XFactor;
-                        nVertex +=1;
+//                        nVertex +=1;
                     }
                 }
-
-                m++;
             }
 
-            p0+=pWing->m_nPanels;
+//            p0+=pWing->m_nPanels;
         }
     }
 
@@ -2232,14 +2235,15 @@ void gl3dMiarexView::glMakePanelForces(int nPanels, Panel const *pPanel, WPolar 
 }
 
 
-void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int , const Vector3d *pNode, const Panel *pPanel, const PlaneOpp *pPOpp)
+void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vboPanels,
+                                  QVector<Vector3d> const &nodes, QVector<Panel> const &panels, const PlaneOpp *pPOpp)
 {
-    if(!pPanel || !pNode || !nPanels) return;
-
     float color(0);
     float range(0);
 
     Vector3d TA,LA, TB, LB;
+
+    int nPanels = panels.size();
 
     float lmin =  10000.0;
     float lmax = -10000.0;
@@ -2275,133 +2279,131 @@ void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vbo, int nPanels, int , const V
     //      x3 nodes per triangle
     //      x6 = 3 vertex components + 3 color components
 
-    int nodeVertexSize = nPanels * 2 * 3 * 6;
-    QVector<float>nodeVertexArray(nodeVertexSize);
+    int PanelVertexSize = nPanels * 2 * 3 * 6;
+    QVector<float>PanelVertexArray(PanelVertexSize);
 
-    Q_ASSERT(nPanels==nPanels);
-
-    int iv=0;
+    int ip = 0;
     for (int p=0; p<nPanels; p++)
     {
-        TA.copy(pNode[pPanel[p].m_iTA]);
-        TB.copy(pNode[pPanel[p].m_iTB]);
-        LA.copy(pNode[pPanel[p].m_iLA]);
-        LB.copy(pNode[pPanel[p].m_iLB]);
+        TA.copy(nodes[panels[p].m_iTA]);
+        TB.copy(nodes[panels[p].m_iTB]);
+        LA.copy(nodes[panels[p].m_iLA]);
+        LB.copy(nodes[panels[p].m_iLB]);
+
         // each quad is two triangles
         // write the first one
-        nodeVertexArray[iv++] = TA.xf();
-        nodeVertexArray[iv++] = TA.yf();
-        nodeVertexArray[iv++] = TA.zf();
+        PanelVertexArray[ip++] = TA.xf();
+        PanelVertexArray[ip++] = TA.yf();
+        PanelVertexArray[ip++] = TA.zf();
         if(pPOpp)
         {
             color = (float(pPOpp->m_dCp[p])-lmin)/range;
-            nodeVertexArray[iv++] = glGetRed(color);
-            nodeVertexArray[iv++] = glGetGreen(color);
-            nodeVertexArray[iv++] = glGetBlue(color);
+            PanelVertexArray[ip++] = glGetRed(color);
+            PanelVertexArray[ip++] = glGetGreen(color);
+            PanelVertexArray[ip++] = glGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().redF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().greenF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().blueF());
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().redF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().greenF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().blueF();
         }
 
-        nodeVertexArray[iv++] = LA.xf();
-        nodeVertexArray[iv++] = LA.yf();
-        nodeVertexArray[iv++] = LA.zf();
+        PanelVertexArray[ip++] = LA.xf();
+        PanelVertexArray[ip++] = LA.yf();
+        PanelVertexArray[ip++] = LA.zf();
         if(pPOpp)
         {
             color = (float(pPOpp->m_dCp[p])-lmin)/range;
-            nodeVertexArray[iv++] = glGetRed(color);
-            nodeVertexArray[iv++] = glGetGreen(color);
-            nodeVertexArray[iv++] = glGetBlue(color);
+            PanelVertexArray[ip++] = glGetRed(color);
+            PanelVertexArray[ip++] = glGetGreen(color);
+            PanelVertexArray[ip++] = glGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().redF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().greenF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().blueF());
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().redF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().greenF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().blueF();
         }
 
-        nodeVertexArray[iv++] = LB.xf();
-        nodeVertexArray[iv++] = LB.yf();
-        nodeVertexArray[iv++] = LB.zf();
+        PanelVertexArray[ip++] = LB.xf();
+        PanelVertexArray[ip++] = LB.yf();
+        PanelVertexArray[ip++] = LB.zf();
         if(pPOpp)
         {
             color = (float(pPOpp->m_dCp[p])-lmin)/range;
-            nodeVertexArray[iv++] = glGetRed(color);
-            nodeVertexArray[iv++] = glGetGreen(color);
-            nodeVertexArray[iv++] = glGetBlue(color);
+            PanelVertexArray[ip++] = glGetRed(color);
+            PanelVertexArray[ip++] = glGetGreen(color);
+            PanelVertexArray[ip++] = glGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().redF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().greenF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().blueF());
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().redF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().greenF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().blueF();
         }
 
         // write the second one
-        nodeVertexArray[iv++] = LB.xf();
-        nodeVertexArray[iv++] = LB.yf();
-        nodeVertexArray[iv++] = LB.zf();
+        PanelVertexArray[ip++] = LB.xf();
+        PanelVertexArray[ip++] = LB.yf();
+        PanelVertexArray[ip++] = LB.zf();
 
         if(pPOpp)
         {
             color = (float(pPOpp->m_dCp[p])-lmin)/range;
-            nodeVertexArray[iv++] = glGetRed(color);
-            nodeVertexArray[iv++] = glGetGreen(color);
-            nodeVertexArray[iv++] = glGetBlue(color);
+            PanelVertexArray[ip++] = glGetRed(color);
+            PanelVertexArray[ip++] = glGetGreen(color);
+            PanelVertexArray[ip++] = glGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().redF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().greenF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().blueF());
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().redF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().greenF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().blueF();
         }
 
-        nodeVertexArray[iv++] = TB.xf();
-        nodeVertexArray[iv++] = TB.yf();
-        nodeVertexArray[iv++] = TB.zf();
+        PanelVertexArray[ip++] = TB.xf();
+        PanelVertexArray[ip++] = TB.yf();
+        PanelVertexArray[ip++] = TB.zf();
         if(pPOpp)
         {
             color = (float(pPOpp->m_dCp[p])-lmin)/range;
-            nodeVertexArray[iv++] = glGetRed(color);
-            nodeVertexArray[iv++] = glGetGreen(color);
-            nodeVertexArray[iv++] = glGetBlue(color);
+            PanelVertexArray[ip++] = glGetRed(color);
+            PanelVertexArray[ip++] = glGetGreen(color);
+            PanelVertexArray[ip++] = glGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().redF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().greenF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().blueF());
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().redF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().greenF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().blueF();
          }
 
-        nodeVertexArray[iv++] = TA.xf();
-        nodeVertexArray[iv++] = TA.yf();
-        nodeVertexArray[iv++] = TA.zf();
+        PanelVertexArray[ip++] = TA.xf();
+        PanelVertexArray[ip++] = TA.yf();
+        PanelVertexArray[ip++] = TA.zf();
         if(pPOpp)
         {
             color = (float(pPOpp->m_dCp[p])-lmin)/range;
-            nodeVertexArray[iv++] = glGetRed(color);
-            nodeVertexArray[iv++] = glGetGreen(color);
-            nodeVertexArray[iv++] = glGetBlue(color);
+            PanelVertexArray[ip++] = glGetRed(color);
+            PanelVertexArray[ip++] = glGetGreen(color);
+            PanelVertexArray[ip++] = glGetBlue(color);
         }
         else
         {
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().redF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().greenF());
-            nodeVertexArray[iv++] = float(DisplayOptions::backgroundColor().blueF());
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().redF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().greenF();
+            PanelVertexArray[ip++] = DisplayOptions::backgroundColor().blueF();
          }
     }
 
-    Q_ASSERT(iv==nodeVertexSize);
-    Q_ASSERT(iv==nPanels*2*3*6);
 
-    vbo.destroy();
-    vbo.create();
-    vbo.bind();
-    vbo.allocate(nodeVertexArray.data(), nodeVertexSize * int(sizeof(GLfloat)));
-    vbo.release();
+    Q_ASSERT(ip==PanelVertexSize);
+    vboPanels.destroy();
+    vboPanels.create();
+    vboPanels.bind();
+    vboPanels.allocate(PanelVertexArray.data(), PanelVertexSize * int(sizeof(GLfloat)));
+    vboPanels.release();
 }
 
 
@@ -2478,26 +2480,36 @@ void gl3dMiarexView::glMake3dObjects()
             for(int iw=0; iw<MAXWINGS; iw++)
             {
                 if(pCurPlane->wing(iw))
-                    glMakeWingEditMesh(m_vboEditWingMesh[iw], pCurPlane->wing(iw));
-                else m_vboEditWingMesh[iw].destroy();
+                {
+                    glMakeWingEditMesh(m_vboEditWingMesh[iw], m_vboEditMeshEdges[iw], pCurPlane->wing(iw));
+                }
+                else
+                {
+                    m_vboEditWingMesh[iw].destroy();
+                    m_vboEditMeshEdges[iw].destroy();
+                }
             }
             if(pCurPlane->body())
             {
                 QVector<Panel> panels;
                 QVector<Vector3d> nodes;
                 pCurPlane->body()->makePanels(0, pCurPlane->bodyPos(), panels, nodes);
-                glMakePanels(m_vboEditBodyMesh, panels.size(), nodes.size(), nodes.constData(), panels.constData(), nullptr);
+                glMakePanels(m_vboEditBodyMesh, nodes, panels, nullptr);
+                glMakePanelEdges(m_vboEditBodyMeshEdges, nodes, panels);
             }
         }
         else
-            glMakePanels(m_vboMesh, theTask.matSize(), theTask.nNodes(), theTask.m_Node.constData(), theTask.m_Panel.constData(), nullptr);
+            glMakePanels(m_vboMesh, theTask.m_Node, theTask.m_Panel, nullptr);
+
+        glMakePanelEdges(m_vboPanelEdges, theTask.m_Node, theTask.m_Panel);
+
         s_bResetglMesh = false;
     }
 
     if(s_bResetglPanelCp || s_bResetglOpp)
     {
         if(pCurWPolar && pCurWPolar->analysisMethod()!=xfl::LLTMETHOD)
-            glMakePanels(m_vboPanelCp, theTask.matSize(), theTask.nNodes(), theTask.m_Node.constData(), theTask.m_Panel.constData(), pCurPOpp);
+            glMakePanels(m_vboPanelCp, theTask.m_Node, theTask.m_Panel, pCurPOpp);
         s_bResetglPanelCp = false;
     }
 

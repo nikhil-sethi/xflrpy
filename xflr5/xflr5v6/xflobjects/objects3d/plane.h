@@ -158,8 +158,8 @@ class Plane : public XflObject
         double rootChord()     const {return m_Wing[0].rootChord();}
         double tipChord()      const {return m_Wing[0].tipChord();}
 
-        double projectedArea() const {return m_Wing[0].projectedArea();}
-        double planformArea()  const {return m_Wing[0].planformArea();}
+        double projectedArea(bool bOtherWing) const;
+        double planformArea(bool bOtherWing)  const;
 
         double projectedSpan() const {return m_Wing[0].projectedSpan();}
         double planformSpan()  const {return m_Wing[0].planformSpan();}

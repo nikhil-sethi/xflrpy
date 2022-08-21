@@ -224,7 +224,7 @@ void EditPlrDlg::deletePoint()
     {
         m_pWPolar->remove(index.row());
         fillWPolarData();
-        Miarex::s_bResetCurves = true;
+        m_pMiarex->resetCurves();
 //        pMiarex->createWPolarCurves();
         m_pMiarex->updateView();
     }
@@ -251,7 +251,7 @@ void EditPlrDlg::deleteAllPoints()
     {
         m_pWPolar->clearData();
         fillWPolarData();
-        Miarex::s_bResetCurves = true;
+        m_pMiarex->resetCurves();
         m_pMiarex->updateView();
     }
 }
