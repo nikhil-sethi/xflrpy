@@ -20,6 +20,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ),
     install_requires=[
-          'msgpack-rpc-python'
+          'rpc-msgpack',
     ]
 )

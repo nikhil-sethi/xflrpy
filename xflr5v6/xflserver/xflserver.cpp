@@ -121,18 +121,16 @@ xflServer::xflServer(int port) : server(port)
 
     server.bind("getFoil",[&](string name)->RpcLibAdapters::FoilAdapter{
         Foil* pFoil;
-        if (name ==""){
-            pFoil = Objects2d::curFoil();
-            if (pFoil!=nullptr) {   // if the current foil is not the default splinefoil
-                return RpcLibAdapters::FoilAdapter(*pFoil);
-            }
-            else {
-                return RpcLibAdapters::FoilAdapter(); // return garbage foil if it's the spline foil
-            }
-        } 
-        else {
-            pFoil = Objects2d::foil(QString::fromStdString(name));
+        if (name =="") pFoil = Objects2d::curFoil();
+        else pFoil = Objects2d::foil(QString::fromStdString(name));
+            
+        if (pFoil!=nullptr) {   // if the current foil is not the default splinefoil
             return RpcLibAdapters::FoilAdapter(*pFoil);
+        }
+        else {
+            // return garbage foil if it's the spline foil
+            // do further checks in python because msgpack needs to this adapter as a return type at all costs 
+            return RpcLibAdapters::FoilAdapter(); 
         }
     });
 

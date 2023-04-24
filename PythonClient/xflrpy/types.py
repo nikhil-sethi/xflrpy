@@ -138,7 +138,11 @@ class FoilManager:
 
     def getFoil(self, name=""):
         foil_raw = self._client.call("getFoil", name)
-        return Foil.from_msgpack(foil_raw, self._client)
+        if foil_raw["name"] == name:
+            return Foil.from_msgpack(foil_raw, self._client)
+        else:
+            print("Please provide a valid foil name")
+            exit(0)
 
     def foilExists(self, name) -> bool:
         return self._client.call("foilExists", name)

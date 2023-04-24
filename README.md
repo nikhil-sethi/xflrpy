@@ -111,12 +111,20 @@ cd ..
 ./xfr5v6/xflrpy
 ```
 
-## Test
-First install the python package xflrpy
+> Note: If you're working on Visual Studio code (Linux) and see the following error: 
+
+`symbol lookup error: /snap/core20/current/lib/x86_64-linux-gnu/libpthread.so.0: undefined symbol: __libc_pthread_init, version GLIBC_PRIVATE `
+> Run the command: `unset GTK_PATH` in the terminal and try again.
+
+
+Install the python client
 
 ```
-pip3 install xflrpy
+cd PythonClient 
+pip install -e .
 ```
+
+## Test
 
 A brief sketch:
 ```python

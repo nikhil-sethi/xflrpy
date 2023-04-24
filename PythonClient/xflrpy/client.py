@@ -1,8 +1,4 @@
-
-
-
 import msgpackrpc as rpc
-from numpy.lib.npyio import save
 import time
 from .types import *
 from .utils import *
@@ -11,8 +7,11 @@ class xflrClient:
     def __init__(self, ip = '127.0.0.1', port = 8080, connect_timeout = 100):
         self._client = rpc.Client(rpc.Address(ip, port), timeout=connect_timeout, pack_encoding='utf-8', unpack_encoding='utf-8')
         self.poll_timeout = 5 # seconds
-        if self.ping():
-            print(f"Xflr client connected at port: {port}")
+        try:
+            if self.ping():
+                print(f"Xflr client connected at port: {port}")
+        except rpc.error.TransportError:
+            print("Could not connect to the XFLR5 server. Is the application gui running?\n")
 
     @property
     def state(self):
