@@ -46,7 +46,6 @@ class StabPolarDlg : public QDialog
 {
     Q_OBJECT
     friend class Miarex;
-    friend class MainFrame;
 
     public:
         StabPolarDlg(QWidget *pParent=nullptr);

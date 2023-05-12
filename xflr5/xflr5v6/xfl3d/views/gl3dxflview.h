@@ -72,7 +72,6 @@ class gl3dXflView : public gl3dView
         void paintFoilNames(const Wing *pWing);
         void paintNormals(QOpenGLBuffer &vbo);
         void paintMesh(QOpenGLBuffer &vbo);
-        void setSpanStations(Plane const *pPlane, WPolar const *pWPolar, PlaneOpp const *pPOpp);
 
     private:
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
@@ -98,10 +97,8 @@ class gl3dXflView : public gl3dView
         QOpenGLBuffer m_vboBody;
         QOpenGLBuffer m_vboFuseLeft, m_vboFuseRight, m_vboFuseOutline;
 
-        int m_Ny[MAXWINGS];
         int m_nHighlightLines, m_HighlightLineSize;
 
-        int m_iMomentPoints;
 
         bool m_bOutline;                   /**< true if the surface outlines are to be displayed in the 3D view*/
         bool m_bSurfaces;                  /**< true if the surfaces are to be displayed in the 3D view*/

@@ -26,6 +26,7 @@ namespace xfl
 {
     /** @enum The different applications available to the user */
     typedef enum {NOAPP, XFOILANALYSIS, DIRECTDESIGN, INVERSEDESIGN, MIAREX}    enumApp;
+
     /** This enumeration defines the options for the active view.
      *
      *May be the operaring point view, the polar view, the 3D view, the Cp view, or the stability view*/
@@ -57,12 +58,6 @@ namespace xfl
 
     /** @enum The different formats usable to export data to text format files*/
     typedef enum {TXT, CSV}	enumTextFileType;
-
-    /** @enum The different line stymes */
-    typedef enum {SOLID, DASH, DOT, DASHDOT, DASHDOTDOT, NOLINE} enumLineStyle;
-
-    /**< @enum The different symbols on a curve*/
-    typedef enum {NOSYMBOL, LITTLECIRCLE, BIGCIRCLE, LITTLESQUARE, BIGSQUARE, TRIANGLE, CROSS} enumPointStyle;
 
     /**< @enum The different image formats usable to export screen captures*/
     typedef enum {PNG, JPEG, BMP} enumImageFormat;

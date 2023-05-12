@@ -488,7 +488,7 @@ void FoilTreeView::onItemDoubleClicked(const QModelIndex &index)
     s_pXDirect->resetCurves();
     s_pXDirect->updateView();
     if(m_Selection==xfl::POLAR)
-        s_pXDirect->onEditCurPolar();
+        s_pXDirect->onEditPolarPts();
 }
 
 

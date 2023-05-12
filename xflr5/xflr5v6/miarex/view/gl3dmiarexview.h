@@ -25,6 +25,9 @@
 
 #include <xfl3d/views/gl3dxflview.h>
 
+#define MOMENTPOINTS 9006
+
+
 class gl3dMiarexView : public gl3dXflView
 {
     public:
@@ -33,6 +36,14 @@ class gl3dMiarexView : public gl3dXflView
 
     public:
         void glMake3dObjects() override;
+
+    private:
+        void glRenderView() override;
+        void contextMenuEvent(QContextMenuEvent *pEvent) override;
+        void paintOverlay() override;
+        bool intersectTheObject(Vector3d const &AA,  Vector3d const &BB, Vector3d &I) override;
+        void resizeGL(int width, int height) override;
+
         void glMakeCpLegendClr();
         bool glMakeStreamLines(const Wing *PlaneWing[], const Vector3d *pNode, const WPolar *pWPolar, const PlaneOpp *pPOpp);
         void glMakeSurfVelocities(Panel const *pPanel, const WPolar *pWPolar, PlaneOpp const *pPOpp, int nPanels);
@@ -54,13 +65,7 @@ class gl3dMiarexView : public gl3dXflView
         void paintTransitions(int iWing);
         void paintPanelCp(int nPanels);
         void paintPanelForces(int nPanels);
-
-    private:
-        void glRenderView() override;
-        void contextMenuEvent(QContextMenuEvent *pEvent) override;
-        void paintOverlay() override;
-        bool intersectTheObject(Vector3d const &AA,  Vector3d const &BB, Vector3d &I) override;
-        void resizeGL(int width, int height) override;
+        void setSpanStations(Plane const *pPlane, WPolar const *pWPolar, PlaneOpp const *pPOpp);
 
     public:
         QOpenGLBuffer m_vboSurfaceVelocities, m_vboPanelCp, m_vboPanelForces, m_vboStreamLines;
@@ -69,7 +74,7 @@ class gl3dMiarexView : public gl3dXflView
         QOpenGLBuffer m_vboMesh, m_vboLegendColor, m_vboPanelEdges;
 
         int m_NStreamLines;
-
+        int m_Ny[MAXWINGS];
 
         static bool s_bResetglGeom;               /**< true if the geometry OpenGL list needs to be re-generated */
         static bool s_bResetglMesh;               /**< true if the mesh OpenGL list needs to be re-generated */

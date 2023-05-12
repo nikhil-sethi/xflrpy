@@ -53,35 +53,28 @@ class CPTableView;
 class WPolarDlg : public QDialog
 {
     Q_OBJECT
-    friend class Miarex;
-    friend class MainFrame;
 
     public:
         WPolarDlg(QWidget *pParent=nullptr);
         ~WPolarDlg();
+        void initDialog(Plane *pPlane, WPolar *pWPolar=nullptr);
 
     private:
 
         void connectSignals();
-        void initDialog(Plane *pPlane, WPolar *pWPolar=nullptr);
-
-        void keyPressEvent(QKeyEvent *pEvent) override;
-        void showEvent(QShowEvent *pEvent) override;
-        void hideEvent(QHideEvent *pEvent) override;
-
-
-    private:
-
-        void readExtraDragData();
+        void enableControls();
+        void fillExtraDragList();
+         void readExtraDragData();
         void readValues();
         void resizeColumns();
         void setDensity();
         void setReynolds();
-        void setupLayout();
-        void setWingLoad();
         void setWPolarName();
-        void enableControls();
-        void fillExtraDragList();
+        void setWingLoad();
+        void setupLayout();
+        void hideEvent(QHideEvent *pEvent) override;
+        void keyPressEvent(QKeyEvent *pEvent) override;
+        void showEvent(QShowEvent *pEvent) override;
 
 
     private slots:
@@ -102,9 +95,12 @@ class WPolarDlg : public QDialog
         void onTabChanged(int index);
         void onButton(QAbstractButton *pButton);
 
-    private:
-        static WPolar s_WPolar;
 
+    public:
+        static WPolar s_WPolar;
+        static QByteArray s_Geometry;
+
+    private:
         Plane *m_pPlane;
 
         bool m_bAutoName;
@@ -149,8 +145,5 @@ class WPolarDlg : public QDialog
         CPTableView *m_pcptExtraDrag;
         CtrlTableModel *m_pExtraDragModel;
         CtrlTableDelegate *m_pExtraDragDelegate;
-
-
-        static QByteArray s_Geometry;
 };
 

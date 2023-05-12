@@ -36,7 +36,8 @@ class OpPointWt : public QWidget
     friend class XDirect;
     friend class XDirectTileWidget;
     friend class XDirectStyleDlg;
-    friend class MainFrame;
+
+
     public:
         OpPointWt(QWidget *parent = nullptr);
 

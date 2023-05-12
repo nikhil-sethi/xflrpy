@@ -250,7 +250,7 @@ void Polar::addOpPointData(const OpPoint *pOpPoint)
                     break;
                 }
             }
-            else if(m_PolarType==xfl::FIXEDAOAPOLAR)
+            else // if(m_PolarType==xfl::FIXEDAOAPOLAR)
             {
                 // type 4, sort by speed
                 if (qAbs(pOpPoint->Reynolds() - m_Re[i]) < 0.1)
@@ -299,7 +299,6 @@ void Polar::replaceOppDataAt(int pos, OpPoint const*pOpp)
     m_ClCd[pos]  =  pOpp->Cl/pOpp->Cd;
     m_XCp[pos]   =  pOpp->m_XCP;
 
-//  Bug  if(pOpp->Cl>0.0) m_RtCl[pos] = 1.0/sqrt(pOpp->Cl);
     if(pOpp->Cl>0.0) m_RtCl[pos] = sqrt(pOpp->Cl);
     else             m_RtCl[pos] = 0.0;
     if (pOpp->Cl>=0.0) m_Cl32Cd[pos] =  pow( pOpp->Cl, 1.5)/ pOpp->Cd;
@@ -314,10 +313,9 @@ void Polar::replaceOppDataAt(int pos, OpPoint const*pOpp)
     }
     else if (m_PolarType==xfl::RUBBERCHORDPOLAR)
     {
-        if(pOpp->Cl>0.0) m_Re[pos] =  pOpp->Reynolds()/(pOpp->Cl);
+        if(pOpp->Cl>0.0) m_Re[pos] =  pOpp->Reynolds();
         else             m_Re[pos] = 0.0;
     }
-
 }
 
 
@@ -347,14 +345,12 @@ void Polar::insertOppDataAt(int i, const OpPoint *pOpp)
     if(m_PolarType==xfl::FIXEDSPEEDPOLAR)     m_Re.insert(i, pOpp->Reynolds());
     else if (m_PolarType==xfl::FIXEDLIFTPOLAR)
     {
-//      Bug  if(pOpp->Cl>0) m_Re.insert(i, pOpp->Reynolds()/sqrt(pOpp->Cl));
         if(pOpp->Cl>0.0) m_Re.insert(i, pOpp->Reynolds());
-//      Bug  else           m_Re[i] = 0.0;   -> exception when i doesn't exist in array
         else             m_Re.insert(i, 0.0);
     }
     else if (m_PolarType==xfl::RUBBERCHORDPOLAR)
     {
-        if(pOpp->Cl>0.0) m_Re.insert(i, pOpp->Reynolds()/pOpp->Cl);
+        if(pOpp->Cl>0.0) m_Re.insert(i, pOpp->Reynolds());
         else             m_Re.insert(i, 0.0);
     }
     else if (m_PolarType==xfl::FIXEDAOAPOLAR)
@@ -362,7 +358,6 @@ void Polar::insertOppDataAt(int i, const OpPoint *pOpp)
         m_Re.insert(i, pOpp->Reynolds());
     }
 }
-
 
 
 /**
@@ -401,7 +396,7 @@ void Polar::addPoint(double Alpha, double Cd, double Cdp, double Cl, double Cm, 
  * Copies the polar's data from an existing polar
  * @param pPolar a pointer to the instance of the reference Polar object from which the data should be copied
  */
-void Polar::copyPolar(const Polar *pPolar)
+void Polar::copy(const Polar *pPolar)
 {
     copySpecification(pPolar);
 
@@ -519,6 +514,31 @@ void Polar::getClLimits(double &Clmin, double &Clmax) const
         }
     }
 }
+
+
+/**
+* Returns Alpha at Clmax of the polar
+*/
+double  Polar::getAlphaClmax() const
+{
+    double Clmax =-10000.0;
+    double Alphamax = 0.0;
+
+    if(!m_Cl.size() || !m_Alpha.size()) {
+        return 0.0;
+    }
+    else
+    {
+        for (int i=0;i<m_Cl.size(); i++) {
+            if( m_Cl[i] > Clmax) {
+                Clmax = m_Cl[i];
+                Alphamax = m_Alpha[i];
+            }
+        }
+    }
+    return Alphamax;
+}
+
 
 /**
 * Returns the moment coefficient at zero-lift.
@@ -821,6 +841,7 @@ QVector<double> const & Polar::getVariable(int iVar) const
         case 9:            return m_ClCd;
         case 10:           return m_Cl32Cd;
         case 11:           return m_XCp;
+        case 12:           return m_Clmax;
     }
 }
 

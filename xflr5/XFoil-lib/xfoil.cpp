@@ -657,7 +657,7 @@ bool XFoil::initialize()
 
 bool XFoil::abcopy()
 {
-    int i;
+    int i(0);
     if(nb<=1)
     {
         writeString("abcopy: buffer airfoil not available");
@@ -736,7 +736,6 @@ bool XFoil::abcopy()
 }
 
 
-
 /** ---------------------------------------------------------------
  *      calculates geometric properties of shape x,y
  *
@@ -757,10 +756,11 @@ bool XFoil::aecalc(int n, double x[], double y[], double t[], int itype, double 
                    double &xcen, double &ycen, double &ei11, double &ei22,
                    double &apx1, double &apx2)
 {
-    double sint=0, aint=0, xint=0, yint=0, xxint=0, yyint=0, xyint=0;
-    double eixx=0, eiyy=0, eixy=0, eisq=0;
-    double dx=0, dy=0, xa=0, ya=0, ta=0, ds=0, da=0, c1=0, c2=0, sgn=0;
-    int ip=0, io=0;
+    double sint(0), aint(0), xint(0), yint(0), xxint(0), yyint(0), xyint(0);
+    double eixx(0), eiyy(0), eixy(0), eisq(0);
+    double dx(0), dy(0), xa(0), ya(0), ta(0), ds(0), da(0), c1(0), c2(0), sgn(0);
+    int ip(0), io(0);
+
     sint  = 0.0;
     aint  = 0.0;
     xint  = 0.0;
@@ -887,12 +887,10 @@ double XFoil::aint(double number)
 }
 
 
-
-
 bool XFoil::apcalc()
 {
-    double sx=0, sy=0;
-    int i=0, ip=0;
+    double sx(0), sy(0);
+    int i(0), ip(0);
 
     //---- set angles of airfoil panels
     for (i=1; i<=n-1; i++)
@@ -916,7 +914,6 @@ bool XFoil::apcalc()
 
     return true;
 }
-
 
 
 /** -------------------------------------------------------------
@@ -949,7 +946,7 @@ bool XFoil::apcalc()
  * -------------------------------------------------------------- */
 double XFoil::atanc(double y, double x, double thold)
 {
-    double tpi, thnew, dthet, dtcorr ;
+    double tpi(0), thnew(0), dthet(0), dtcorr(0);
     tpi = 6.2831853071795864769;
 
     //---- set new position angle, ignoring branch cut in atan2 function for now
@@ -978,11 +975,11 @@ bool XFoil::axset(double hk1, double t1, double rt1, double a1,
     //
     //==========================
     //---- 2nd-order
-    double ax1=0.0, ax2=0.0, ax1_hk1=0.0, ax1_t1=0.0, ax1_rt1=0.0;
-    double ax2_hk2=0.0, ax2_t2=0.0, ax2_rt2=0.0, axsq=0.0;
-    double axa=0.0, axa_ax1=0.0, axa_ax2=0.0;
-    double exn=0.0, exn_a1=0.0, exn_a2=0.0, dax=0.0, dax_a1=0.0, dax_a2=0.0, dax_t1=0.0, dax_t2=0.0;
-    double f_arg=0.0;//ex arg
+    double ax1(0), ax2(0), ax1_hk1(0), ax1_t1(0), ax1_rt1(0);
+    double ax2_hk2(0), ax2_t2(0), ax2_rt2(0), axsq(0);
+    double axa(0), axa_ax1(0), axa_ax2(0);
+    double exn(0), exn_a1(0), exn_a2(0), dax(0), dax_a1(0), dax_a2(0), dax_t1(0), dax_t2(0);
+    double f_arg(0);//ex arg
 
     dampl(hk1, t1, rt1, ax1, ax1_hk1, ax1_t1, ax1_rt1);
     dampl(hk2, t2, rt2, ax2, ax2_hk2, ax2_t2, ax2_rt2);
@@ -1053,26 +1050,27 @@ bool XFoil::axset(double hk1, double t1, double rt1, double a1,
  * ------------------------------------------------------------ */
 bool XFoil::bldif(int ityp)
 {
-    int k,l;
-    double hupwt,hdcon, hl, hd_hk1,hd_hk2, hlsq, ehh;
-    double upw, upw_hl, upw_hd, upw_hk1, upw_hk2, upw_u1, upw_t1, upw_d1;
-    double upw_u2, upw_t2, upw_d2, upw_ms;
-    double dxi, slog, scc, scc_usa;
-    double ax, ax_t1, ax_rt1, ax_a1, ax_hk2, ax_t2, ax_rt2, ax_a2;
-    double rezc, z_ax, hr, hr_hka, hr_rta;
-    double hl_hk1, hl_hk2, ax_hk1, sa, cqa, cfa, hka, usa, rta, dea, da, ald;
-    double gcc, hkc, hkc_hka, hkc_rta, rezt, rezh;
-    double btmp, hwa, ha, ma, xa, ta, xlog, ulog, tlog, hlog, ddlog;
-    double z_cfx, z_ha, z_hwa, z_ma, z_xl, z_tl, z_cfm, z_t1, z_t2;
-    double z_dix, z_hca, z_hl, z_hs1, z_hs2, z_di1, z_di2;
-    double z_cfa, z_hka, z_da, z_sl, z_ul, z_dxi, z_usa, z_cqa, z_sa, z_dea;
-    double z_upw, z_de1, z_de2, z_us1, z_us2, z_d1, z_d2, z_u1, z_u2, z_x1, z_x2;
-    double z_s1, z_s2, z_cq1, z_cq2, z_cf1, z_cf2, z_hk1, z_hk2;
-    double cfx, cfx_xa, cfx_ta, cfx_x1, cfx_x2, cfx_t1, cfx_t2, cfx_cf1, cfx_cf2, cfx_cfm;
-    double xot1, xot2, hca, hsa, dix, dix_upw, cfx_upw;
-    double uq, uq_hka, uq_rta, uq_cfa, uq_da, uq_upw, uq_t1, uq_t2;
-    double uq_d1, uq_d2, uq_u1, uq_u2, uq_ms, uq_re;
-    double f_arg;// ex arg
+    int k(0),l(0);
+    double hupwt(0),hdcon(0), hl(0), hd_hk1(0),hd_hk2(0), hlsq(0), ehh(0);
+    double upw(0), upw_hl(0), upw_hd(0), upw_hk1(0), upw_hk2(0), upw_u1(0), upw_t1(0), upw_d1(0);
+    double upw_u2(0), upw_t2(0), upw_d2(0), upw_ms(0);
+    double dxi(0), slog(0), scc(0), scc_usa(0);
+    double ax(0), ax_t1(0), ax_rt1(0), ax_a1(0), ax_hk2(0), ax_t2(0), ax_rt2(0), ax_a2(0);
+    double rezc(0), z_ax(0), hr(0), hr_hka(0), hr_rta(0);
+    double hl_hk1(0), hl_hk2(0), ax_hk1(0), sa(0), cqa(0), cfa(0), hka(0), usa(0), rta(0), dea(0), da(0), ald(0);
+    double gcc(0), hkc(0), hkc_hka(0), hkc_rta(0), rezt(0), rezh(0);
+    double btmp(0), hwa(0), ha(0), ma(0), xa(0), ta(0), xlog(0), ulog(0), tlog(0), hlog(0), ddlog(0);
+    double z_cfx(0), z_ha(0), z_hwa(0), z_ma(0), z_xl(0), z_tl(0), z_cfm(0), z_t1(0), z_t2(0);
+    double z_dix(0), z_hca(0), z_hl(0), z_hs1(0), z_hs2(0), z_di1(0), z_di2(0);
+    double z_cfa(0), z_hka(0), z_da(0), z_sl(0), z_ul(0), z_dxi(0), z_usa(0), z_cqa(0), z_sa(0), z_dea(0);
+    double z_upw(0), z_de1(0), z_de2(0), z_us1(0), z_us2(0), z_d1(0), z_d2(0), z_u1(0), z_u2(0), z_x1(0), z_x2(0);
+    double z_s1(0), z_s2(0), z_cq1(0), z_cq2(0), z_cf1(0), z_cf2(0), z_hk1(0), z_hk2(0);
+    double cfx(0), cfx_xa(0), cfx_ta(0), cfx_x1(0), cfx_x2(0), cfx_t1(0), cfx_t2(0), cfx_cf1(0), cfx_cf2(0), cfx_cfm(0);
+    double xot1(0), xot2(0), hca(0), hsa(0), dix(0), dix_upw(0), cfx_upw(0);
+    double uq(0), uq_hka(0), uq_rta(0), uq_cfa(0), uq_da(0), uq_upw(0), uq_t1(0), uq_t2(0);
+    double uq_d1(0), uq_d2(0), uq_u1(0), uq_u2(0), uq_ms(0), uq_re(0);
+    double f_arg(0);// ex arg
+
     //    double scc_us1, scc_us2;
 
     if(ityp==0)
@@ -1467,7 +1465,8 @@ bool XFoil::blkin()
     //     calculates turbulence-independent secondary "2"
     //     variables from the primary "2" variables.
     //----------------------------------------------------------
-    double tr2, herat, he_u2, he_ms, v2_he, hk2_h2, hk2_m2;
+    double tr2(0), herat(0), he_u2(0), he_ms(0), v2_he(0), hk2_h2(0), hk2_m2(0);
+
     //---- set edge mach number ** 2
     m2    = u2*u2*hstinv / (gm1bl*(1.0 - 0.5*u2*u2*hstinv));
     tr2   = 1.0 + 0.5*gm1bl*m2;
@@ -1524,9 +1523,9 @@ bool XFoil::blkin()
  * -----------------------------------------------------*/
 bool XFoil::blmid(int ityp)
 {
+    double hka(0), rta(0), ma(0), cfm_rta(0), cfm_ma(0);
+    double cfml(0), cfml_hka(0), cfml_rta(0), cfml_ma(0), cfm_hka(0);
 
-    double hka, rta, ma, cfm_rta, cfm_ma;
-    double cfml, cfml_hka, cfml_rta, cfml_ma, cfm_hka;
     //---- set similarity variables if not defined
     if(simi)
     {
@@ -1597,7 +1596,6 @@ bool XFoil::blmid(int ityp)
 bool XFoil::blprv(double xsi, double ami, double cti, double thi,
                   double dsi, double dswaki, double uei)
 {
-
     x2 = xsi;
     ampl2 = ami;
     s2  = cti;
@@ -1637,8 +1635,8 @@ bool XFoil::blprv(double xsi, double ami, double cti, double thi,
  * ------------------------------------------------------------------ */
 bool XFoil::blsolve()
 {
-    int iv=0, kv=0, ivp=0, k=0, l=0, ivte1=0, ivz=0;
-    double pivot=0, vtmp=0, vtmp1=0, vtmp2=0, vtmp3=0;
+    int iv(0), kv(0), ivp(0), k(0), l(0), ivte1(0), ivz(0);
+    double pivot(0), vtmp(0), vtmp1(0), vtmp2(0), vtmp3(0);
 
     ivte1 = isys[iblte[1]][1];
     //
@@ -1799,7 +1797,6 @@ bool XFoil::blsolve()
 }
 
 
-
 /** ------------------------------------------------------------------
  *
  *      sets up the bl newton system governing the current interval:
@@ -1819,8 +1816,8 @@ bool XFoil::blsolve()
  * ------------------------------------------------------------------ */
 bool XFoil::blsys()
 {
-    double res_u1, res_u2, res_ms;
-    int k, l;
+    double res_u1(0), res_u2(0), res_ms(0);
+    int k(0), l(0);
 
     //---- calculate secondary bl variables and their sensitivities
     if(wake)
@@ -1905,19 +1902,19 @@ bool XFoil::blsys()
  * ---------------------------------------------------- */
 bool XFoil::blvar(int ityp)
 {
-    double hs2_hk2, hs2_rt2, hs2_m2;
-    double hc2_hk2, hc2_m2, us2_hs2, us2_hk2, us2_h2;
-    double gcc, hkc, hkc_hk2, hkc_rt2, hkb, usb;
-    double cq2_hs2, cq2_us2, cq2_hk2;
-    double cq2_rt2, cq2_h2, cf2_hk2, cf2_rt2, cf2_m2;
-    double cf2l, cf2l_hk2, cf2l_rt2, cf2l_m2;
-    double di2_hk2, di2_rt2, cf2t, cf2t_hk2;
-    double cf2t_rt2, cf2t_m2, cf2t_u2, cf2t_t2;
-    double cf2t_d2, cf2t_ms, cf2t_re, di2_hs2;
-    double di2_us2, di2_cf2t, hmin, hm_rt2;
-    double grt, fl, fl_hk2, fl_rt2, tfl;
-    double dfac, df_fl, df_hk2, df_rt2, dd, dd_hs2;
-    double dd_us2, dd_s2, dd_rt2, di2l, di2l_hk2, di2l_rt2, de2_hk2, hdmax;
+    double hs2_hk2(0), hs2_rt2(0), hs2_m2(0);
+    double hc2_hk2(0), hc2_m2(0), us2_hs2(0), us2_hk2(0), us2_h2(0);
+    double gcc(0), hkc(0), hkc_hk2(0), hkc_rt2(0), hkb(0), usb(0);
+    double cq2_hs2(0), cq2_us2(0), cq2_hk2(0);
+    double cq2_rt2(0), cq2_h2(0), cf2_hk2(0), cf2_rt2(0), cf2_m2(0);
+    double cf2l(0), cf2l_hk2(0), cf2l_rt2(0), cf2l_m2(0);
+    double di2_hk2(0), di2_rt2(0), cf2t(0), cf2t_hk2(0);
+    double cf2t_rt2(0), cf2t_m2(0), cf2t_u2(0), cf2t_t2(0);
+    double cf2t_d2(0), cf2t_ms(0), cf2t_re(0), di2_hs2(0);
+    double di2_us2(0), di2_cf2t(0), hmin(0), hm_rt2(0);
+    double grt(0), fl(0), fl_hk2(0), fl_rt2(0), tfl(0);
+    double dfac(0), df_fl(0), df_hk2(0), df_rt2(0), dd(0), dd_hs2(0);
+    double dd_us2(0), dd_s2(0), dd_rt2(0), di2l(0), di2l_hk2(0), di2l_rt2(0), de2_hk2(0), hdmax(0);
 
 
     //    double gbcon, gccon, ctcon, hkc2;//were are they initialized?
@@ -2244,7 +2241,7 @@ bool XFoil::blvar(int ityp)
 bool XFoil::cang(double x[], double y[], int n, int &imax, double &amax)
 {
     //-------------------------------------------------------------------
-    double dx1, dx2, dy1, dy2, crossp, angl;
+    double dx1(0), dx2(0), dy1(0), dy2(0), crossp(0), angl(0);
     amax = 0.0;
     imax = 1;
 
@@ -2280,8 +2277,8 @@ bool XFoil::cang(double x[], double y[], int n, int &imax, double &amax)
 
 bool XFoil::cdcalc()
 {
-    double thwake, urat, uewake, shwake, dx;
-    int i,im,is,ibl;
+    double thwake(0), urat(0), uewake(0), shwake(0), dx(0);
+    int i(0),im(0),is(0),ibl(0);
     double sa, ca;
     sa = sin(alfa);
     ca = cos(alfa);
@@ -2324,7 +2321,7 @@ bool XFoil::cdcalc()
 /** ---- laminar skin friction function  ( Cf )    ( from Falkner-Skan )*/
 bool XFoil::cfl(double hk, double rt, double &cf, double &cf_hk, double &cf_rt, double &cf_msq)
 {
-    double tmp;
+    double tmp(0);
     if(hk<5.5)
     {
         tmp = (5.5-hk)*(5.5-hk)*(5.5-hk) / (hk+1.0);
@@ -2346,7 +2343,7 @@ bool XFoil::cfl(double hk, double rt, double &cf, double &cf_hk, double &cf_rt, 
 /** ---- turbulent skin friction function  ( Cf )    (Coles) */
 bool XFoil::cft(double hk, double rt, double msq, double &cf, double &cf_hk, double &cf_rt, double &cf_msq)
 {
-    double gam, gm1, f_arg, fc, grt, gex, thk, cfo;
+    double gam(0), gm1(0), f_arg(0), fc(0), grt(0), gex(0), thk(0), cfo(0);
     gam =1.4;
 
 
@@ -2386,10 +2383,10 @@ bool XFoil::clcalc(double xref, double yref)
     //ccc       xref = 0.25
     //ccc       yref = 0.
 
-    double beta, beta_msq, bfac, bfac_msq, cginc;
-    double cpi_gam, cpc_cpi;
-    double dx, dy, dg, ax, ay, ag, dx_alf, ag_alf, ag_msq;
-    double cpg1, cpg1_msq, cpg1_alf, cpg2, cpg2_msq, cpg2_alf;
+    double beta(0), beta_msq(0), bfac(0), bfac_msq(0), cginc(0);
+    double cpi_gam(0), cpc_cpi(0);
+    double dx(0), dy(0), dg(0), ax(0), ay(0), ag(0), dx_alf(0), ag_alf(0), ag_msq(0);
+    double cpg1(0), cpg1_msq(0), cpg1_alf(0), cpg2(0), cpg2_msq(0), cpg2_alf(0);
     double sa, ca;
     sa = sin(alfa);
     ca = cos(alfa);
@@ -2470,7 +2467,7 @@ bool XFoil::clcalc(double xref, double yref)
 bool XFoil::comset()
 {
     //---- set karman-tsien parameter tklam
-    double beta, beta_msq;
+    double beta(0), beta_msq(0);
     beta = sqrt(1.0 - minf*minf);
     beta_msq = -0.5/beta;
 
@@ -2527,16 +2524,12 @@ bool XFoil::cpcalc(int n, double q[], double qinf, double minf, double cp[])
 }
 
 
-
-
-
 void XFoil::writeString(QString str, bool bFullReport)
 {
     if(!bFullReport && !s_bFullReport) return;
     if(!m_pOutStream) return;
     *m_pOutStream << str;
 }
-
 
 
 /** -----------------------------------------------
@@ -2552,7 +2545,6 @@ double XFoil::curv(double ss, double x[], double xs[], double y[], double ys[], 
 {
     int ilow(0), i(0), imid(0);
     double crv(0), ds(0), t(0), cx1(0), cx2(0), xd(0), xdd(0), cy1(0), cy2(0), yd(0), ydd(0), sd(0);
-
 
     ilow = 1;
     i = n;
@@ -3327,9 +3319,9 @@ void XFoil::xlfind(double &sle, double x[], double xp[], double y[], double yp[]
 void XFoil::sortol(double tol,int &kk,double s[],double w[])
 {
     //    dimension s(kk), w(kk)
-    bool done;
-    int np, kks, ipass, k, kt;
-    double temp, dsq;
+    bool done(false);
+    int np(0), kks(0), ipass(0), k(0), kt(0);
+    double temp(0), dsq(0);
 
     //---- sort arrays
     for (ipass=1; ipass<= 1234; ipass++)
@@ -3396,10 +3388,11 @@ void XFoil::sortol(double tol,int &kk,double s[],double w[])
 void XFoil::sopps(double &sopp, double si, double x[], double xp[], double y[], double yp[], double s[],
                   int n, double sle){
     //      dimension x(*),xp(*),y(*),yp(*),s(*)
-    double chord, slen, dxc, dyc, sfrac;
-    double xi, yi, xbar, xopp, yopp, xoppd, yoppd;
-    double res, resd, dsopp;
-    int in, inopp;
+    double chord(0), slen(0), dxc(0), dyc(0), sfrac(0);
+    double xi(0), yi(0), xbar(0), xopp(0), yopp(0), xoppd(0), yoppd(0);
+    double res(0), resd(0), dsopp(0);
+    int in(0), inopp(0);
+
     //---- reference length for testing convergence
     slen = s[n] - s[1];
 
@@ -3483,7 +3476,7 @@ void XFoil::sopps(double &sopp, double si, double x[], double xp[], double y[], 
 bool XFoil::getxyf(double x[], double xp[], double y[], double yp[], double s[],
                    int n, double &tops, double &bots, double xf, double &yf)
 {
-    double topy, boty, yrel;
+    double topy(0), boty(0), yrel(0);
     //    if(xf <= -999.0)  {   //  askr("enter flap hinge x location",xf)
     //        xf = 0.5;//arcs added
     //    }
@@ -3525,9 +3518,9 @@ bool XFoil::getxyf(double x[], double xp[], double y[], double yp[], double s[],
  *-------------------------------------------------------------- */
 bool XFoil::ggcalc()
 {
-    double psi=0, psi_n=0, res=0, res1=0, res2=0, ag1=0, ag2=0;
-    double abis=0, cbis=0, sbis=0, ds1=0, ds2=0, dsmin=0;
-    double xbis=0, ybis=0, qbis=0, bwt=0;
+    double psi(0), psi_n(0), res(0), res1(0), res2(0), ag1(0), ag2(0);
+    double abis(0), cbis(0), sbis(0), ds1(0), ds2(0), dsmin(0);
+    double xbis(0), ybis(0), qbis(0), bwt(0);
     double bbb[IQX];
     //    double psiinf;
 
@@ -3669,8 +3662,9 @@ bool XFoil::ggcalc()
 
 bool XFoil::baksub(int n, double a[IQX][IQX], int indx[], double b[])
 {
-    double sum=0;
-    int i=0, ii=0, ll=0, j=0;
+    double sum(0);
+    int i(0), ii(0), ll(0), j(0);
+
     ii = 0;
     for (i=1; i<=n; i++){
         ll = indx[i];
@@ -3708,21 +3702,18 @@ bool XFoil::hct(double hk, double msq, double &hc, double &hc_hk, double &hc_msq
 
 
 
-
 /**
  *      Changes buffer airfoil
  *      thickness and/or camber highpoint
  */
 void XFoil::hipnt(double chpnt, double thpnt)
 {
-    //      include 'xfoil.inc'
-    double    xfn[5], yfn[5], yfnp[5] ;//sfn[5]
-    double ybl, cxmax, cymax,  txmax, tymax;
-    double ycc,ytt;
-    double arot, sbl;
+    double ybl(0), cxmax(0), cymax(0), txmax(0), tymax(0);
+    double ycc(0),ytt(0);
+    double arot(0), sbl(0);
+    double xfn[5], yfn[5], yfnp[5] ;//sfn[5]
     double xcm[IQX], ycm[IQX], xtk[IQX], ytk[IQX], ycmp[IQX], ytkp[IQX];
-    int ncm, ntk;
-    //    double xbl;
+    int ncm(0), ntk(0);
 
     //--- check chordline direction (should be unrotated for camber routines)
     //    to function correctly
@@ -3860,7 +3851,7 @@ bool XFoil::hkin(double h, double msq, double &hk, double &hk_h, double &hk_msq)
 bool XFoil::hsl(double hk, double &hs, double &hs_hk, double &hs_rt, double &hs_msq)
 {
     //---- laminar hs correlation
-    double tmp;
+    double tmp(0);
     if(hk<4.35)
     {
         tmp = hk - 4.35;
@@ -3888,8 +3879,8 @@ bool XFoil::hsl(double hk, double &hs, double &hs_hk, double &hs_rt, double &hs_
 
 bool XFoil::hst(double hk, double rt, double msq, double &hs, double &hs_hk, double &hs_rt, double &hs_msq)
 {
-    double hsmin, dhsinf,  rtz, rtz_rt, ho, ho_rt, hr, hr_hk, hr_rt, fm;
-    double grt, hdif, rtmp, htmp, htmp_hk, htmp_rt;
+    double hsmin(0), dhsinf(0),  rtz(0), rtz_rt(0), ho(0), ho_rt(0), hr(0), hr_hk(0), hr_rt(0), fm(0);
+    double grt(0), hdif(0), rtmp(0), htmp(0), htmp_hk(0), htmp_rt(0);
 
     //---- turbulent hs correlation
 
@@ -3968,7 +3959,7 @@ bool XFoil::hst(double hk, double rt, double msq, double &hs, double &hs_hk, dou
  * -----------------------------------------------------------*/
 bool XFoil::iblpan()
 {
-    int iblmax,is, ibl, i, iw;
+    int iblmax(0), is(0), ibl(0), i(0), iw(0);
 
     //-- top surface first
     is = 1;
@@ -4035,7 +4026,7 @@ bool XFoil::iblpan()
  * --------------------------------------------- */
 bool XFoil::iblsys()
 {
-    int iv, is, ibl;
+    int iv(0), is(0), ibl(0);
 
     iv = 0;
     for (is=1; is<=2;is++)
@@ -4149,8 +4140,9 @@ bool XFoil::initXFoilAnalysis(double Re, double alpha, double Mach, double NCrit
  *------------------------------------- */
 bool XFoil::inside(double x[], double y[], int n, double xf, double yf)
 {
-    int i, ip;
-    double xb1, xb2, yb1,yb2, angle;
+    int i(0), ip(0);
+    double xb1(0), xb2(0), yb1(0), yb2(0), angle(0);
+
     //---- integ, ybrate subtended angle around airfoil perimeter, yb
     angle = 0.0;
     for(i=1; i<=n; i++)
@@ -4182,10 +4174,11 @@ bool XFoil::inside(double x[], double y[], int n, double xf, double yf)
 //------------------------------------------------------ */
 bool XFoil::lefind(double &sle, double x[], double xp[], double y[], double yp[], double s[], int n)
 {
-    int i, iter;
-    double dseps, dxte, dyte, dx, dy, dotp, dxds, dyds, dxdd, dydd;
-    double res, ress, dsle;
-    double xchord, ychord;
+    int i(0), iter(0);
+    double dseps(0), dxte(0), dyte(0), dx(0), dy(0), dotp(0), dxds(0), dyds(0), dxdd(0), dydd(0);
+    double res(0), ress(0), dsle(0);
+    double xchord(0), ychord(0);
+
     //---- convergence tolerance
     dseps = (s[n]-s[1]) * 0.00001;
 
@@ -4257,11 +4250,12 @@ bool XFoil::lefind(double &sle, double x[], double xp[], double y[], double yp[]
 bool XFoil::ludcmp(int n, double a[IQX][IQX], int indx[IQX])
 {
     //    bool bimaxok = false;
-    int imax =0;//added techwinder
+    int imax(0);//added techwinder
     int nvx=IQX;
-    int i=0, j=0, k=0;
+    int i(0), j(0), k(0);
     double vv[IQX];
-    double dum=0, sum=0, aamax=0;
+    double dum(0), sum(0), aamax(0);
+
     if(n>nvx)
     {
         QString str("Stop ludcmp: array overflow. Increase nvx");
@@ -4478,10 +4472,10 @@ bool XFoil::mrchdu()
     double deps = 0.000005;
     int is(0), ibl(0), ibm(0), itrold(0), iw(0), itbl(0);//icom
 
-    double senswt(0.0), thi, uei, dsi(0.0), cti(0.0), dswaki(0.0), ratlen(0.0);
-    double sens(0.0), sennew(0.0), dummy(0.0), msq(0.0), thm(0.0), dsm(0.0), uem(0.0);
-    double xsi(0.0), hklim(0.0), dsw(0.0);
-    double ami(0.0), dte(0.0), cte(0.0), tte(0.0), ueref(0.0), hkref(0.0), dmax(0.0);
+    double senswt(0), thi, uei, dsi(0), cti(0), dswaki(0), ratlen(0);
+    double sens(0), sennew(0), dummy(0), msq(0), thm(0), dsm(0), uem(0);
+    double xsi(0), hklim(0), dsw(0);
+    double ami(0), dte(0), cte(0), tte(0), ueref(0), hkref(0), dmax(0);
 
     //---- constant controlling how far hk is allowed to deviate
     //    from the specified value.
@@ -4781,14 +4775,14 @@ stop110:
  * ----------------------------------------------------*/
 bool XFoil::mrchue()
 {
-    bool direct;
-    int is, ibl, ibm, iw, itbl;
-    double msq, ratlen,dsw,hklim;
-    double hlmax, htmax, xsi, uei, ucon, tsq, thi, ami, cti, dsi;
-    double dswaki;
-    double  htest, hktest, dummy;
-    double cst;
-    double cte, dte, tte, dmax, hmax, htarg;
+    bool direct(false);
+    int is(0), ibl(0), ibm(0), iw(0), itbl(0);
+    double msq(0), ratlen(0),dsw(0),hklim;
+    double hlmax(0), htmax(0), xsi(0), uei(0), ucon(0), tsq(0), thi(0), ami(0), cti(0), dsi(0);
+    double dswaki(0);
+    double htest(0), hktest(0), dummy(0);
+    double cst(0);
+    double cte(0), dte(0), tte(0), dmax(0), hmax(0), htarg(0);
     cte = dte = tte = dmax = hmax = htarg = 0.0;
 
 
@@ -5101,7 +5095,8 @@ stop110:
  * -------------------------------------------- */
 bool XFoil::mrcl(double cls, double &m_cls, double &r_cls)
 {
-    double rrat, cla;
+    double rrat(0), cla(0);
+
     cla = std::max(cls, 0.000001);
     if(retyp<1 || retyp>3)
     {
@@ -5190,8 +5185,9 @@ bool XFoil::mrcl(double cls, double &m_cls, double &r_cls)
 
 bool XFoil::ncalc(double x[], double y[], double s[], int n, double xn[], double yn[])
 {
-    double sx, sy, smod;
-    int i;
+    double sx(0), sy(0), smod(0);
+    int i(0);
+
     if(n<=1) return false;
     segspl(x,xn,s,n);
     segspl(y,yn,s,n);
@@ -5235,17 +5231,17 @@ bool XFoil::ncalc(double x[], double y[], double s[], int n, double xn[], double
 void XFoil::pangen()
 {
     QString str;
-    int ipfac, ible, nk, nn, nfrac1, nn2, ind, ncorn,j;
-    double sbref, cvle, xble, xbte, yble, ybte, chbsq, cvsum, cvte;
-    double frac, sbk, cvk, cvavg, cc, smool, smoosq, dsm, dsp, dso;
-    double xoc, cvmax, rdste, rtf, dsavg, dsavg1, dsavg2;
-    double cv1, cv2, cv3, cvs1, cvs2, cvs3, cavm, cavm_s1, cavm_s2;
-    double cavp, cavp_s2, cavp_s3, fm, fp, rez;
-    double dmax, ds, dds, dsrat, xbcorn, ybcorn, sbcorn;
-    double dsmin, dsmax;
+    int ipfac(0), ible(0), nk(0), nn(0), nfrac1(0), nn2(0), ind(0), ncorn(0),j(0);
+    double sbref(0), cvle(0), xble(0), xbte(0), yble(0), ybte(0), chbsq(0), cvsum(0), cvte(0);
+    double frac(0), sbk(0), cvk(0), cvavg(0), cc(0), smool(0), smoosq(0), dsm(0), dsp(0), dso(0);
+    double xoc(0), cvmax(0), rdste(0), rtf(0), dsavg(0), dsavg1(0), dsavg2(0);
+    double cv1(0), cv2(0), cv3(0), cvs1(0), cvs2(0), cvs3(0), cavm(0), cavm_s1(0), cavm_s2(0);
+    double cavp(0), cavp_s2(0), cavp_s3(0), fm(0), fp(0), rez(0);
+    double dmax(0), ds(0), dds(0), dsrat(0), xbcorn(0), ybcorn(0), sbcorn(0);
+    double dsmin(0), dsmax(0);
     //    double gap;
-    int i,k, nn1;
-    int nothing;
+    int i(0),k(0), nn1(0);
+    int nothing(0);
     nn1 = 0;
 
     if(nb<2)
@@ -5875,20 +5871,20 @@ bool XFoil::PreProcess()
 bool XFoil::psilin(int iNode, double xi, double yi, double nxi, double nyi, double &psi, double &psi_ni,
                    bool geolin, bool siglin)
 {
-    int io=0,jo=0,jm=0,jq=0,jp=0;
+    int io(0),jo(0),jm(0),jq(0),jp(0);
 
-    double dxinv=0, psum=0, qtanm=0, scs=0, sds=0;
-    double rx1=0, rx2=0, sx=0, sy=0, dsio=0, dso=0, dsm=0, dsim=0;
-    double sgn=0, x0=0, logr0=0, theta0=0, rsq0=0, rsq1=0, rsq2=0;
-    double nxo=0, nyo=0, nxp=0, nyp=0, ry1=0, ry2=0;
-    double ssum=0, sdif=0, psni=0,pdni=0;
-    double psx0=0, psx1=0, psx2=0, pdx0=0, pdx1=0, pdx2=0, psyy=0, pdyy=0, psis=0, psig=0, psid=0;
-    double psigx1=0, psigx2=0, psigyy=0, pgamx1=0, pgamx2=0, pgamyy=0, psigni=0, pgamni=0;
-    double gsum=0, gdif=0, gsum1=0, gsum2=0, gdif1=0, gdif2=0, pdif=0, dsp=0, dsip=0;
-    double sigte1=0, sigte2=0, gamte1=0, gamte2=0, pgam=0;
-    double apan=0, yy=0, logr12=0, logr22=0;
-    double x1i=0, x2i=0, yyi=0, x1o=0, x1p=0, x2o=0, x2p=0, yyo=0, yyp=0;
-    double seps=0;
+    double dxinv(0), psum(0), qtanm(0), scs(0), sds(0);
+    double rx1(0), rx2(0), sx(0), sy(0), dsio(0), dso(0), dsm(0), dsim(0);
+    double sgn(0), x0(0), logr0(0), theta0(0), rsq0(0), rsq1(0), rsq2(0);
+    double nxo(0), nyo(0), nxp(0), nyp(0), ry1(0), ry2(0);
+    double ssum(0), sdif(0), psni(0),pdni(0);
+    double psx0(0), psx1(0), psx2(0), pdx0(0), pdx1(0), pdx2(0), psyy(0), pdyy(0), psis(0), psig(0), psid(0);
+    double psigx1(0), psigx2(0), psigyy(0), pgamx1(0), pgamx2(0), pgamyy(0), psigni(0), pgamni(0);
+    double gsum(0), gdif(0), gsum1(0), gsum2(0), gdif1(0), gdif2(0), pdif(0), dsp(0), dsip(0);
+    double sigte1(0), sigte2(0), gamte1(0), gamte2(0), pgam(0);
+    double apan(0), yy(0), logr12(0), logr22(0);
+    double x1i(0), x2i(0), yyi(0), x1o(0), x1p(0), x2o(0), x2p(0), yyo(0), yyp(0);
+    double seps(0);
 
     //---- distance tolerance for determining if two points are the same
     seps = (s[n]-s[1]) * 0.00001;
@@ -6276,14 +6272,14 @@ stop12:
  *-------------------------------------------------------------------- */
 bool XFoil::pswlin(int i, double xi, double yi, double nxi, double nyi, double &psi, double &psi_ni)
 {
-    double g1=0, g2=0, t1=0, t2=0;
-    double x1i=0, x2i=0, yyi=0, x0=0,rs0=0,g0=0, t0=0;
-    double dso=0, dsio=0, apan=0, rx1=0, rx2=0, ry1=0, ry2=0;
-    double sx=0, sy=0, x1=0, x2=0, yy=0, rs1=0, rs2=0, sgn=0;
-    double dxinv=0, psum=0, pdif=0, psx1=0, psx0=0, psyy=0, pdx1=0, pdx0=0, pdyy=0;
-    double dsm, dsim=0, ssum=0, sdif=0, psni=0, pdni=0, psx2=0, pdx2=0, dsp=0, dsip=0;
+    double g1(0), g2(0), t1(0), t2(0);
+    double x1i(0), x2i(0), yyi(0), x0(0),rs0(0),g0(0), t0(0);
+    double dso(0), dsio(0), apan(0), rx1(0), rx2(0), ry1(0), ry2(0);
+    double sx(0), sy(0), x1(0), x2(0), yy(0), rs1(0), rs2(0), sgn(0);
+    double dxinv(0), psum(0), pdif(0), psx1(0), psx0(0), psyy(0), pdx1(0), pdx0(0), pdyy(0);
+    double dsm, dsim(0), ssum(0), sdif(0), psni(0), pdni(0), psx2(0), pdx2(0), dsp(0), dsip(0);
     //double nxi, nyi;
-    int io=0, jo=0;
+    int io(0), jo(0);
 
     io = i;
 
@@ -6468,8 +6464,8 @@ bool XFoil::pswlin(int i, double xi, double yi, double nxi, double nyi, double &
  * ------------------------------------------------------ */
 bool XFoil::qdcalc()
 {
-    int i=0, j=0, k=0, iu=0, iw=0;
-    double psi=0, psi_n=0;
+    int i(0), j(0), k(0), iu(0), iw(0);
+    double psi(0), psi_n(0);
     double bbb[IQX];
     memset(bbb, 0, IQX*sizeof(double));
 
@@ -6640,7 +6636,7 @@ bool XFoil::qiset()
  * -------------------------------------------------------------- */
 bool XFoil::qvfue()
 {
-    int is, ibl;
+    int is(0), ibl(0);
     for (is=1;is<= 2; is++)
     {
         for (ibl=2; ibl<=nbl[is];ibl++)
@@ -7013,7 +7009,7 @@ bool XFoil::scalc(double x[], double y[], double s[], int n)
  * ----------------------------------------------- */
 bool XFoil::segspl(double x[], double xs[], double s[], int n)
 {
-    int nseg=0, iseg=0, iseg0=0;
+    int nseg(0), iseg(0), iseg0(0);
 
     if(fabs(s[1]-s[2])<EPSILON) return false; //stop 'segspl:  first input point duplicated'
     if(fabs(s[n]-s[n-1])<EPSILON) return false; //stop 'segspl:  last  input point duplicated'
@@ -7046,7 +7042,7 @@ bool XFoil::segspl(double x[], double xs[], double s[], int n)
  * ----------------------------------------------- */
 bool XFoil::segspld(double x[],double xs[],double s[],int n, double xs1, double xs2)
 {
-    int nseg=0, iseg=0, iseg0=0;
+    int nseg(0), iseg(0), iseg0(0);
 
     if(fabs(s[1]-s[2])<EPSILON) return false; //stop 'segspl:  first input point duplicated';
     if(fabs(s[n]-s[n-1])<EPSILON) return false; //stop 'segspl:  last  input point duplicated';
@@ -7074,8 +7070,8 @@ bool XFoil::segspld(double x[],double xs[],double s[],int n, double xs1, double 
  * ------------------------------------------------- */
 bool XFoil::setbl()
 {
-    int i=0, ibl=0, iv=0,iw=0, j=0, js=0, jv=0, jbl=0, is=0;
-    int ile1=0,ile2=0,ite1=0,ite2=0,jvte1=0,jvte2=0;
+    int i(0), ibl(0), iv(0),iw(0), j(0), js(0), jv(0), jbl(0), is(0);
+    int ile1(0),ile2(0),ite1(0),ite2(0),jvte1(0),jvte2(0);
 
     double usav[IVX+1][ISX];
     double u1_m[2*IVX+1], u2_m[2*IVX+1];
@@ -7093,17 +7089,17 @@ bool XFoil::setbl()
     memset(ute1_m, 0, (2*IVX+1)*sizeof(double));
     memset(ute2_m, 0, (2*IVX+1)*sizeof(double));
 
-    double msq_clmr=0.0, mdi=0.0;
-    double herat=0.0,herat_ms=0.0;
+    double msq_clmr(0), mdi(0);
+    double herat(0),herat_ms(0);
 
-    double clmr=0.0,ma_clmr=0.0,re_clmr=0.0;
-    double ule1_a=0.0, ule2_a=0.0, u1_a=0.0, u2_a=0.0, d1_a=0.0, due1=0.0, due2=0.0, dds1=0.0, dds2=0.0;
-    double xsi=0.0, cti=0.0, uei=0.0, thi=0.0, dsi=0.0, dswaki=0.0;
-    double d2_a=0.0, d2_m2=0.0, d2_u2=0.0, dte_mte1=0.0, dte_ute1=0.0, dte_mte2=0.0, dte_ute2=0.0;
-    double tte=0.0, cte=0.0, dte=0.0, dule1=0.0,dule2=0.0;
-    double str=0.0, chx=0.0, chy=0.0, xtr=0.0, ytr=0.0, chsq=0.0;
-    double xi_ule1=0.0, xi_ule2=0.0;
-    double ami=0.0, tte_tte1=0.0, tte_tte2=0.0, cte_tte1=0.0, cte_tte2=0.0, cte_cte1=0.0, cte_cte2=0.0;
+    double clmr(0),ma_clmr(0),re_clmr(0);
+    double ule1_a(0), ule2_a(0), u1_a(0), u2_a(0), d1_a(0), due1(0), due2(0), dds1(0), dds2(0);
+    double xsi(0), cti(0), uei(0), thi(0), dsi(0), dswaki(0);
+    double d2_a(0), d2_m2(0), d2_u2(0), dte_mte1(0), dte_ute1(0), dte_mte2(0), dte_ute2(0);
+    double tte(0), cte(0), dte(0), dule1(0),dule2(0);
+    double str(0), chx(0), chy(0), xtr(0), ytr(0), chsq(0);
+    double xi_ule1(0), xi_ule2(0);
+    double ami(0), tte_tte1(0), tte_tte2(0), cte_tte1(0), cte_tte2(0), cte_cte1(0), cte_cte2(0);
 
 
     //---- set the cl used to define mach, reynolds numbers
@@ -7576,8 +7572,8 @@ void XFoil::scheck(double x[], double y[], int *n, double stol, bool *lchange){
     //------------------------------------------------------
 
     //    int im1, ip1, ip2;
-    int i=0, l=0;
-    double dxm1=0, dym1=0, dsm1=0, dxp1=0, dxp2=0,dyp1=0,dyp2=0,dsp1=0,dsp2=0;
+    int i(0), l(0);
+    double dxm1(0), dym1(0), dsm1(0), dxp1(0), dxp2(0),dyp1(0),dyp2(0),dsp1(0),dsp2(0);
 
     *lchange = false;
     //--- check stol for sanity
@@ -7644,10 +7640,10 @@ void XFoil::scheck(double x[], double y[], int *n, double stol, bool *lchange){
 bool XFoil::setexp(double s[], double ds1, double smax, int nn)
 {
     QString str;
-    int nex=0, iter=0, n=0;
-    double sigma=0, rnex=0, rni=0, aaa=0, bbb=0, ccc=0;
-    double disc=0, ratio=0, sigman=0, res=0;
-    double dresdr=0, dratio=0, ds=0;
+    int nex(0), iter(0), n(0);
+    double sigma(0), rnex(0), rni(0), aaa(0), bbb(0), ccc(0);
+    double disc(0), ratio(0), sigman(0), res(0);
+    double dresdr(0), dratio(0), ds(0);
 
     sigma = smax/ds1;
     nex = nn-1;
@@ -7727,8 +7723,8 @@ bool XFoil::setMach()
 *       xs array must have been calculated by spline */
 double XFoil::seval(double ss, double x[], double xs[], double s[], int n)
 {
-    int ilow=0, i=0, imid=0;
-    double ds=0, t=0, cx1=0, cx2=0;
+    int ilow(0), i(0), imid(0);
+    double ds(0), t(0), cx1(0), cx2(0);
 
     ilow = 1;
     i = n;
@@ -7769,8 +7765,9 @@ double XFoil::sign(double a, double b)
  */
 bool XFoil::sinvrt(double &si, double xi, double x[], double xs[], double s[], int n)
 {
-    int iter=0;
-    double sisav=0, res=0, resp=0, ds=0;
+    int iter(0);
+    double sisav(0), res(0), resp(0), ds(0);
+
     sisav = si;
 
     for(iter=1;iter<= 10;iter++)
@@ -7790,15 +7787,14 @@ bool XFoil::sinvrt(double &si, double xi, double x[], double xs[], double s[], i
 }
 
 
-
 /**
  *      Converges to specified alpha.
  */
 bool XFoil::specal()
 {
-    double minf_clm=0, msq_clm=0, reinf_clm=0;
-    double clm=0, dclm=0, clm1=0;
-    int i=0, irlx=0, itcl=0;
+    double minf_clm(0), msq_clm(0), reinf_clm(0);
+    double clm(0), dclm(0), clm1(0);
+    int i(0), irlx(0), itcl(0);
 
     //---- calculate surface vorticity distributions for alpha = 0, 90 degrees
     if(!lgamu || !lqaij) ggcalc();
@@ -7905,8 +7901,8 @@ bool XFoil::speccl()
     //-----------------------------------------
     //     converges to specified inviscid cl.
     //-----------------------------------------
-    double dalfa=0;
-    int i=0, ital=0;
+    double dalfa(0);
+    int i(0), ital(0);
 
     //---- calculate surface vorticity distributions for alpha = 0, 90 degrees
     if(!lgamu || !lqaij) ggcalc();
@@ -8011,7 +8007,7 @@ bool XFoil::speccl()
 void XFoil::splina(double x[], double xs[], double s[], int n)
 {
     bool lend=false;
-    double ds=0, dx=0, xs1=0, xs2=0;
+    double ds(0), dx(0), xs1(0), xs2(0);
     xs1 = xs2 = 0.0;
 
     lend = true;
@@ -8059,12 +8055,14 @@ void XFoil::splina(double x[], double xs[], double s[], int n)
  *               derivative end condition(s) are used     |
  *                                                        |
  * ------------------------------------------------------- */
-bool XFoil::splind(double x[], double xs[], double s[], int n, double xs1, double xs2)
+bool XFoil::splind(double *x, double *xs, double *s, int n, double xs1, double xs2)
 {
     int nmax=600;
     double a[601],b[601],c[601];
-
-    double dsm=0, dsp=0;
+    double dsm(0), dsp(0);
+    memset(a, 0, 601*sizeof(double));
+    memset(b, 0, 601*sizeof(double));
+    memset(c, 0, 601*sizeof(double));
 
     if(n>nmax)
     {

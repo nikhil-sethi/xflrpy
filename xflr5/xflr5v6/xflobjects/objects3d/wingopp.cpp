@@ -21,7 +21,6 @@
 
 #include "wingopp.h"
 
-#include "plane.h"
 #include <xflcore/xflcore.h>
 #include <xflobjects/objects_global.h>
 #include <xflobjects/objects3d/wpolar.h>
@@ -85,6 +84,7 @@ WingOpp::WingOpp(int PanelArraySize)
     memset(m_XTrTop,        0, sizeof(m_XTrTop));
     memset(m_XTrBot,        0, sizeof(m_XTrBot));
     memset(m_BendingMoment, 0, sizeof(m_BendingMoment));
+    memset(m_Clmax,         0, sizeof(m_Clmax));
 
     m_F.resize(MAXSPANSTATIONS+1);
     m_Vd.resize(MAXSPANSTATIONS+1);
@@ -102,8 +102,6 @@ WingOpp::WingOpp(int PanelArraySize)
 WingOpp::~WingOpp()
 {
 }
-
-
 
 
 /**
@@ -233,6 +231,7 @@ void WingOpp::createWOpp(const Wing *pWing, const WPolar *pWPolar)
         m_BendingMoment[l] = pWing->m_BendingMoment[l];
         m_Vd[l] =            pWing->m_Vd[l];
         m_F[l] =             pWing->m_F[l];
+        m_Clmax[l] =         pWing->m_Clmax[l];
 
         m_SpanPos[l]   = pWing->m_SpanPos[l];
         m_StripArea[l] = pWing->m_StripArea[l];

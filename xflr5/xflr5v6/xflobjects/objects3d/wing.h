@@ -261,8 +261,12 @@ class Wing
         int firstPanelIndex() const {return m_FirstPanelIndex;}
         int nPanels() const {return m_nPanels;}
 
-        static double getInterpolatedVariable(int nVar, Foil *pFoil0, Foil *pFoil1, double Re, double Cl, double Tau, bool &bOutRe, bool &bError);
-        static double getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bool &bOutRe, bool &bError);
+        static double getInterpolatedVariable (int nVar, Foil *pFoilA, Foil *pFoilB, double Re, double Cl, double Tau, bool &bOutRe, bool &bOutCl);
+        static double getPlrPointFromCl (Foil *pFoil, double Re, double Cl, int PlrVar, bool &bOutRe, bool &bOutCl);
+
+        static double getInterpolatedClmax (Foil *pFoilA, Foil *pFoilB, double Re, double Tau, bool &bOutRe);
+        static double getPlrPointClmax(Foil *pFoil, double Re, bool &bOutRe);
+
 
     //__________________________Variables_______________________
     private:
@@ -311,13 +315,14 @@ class Wing
         /**<  Span Coefficients  resulting from VLM or LLT calculation @todo replace with QVarLenArray<double>*/
         double m_Ai[MAXSPANSTATIONS+1];            /**< the induced angles, in degrees */
         double m_Cl[MAXSPANSTATIONS+1];            /**< the lift coefficient at stations */
+        double m_Clmax[MAXSPANSTATIONS+1];         /**< the max. lift coefficient at stations based on viscous airfoil cl*/
         double m_ICd[MAXSPANSTATIONS+1];           /**< the induced drag coefficient at stations */
         double m_PCd[MAXSPANSTATIONS+1];           /**< the viscous drag coefficient at stations */
         double m_Re[MAXSPANSTATIONS+1];            /**< the Reynolds number at stations */
         double m_XTrTop[MAXSPANSTATIONS+1];        /**< the upper transition location at stations */
         double m_XTrBot[MAXSPANSTATIONS+1];        /**< the lower transition location at stations */
         double m_Cm[MAXSPANSTATIONS+1];            /**< the total pitching moment coefficient at stations */
-        double m_CmPressure[MAXSPANSTATIONS+1];     /**< the pitching moment coefficient at stations w.r.t. the chord's quarter point */
+        double m_CmPressure[MAXSPANSTATIONS+1];    /**< the pitching moment coefficient at stations w.r.t. the chord's quarter point */
         double m_XCPSpanRel[MAXSPANSTATIONS+1];    /**< the relative position of the strip's center of pressure at stations as a % of the local chord length*/
         double m_XCPSpanAbs[MAXSPANSTATIONS+1];    /**< the absolute position of the strip's center of pressure pos at stations */
         double m_Chord[MAXSPANSTATIONS+1];         /**< the chord at stations */

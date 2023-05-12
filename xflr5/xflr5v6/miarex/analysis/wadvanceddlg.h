@@ -34,7 +34,6 @@ class WAdvancedDlg : public QDialog
 {
     Q_OBJECT
     friend class Miarex;
-    friend class MainFrame;
 
     public:
         WAdvancedDlg(QWidget *pParent);
@@ -46,11 +45,12 @@ class WAdvancedDlg : public QDialog
         void onButton(QAbstractButton *pButton);
 
     private:
-        void keyPressEvent(QKeyEvent *event) override;
+        void keyPressEvent(QKeyEvent *pEvent) override;
         void readParams();
         void setParams();
         void setupLayout();
 
+    private:
         QDialogButtonBox *m_pButtonBox;
 
         QCheckBox *m_pchLogFile;

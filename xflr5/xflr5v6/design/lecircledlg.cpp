@@ -31,6 +31,8 @@
 
 LECircleDlg::LECircleDlg(QWidget *pParent): QDialog(pParent)
 {
+    m_bShowCircle = true;
+    m_Radius = 0.01;
     setWindowTitle(tr("L.E. Circle"));
     setupLayout();
 }
@@ -69,10 +71,12 @@ void LECircleDlg::setupLayout()
 }
 
 
-void LECircleDlg::initDialog()
+void LECircleDlg::initDialog(double radius, bool bShowCircle)
 {
+    m_Radius = radius;
+    m_bShowCircle = bShowCircle;
     m_pdeRadius->setValue(m_Radius);
-    m_pchShow->setChecked(m_bShowRadius);
+    m_pchShow->setChecked(m_bShowCircle);
 }
 
 
@@ -105,7 +109,7 @@ void LECircleDlg::keyPressEvent(QKeyEvent *event)
 void LECircleDlg::onOK()
 {
     m_Radius = m_pdeRadius->value();
-    m_bShowRadius = m_pchShow->isChecked();
+    m_bShowCircle = m_pchShow->isChecked();
     accept();
 }
 

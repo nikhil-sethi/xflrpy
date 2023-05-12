@@ -29,12 +29,13 @@ class Miarex;
 class PlaneTreeView : public QWidget
 {
     Q_OBJECT
-    friend class BatchModeDlg;
 
     public:
         PlaneTreeView(QWidget *pParent = nullptr);
         ~PlaneTreeView();
 
+        void addPOpps(const WPolar *pWPolar=nullptr);
+        void fillModelView();
         void insertPlane(Plane *pPlane);
         void insertWPolar(const WPolar *pWPolar);
 
@@ -45,39 +46,42 @@ class PlaneTreeView : public QWidget
         void removePlaneOpp(PlaneOpp *pPOpp);
         void removeWPolarPOpps(const WPolar *pWPolar);
 
+        void selectObjects();
         void selectPlane(Plane* pPlane=nullptr);
         void selectWPolar(WPolar *pWPolar, bool bSelectPOpp);
         void selectPlaneOpp(PlaneOpp *pPOpp=nullptr);
 
-        void selectCurrentObject();
-        void setObjectFromIndex(QModelIndex filteredindex);
-
-        void addPOpps(const WPolar *pWPolar=nullptr);
-        void fillModelView();
-        void fillWPolars(ObjectTreeItem *pPlaneItem, const Plane *pPlane);
-        void selectObjects();
         void setCurveParams();
-
-        void updatePlane(Plane const *pPlane);
-
-        QByteArray const &splitterSize() {return s_SplitterSizes;}
-        void setSplitterSize(QByteArray size) {s_SplitterSizes = size;}
-
         void setObjectProperties();
-//        void updateObjectView();
-        void setPropertiesFont(QFont const &fnt);
-        void setTreeFontStruct(const FontStruct &fntstruct);
-        void fillEigenThings(QString &props);
-
         void setOverallCheckStatus();
 
-        Qt::CheckState planeState(const Plane *pPlane) const;
-        Qt::CheckState wPolarState(const WPolar *pWPolar) const;
+        void setPropertiesFont(QFont const &fnt);
+        void updatePlane(Plane const *pPlane);
 
         static void setMainFrame(MainFrame*pMainFrame) {s_pMainFrame = pMainFrame;}
         static void setMiarex(Miarex*pMiarex) {s_pMiarex = pMiarex;}
         static void loadSettings(QSettings &settings);
         static void saveSettings(QSettings &settings);
+
+    private:
+
+        void selectCurrentObject();
+        void setObjectFromIndex(QModelIndex filteredindex);
+
+        void fillWPolars(ObjectTreeItem *pPlaneItem, const Plane *pPlane);
+
+        QByteArray const &splitterSize() {return s_SplitterSizes;}
+        void setSplitterSize(QByteArray size) {s_SplitterSizes = size;}
+
+//        void updateObjectView();
+        void setTreeFontStruct(const FontStruct &fntstruct);
+        void fillEigenThings(QString &props);
+
+
+
+        Qt::CheckState planeState(const Plane *pPlane) const;
+        Qt::CheckState wPolarState(const WPolar *pWPolar) const;
+
 
     protected:
         void contextMenuEvent(QContextMenuEvent *pEvent) override;

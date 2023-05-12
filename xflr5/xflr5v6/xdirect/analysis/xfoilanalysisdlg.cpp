@@ -125,7 +125,7 @@ void XFoilAnalysisDlg::setupLayout()
     m_pButtonBox = new QDialogButtonBox(QDialogButtonBox::Close, this);
     {
         m_pchLogFile = new QCheckBox(tr("Keep this window opened on errors"));
-        m_ppbSkip   = new QPushButton(tr("Skip"));
+        m_ppbSkip    = new QPushButton(tr("Skip"));
         m_pButtonBox->addButton(m_pchLogFile, QDialogButtonBox::ActionRole);
         m_pButtonBox->addButton(m_ppbSkip, QDialogButtonBox::ActionRole);
         connect(m_pButtonBox, SIGNAL(clicked(QAbstractButton*)), SLOT(onButton(QAbstractButton*)));
@@ -187,7 +187,7 @@ void XFoilAnalysisDlg::initDialog()
     if(s_bSequence)     m_pXFoilTask->setReRange(s_ReMin, s_ReMax, s_ReDelta);
     else                m_pXFoilTask->setReRange(s_ReMin, s_ReMin, s_ReDelta);
     m_pXFoilTask->initializeXFoilTask(XDirect::curFoil(), Objects2d::curPolar(),
-                                      XDirect::s_bViscous, XDirect::s_bInitBL, false);
+                                      true, XDirect::s_bInitBL, false);
 
     setFileHeader();
 
@@ -368,7 +368,7 @@ void XFoilAnalysisDlg::analyze()
 //    m_pXFoilTask->run();
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
-    QtConcurrent::run(&XFoilTask::run, m_pXFoilTask);
+    QFuture<void> future = QtConcurrent::run(&XFoilTask::run, m_pXFoilTask);
 #else
     QtConcurrent::run(m_pXFoilTask, &XFoilTask::run);
 #endif

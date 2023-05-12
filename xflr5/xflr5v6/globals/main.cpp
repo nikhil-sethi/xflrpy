@@ -122,9 +122,10 @@ void setOGLDefaultFormat(int version)
 int main(int argc, char *argv[])
 {
     qInstallMessageHandler(&customLogHandler);
-
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+#else
+    QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
+#endif
 
     /*To set up sharing between QOpenGLWidget instances belonging to different windows,
      * set the Qt::AA_ShareOpenGLContexts application attribute before instantiating QApplication.

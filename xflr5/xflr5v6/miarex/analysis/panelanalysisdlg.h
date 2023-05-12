@@ -62,9 +62,6 @@ class PanelAnalysisDlg : public QDialog
 {
     Q_OBJECT
 
-    friend class Miarex;
-    friend class MainFrame;
-
     public:
         PanelAnalysisDlg(QWidget *pParent);
         ~PanelAnalysisDlg() override;
@@ -72,8 +69,7 @@ class PanelAnalysisDlg : public QDialog
         void initDialog();
         void setTask(PlaneTask *pTask){m_pTheTask = pTask;}
         void deleteTask();
-
-        QSize sizeHint() const override {return QSize(950,700);}
+        void analyze();
 
     private slots:
         void onCancelAnalysis();
@@ -89,10 +85,9 @@ class PanelAnalysisDlg : public QDialog
         void showEvent(QShowEvent *event) override;
         void hideEvent(QHideEvent *event) override;
         void keyPressEvent(QKeyEvent *event) override;
+        QSize sizeHint() const override {return QSize(950,700);}
 
         void setupLayout();
-        void analyze();
-
         void updateOutput(const QString &strong);
         void updateView();
 

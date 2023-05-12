@@ -134,7 +134,7 @@ class XDirect : public QWidget
         void onDeletePolarOpps();
         void onDerotateFoil();
         void onDuplicateFoil();
-        void onEditCurPolar();
+        void onEditPolarPts();
         void onExportAllFoilPolars();
         void onExportAllPolarsTxt();
         void onExportAllPolarsTxt(QString DirName, xfl::enumTextFileType);
@@ -181,7 +181,6 @@ class XDirect : public QWidget
         void onShowPolarOpps();
         void onSpec();
         void onStoreOpp();
-        void onViscous();
         void onXFoilAdvanced();
         void onTaskFinished(Polar *pPolar);
 
@@ -236,7 +235,7 @@ class XDirect : public QWidget
         QCheckBox *m_pchSequence;
         DoubleEdit *m_pdeAlphaMin, *m_pdeAlphaMax, *m_pdeAlphaDelta;
 
-        QCheckBox *m_pchViscous;
+//        QCheckBox *m_pchViscous;
         QCheckBox *m_pchInitBL;
         QCheckBox *m_pchStoreOpp;
         QPushButton *m_ppbAnalyze;
@@ -281,7 +280,6 @@ class XDirect : public QWidget
 
         XFoil m_XFoil;                /**< the unique instance of the XFoil object */
 
-        static bool s_bViscous;           /**< true if performing a viscous calculation, false if inviscid */
         static bool s_bAlpha;             /**< true if performing an analysis based on aoa, false if based on Cl */
         static bool s_bInitBL;            /**< true if the boundary layer should be initialized for the next xfoil calculation */
         static bool s_bKeepOpenErrors;    /**< true if the XfoilAnalysisDlg should be kept open if errors occured in the XFoil calculation */

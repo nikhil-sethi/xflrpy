@@ -490,7 +490,7 @@ void Plane::createSurfaces()
 
 
 /**
-* Initiliazes the pointer to an existing Body object
+* Initializes the pointer to an existing Body object
 * @param pBody the pointer to the existing Body object
 */
 void Plane::setBody(Body *pBody)
@@ -602,8 +602,8 @@ Wing const *Plane::wingAt(int iw) const
  */
 bool Plane::serializePlaneWPA(QDataStream &ar, bool bIsStoring)
 {
-    int nMass=0;
-    float f=0,g=0,h=0;
+    int nMass(0);
+    float f(0),g(0),h(0);
 
     QString strong = "";
     int ArchiveFormat;// identifies the format of the file
@@ -990,3 +990,4 @@ double Plane::planformArea(bool bOtherWing)  const
     if(bOtherWing && m_bBiplane) area += m_Wing[1].planformArea();
     return area;
 }
+

@@ -82,6 +82,7 @@ void LLTAnalysis::resetVariables()
     memset(m_BendingMoment, 0, sizeof(m_BendingMoment));
     memset(m_XTrTop,        0, sizeof(m_XCPSpanAbs));
     memset(m_XTrBot,        0, sizeof(m_BendingMoment));
+    memset(m_Clmax,         0, sizeof(m_Clmax));
 
     m_LengthUnit.clear();
     m_mtoUnit = 0.0;
@@ -255,6 +256,10 @@ void LLTAnalysis::computeWing(double QInf, double Alpha, QString &ErrorMessage)
         }
         if(bOutRe) bPointOutRe = true;
         if(bError) bPointOutAlpha = true;
+
+        m_Clmax[m] = getInterpolatedClmax (pFoil0, pFoil1, m_Re[m], tau, bOutRe);
+        // qDebug().noquote () << QString::asprintf("Span pos: %.5f  Alpha %.5f  Clmax %.5f", yob*m_pWing->planformSpan()/2.0, Alpha+m_Ai[m]+m_Twist[m], m_Clmax[m]);
+
 
         // incorrect up to v6.47, moments should be calculated in wind axes, notwithstanding induced angle and twist
         // makes a non-significant difference on results
@@ -904,6 +909,7 @@ PlaneOpp* LLTAnalysis::createPlaneOpp(double QInf, double Alpha, bool bWingOut)
                 pNewPoint->m_Twist[l]         =  m_Twist[nStation-l];
                 pNewPoint->m_XTrTop[l]        =  m_XTrTop[nStation-l];
                 pNewPoint->m_XTrBot[l]        =  m_XTrBot[nStation-l];
+                pNewPoint->m_Clmax[l]         =  m_Clmax[nStation-l];
                 pNewPoint->m_BendingMoment[l] =  m_BendingMoment[nStation-l];
                 if(qAbs(m_BendingMoment[l])>qAbs(Cb))    Cb = m_BendingMoment[l];
             }
@@ -1355,7 +1361,6 @@ double LLTAnalysis::getPlrPointFromAlpha(Foil const*pFoil, double Re, double Alp
         return 0.000;
     }
 
-
     int size = 0;
     int n = 0;
 
@@ -1369,6 +1374,12 @@ double LLTAnalysis::getPlrPointFromAlpha(Foil const*pFoil, double Re, double Alp
             if(n>=2) break;
         }
     }
+    if(n < 2) {
+        bOutRe = true;
+        bError = true;
+        return 0.000;
+    }
+
 
     //more than one polar - interpolate between  - tough job
 
@@ -1503,8 +1514,14 @@ double LLTAnalysis::getPlrPointFromAlpha(Foil const*pFoil, double Re, double Alp
         }
 
         QVector<double> const &pX1 = pPolar1->getVariable(PlrVar);
-        if(Alpha < pPolar1->m_Alpha.front())     Var1 = pX1.front();
-        else if(Alpha > pPolar1->m_Alpha.back()) Var1 = pX1.back();
+        if     (Alpha < pPolar1->m_Alpha.front()) Var1 = pX1.front();
+        else if(Alpha > pPolar1->m_Alpha.back())  Var1 = pX1.back();
+        else if(Alpha > pPolar1->getAlphaClmax()) {
+            // stop if clmax ist exceeded
+            bError = true;
+            bOutRe = true;
+            return 0.000;
+        }
         else
         {
             for (int i=0; i<size-1; i++)
@@ -1541,6 +1558,12 @@ double LLTAnalysis::getPlrPointFromAlpha(Foil const*pFoil, double Re, double Alp
             bOutRe = true;
             bError = true;
             Var2 = pX2.back();
+        }
+        else if(Alpha > pPolar1->getAlphaClmax()) {
+            // stop if clmax ist exceeded
+            bError = true;
+            bOutRe = true;
+            return 0.000;
         }
         else{
             for (int i=0; i<size-1; i++)
@@ -1699,3 +1722,109 @@ void LLTAnalysis::getLinearizedPolar(Foil *pFoil0, Foil *pFoil1, double Re, doub
     Slope  = ((1-Tau) * Slope0  + Tau * Slope1);
 }
 
+
+/**
+*Interpolates Clmax on the airfoil polar mesh, based on the geometrical position of a point between two sections on a wing.
+*@param pFoilA and B the pointer to the foils left and right
+*@param Re the Reynolds number .
+*@param bOutRe true if Re is outside the min or max Reynolds number of the polar mesh.
+*@return Clmax
+*/
+double LLTAnalysis::getInterpolatedClmax (Foil *pFoilA, Foil *pFoilB, double Re, double Tau, bool &bOutRe)
+{
+    bool IsOutRe = false;
+    bOutRe = false;
+    double VarA, VarB, Var;
+
+    // get interpolated variable from left airfoil station
+    if(!pFoilA) {
+        VarA = 0.0;
+    }
+    else {
+        VarA = getPlrPointClmax   (pFoilA, Re, IsOutRe);
+        if(IsOutRe) bOutRe = true;
+    }
+
+    // get interpolated variable from right airfoil station
+    if(!pFoilA) {
+        VarB = 0.0;
+    }
+    else {
+        VarB = getPlrPointClmax   (pFoilB, Re, IsOutRe);
+        if(IsOutRe) bOutRe = true;
+     }
+
+    // now interpolate the polar data
+    if (!bOutRe) {
+        if (Tau<0.0) Tau = 0.0;
+        if (Tau>1.0) Tau = 1.0;
+        Var = (1- Tau) * VarA + Tau * VarB;
+    }
+    else {
+        Var = 0.0;
+    }
+    return Var;
+}
+
+/**
+* Returns Cl max, interpolated on a polar mesh, and based on the value of the Reynolds Number.
+* Proceeds by identifiying the two polars surronding Re, then interpolating both to get Cl max,
+*@param pFoil the pointer to the foil
+*@param Re the Reynolds number .
+*@param bOutRe true if Re outside the polar mesh.
+*@return the interpolated value of Cl max.
+*/
+double LLTAnalysis::getPlrPointClmax(Foil *pFoil, double Re, bool &bOutRe)
+{
+
+    double Cl1min , Cl1max, Cl2min , Cl2max;
+    Polar *pPolar(nullptr);
+
+    bOutRe = false;
+
+    if(!pFoil) {
+        bOutRe = true;
+        return 0.000;
+    }
+
+    //First Find the two polars with Reynolds number surrounding wanted Re
+
+    Polar * pPolar1 = nullptr;
+    Polar * pPolar2 = nullptr;
+    int nPolars = m_poaPolar->size();
+
+    //Type 1 Polars are sorted by crescending Re Number
+    for (int i=0; i< nPolars; i++) {
+        pPolar = m_poaPolar->at(i);
+        if((pPolar->polarType()== xfl::FIXEDSPEEDPOLAR) && (pPolar->foilName() == pFoil->name())  && pPolar->m_Cl.size()>0)         {
+            // we have found the first type 1 polar for this foil
+            if (pPolar->Reynolds() <= Re) {
+                pPolar1 = pPolar;
+            }
+            else {
+                pPolar2 = pPolar;
+                break;
+            }
+        }
+    }
+
+    if (!pPolar2 || !pPolar1)
+    {
+        // RE is outside any polar
+        bOutRe = true;
+        return 0.000;
+    }
+
+    if(!pPolar1->m_Cl.size() || !pPolar2->m_Cl.size()) {
+        bOutRe = true;
+        return 0.0;
+    }
+
+    pPolar1->getClLimits(Cl1min, Cl1max);
+    pPolar2->getClLimits(Cl2min, Cl2max);
+
+    // Re is between that of polars 1 and 2 - so interpolate Cl max linearly
+    double v =   (Re - pPolar1->Reynolds()) / (pPolar2->Reynolds() - pPolar1->Reynolds());
+    double Var = Cl1max + v * (Cl2max-Cl1max);
+    return Var;
+}

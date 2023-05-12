@@ -50,25 +50,25 @@
 #include <xinverse/pertdlg.h>
 
 MainFrame *XInverse::s_pMainFrame(nullptr);
-inverseviewwt *XInverse::s_p2dWidget(nullptr);
+InverseViewWt *XInverse::s_p2dWidget(nullptr);
 
 /** The public contructor */
-XInverse::XInverse(QWidget *parent)
-    : QWidget(parent)
+XInverse::XInverse(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
+    InverseOptionsDlg::setXInverse(this);
 
     m_bFullInverse = false;
 
     m_pXFoil = nullptr;
     m_pCurGraph = nullptr;
+    m_pOverlayFoil = nullptr;
 
     m_bTransGraph    = false;
     m_bLoaded        = false;
     m_bZoomPlus      = false;
     m_bShowPoints    = false;
     m_bTangentSpline = false;
-    m_bReflected     = false;
     m_bMarked        = false;
     m_bTrans   = false;
     m_bSpline  = false;
@@ -92,7 +92,6 @@ XInverse::XInverse(QWidget *parent)
     m_pModFoil->setLineStipple(Line::SOLID);
     m_pModFoil->setLineWidth(1);
 
-    m_pOverlayFoil = nullptr;
 
     m_Spline.insertPoint(0.0,  0.0);
     m_Spline.insertPoint(0.25, 0.0);
@@ -109,6 +108,7 @@ XInverse::XInverse(QWidget *parent)
     m_ReflectedStyle.m_Stipple = Line::DASH;
     m_ReflectedStyle.m_Width = 1;
     m_ReflectedStyle.m_Color = QColor(195,155, 35);
+    m_ReflectedStyle.m_bIsVisible = false;
 
     m_nPos    = 0;
     m_tmpPos  = -1;
@@ -131,7 +131,7 @@ XInverse::XInverse(QWidget *parent)
     m_pMCurve  = m_QGraph.addCurve();
     m_pQVCurve = m_QGraph.addCurve();
     m_pReflectedCurve = m_QGraph.addCurve();
-    m_pReflectedCurve->setVisible(m_bReflected);
+    m_pReflectedCurve->setVisible(m_ReflectedStyle.m_bIsVisible);
 
     setupLayout();
     if(m_bFullInverse)
@@ -174,6 +174,7 @@ void XInverse::cancelSmooth()
     m_ppbMSmooth->setChecked(false);
 }
 
+
 /**
  * Cancels the spline definition process
  */
@@ -199,8 +200,7 @@ void XInverse::checkActions()
     s_pMainFrame->m_pInvQSpec->setChecked(m_pMCurve->isVisible());
     s_pMainFrame->m_pInvQViscous->setChecked(m_pQVCurve->isVisible());
     s_pMainFrame->m_pInvQPoints->setChecked(m_bShowPoints);
-    s_pMainFrame->m_pInvQReflected->setChecked(m_bReflected);
-
+    s_pMainFrame->m_pInvQReflected->setChecked(m_ReflectedStyle.m_bIsVisible);
     if(m_bFullInverse)
     {
         m_pchShowSpline->setChecked(m_bSpline);
@@ -214,14 +214,17 @@ void XInverse::checkActions()
     }
 }
 
+
 /**
- * Clears the data associated to the loaded Foil
+ * Clears the data
  */
 void XInverse::clear()
 {
     m_pRefFoil->m_n = 0;
     m_pRefFoil->setName(QString());
     m_pModFoil->setName(QString());
+
+    m_pOverlayFoil = nullptr;
 
     m_bLoaded = false;
     m_pReflectedCurve->clear();
@@ -282,6 +285,7 @@ void XInverse::createQCurve()
     }
 }
 
+
 /**
  * Creates the modified velocity specification curve
  */
@@ -302,6 +306,7 @@ void XInverse::createMCurve()
         m_pReflectedCurve->appendPoint(m_pXFoil->sspec[i],-y);
     }
 }
+
 
 /**
  * Draws the grid underneath the Foil display
@@ -528,11 +533,11 @@ bool XInverse::initXFoil(Foil * pFoil)
  * Dispatches the key press event
  * @param event the QKeyEvent
  */
-void XInverse::keyPressEvent(QKeyEvent *event)
+void XInverse::keyPressEvent(QKeyEvent *pEvent)
 {
 //    bool bCtrl = false;
 //    if(event->modifiers() & Qt::ControlModifier)   bCtrl =true;
-    switch (event->key())
+    switch (pEvent->key())
     {
         case Qt::Key_X:
             m_bXPressed = true;
@@ -608,7 +613,7 @@ void XInverse::keyPressEvent(QKeyEvent *event)
         }
 
         default:
-            event->ignore();
+            pEvent->ignore();
     }
 }
 
@@ -952,25 +957,22 @@ void XInverse::mouseMoveEvent(QMouseEvent *pEvent)
 }
 
 
-
-
-
 /**
  * Overrides the QWidget's mousePressEvent method.
  * Dispatches the event
  * @param event the QMouseEvent
  */
-void XInverse::mousePressEvent(QMouseEvent *event)
+void XInverse::mousePressEvent(QMouseEvent *pEvent)
 {
     bool bCtrl(false), bShift(false);
 
-    if(event->modifiers() & Qt::ControlModifier) bCtrl  = true;
-    if(event->modifiers() & Qt::ShiftModifier)   bShift = true;
+    if(pEvent->modifiers() & Qt::ControlModifier) bCtrl  = true;
+    if(pEvent->modifiers() & Qt::ShiftModifier)   bShift = true;
 
 
     QPoint pttmp;
-    QPoint point = event->pos();
-    if((event->buttons() & Qt::LeftButton))
+    QPoint point = pEvent->pos();
+    if((pEvent->buttons() & Qt::LeftButton))
     {
         if(!m_bGetPos)
         {
@@ -1042,9 +1044,9 @@ void XInverse::mousePressEvent(QMouseEvent *event)
             }
         }
     }
-    else if((event->buttons() & Qt::RightButton))
+    else if((pEvent->buttons() & Qt::RightButton))
     {
-        m_ptPopUp = event->pos();
+        m_ptPopUp = pEvent->pos();
     }
 }
 
@@ -1054,7 +1056,7 @@ void XInverse::mousePressEvent(QMouseEvent *event)
  * Dispatches the event
  * @param event the QMouseEvent
  */
-void XInverse::mouseReleaseEvent(QMouseEvent *event)
+void XInverse::mouseReleaseEvent(QMouseEvent *pEvent)
 {
     m_bTrans = false;
 
@@ -1062,7 +1064,7 @@ void XInverse::mouseReleaseEvent(QMouseEvent *event)
     double xmin(0), ymin(0), xmax(0), ymax(0);
     double ratio(0),x(0), y(0), ux(0), uy(0), xpt(0), ypt(0), norm(0);
 
-    QPoint point = event->pos();
+    QPoint point = pEvent->pos();
 
     if(m_bZoomPlus && m_rCltRect.contains(point))
     {
@@ -1234,13 +1236,12 @@ void XInverse::mouseReleaseEvent(QMouseEvent *event)
 }
 
 
-
 /**
  * Converts screen coordinates to viewport coordinates
  * @param point the screen coordinates
  * @return the viewport coordinates
  */
-Vector3d XInverse::mousetoReal(QPoint point)
+Vector3d XInverse::mousetoReal(QPoint point) const
 {
     Vector3d Real;
 
@@ -1259,15 +1260,13 @@ void XInverse::onApplySpline()
 {
     if(!m_bSplined)
     {
-        double qscom(0), xx(0);
         for (int i=1; i<m_pMCurve->size()-1; i++)
         {
-            xx = m_pMCurve->m_x[i];
-            if (xx > m_Spline.m_CtrlPt.first().x &&
-                    xx < m_Spline.m_CtrlPt.last().x )
+            if (m_pMCurve->m_x[i] > m_Spline.m_CtrlPt.first().x &&
+                m_pMCurve->m_x[i] < m_Spline.m_CtrlPt.last().x )
             {
                 //interpolate spline at xx
-                m_pMCurve->m_y[i] = m_Spline.getY(xx);
+                m_pMCurve->m_y[i] = m_Spline.getY(m_pMCurve->m_x[i]);
             }
         }
 
@@ -1277,11 +1276,11 @@ void XInverse::onApplySpline()
         }
 
         m_bSplined = true;
-        for (int i=1; i<= m_pXFoil->nsp; i++)
+        for (int i=1; i<=m_pXFoil->nsp; i++)
         {
-            //            isp = pXFoil->nsp - i + 1;
-            qscom =  m_pXFoil->qinf*m_pMCurve->m_y[i-1];
-            m_pXFoil->qspec[1][i] = qincom(qscom,m_pXFoil->qinf,m_pXFoil->tklam);
+//            int isp = m_pXFoil->nsp - i + 1;
+            double qscom =  m_pXFoil->qinf*m_pMCurve->m_y[i-1];
+            m_pXFoil->qspec[1][i] = qincom(qscom, m_pXFoil->qinf, m_pXFoil->tklam);
         }
 
         m_pXFoil->lqspec = false;
@@ -1289,7 +1288,7 @@ void XInverse::onApplySpline()
         updateView();
     }
     if(m_bZoomPlus) releaseZoom();
-    //    m_bSpline = false;
+
     m_nPos    = 0;
     m_tmpPos  = -1;
     m_Pos1    = -1;
@@ -1476,7 +1475,6 @@ void XInverse::onInverseApp()
 void XInverse::onInverseStyles()
 {
     InverseOptionsDlg *m_pXInverseStyleDlg = new InverseOptionsDlg(s_pMainFrame);
-    m_pXInverseStyleDlg->m_pXInverse = this;
     m_pXInverseStyleDlg->initDialog();
     m_pXInverseStyleDlg->exec();
 
@@ -1625,8 +1623,10 @@ void XInverse::onQPoints()
 /** Toggles the visibility of the reflected curve */
 void XInverse::onQReflected()
 {
-    m_bReflected = !m_bReflected;
-    m_pReflectedCurve->setVisible(m_bReflected);
+    m_ReflectedStyle.m_bIsVisible = !m_ReflectedStyle.m_bIsVisible;
+    m_pReflectedCurve->setVisible(m_ReflectedStyle.m_bIsVisible);
+
+
     checkActions();
     updateView();
 }
@@ -2346,7 +2346,6 @@ void XInverse::setXInverseScale(QRect CltRect)
     int h = CltRect.height();
     int h4 = h/3;
     m_rGraphRect = QRect(0, 0, + m_rCltRect.width(), m_rCltRect.height()-h4);
-    m_QGraph.setMargin(50);
     m_QGraph.setDrawRect(m_rGraphRect);
 
     resetScale();

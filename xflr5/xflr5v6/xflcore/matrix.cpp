@@ -89,9 +89,9 @@ int Compare(std::complex<double> a, std::complex<double>b)
 */
 void ComplexSort(std::complex<double>*array, int ub)
 {
-    int indx=0, indx2=0;
-    std::complex<double> temp=0, temp2=0;
-    int flipped=0;
+    int indx(0), indx2(0);
+    std::complex<double> temp(0), temp2=(0);
+    int flipped(0);
 
     if (ub <= 1) return;
 
@@ -141,9 +141,9 @@ void AV33(double const*A, double const*v, double *p)
 */
 bool Gauss(double *A, int n, double *B, int m, bool *pbCancel)
 {
-    int row=0, i=0, j=0, pivot_row=0, k=0;
-    double max=0, dum=0;
-    double *pa=nullptr, *pA=nullptr, *A_pivot_row=nullptr;
+    int row(0), i(0), j(0), pivot_row(0), k(0);
+    double max(0), dum(0);
+    double *pa(nullptr), *pA(nullptr), *A_pivot_row(nullptr);
     
     // for each variable find pivot row and perform forward substitution
     pa = A;
@@ -231,8 +231,8 @@ bool Gauss(double *A, int n, double *B, int m, bool *pbCancel)
 bool Invert44(std::complex<double> const *ain, std::complex<double> *aout)
 {
     //small size, use the direct method
-    std::complex<double> det=0;
-    double sign=0;
+    std::complex<double> det(0);
+    double sign(0);
 
     det = det44(ain);
 
@@ -257,7 +257,7 @@ bool Invert44(std::complex<double> const *ain, std::complex<double> *aout)
 */
 double det33(double const *aij)
 {
-    double det=0;
+    double det(0);
 
     det  = aij[0]*aij[4]*aij[8];
     det -= aij[0]*aij[5]*aij[7];
@@ -281,7 +281,7 @@ double det33(double const *aij)
 std::complex<double> det33(std::complex<double> const *aij)
 {
     //returns the determinant of a 3x3 matrix
-    std::complex<double> det=0;
+    std::complex<double> det(0);
 
     det  = aij[0]*aij[4]*aij[8];
     det -= aij[0]*aij[5]*aij[7];
@@ -304,7 +304,7 @@ std::complex<double> det33(std::complex<double> const *aij)
 double det44(double const *aij)
 {
 //    returns the determinant of a 4x4 matrix
-    double det=0, sign=0;
+    double det(0), sign(0);
     double a33[16];
     memset(a33, 0, 16*sizeof(double));
 
@@ -341,7 +341,6 @@ double det44(double const *aij)
 */
 std::complex<double> cofactor44(std::complex<double> const*aij, int &i, int &j)
 {
-    //returns the complex cofactor of element i,j, in the 4x4 matrix aij
     std::complex<double> a33[9];
 
     int p = 0;
@@ -364,6 +363,7 @@ std::complex<double> cofactor44(std::complex<double> const*aij, int &i, int &j)
     return det33(a33);
 }
 
+
 /**
 * Returns the determinant of a complex 4x4 matrix
 * @param aij a pointer to a one-dimensional array holding the 16 complex double values of the matrix
@@ -371,8 +371,7 @@ std::complex<double> cofactor44(std::complex<double> const*aij, int &i, int &j)
 */
 std::complex<double> det44(std::complex<double> const *aij)
 {
-//    returns the determinant of a 4x4 matrix
-    double sign=0;
+    double sign(0);
     std::complex<double> det=0, a33[16];
     det = 0.0;
 
@@ -456,9 +455,9 @@ std::complex<double> det44(std::complex<double> const *aij)
 */
 bool Crout_LU_Decomposition_with_Pivoting(double *A, int pivot[], int n, bool *pbCancel, double TaskSize, double &Progress)
 {
-    int i, j, k;
-    double *p_k, *p_row, *p_col;
-    double max=0.0;
+    int i(0), j(0), k(0);
+    double *p_k(nullptr), *p_row(nullptr), *p_col(nullptr);
+    double max(0);
 
     p_col = nullptr;
 
@@ -543,9 +542,9 @@ bool Crout_LU_Decomposition_with_Pivoting(double *A, int pivot[], int n, bool *p
 */
 bool Crout_LU_with_Pivoting_Solve(double const*LU, double B[], int pivot[], double x[], int Size, bool *pbCancel)
 {
-    int i, k;
-    double const *p_k;
-    double dum;
+    int i(0), k(0);
+    double const *p_k(nullptr);
+    double dum(0);
 
     //  Solve the linear equation Lx = B for x, where L is a lower triangular matrix.
     for (k=0, p_k=LU; k<Size; p_k+=Size, k++)
@@ -730,9 +729,9 @@ void TestEigen()
 *________________________________________________________________________ */
 bool Eigenvector(double a[][4], std::complex<double> lambda, std::complex<double> *V)
 {
-    std::complex<double> detm, detr;
+    std::complex<double> detm(0), detr(0);
     std::complex<double> r[9], m[9];
-    int ii, jj, i, j, kp;
+    int ii(0), jj(0), i(0), j(0), kp(0);
 
     // first find a pivot for which the  associated n-1 determinant is not zero
     bool bFound = false;
@@ -762,7 +761,8 @@ bool Eigenvector(double a[][4], std::complex<double> lambda, std::complex<double
         bFound = std::abs(detm)>0.0;
         if(bFound || kp>=3) break;
         kp++;
-    }while(true);
+    }
+    while(true);
 
     if(!bFound) return false;
 
@@ -814,9 +814,9 @@ bool Eigenvector(double a[][4], std::complex<double> lambda, std::complex<double
 bool LinBairstow(double *p, std::complex<double> *root, int n)
 {
     double b[POLYNOMORDER], c[POLYNOMORDER];
-    int i, k, nn, iter;
-    double r,s,d0,d1,d2;
-    double Delta;
+    int i(0), k(0), nn(0), iter(0);
+    double r(0),s(0),d0(0),d1(0),d2(0);
+    double Delta(0);
 
     memset(b, 0, POLYNOMORDER*sizeof(double));
     memset(c, 0, POLYNOMORDER*sizeof(double));
@@ -1000,3 +1000,4 @@ void displayDouble(double d0, double d1, double d2, double d3, double d4, double
 
     qDebug("%s", strong.toStdString().c_str());
 }
+

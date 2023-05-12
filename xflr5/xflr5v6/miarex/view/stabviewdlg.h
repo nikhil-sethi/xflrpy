@@ -44,12 +44,12 @@ class StabViewDlg : public QWidget
     Q_OBJECT
 
     friend class Miarex;
-    friend class MainFrame;
 
     public:
         StabViewDlg(QWidget *parent);
         ~StabViewDlg();
 
+        static void setMiarex(Miarex*pMiarex) {s_pMiarex=pMiarex;}
 
     private slots:
         void onAnimate();

@@ -32,9 +32,6 @@ class PolarFilterDlg : public QDialog
 {
     Q_OBJECT
 
-    friend class Miarex;
-    friend class XDirect;
-
     public:
         PolarFilterDlg(QWidget *pParent=nullptr);
         void initDialog();
@@ -46,6 +43,8 @@ class PolarFilterDlg : public QDialog
         void setupLayout();
 
         QCheckBox *m_pchType1, *m_pchType2, *m_pchType3, *m_pchType4, *m_pchType7;
+
+    public:
         bool m_bType1, m_bType2, m_bType3, m_bType4, m_bType7;
         bool m_bMiarex;
 };

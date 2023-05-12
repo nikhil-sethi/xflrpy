@@ -42,16 +42,14 @@
 
 class Section2dWt : public QWidget
 {
-    friend class MainFrame;
-    friend class BodyLineWidget;
-    friend class BodyFrameWidget;
-    friend class Direct2dDesign;
-    friend class AFoil;
-
     Q_OBJECT
+
     public:
         Section2dWt(QWidget *parent = nullptr);
+        void setUnitFactor(double unitfactor) {m_UnitFactor=unitfactor;}
+        void setContextMenu(QMenu *pMenu);
 
+    private:
         QSize sizeHint() const override;
         QSize minimumSizeHint() const override;
 
@@ -66,10 +64,8 @@ class Section2dWt : public QWidget
         void resizeEvent (QResizeEvent *pEvent) override;
         void wheelEvent (QWheelEvent *pEvent) override;
         void showEvent(QShowEvent *pEvent) override;
-        void setContextMenu(QMenu *pMenu);
 
         void setAutoUnits();
-        void setUnitFactor(double unitfactor) {m_UnitFactor=unitfactor;}
 
         static void setBackColor(QColor backclr) {s_BackColor=backclr;}
         static void setTextColor(QColor textclr) {s_TextColor=textclr;}
@@ -126,6 +122,8 @@ class Section2dWt : public QWidget
     public:
         Vector3d m_objectOffset;
         double m_objectScale;
+        bool m_bShowLegend;         /**< true if the legend should be shown */
+        Grid m_Grid;
 
 
     protected:
@@ -139,11 +137,9 @@ class Section2dWt : public QWidget
         bool m_bZoomYOnly;          /**< true if only the y-axis should be scaled */
         bool m_bTrans;              /**< true if the view is being dragged by the user */
         bool m_bDrag;               /**< true if a point is being dragged by the user */
-        bool m_bShowLegend;         /**< true if the legend should be shown */
         bool m_bXDown;              /**< true if the 'X' key is pressed */
         bool m_bYDown;              /**< true if the 'Y' key is pressed */
 
-        Grid m_Grid;
         double m_fScale;            /**< the current scale of the display */
         double m_fScaleY;           /**< the ratio between the  y and x scales */
         double m_fRefScale;         /**< the reference scale of the display */

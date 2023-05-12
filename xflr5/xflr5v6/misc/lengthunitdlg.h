@@ -31,18 +31,18 @@
 class LengthUnitDlg : public QDialog
 {
     Q_OBJECT
-    friend class MainFrame;
-    friend class Miarex;
 
     public:
         LengthUnitDlg(QWidget *parent);
 
         void getLengthUnitLabel(QString &str);
         QString lengthUnitLabel();
-        double mtoUnit()  {return s_mtoUnit;}
-        int lengthUnitIndex() {return m_LengthUnitIndex;}
+        double mtoUnit() const {return s_mtoUnit;}
+        int lengthUnitIndex() const {return m_LengthUnitIndex;}
 
         void initDialog(int lengthUnitInd);
+
+    private:
         void setUnits();
 
     private slots:

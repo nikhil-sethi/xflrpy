@@ -42,7 +42,7 @@
 #include <gui_objects/spline5.h>
 
 class MainFrame;
-class inverseviewwt;
+class InverseViewWt;
 class Foil;
 class MinTextEdit;
 class IntEdit;
@@ -59,17 +59,19 @@ class XInverse : public QWidget
     Q_OBJECT
 
     friend class MainFrame;
-    friend class inverseviewwt;
+    friend class InverseViewWt;
     friend class InverseOptionsDlg;
-    friend class FoilSelectionDlg;
-    friend class Settings;
+
 
     public:
         XInverse(QWidget *parent = nullptr);
         ~XInverse();
 
-        void setupLayout();
-
+        bool setParams();
+        void clear();
+        void loadSettings(QSettings &settings);
+        void saveSettings(QSettings &settings);
+        void updateView();
 
     private slots:
         void onCpxx();
@@ -105,51 +107,45 @@ class XInverse : public QWidget
 
 
     private:
-        void updateView();
 
-        void mouseMoveEvent(QMouseEvent *event) override;
-        void mousePressEvent(QMouseEvent *event) override;
-        void mouseReleaseEvent(QMouseEvent *event) override;
-        void keyPressEvent(QKeyEvent *event) override;
+        void mouseMoveEvent(QMouseEvent *pEvent) override;
+        void mousePressEvent(QMouseEvent *pEvent) override;
+        void mouseReleaseEvent(QMouseEvent *pEvent) override;
+        void keyPressEvent(QKeyEvent *pEvent) override;
         void keyReleaseEvent(QKeyEvent *pEvent) override;
 
-        void doubleClickEvent(QPoint pos);
-        void zoomEvent(QPointF pos, double zoomFactor);
 
+        bool execQDES();
+        bool initXFoil(Foil * pFoil);
+        void cancelMark();
+        void cancelSmooth();
+        void cancelSpline();
         void checkActions();
-        void drawGrid(QPainter &painter, double scale);
-        void paintView(QPainter &painter);
-        void paintGraph(QPainter &painter);
-        void paintFoil(QPainter &painter);
-        void setXInverseScale(QRect CltRect);
-        void resetQ();
-        void resetScale();
-        void resetMixedQ();
-        void releaseZoom();
-        void smooth(int Pos1 = -1, int Pos2 = -1);
-        void clear();
         void connectSignals();
         void createMCurve();
         void createQCurve();
-        void cancelMark();
-        void cancelSpline();
-        void cancelSmooth();
+        void doubleClickEvent(QPoint pos);
+        void drawGrid(QPainter &painter, double scale);
+        void execMDES();
+        void paintFoil(QPainter &painter);
+        void paintGraph(QPainter &painter);
+        void paintView(QPainter &painter);
+        void releaseZoom();
+        void resetMixedQ();
+        void resetQ();
+        void resetScale();
         void setFoil();
         void setTAngle(double a);
         void setTGap(double tr, double ti);
-
-        void execMDES();
-        void loadSettings(QSettings &settings);
-        void saveSettings(QSettings &settings);
-
-        bool execQDES();
-        bool setParams();
-        bool initXFoil(Foil * pFoil);
+        void setXInverseScale(QRect CltRect);
+        void setupLayout();
+        void smooth(int Pos1 = -1, int Pos2 = -1);
+        void zoomEvent(QPointF pos, double zoomFactor);
 
 
         double qincom(double qc, double qinf, double tklam);
 
-        Vector3d mousetoReal(QPoint point);
+        Vector3d mousetoReal(QPoint point) const;
 
     signals:
         void projectModified();
@@ -176,7 +172,7 @@ class XInverse : public QWidget
 
 
         static MainFrame *s_pMainFrame;  /**< a static pointer to the instance of the application's MainFrame object */
-        static inverseviewwt *s_p2dWidget;   /**< a static pointer to the instance of the application's central widget used for 2D drawings */
+        static InverseViewWt *s_p2dWidget;   /**< a static pointer to the instance of the application's central widget used for 2D drawings */
 
         XFoil *m_pXFoil;             /**< a void pointer to the unique instance of the XFoil object */
 
@@ -201,7 +197,6 @@ class XInverse : public QWidget
         bool m_bSmooth;             /**< true if the user is in the process of smoothing the curve */
         bool m_bZoomPlus;           /**< true if the user is in the process of zooming in by drawing a rectangle */
         bool m_bFullInverse;        /**< true if the full inverse method is selected, false if mixed-inverse */
-        bool m_bReflected;          /**< true if the reflected curve should be displayed */
 
         bool m_bShowPoints;         /**< true if the curve points are visible in the graph */
         bool m_bTangentSpline;      /**< true if the spline should be tangent to the velocity curve at its end points */

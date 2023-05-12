@@ -27,6 +27,7 @@
 #include <QTableView>
 #include <QStandardItemModel>
 #include <QDialogButtonBox>
+#include <QSettings>
 
 class XDirect;
 class Miarex;
@@ -45,9 +46,12 @@ class EditPlrDlg : public QDialog
         EditPlrDlg(QWidget *pParent=nullptr);
         ~EditPlrDlg();
 
-        QSize sizeHint() const {return QSize(1100,700);}
+        QSize sizeHint() const override {return QSize(1100,700);}
 
         void initDialog(XDirect *pXDirect, Polar *pPolar, Miarex *pMiarex, WPolar *pWPolar);
+
+        static void loadSettings(QSettings &settings);
+        static void saveSettings(QSettings &settings);
 
     private slots:
         void onButton(QAbstractButton *pButton);
@@ -58,10 +62,10 @@ class EditPlrDlg : public QDialog
         void setupLayout();
         void fillPolarData();
         void fillWPolarData();
-        void keyPressEvent(QKeyEvent *event);
-        void resizeEvent(QResizeEvent*event);
-        void hideEvent(QHideEvent *event);
-        void showEvent(QShowEvent *event);
+        void keyPressEvent(QKeyEvent *pEvent) override;
+        void resizeEvent(QResizeEvent*pEvent) override;
+        void hideEvent(QHideEvent *pEvent) override;
+        void showEvent(QShowEvent *pEvent) override;
 
     private:
         QPushButton *m_ppbDeletePoint, *m_ppbDeleteAllPoints;

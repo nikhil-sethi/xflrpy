@@ -25,8 +25,8 @@
 #include <QKeyEvent>
 
 
-#include "afoil.h"
-#include "afoiltabledlg.h"
+#include <design/afoil.h>
+#include <design/afoiltabledlg.h>
 
 
 

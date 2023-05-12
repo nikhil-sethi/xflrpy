@@ -180,10 +180,10 @@ void EditPlrDlg::fillWPolarData()
 }
 
 
-void EditPlrDlg::keyPressEvent(QKeyEvent *event)
+void EditPlrDlg::keyPressEvent(QKeyEvent *pEvent)
 {
     // Prevent Return Key from closing App
-    switch (event->key())
+    switch (pEvent->key())
     {
         case Qt::Key_Return:
         case Qt::Key_Enter:
@@ -204,7 +204,7 @@ void EditPlrDlg::keyPressEvent(QKeyEvent *event)
             return;
         }
         default:
-            event->ignore();
+            pEvent->ignore();
     }
 }
 
@@ -293,7 +293,7 @@ void EditPlrDlg::onButton(QAbstractButton *pButton)
 }
 
 
-void EditPlrDlg::showEvent(QShowEvent *)
+void EditPlrDlg::showEvent(QShowEvent*)
 {
     restoreGeometry(s_Geometry);
 }
@@ -305,7 +305,7 @@ void EditPlrDlg::hideEvent(QHideEvent*)
 }
 
 
-void EditPlrDlg::resizeEvent(QResizeEvent*event)
+void EditPlrDlg::resizeEvent(QResizeEvent*pEvent)
 {
     if(!m_pPointModel || !m_ptvPoints) return;
     int n = m_pPointModel->columnCount();
@@ -315,5 +315,27 @@ void EditPlrDlg::resizeEvent(QResizeEvent*event)
     for(int i=0; i<m_pPointModel->columnCount(); i++)
         m_ptvPoints->setColumnWidth(i,w14);
 
-    event->accept();
+    pEvent->accept();
 }
+
+
+
+void EditPlrDlg::loadSettings(QSettings &settings)
+{
+    settings.beginGroup("EditPlrDlg");
+    {
+        s_Geometry = settings.value("WindowGeom", QByteArray()).toByteArray();
+    }
+    settings.endGroup();
+}
+
+
+void EditPlrDlg::saveSettings(QSettings &settings)
+{
+    settings.beginGroup("EditPlrDlg");
+    {
+        settings.setValue("WindowGeom", s_Geometry);
+    }
+    settings.endGroup();
+}
+

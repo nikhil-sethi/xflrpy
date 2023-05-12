@@ -68,15 +68,14 @@ AeroDataDlg::AeroDataDlg(QWidget *parent) : QDialog(parent)
 }
 
 
-
-double AeroDataDlg::AirTemperature(double Altitude)   //[K]
+double AeroDataDlg::AirTemperature(double Altitude) const //[K]
 {
     // Troposphere only <= 11000 m
     return STANDARDTEMPERATURE -  Altitude * STANDARDLAPSERATE;
 }
 
 
-double AeroDataDlg::AirPressure(double Altitude)    //[Pa]
+double AeroDataDlg::AirPressure(double Altitude) const  //[Pa]
 {
     // Troposphere only <= 11000 m
     return STANDARDPRESSURE * pow((AirTemperature(Altitude) / STANDARDTEMPERATURE),
@@ -84,7 +83,7 @@ double AeroDataDlg::AirPressure(double Altitude)    //[Pa]
 }
 
 
-double AeroDataDlg::AirDensity(double Altitude, double temp)   //[kg/m3]
+double AeroDataDlg::AirDensity(double Altitude, double temp) const   //[kg/m3]
 {
     // Troposphere only <= 11000 m
     // TemperatureCorrection is 0 for standard atmosphere
@@ -93,7 +92,7 @@ double AeroDataDlg::AirDensity(double Altitude, double temp)   //[kg/m3]
 }
 
 
-double AeroDataDlg::DynamicViscosity(double Altitude, double temp)     //[kg/m3]
+double AeroDataDlg::DynamicViscosity(double Altitude, double temp) const     //[kg/m3]
 {
     // Troposphere only <= 11000 m
     // TemperatureCorrection is 0 for standard atmosphere
@@ -104,32 +103,32 @@ double AeroDataDlg::DynamicViscosity(double Altitude, double temp)     //[kg/m3]
 }
 
 
-double AeroDataDlg::TemperatureCorrection(double temp)
+double AeroDataDlg::TemperatureCorrection(double temp) const
 {
     return temp-STANDARDTEMPERATURE;
 }
 
 
-double AeroDataDlg::KinematicViscosity(double Altitude , double temp)   //[kg/m3]
+double AeroDataDlg::KinematicViscosity(double Altitude , double temp) const  //[kg/m3]
 {
     // Troposphere only <= 11000 m
     // TemperatureCorrection is 0 for standard atmosphere
     return DynamicViscosity(Altitude, temp) / AirDensity(Altitude, temp);
 }
 
-double AeroDataDlg::KinematicViscosity()
+double AeroDataDlg::KinematicViscosity() const
 {
     return KinematicViscosity(s_Altitude, s_Temperature);
 }
 
 
-double AeroDataDlg::SpeedOfSound(double temp)       //[m/s]
+double AeroDataDlg::SpeedOfSound(double temp) const     //[m/s]
 {
     return sqrt(AdiabaticIndex * UniversalGasConstant * temp / DryAirMolarMass);
 }
 
 
-double AeroDataDlg::AirDensity()
+double AeroDataDlg::AirDensity()  const
 {
     return AirDensity(s_Altitude, s_Temperature);
 }
@@ -244,15 +243,15 @@ void AeroDataDlg::setupLayout()
 
 void AeroDataDlg::onButton(QAbstractButton *pButton)
 {
-    if (     m_pButtonBox->button(QDialogButtonBox::Ok)     == pButton)  accept();
+    if      (m_pButtonBox->button(QDialogButtonBox::Ok)     == pButton)  accept();
     else if (m_pButtonBox->button(QDialogButtonBox::Cancel) == pButton)  reject();
 }
 
 
-void AeroDataDlg::keyPressEvent(QKeyEvent *event)
+void AeroDataDlg::keyPressEvent(QKeyEvent *pEvent)
 {
     // Prevent Return Key from closing App
-    switch (event->key())
+    switch (pEvent->key())
     {
         case Qt::Key_Return:
         case Qt::Key_Enter:
@@ -271,12 +270,12 @@ void AeroDataDlg::keyPressEvent(QKeyEvent *event)
             break;
         }
         default:
-            event->ignore();
+            pEvent->ignore();
     }
 }
 
 
-void AeroDataDlg::updateResults()
+void AeroDataDlg::updateResults() const
 {
 
     if(m_pcbTempUnit->currentIndex()==0)

@@ -63,7 +63,7 @@ class XDirect;
 class XDirectTileWidget;
 class XInverse;
 class gl3dMiarexView;
-class inverseviewwt;
+class InverseViewWt;
 
 /**
 *@class MainFrame
@@ -73,7 +73,7 @@ class MainFrame : public QMainWindow
 {
     friend class AFoil;
     friend class GraphTileWidget;
-    friend class inverseviewwt;
+    friend class InverseViewWt;
     friend class LanguageWt;
     friend class Miarex;
     friend class MiarexTileWidget;
@@ -92,14 +92,17 @@ class MainFrame : public QMainWindow
         MainFrame(QWidget * parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
         ~MainFrame();
 
-        xfl::enumApp xflr5App() const {return m_iApp;}
-        QString &exportLastDirName() {return m_ExportLastDirName;}
-        QString &exportGraphFilter() {return m_GraphExportFilter;}
-
         void loadLastProject();
         xfl::enumApp loadXFLR5File(QString PathName);
-        static MainFrame* self();
 
+        xfl::enumApp xflr5App() const {return m_iApp;}
+        bool isNoApp()         const {return m_iApp==xfl::NOAPP;}
+        bool isXFoilAnalysis() const {return m_iApp==xfl::XFOILANALYSIS;}
+        bool isDirectDesign()  const {return m_iApp==xfl::DIRECTDESIGN;}
+        bool isInverseDesign() const {return m_iApp==xfl::INVERSEDESIGN;}
+        bool isMiarex()        const {return m_iApp==xfl::MIAREX;}
+
+        static MainFrame* self();
         static QString const &projectName() {return s_ProjectName;}
 
         /*___________________________________________Methods_______________________________*/
@@ -218,7 +221,7 @@ class MainFrame : public QMainWindow
 
         QStackedWidget *m_pswCentralWidget;     /** The stacked widget which is loaded at the center of the display area. The stack switches between the widgets depending on the user's request. */
         VoidWidget m_VoidWidget;
-        inverseviewwt *m_p2dWidget;           /** A pointer to the instance of the TwoDWidget which is used to perform 2d drawings */
+        InverseViewWt *m_p2dWidget;           /** A pointer to the instance of the TwoDWidget which is used to perform 2d drawings */
         FoilDesignWt *m_pDirect2dWidget;        /** A pointer to the instance of the TwoDWidget which is used to perform 2d drawings of foils in Direct Design */
         gl3dMiarexView *m_pgl3dMiarexView;                  /** A pointer to the instance of the OpenGL 3.0 widget where 3d calculations and rendering are performed */
         MiarexTileWidget *m_pMiarexTileWidget;
@@ -325,6 +328,7 @@ class MainFrame : public QMainWindow
         QAction *m_pShowAllWPlrOpps, *m_pHideAllWPlrOpps, * m_pDeleteAllWPlrOpps;
         QAction *m_pDefineWPolar, *m_pDefineStabPolar, *m_pDefineWPolarObjectAct, *m_pAadvancedSettings;
         QAction *m_pShowTargetCurve, *m_pShowXCmRefLocation, *m_pShowStabCurve, *m_pShowFinCurve, *m_pShowWing2Curve;
+        QAction *m_pShowClmaxCurve;
         QAction *m_pExporttoAVL, *m_pExporttoSTL;
         QAction *m_pManagePlanesAct, *m_pScaleWingAct;
         QAction *m_pImportWPolars, *m_pExportWPolars, *m_pPlaneInertia;
@@ -332,7 +336,7 @@ class MainFrame : public QMainWindow
 
         //XDirect Actions
         QActionGroup *m_pXDirectViewActGroup;
-        QAction *m_pPolarsAct, *m_pOpPointsAct, *m_pDeletePolar, *m_pDefinePolarAct, *m_pEditCurPolar, *m_pResetCurPolar;
+        QAction *m_pPolarsAct, *m_pOpPointsAct, *m_pDeletePolar, *m_pDefinePolarAct, *m_pEditPolarPts, *m_pResetCurPolar;
         QAction *m_pMultiThreadedBatchAct, *m_pBatchCtrlAct;
         QAction *m_pRestoreToolbarsAct;
         QAction *m_pExportCurPolar, *m_pHideFoilPolars, *m_pShowFoilPolars, *m_pShowFoilPolarsOnly, *m_pSaveFoilPolars,*m_pDeleteFoilPolars;

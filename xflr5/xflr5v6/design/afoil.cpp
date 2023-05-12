@@ -56,7 +56,7 @@
 #include <xfoil.h>
 
 
-MainFrame *AFoil::s_pMainFrame = nullptr;
+MainFrame *AFoil::s_pMainFrame(nullptr);
 
 /**
  * The public constructor
@@ -147,8 +147,8 @@ void AFoil::fillFoilTable()
     QString name;
     QModelIndex ind;
 
-    double Thickness=0, xThickness=0, Camber=0, xCamber=0;
-    int points = 0;
+    double Thickness(0), xThickness(0), Camber(0), xCamber(0);
+    int points(0);
 
     if(m_pSF)
     {
@@ -453,14 +453,12 @@ void AFoil::onAFoilCadd()
 void AFoil::onAFoilLECircle()
 {
     LECircleDlg LECircleDlg(this);
-    LECircleDlg.m_Radius      = m_p2dWidget->m_LERad;
-    LECircleDlg.m_bShowRadius = m_p2dWidget->m_bLECircle;
-    LECircleDlg.initDialog();
+    LECircleDlg.initDialog(m_p2dWidget->m_LERad, m_p2dWidget->m_bLECircle);
 
     if(LECircleDlg.exec()==QDialog::Accepted)
     {
-        m_p2dWidget->m_LERad = LECircleDlg.m_Radius;
-        m_p2dWidget->m_bLECircle = LECircleDlg.m_bShowRadius;
+        m_p2dWidget->m_LERad = LECircleDlg.radius();
+        m_p2dWidget->m_bLECircle = LECircleDlg.bShowCircle();
     }
     m_p2dWidget->update();
 }
@@ -1177,7 +1175,6 @@ void AFoil::onShowCurrentFoil()
     if(!Objects2d::curFoil()) return;
     showFoil(Objects2d::curFoil(), true);
     m_p2dWidget->update();
-
 }
 
 
@@ -1228,8 +1225,7 @@ void AFoil::onStoreSplines()
  */
 void AFoil::onSplineControls()
 {
-    SplineCtrlsDlg dlg(this);
-    dlg.m_pSF = m_pSF;
+    SplineCtrlsDlg dlg(this, m_pSF);
     dlg.initDialog();
 
     SplineFoil memSF;

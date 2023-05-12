@@ -27,7 +27,7 @@ VERSION = 6.55
 CONFIG += qt
 QT += widgets opengl xml
 
-equals(QT_MAJOR_VERSION, 6){
+greaterThan(QT_VERSION, 6)  {
    QT += openglwidgets
 }
 

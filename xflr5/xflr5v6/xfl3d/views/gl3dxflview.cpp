@@ -51,7 +51,7 @@ gl3dXflView::gl3dXflView(QWidget *pParent) : gl3dView(pParent)
     m_bFoilNames  = false;
 
     m_nHighlightLines = m_HighlightLineSize = 0;
-    memset(m_Ny, 0, sizeof(m_Ny));
+
 }
 
 
@@ -796,43 +796,6 @@ void gl3dXflView::paintEditWingMesh(QOpenGLBuffer &vbo)
     m_shadSurf.release();
     f->glDisable(GL_POLYGON_OFFSET_FILL);
 }
-
-
-void gl3dXflView::setSpanStations(Plane const *pPlane, WPolar const *pWPolar, PlaneOpp const*pPOpp)
-{
-    if(!pPlane || !pWPolar || !pPOpp) return;
-    Wing const *pWing = nullptr;
-
-    if(pWPolar->isLLTMethod())
-    {
-        if(pPOpp)
-        {
-            m_Ny[0] = pPOpp->m_pWOpp[0]->m_NStation-1;
-        }
-        else
-        {
-            m_Ny[0] = LLTAnalysis::nSpanStations();
-        }
-
-        m_Ny[1] = m_Ny[2] = m_Ny[3] = 0;
-    }
-    else
-    {
-        for(int iWing=0; iWing<MAXWINGS; iWing++)
-        {
-            pWing = pPlane->wingAt(iWing);
-            if(pWing)
-            {
-                m_Ny[iWing]=0;
-                for (int j=0; j<pWing->m_Surface.size(); j++)
-                {
-                    m_Ny[iWing] += pWing->surface(j)->nYPanels();
-                }
-            }
-        }
-    }
-}
-
 
 void gl3dXflView::paintFoilNames(Wing const *pWing)
 {

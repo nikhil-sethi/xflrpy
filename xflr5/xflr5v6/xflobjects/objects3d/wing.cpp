@@ -33,8 +33,8 @@
 #include <xflobjects/objects2d/polar.h>
 
 double Wing::s_MinPanelSize = 0.0001;
-QVector<Foil *> *Wing::s_poaFoil  = nullptr;
-QVector<Polar*> *Wing::s_poaPolar = nullptr;
+QVector<Foil *> *Wing::s_poaFoil(nullptr);
+QVector<Polar*> *Wing::s_poaPolar(nullptr);
 
 /**
  * The public constructor.
@@ -56,6 +56,7 @@ Wing::Wing()
     memset(m_XTrTop, 0, sizeof(m_XTrTop));
     memset(m_XTrBot, 0, sizeof(m_XTrBot));
     memset(m_BendingMoment, 0, sizeof(m_BendingMoment));
+    memset(m_Clmax, 0, sizeof(m_Clmax));
 
     memset(m_SpanPos, 0, sizeof(m_SpanPos));
     memset(m_StripArea, 0, sizeof(m_StripArea));
@@ -1719,22 +1720,26 @@ void Wing::panelComputeOnBody(double QInf, double Alpha, double *Cp, double cons
 * In input, takes the speed QInf and the distribution of lift coefficients m_Cl[] along the span
 * In output, returns for each span station
 *     - The Reynolds number m_Re[]
-*    - The viscous drag coefficient m_PCd[]
-*      - The top and bottom transition points m_XTrtop[] and m_XTrBot[]
+*     - The viscous drag coefficient m_PCd[]
+*     - The top and bottom transition points m_XTrtop[] and m_XTrBot[]
+*     - The max Cl of airfoil m_Clmax
 */
 void Wing::panelComputeViscous(double QInf, const WPolar *pWPolar, double &WingVDrag, bool bViscous, QString &OutString)
 {
-    QString string, strong, strLength;
+    QString string, strong, strUnit;
 
-    bool bPointOutRe(false), bPointOutCl(false), bOutRe(false), bError(false);
+    bool bPointOutRe(false), bPointOutCl(false), bOutRe(false), bOutCl(false);
     double tau = 0.0;
     Vector3d PtC4;
+
+    const int VAR_CD    = 2;                // see Polar::getVariable
+    const int VAR_XTR1  = 5;                // see Polar::getVariable
+    const int VAR_XTR2  = 6;                // see Polar::getVariable
 
     OutString.clear();
 
     WingVDrag = 0.0;
-
-    strLength = "m";
+    strUnit = "m";
 
     // Calculate the Reynolds number on each strip
     for (int m=0; m<m_NStation; m++)  m_Re[m] = m_Chord[m] * QInf /pWPolar->m_Viscosity;
@@ -1743,7 +1748,7 @@ void Wing::panelComputeViscous(double QInf, const WPolar *pWPolar, double &WingV
     {
         for(int m=0; m <m_NStation; m++)
         {
-            m_PCd[m] = m_XTrTop[m] = m_XTrBot[m] = 0.0;
+            m_PCd[m] = m_XTrTop[m] = m_XTrBot[m] = m_Clmax[m] = 0.0;
         }
         return;
     }
@@ -1753,47 +1758,47 @@ void Wing::panelComputeViscous(double QInf, const WPolar *pWPolar, double &WingV
     for (int j=0; j<m_Surface.size(); j++)
     {
         Surface const &surf = m_Surface.at(j);
+
         for(int k=0; k<surf.m_NYPanels; k++)
         {
             bOutRe = bPointOutRe = false;
-            bPointOutCl = false;
-            surf.getC4(k, PtC4, tau);
+            bOutCl = bPointOutCl = false;
+            surf.getC4(k, PtC4, tau);     // span pos and chord are proportional in a surface
 
-            m_PCd[m]    = getInterpolatedVariable(2, surf.m_pFoilA, surf.m_pFoilB, m_Re[m], m_Cl[m], tau, bOutRe, bError);
+            m_PCd[m]    = getInterpolatedVariable (VAR_CD, surf.m_pFoilA, surf.m_pFoilB, m_Re[m], m_Cl[m], tau, bOutRe, bOutCl);
+            if (bOutRe || bOutCl) m_PCd[m] = 0.1;
             bPointOutRe = bOutRe || bPointOutRe;
-            if(bError) bPointOutCl = true;
+            bPointOutCl = bOutCl || bPointOutCl;
 
-            m_XTrTop[m] = getInterpolatedVariable(5, surf.m_pFoilA, surf.m_pFoilB, m_Re[m], m_Cl[m], tau, bOutRe, bError);
+            m_XTrTop[m] = getInterpolatedVariable (VAR_XTR1, surf.m_pFoilA, surf.m_pFoilB, m_Re[m], m_Cl[m], tau, bOutRe, bOutCl);
+            if (bOutRe || bOutCl) m_XTrTop[m] = 0.0;
             bPointOutRe = bOutRe || bPointOutRe;
-            if(bError) bPointOutCl = true;
+            bPointOutCl = bOutCl || bPointOutCl;
 
-            m_XTrBot[m] = getInterpolatedVariable(6, surf.m_pFoilA, surf.m_pFoilB, m_Re[m], m_Cl[m], tau, bOutRe, bError);
+            m_XTrBot[m] = getInterpolatedVariable (VAR_XTR2, surf.m_pFoilA, surf.m_pFoilB, m_Re[m], m_Cl[m], tau, bOutRe, bOutCl);
+            if (bOutRe || bOutCl) m_XTrBot[m] = 0.0;
             bPointOutRe = bOutRe || bPointOutRe;
-            if(bError) bPointOutCl = true;
+            bPointOutCl = bOutCl || bPointOutCl;
+
+            m_Clmax[m] = getInterpolatedClmax (surf.m_pFoilA, surf.m_pFoilB, m_Re[m], tau, bOutRe);
+            // qDebug().noquote () << QString::asprintf("Span pos: %.5f  Cl %.5f  Clmax %.5f", m_SpanPos[m], m_Cl[m], m_Clmax[m]);
+            if (bOutRe) m_XTrBot[m] = 0.0;
+            bPointOutRe = bOutRe || bPointOutRe;
 
             if(bPointOutCl)
             {
-                strong = QString(QObject::tr("           Span pos = %1 ")).arg(m_SpanPos[m], 9,'f',2);
-                strong += strLength;
-                strong += ",  Re = ";
-                string = QString::asprintf("%.0f", m_Re[m]);
-                strong += string;
-
-                strong+= QString(QObject::tr(",  Cl = %1 could not be interpolated")+"\n").arg(m_Cl[m],6,'f',2);
+                strong  = QString::asprintf("           Span pos = %6.2f", m_SpanPos[m]) + strUnit;
+                strong += QString::asprintf(", Re = %.0f", m_Re[m]);
+                strong += QString::asprintf(", Cl = %4.2f could not be interpolated (Clmax = %4.2f)\n", m_Cl[m], m_Clmax[m]);
                 OutString += strong;
-
                 m_bWingOut = true;
             }
             else if(bPointOutRe)
             {
-                strong = QString(QObject::tr("           Span pos = %1 ")).arg(m_SpanPos[m],9,'f',2);
-                strong += strLength;
-                strong += ",  Re = ";
-                string = QString::asprintf("%.0f", m_Re[m]);
-                strong += string;
-                strong += QString(QObject::tr(",  Cl = %1 is outside the flight envelope")+"\n").arg(m_Cl[m],6,'f',2);
+                strong  = QString::asprintf("           Span pos = %6.2f", m_SpanPos[m]) + strUnit;
+                strong += QString::asprintf(", Re = %.0f is outside the flight envelope of polars\n", m_Re[m]);
                 OutString += strong;
-
+                // this will finish wing computation
                 m_bWingOut = true;
             }
 
@@ -3107,62 +3112,109 @@ Foil* Wing::foil(QString const &strFoilName)
 
 /**
 *Interpolates a variable on the polar mesh, based on the geometrical position of a point between two sections on a wing.
-*@param m_poaPolar the pointer to the array of polars.
-*@param nVar the index of the variable to interpolate.
-*@param pFoil0 the pointer to the left foil of the wing's section.
-*@param pFoil1 the pointer to the left foil of the wing's section.
-*@param Re the Reynolds number at the point's position.
-*@param Cl the lift coefficient at the point's position, used as the input parameter.
-*@param Tau the relative position of the point between the two foils.
-*@param bOutRe true if Cl is outside the min or max Cl of the polar mesh.
-*@param bError if Re is outside the min or max Reynolds number of the polar mesh.
-*@return the interpolated value.
-*/
-double Wing::getInterpolatedVariable(int nVar, Foil *pFoil0, Foil *pFoil1, double Re, double Cl, double Tau, bool &bOutRe, bool &bError)
-{
-    bool IsOutRe(false);
-    bool IsError(false);
-    bOutRe = false;
-    bError = false;
-    double Var0(0), Var1(0);
-
-    if(!pFoil0)
-    {
-        Cl = 0.0;
-        Var0 = 0.0;
-    }
-    else Var0 = getPlrPointFromCl(pFoil0, Re, Cl, nVar, IsOutRe, IsError);
-    if(IsOutRe) bOutRe = true;
-    if(IsError) bError = true;
-
-
-    if(!pFoil1)
-    {
-//        Cl = 0.0;
-        Var1 = 0.0;
-    }
-    else Var1 = getPlrPointFromCl(pFoil1, Re, Cl, nVar, IsOutRe, IsError);
-    if(IsOutRe) bOutRe = true;
-    if(IsError) bError = true;
-
-    if (Tau<0.0) Tau = 0.0;
-    if (Tau>1.0) Tau = 1.0;
-
-    return ((1-Tau) * Var0 + Tau * Var1);
-}
-
-
-/**
-* Returns the value of an aero coefficient, interpolated on a polar mesh, and based on the value of the Reynolds Number and of the lift coefficient.
-* Proceeds by identifiying the two polars surronding Re, then interpolating both with the value of Alpha,
-* last by interpolating the requested variable between the values measured on the two polars.
-*@param m_poaPolar the pointer to the array of polars.
 *@param pFoil the pointer to the foil
 *@param Re the Reynolds number .
 *@param Cl the lift coefficient, used as the input parameter for interpolation.
 *@param PlrVar the index of the variable to interpolate.
-*@param bOutRe true if Cl is outside the min or max Cl of the polar mesh.
-*@param bError if Re is outside the min or max Reynolds number of the polar mesh.
+*@param bOutRe true if Re is outside the min or max Reynolds number of the polar mesh.
+*@param bOutCl true if Cl is outside the min or max Cl of the polar mesh.
+*@return the interpolated value.
+*/
+double Wing::getInterpolatedVariable (int nVar, Foil *pFoilA, Foil *pFoilB, double Re, double Cl, double Tau, bool &bOutRe, bool &bOutCl)
+{
+    bool IsOutRe = false;
+    bool IsOutCl = false;
+    bOutRe = false;
+    bOutCl = false;
+    double VarA(0), VarB(0), Var(0);
+
+    // get interpolated variable from left airfoil station
+    if(!pFoilA) {
+        VarA = 0.0;
+    }
+    else {
+        VarA = getPlrPointFromCl (pFoilA, Re, Cl, nVar, IsOutRe, IsOutCl);
+        if(IsOutRe) bOutRe = true;
+        if(IsOutCl) bOutCl = true;
+    }
+
+    // get interpolated variable from right airfoil station
+    if(!pFoilA) {
+        VarB = 0.0;
+    }
+    else {
+        VarB = getPlrPointFromCl (pFoilB, Re, Cl, nVar, IsOutRe, IsOutCl);
+        if(IsOutRe) bOutRe = true;
+        if(IsOutCl) bOutCl = true;
+     }
+
+    // now interpolate the polar data
+    if (!bOutRe && !bOutCl ) {
+        if (Tau<0.0) Tau = 0.0;
+        if (Tau>1.0) Tau = 1.0;
+        Var = (1- Tau) * VarA + Tau * VarB;
+    }
+    else {
+        Var = 0.0;
+    }
+    return Var;
+}
+
+
+
+/**
+*Interpolates Clmax on the airfoil polar mesh, based on the geometrical position of a point between two sections on a wing.
+*@param pFoilA and B the pointer to the foils left and right
+*@param Re the Reynolds number .
+*@param bOutRe true if Re is outside the min or max Reynolds number of the polar mesh.
+*@return Clmax
+*/
+double Wing::getInterpolatedClmax (Foil *pFoilA, Foil *pFoilB, double Re, double Tau, bool &bOutRe)
+{
+    bool IsOutRe = false;
+    bOutRe = false;
+    double VarA(0), VarB(0), Var(0);
+
+    // get interpolated variable from left airfoil station
+    if(!pFoilA) {
+        VarA = 0.0;
+    }
+    else {
+        VarA = getPlrPointClmax   (pFoilA, Re, IsOutRe);
+        if(IsOutRe) bOutRe = true;
+    }
+
+    // get interpolated variable from right airfoil station
+    if(!pFoilA) {
+        VarB = 0.0;
+    }
+    else {
+        VarB = getPlrPointClmax   (pFoilB, Re, IsOutRe);
+        if(IsOutRe) bOutRe = true;
+     }
+
+    // now interpolate the polar data
+    if (!bOutRe) {
+        if (Tau<0.0) Tau = 0.0;
+        if (Tau>1.0) Tau = 1.0;
+        Var = (1- Tau) * VarA + Tau * VarB;
+    }
+    else {
+        Var = 0.0;
+    }
+    return Var;
+}
+
+/**
+* Returns the value of an aero coefficient, interpolated on a polar mesh, and based on the value of the Reynolds Number and of the lift coefficient.
+* Proceeds by identifiying the two polars surronding Re, then interpolating both with the value of Cl,
+* last by interpolating the requested variable between the values measured on the two polars.
+*@param pFoil the pointer to the foil
+*@param Re the Reynolds number .
+*@param Cl the lift coefficient, used as the input parameter for interpolation.
+*@param PlrVar the index of the variable to interpolate.
+*@param bOutCl true if Cl is outside the min or max Cl of the polar mesh.
+*@param bOutRe if Re is outside the min or max Reynolds number of the polar mesh.
 *@return the interpolated value.
 */
 double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bool &bOutRe, bool &bError)
@@ -3496,6 +3548,69 @@ double Wing::getPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bo
         double Var = Var1 + v * (Var2-Var1);
         return Var;
     }
+}
+
+
+/**
+* Returns Cl max, interpolated on a polar mesh, and based on the value of the Reynolds Number.
+* Proceeds by identifiying the two polars surrounding Re, then interpolating both to get Cl max,
+*@param pFoil the pointer to the foil
+*@param Re the Reynolds number .
+*@param bOutRe true if Re outside the polar mesh.
+*@return the interpolated value of Cl max.
+*/
+double Wing::getPlrPointClmax(Foil *pFoil, double Re, bool &bOutRe)
+{
+    double Cl1min(0), Cl1max(0), Cl2min(0), Cl2max(0);
+    Polar *pPolar(nullptr);
+
+    bOutRe = false;
+
+    if(!pFoil) {
+        bOutRe = true;
+        return 0.000;
+    }
+
+    //First Find the two polars with Reynolds number surrounding wanted Re
+
+    Polar * pPolar1 = nullptr;
+    Polar * pPolar2 = nullptr;
+    int nPolars = s_poaPolar->size();
+
+    //Type 1 Polars are sorted by crescending Re Number
+    for (int i=0; i< nPolars; i++) {
+        pPolar = s_poaPolar->at(i);
+        if((pPolar->polarType()== xfl::FIXEDSPEEDPOLAR) && (pPolar->foilName() == pFoil->name())  && pPolar->m_Cl.size()>0)         {
+            // we have found the first type 1 polar for this foil
+            if (pPolar->Reynolds() <= Re) {
+                pPolar1 = pPolar;
+            }
+            else {
+                pPolar2 = pPolar;
+                break;
+            }
+        }
+    }
+
+    if (!pPolar2 || !pPolar1)
+    {
+        // RE is outside any polar
+        bOutRe = true;
+        return 0.000;
+    }
+
+    if(!pPolar1->m_Cl.size() || !pPolar2->m_Cl.size()) {
+        bOutRe = true;
+        return 0.0;
+    }
+
+    pPolar1->getClLimits(Cl1min, Cl1max);
+    pPolar2->getClLimits(Cl2min, Cl2max);
+
+    // Re is between that of polars 1 and 2 - so interpolate Cl max linearly
+    double v =   (Re - pPolar1->Reynolds()) / (pPolar2->Reynolds() - pPolar1->Reynolds());
+    double Var = Cl1max + v * (Cl2max-Cl1max);
+    return Var;
 }
 
 

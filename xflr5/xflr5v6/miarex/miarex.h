@@ -200,6 +200,7 @@ class Miarex : public QWidget
         void onShowAllWOpps();
         void onShowAllWPlrOpps();
         void onShowAllWPolars();
+        void onShowClmaxCurve();
         void onShowFlapMoments();
         void onShowTargetCurve();
         void onShowLift();
@@ -365,6 +366,7 @@ class Miarex : public QWidget
         bool m_bShowCp;                    /**< true if the active curve should be displayed in Cp view */
         bool m_bShowEllipticCurve;         /**< true if the elliptic loading should be displayed in the local lift graph */
         bool m_bShowBellCurve;             /**< true if the bell distribution loading should be displayed in the local lift graph */
+        bool m_bShowClmaxCurve;            /**< true if the clmax distribution should be displayed in the local cl graph */
         bool m_bShowWingCurve[MAXWINGS];   /**< true if various plane's wing curves shoud be displayed*/
         bool m_bShowFlapMoments;           /**< true if the flap moment values should be display together with the operating point results*/
         bool m_bTrans;                     /**< true if the view is being dragged */

@@ -38,7 +38,6 @@ class PertDlg : public QDialog
 {
     Q_OBJECT
 
-    friend class MainFrame;
     friend class XInverse;
 
     public:

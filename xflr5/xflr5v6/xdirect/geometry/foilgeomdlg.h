@@ -36,7 +36,6 @@ class FoilGeomDlg : public QDialog
     Q_OBJECT
     friend class AFoil;
     friend class XDirect;
-    friend class MainFrame;
 
     public:
         FoilGeomDlg(QWidget *pParent);

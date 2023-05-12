@@ -34,27 +34,17 @@ class EditPolarDefDlg : public QDialog
 {
     Q_OBJECT
 
-    friend class Wing;
-    friend class Plane;
-    friend class Miarex;
-    friend class WPolar;
-
-    private slots:
-        void accept() override;
-        void onItemChanged();
-        void onButton(QAbstractButton *pButton);
-
     public:
         EditPolarDefDlg(QWidget *pParent=nullptr);
+        void initDialog(Plane *pPlane, WPolar *pWPolar);
 
+    private:
         void showEvent(QShowEvent *pEvent) override;
         void hideEvent(QHideEvent *pEvent) override;
         void resizeEvent(QResizeEvent *pEvent) override;
         void keyPressEvent(QKeyEvent *pEvent) override;
-
         QSize sizeHint() const override {return QSize(700,900);}
 
-        void initDialog(Plane *pPlane, WPolar *pWPolar);
         void setupLayout();
         void showWPolar();
         void fillInertiaData(QList<QStandardItem *> inertiaFolder);
@@ -67,6 +57,11 @@ class EditPolarDefDlg : public QDialog
         QList<QStandardItem *> prepareBoolRow(const QString &first, const QString &second, const bool &third);
         QList<QStandardItem *> prepareIntRow(const QString &object, const QString &field, const int &value);
         QList<QStandardItem *> prepareDoubleRow(const QString &object, const QString &field, const double &value,  const QString &unit);
+
+    private slots:
+        void accept() override;
+        void onItemChanged();
+        void onButton(QAbstractButton *pButton);
 
 
     private:

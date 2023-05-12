@@ -359,22 +359,22 @@ void MainFrame::createActions()
 //    m_pNewProjectAct->setShortcut(QKeySequence::New); // bug in Qt libs: shortcut is defined twice in translation files
 //    m_pNewProjectAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
     m_pNewProjectAct->setStatusTip(tr("Save and close the current project, create a new project"));
-    connect(m_pNewProjectAct, SIGNAL(triggered()), this, SLOT(onNewProject()));
+    connect(m_pNewProjectAct, SIGNAL(triggered()), SLOT(onNewProject()));
 
     m_pOpenAct = new QAction(QIcon(":/images/open.png"), tr("Open")  + "\tCtrl+O", this);
 //    m_pOpenAct->setShortcut(QKeySequence::Open); // bug in Qt libs: shortcut is defined twice in translation files
     m_pOpenAct->setStatusTip(tr("Open an existing file"));
-    connect(m_pOpenAct, SIGNAL(triggered()), this, SLOT(onLoadFile()));
+    connect(m_pOpenAct, SIGNAL(triggered()), SLOT(onLoadFile()));
 
     m_pSaveAct = new QAction(QIcon(":/images/save.png"), tr("Save") + "\tCtrl+S", this);
 //    m_pSaveAct->setShortcut(QKeySequence::Save); // bug in Qt libs: shortcut is defined twice in translation files
     m_pSaveAct->setStatusTip(tr("Save the project to disk"));
-    connect(m_pSaveAct, SIGNAL(triggered()), this, SLOT(onSaveProject()));
+    connect(m_pSaveAct, SIGNAL(triggered()), SLOT(onSaveProject()));
 
     m_pSaveProjectAsAct = new QAction(tr("Save Project As")  + "\tCtrl+Shift+S", this);
 //    m_pSaveProjectAsAct->setShortcut(QKeySequence::SaveAs); // bug in Qt libs: shortcut is defined twice in translation files
     m_pSaveProjectAsAct->setStatusTip(tr("Save the current project under a new name"));
-    connect(m_pSaveProjectAsAct, SIGNAL(triggered()), this, SLOT(onSaveProjectAs()));
+    connect(m_pSaveProjectAsAct, SIGNAL(triggered()), SLOT(onSaveProjectAs()));
 
     m_pExecuteScript = new QAction(tr("Execute script"), this);
     m_pExecuteScript->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_X));
@@ -383,37 +383,37 @@ void MainFrame::createActions()
     m_pCloseProjectAct = new QAction(QIcon(":/images/new.png"), tr("Close the Project"), this);
     m_pCloseProjectAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F4));
     m_pCloseProjectAct->setStatusTip(tr("Save and close the current project"));
-    connect(m_pCloseProjectAct, SIGNAL(triggered()), this, SLOT(onNewProject()));
+    connect(m_pCloseProjectAct, SIGNAL(triggered()), SLOT(onNewProject()));
 
     m_pInsertAct = new QAction(tr("Insert Project"), this);
     m_pInsertAct->setStatusTip(tr("Insert an existing project in the current project"));
     m_pInsertAct->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_I));
-    connect(m_pInsertAct, SIGNAL(triggered()), this, SLOT(onInsertProject()));
+    connect(m_pInsertAct, SIGNAL(triggered()), SLOT(onInsertProject()));
 
     m_pOnAFoilAct = new QAction(tr("Direct Foil Design"), this);
     m_pOnAFoilAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_1));
     m_pOnAFoilAct->setStatusTip(tr("Open Foil Design application"));
-    connect(m_pOnAFoilAct, SIGNAL(triggered()), this, SLOT(onAFoil()));
+    connect(m_pOnAFoilAct, SIGNAL(triggered()), SLOT(onAFoil()));
 
     m_pOnXInverseAct = new QAction(tr("XFoil Inverse Design"), this);
     m_pOnXInverseAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_3));
     m_pOnXInverseAct->setStatusTip(tr("Open XFoil inverse analysis application"));
-    connect(m_pOnXInverseAct, SIGNAL(triggered()), this, SLOT(onXInverse()));
+    connect(m_pOnXInverseAct, SIGNAL(triggered()), SLOT(onXInverse()));
 
     m_pOnMixedInverseAct = new QAction(tr("XFoil Mixed Inverse Design"), this);
     m_pOnMixedInverseAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_4));
     m_pOnMixedInverseAct->setStatusTip(tr("Open XFoil Mixed Inverse analysis application"));
-    connect(m_pOnMixedInverseAct, SIGNAL(triggered()), this, SLOT(onXInverseMixed()));
+    connect(m_pOnMixedInverseAct, SIGNAL(triggered()), SLOT(onXInverseMixed()));
 
     m_pOnXDirectAct = new QAction(tr("XFoil Direct Analysis"), this);
     m_pOnXDirectAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_5));
     m_pOnXDirectAct->setStatusTip(tr("Open XFoil direct analysis application"));
-    connect(m_pOnXDirectAct, SIGNAL(triggered()), this, SLOT(onXDirect()));
+    connect(m_pOnXDirectAct, SIGNAL(triggered()), SLOT(onXDirect()));
 
     m_pOnMiarexAct = new QAction(tr("Wing and Plane Design"), this);
     m_pOnMiarexAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_6));
     m_pOnMiarexAct->setStatusTip(tr("Open Wing/plane design and analysis application"));
-    connect(m_pOnMiarexAct, SIGNAL(triggered()), this, SLOT(onMiarex()));
+    connect(m_pOnMiarexAct, SIGNAL(triggered()), SLOT(onMiarex()));
 
     m_pNoAppAct = new QAction(tr("Close all"), this);
     m_pNoAppAct->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_0));
@@ -423,7 +423,7 @@ void MainFrame::createActions()
     m_pLoadLastProjectAction = new QAction(tr("Load Last Project"), this);
     m_pLoadLastProjectAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
     m_pLoadLastProjectAction->setStatusTip(tr("Loads the last saved project"));
-    connect(m_pLoadLastProjectAction, SIGNAL(triggered()), this, SLOT(onLoadLastProject()));
+    connect(m_pLoadLastProjectAction, SIGNAL(triggered()), SLOT(onLoadLastProject()));
 
 
     m_pPreferencesAct = new QAction(tr("Preferences"), this);
@@ -842,7 +842,7 @@ void MainFrame::createDockWindows()
     m_pdwAFoil->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     addDockWidget(Qt::BottomDockWidgetArea, m_pdwAFoil);
 
-    m_p2dWidget = new inverseviewwt(this);
+    m_p2dWidget = new InverseViewWt(this);
     m_pgl3dMiarexView = new gl3dMiarexView(this);
 
     m_pDirect2dWidget = new FoilDesignWt(this);
@@ -895,7 +895,6 @@ void MainFrame::createDockWindows()
     m_pdw3DScales->setFloating(true);
     m_pdw3DScales->move(60,60);
 
-    StabViewDlg::s_pMiarex = m_pMiarex;
     m_pStabView = new StabViewDlg(this);
     StabViewDlg * pStabView = m_pStabView;
     m_pdwStabView = new QDockWidget(tr("Stability"), this);
@@ -924,8 +923,6 @@ void MainFrame::createDockWindows()
     m_pdwAFoil->setWidget(m_pAFoil);
     m_pdwAFoil->setVisible(false);
 
-    m_p2dWidget->m_pXInverse  = m_pXInverse;
-    m_p2dWidget->m_pMainFrame = this;
 
     m_pMiarex->m_pgl3dMiarexView = m_pgl3dMiarexView;
 
@@ -935,9 +932,11 @@ void MainFrame::createDockWindows()
 
     m_pAFoil->initDialog(m_pDirect2dWidget, &m_pXDirect->m_XFoil);
 
-    XInverse::s_p2dWidget        = m_p2dWidget;
-    m_pXInverse->s_pMainFrame       = this;
-    m_pXInverse->m_pXFoil           = &m_pXDirect->m_XFoil;
+    XInverse::s_p2dWidget         = m_p2dWidget;
+    m_pXInverse->s_pMainFrame     = this;
+    m_pXInverse->m_pXFoil         = &m_pXDirect->m_XFoil;
+    InverseViewWt::s_pXInverse  = m_pXInverse;
+    InverseViewWt::s_pMainFrame = this;
 
     EditObjectDelegate::s_poaFoil = Objects2d::pOAFoil();
 
@@ -945,13 +944,6 @@ void MainFrame::createDockWindows()
 
     WingWidget::s_pMiarex         = m_pMiarex;
     XFoilAnalysisDlg::s_pXDirect  = m_pXDirect;
-    NacaFoilDlg::s_pXFoil         = &m_pXDirect->m_XFoil;
-    InterpolateFoilsDlg::s_pXFoil = &m_pXDirect->m_XFoil;
-    CAddDlg::s_pXFoil             = &m_pXDirect->m_XFoil;
-    TwoDPanelDlg::s_pXFoil        = &m_pXDirect->m_XFoil;
-    FoilGeomDlg::s_pXFoil         = &m_pXDirect->m_XFoil;
-    TEGapDlg::s_pXFoil            = &m_pXDirect->m_XFoil;
-    LEDlg::s_pXFoil               = &m_pXDirect->m_XFoil;
 
     BatchThreadDlg::s_pXDirect    = m_pXDirect;
 
@@ -1285,6 +1277,11 @@ void MainFrame::createMiarexActions()
     m_pShowTargetCurve->setCheckable(false);
     connect(m_pShowTargetCurve, SIGNAL(triggered()), m_pMiarex, SLOT(onShowTargetCurve()));
 
+    m_pShowClmaxCurve = new QAction(tr("Show Clmax Curve"), this);
+    m_pShowClmaxCurve->setCheckable(true);
+    m_pShowClmaxCurve->setStatusTip(tr("Show local Cl max value based on Xfoil viscous airfoil analysis"));
+    connect(m_pShowClmaxCurve, SIGNAL(triggered()), m_pMiarex, SLOT(onShowClmaxCurve()));
+
     m_pShowXCmRefLocation = new QAction(tr("Show XCG location"), this);
     m_pShowXCmRefLocation->setStatusTip(tr("Show the position of the center of gravity defined in the analysis"));
     m_pShowXCmRefLocation->setCheckable(true);
@@ -1523,6 +1520,7 @@ void MainFrame::createMiarexMenus()
         m_pMiarexWOppMenu->addAction(m_pHideAllWOpps);
         m_pMiarexWOppMenu->addAction(m_pDeleteAllWOpps);
         m_pMiarexWOppMenu->addSeparator();
+        m_pMiarexWOppMenu->addAction(m_pShowClmaxCurve);
         m_pMiarexWOppMenu->addAction(m_pShowTargetCurve);
         m_pMiarexWOppMenu->addAction(m_pShowXCmRefLocation);
         m_pMiarexWOppMenu->addAction(m_pShowWing2Curve);
@@ -1621,6 +1619,7 @@ void MainFrame::createMiarexMenus()
         m_pWOppCtxMenu->addAction(m_pDeleteAllWOpps);
         m_pWOppCtxMenu->addSeparator();
         m_pWOppCtxMenu->addAction(m_pShowTargetCurve);
+        m_pWOppCtxMenu->addAction(m_pShowClmaxCurve);
         m_pWOppCtxMenu->addAction(m_pShowXCmRefLocation);
         m_pWOppCtxMenu->addAction(m_pShowWing2Curve);
         m_pWOppCtxMenu->addAction(m_pShowStabCurve);
@@ -2194,9 +2193,9 @@ void MainFrame::createXDirectActions()
     m_pResetCurPolar->setStatusTip(tr("Deletes the contents of the currently selected polar"));
     connect(m_pResetCurPolar, SIGNAL(triggered()), m_pXDirect, SLOT(onResetCurPolar()));
 
-    m_pEditCurPolar = new QAction(tr("Edit data points"), this);
-    m_pEditCurPolar->setStatusTip(tr("Remove the unconverged or erroneaous points of the currently selected polar"));
-    connect(m_pEditCurPolar, SIGNAL(triggered()), m_pXDirect, SLOT(onEditCurPolar()));
+    m_pEditPolarPts = new QAction(tr("Edit data points"), this);
+    m_pEditPolarPts->setStatusTip(tr("Remove the unconverged or erroneaous points of the currently selected polar"));
+    connect(m_pEditPolarPts, SIGNAL(triggered()), m_pXDirect, SLOT(onEditPolarPts()));
 
     m_pExportCurPolar = new QAction(tr("Export"), this);
     connect(m_pExportCurPolar, SIGNAL(triggered()), m_pXDirect, SLOT(onExportCurPolar()));
@@ -2397,7 +2396,7 @@ void MainFrame::createXDirectMenus()
     {
         m_pCurrentPolarMenu = m_pPolarMenu->addMenu(tr("Current Polar"));
         {
-            m_pCurrentPolarMenu->addAction(m_pEditCurPolar);
+            m_pCurrentPolarMenu->addAction(m_pEditPolarPts);
             m_pCurrentPolarMenu->addAction(m_pResetCurPolar);
             m_pCurrentPolarMenu->addAction(m_pDeletePolar);
             m_pCurrentPolarMenu->addAction(m_pRenamePolarAct);
@@ -2477,7 +2476,7 @@ void MainFrame::createXDirectMenus()
         m_pOperFoilCtxMenu->addSeparator();//_______________
         m_pCurrentPolarMenu_OperFoilCtxMenu = m_pOperFoilCtxMenu->addMenu(tr("Current Polar"));
         {
-            m_pCurrentPolarMenu_OperFoilCtxMenu->addAction(m_pEditCurPolar);
+            m_pCurrentPolarMenu_OperFoilCtxMenu->addAction(m_pEditPolarPts);
             m_pCurrentPolarMenu_OperFoilCtxMenu->addAction(m_pResetCurPolar);
             m_pCurrentPolarMenu_OperFoilCtxMenu->addAction(m_pDeletePolar);
             m_pCurrentPolarMenu_OperFoilCtxMenu->addAction(m_pRenamePolarAct);
@@ -2533,7 +2532,6 @@ void MainFrame::createXDirectMenus()
 
         m_pOperFoilCtxMenu->addSeparator();//_______________
         m_pOperFoilCtxMenu->addAction(m_pDefinePolarAct);
-//        m_pOperFoilCtxMenu->addAction(m_pBatchAnalysisAct);
         m_pOperFoilCtxMenu->addAction(m_pMultiThreadedBatchAct);
         m_pOperFoilCtxMenu->addSeparator();//_______________
         m_pOperFoilCtxMenu->addAction(m_pShowAllPolars);
@@ -2543,7 +2541,6 @@ void MainFrame::createXDirectMenus()
         m_pOperFoilCtxMenu->addAction(m_pHideAllOpPoints);
         m_pOperFoilCtxMenu->addSeparator();//_______________
         m_pOperFoilCtxMenu->addAction(m_pResetFoilScale);
-        //        m_pOperFoilCtxMenu->addAction(m_pShowPanels);
         m_pOperFoilCtxMenu->addAction(m_pShowNeutralLine);
         m_pOperFoilCtxMenu->addAction(m_pXDirectStyleAct);
         m_pOperFoilCtxMenu->addSeparator();//_______________
@@ -2578,7 +2575,7 @@ void MainFrame::createXDirectMenus()
         //m_pOperPolarCtxMenu->addMenu(m_pCurrentFoilMenu);
         m_pCurrentPolarMenu_OperPolarCtxMenu = m_pOperPolarCtxMenu->addMenu(tr("Current Polar"));
         {
-            m_pCurrentPolarMenu_OperPolarCtxMenu->addAction(m_pEditCurPolar);
+            m_pCurrentPolarMenu_OperPolarCtxMenu->addAction(m_pEditPolarPts);
             m_pCurrentPolarMenu_OperPolarCtxMenu->addAction(m_pResetCurPolar);
             m_pCurrentPolarMenu_OperPolarCtxMenu->addAction(m_pDeletePolar);
             m_pCurrentPolarMenu_OperPolarCtxMenu->addAction(m_pRenamePolarAct);
@@ -2772,6 +2769,7 @@ void MainFrame::deleteProject(bool bClosing)
     m_pXDirect->setCurFoil(nullptr);
     m_pXDirect->setCurPolar(nullptr);
     m_pXDirect->setCurOpp(nullptr);
+
 
     // clear everything
     Objects3d::deleteObjects();
@@ -3028,6 +3026,7 @@ void MainFrame::keyPressEvent(QKeyEvent *pEvent)
     }
     pEvent->accept();
 }
+
 
 
 void MainFrame::keyReleaseEvent(QKeyEvent *pEvent)
@@ -3713,7 +3712,6 @@ void MainFrame::onLoadFile()
 void MainFrame::onLogFile()
 {
     QString FileName = QDir::tempPath() + "/XFLR5.log";
-    // 20090605 Francesco Meschia
     QDesktopServices::openUrl(QUrl::fromLocalFile(FileName));
 }
 
@@ -4296,7 +4294,6 @@ bool MainFrame::saveProject(QString PathName)
 
     return true;
 }
-
 
 
 void MainFrame::onSavePlaneAsProject()
@@ -4946,18 +4943,18 @@ bool MainFrame::serializeProjectXFL(QDataStream &ar, bool bIsStoring)
 
 bool MainFrame::serializeProjectWPA(QDataStream &ar, bool bIsStoring)
 {
-    Wing *pWing     = nullptr;
-    WPolar *pWPolar = nullptr;
-    WingOpp *pWOpp  = nullptr;
-    PlaneOpp *pPOpp = nullptr;
-    Plane *pPlane   = nullptr;
-    Body *pBody     = nullptr;
-    Polar *pPolar   = nullptr;
-    Foil *pFoil     = nullptr;
+    Wing *pWing     (nullptr);
+    WPolar *pWPolar (nullptr);
+    WingOpp *pWOpp  (nullptr);
+    PlaneOpp *pPOpp (nullptr);
+    Plane *pPlane   (nullptr);
+    Body *pBody     (nullptr);
+    Polar *pPolar   (nullptr);
+    Foil *pFoil     (nullptr);
 
     QString str;
-    int i=0, n=0, j=0, k=0;
-    float f=0, g=0, h=0;
+    int i(0), n(0), j(0), k(0);
+    float f(0), g(0), h(0);
 
     if (bIsStoring)
     {
@@ -6178,21 +6175,21 @@ void MainFrame::exportGraph(Graph *pGraph)
 {
     QString FileName = pGraph->graphName().trimmed();
     FileName.replace(" ", "_");
-    FileName = QFileDialog::getSaveFileName(this, QObject::tr("Export Graph"), exportLastDirName()+"/"+pGraph->graphName(),
+    FileName = QFileDialog::getSaveFileName(this, QObject::tr("Export Graph"), m_ExportLastDirName+"/"+pGraph->graphName(),
                                             QObject::tr("Text File (*.txt);;Comma Separated Values (*.csv)"),
-                                            &exportGraphFilter());
+                                            &m_GraphExportFilter);
     if(!FileName.length()) return;
 
     int pos = FileName.lastIndexOf("/");
-    if(pos>0) exportLastDirName() = FileName.left(pos);
+    if(pos>0) m_ExportLastDirName = FileName.left(pos);
 
     bool bCSV = false;
-    if(exportGraphFilter().indexOf("*.txt")>0)
+    if(m_GraphExportFilter.indexOf("*.txt")>0)
     {
         Settings::s_ExportFileType = xfl::TXT;
         if(FileName.indexOf(".txt")<0) FileName +=".txt";
     }
-    else if(exportGraphFilter().indexOf("*.csv")>0)
+    else if(m_GraphExportFilter.indexOf("*.csv")>0)
     {
         Settings::s_ExportFileType = xfl::CSV;
         if(FileName.indexOf(".csv")<0) FileName +=".csv";
@@ -6320,7 +6317,7 @@ void MainFrame::setPlainColorsFromFile()
     stream.readLine();
 //    LineColorNames = line.split(QRegExp("[,\\s\t]"), QString::SkipEmptyParts);
 
-    int iline = 0;
+
     while(!stream.atEnd())
     {
         QString colorline = stream.readLine().simplified();
@@ -6330,7 +6327,6 @@ void MainFrame::setPlainColorsFromFile()
         QStringList colorpair = colorline.split(QRegExp("[,\\s\t]"), QString::SkipEmptyParts);
 #endif
         GoogleColorNames.append(colorpair);
-        iline++;
     }
 
     ColorPicker::setColorList(GoogleColorNames);

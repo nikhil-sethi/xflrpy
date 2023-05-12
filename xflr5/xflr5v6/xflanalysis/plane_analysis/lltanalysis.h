@@ -120,6 +120,8 @@ private:
     double getXCp(Foil const*pFoil0, Foil const*pFoil1, double Re, double Alpha, double Tau,  bool &bOutRe, bool &bError);
     double getXTr(Foil const*pFoil0, Foil const*pFoil1, double Re, double Alpha, double Tau, bool bTop, bool &bOutRe, bool &bError);
     double getPlrPointFromAlpha(const Foil *pFoil, double Re, double Alpha, int PlrVar, bool &bOutRe, bool &bError);
+    double getInterpolatedClmax (Foil *pFoilA, Foil *pFoilB, double Re, double Tau, bool &bOutRe);
+    double getPlrPointClmax(Foil *pFoil, double Re, bool &bOutRe);
     void getLinearizedPolar(Foil *pFoil0, Foil *pFoil1, double Re, double Tau, double &Alpha0, double &Slope);
 
 
@@ -147,15 +149,15 @@ private:
     bool m_bConverged;                          /**< true if the analysis has converged  */
     bool m_bWingOut;                            /**< true if the interpolation of viscous properties falls outside the polar mesh */
 
-    double m_Ai[MAXSPANSTATIONS+1];                /**< Induced Angle coefficient at the span stations */
-    double m_BendingMoment[MAXSPANSTATIONS+1];    /**< bending moment at the span stations */
+    double m_Ai[MAXSPANSTATIONS+1];             /**< Induced Angle coefficient at the span stations */
+    double m_BendingMoment[MAXSPANSTATIONS+1];  /**< bending moment at the span stations */
     double m_CDi;                               /**< The wing's induced drag coefficient */
     double m_CDv;                               /**< The wing's viscous drag coefficient */
-    double m_Cl[MAXSPANSTATIONS+1];                /**< Local lift coefficient at the span stations */
+    double m_Cl[MAXSPANSTATIONS+1];             /**< Local lift coefficient at the span stations */
     double m_Chord[MAXSPANSTATIONS+1];          /**< chord at the span stations */
     double m_CL;                                /**< The wing's lift coefficient */
-    double m_Cm[MAXSPANSTATIONS+1];                /**< Total pitching moment coefficient at the span stations */
-    double m_CmAirf[MAXSPANSTATIONS+1];            /**< Airfoil part of the pitching moment coefficient at the span stations */
+    double m_Cm[MAXSPANSTATIONS+1];             /**< Total pitching moment coefficient at the span stations */
+    double m_CmAirf[MAXSPANSTATIONS+1];         /**< Airfoil part of the pitching moment coefficient at the span stations */
     double m_GCm;                               /**< The wing's total pitching moment */
     double m_GRm;                               /**< The wing's total rolling moment */
     double m_GYm;                               /**< The wing's total yawing moment */
@@ -168,18 +170,19 @@ private:
     double m_Offset[MAXSPANSTATIONS+1];         /**< offset at  the span stations */
     double m_PCd[MAXSPANSTATIONS+1];            /**< Viscous Drag coefficient at the span stations */
     double m_QInf0;                             /**< The freestream velocity */
-    double m_Re[MAXSPANSTATIONS+1];                /**< Reynolds number at the span stations */
+    double m_Re[MAXSPANSTATIONS+1];             /**< Reynolds number at the span stations */
     double m_SpanPos[MAXSPANSTATIONS+1];        /**< Span position of the span stations */
-    double m_StripArea[MAXSPANSTATIONS+1];        /** <Local strip area at the span stations */
+    double m_StripArea[MAXSPANSTATIONS+1];      /** <Local strip area at the span stations */
     double m_Twist[MAXSPANSTATIONS+1];          /**< twist at the span stations */
     double m_VCm;                               /**< The wing's viscous pitching moment */
     double m_VYm;                               /**< The wing's viscous yawing moment */
-    double m_XCPSpanAbs[MAXSPANSTATIONS+1];        /**< Center of Pressure pos at the span stations */
-    double m_XCPSpanRel[MAXSPANSTATIONS+1];        /**< Center of Pressure pos at the span stations */
-    double m_XTrTop[MAXSPANSTATIONS+1];            /**< Upper transition location at the span stations */
-    double m_XTrBot[MAXSPANSTATIONS+1];            /**< Lower transition location at the span stations */
+    double m_XCPSpanAbs[MAXSPANSTATIONS+1];     /**< Center of Pressure pos at the span stations */
+    double m_XCPSpanRel[MAXSPANSTATIONS+1];     /**< Center of Pressure pos at the span stations */
+    double m_XTrTop[MAXSPANSTATIONS+1];         /**< Upper transition location at the span stations */
+    double m_XTrBot[MAXSPANSTATIONS+1];         /**< Lower transition location at the span stations */
+    double m_Clmax[MAXSPANSTATIONS+1];          /**< Lower transition location at the span stations */
 
-    Vector3d m_CP;                               /**< The position of the center of pressure */
+    Vector3d m_CP;                              /**< The position of the center of pressure */
 
     int m_nPoints;                              /**< the number of points to calculate in the sequence */
 

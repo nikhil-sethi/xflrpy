@@ -36,7 +36,6 @@ class ManagePlanesDlg : public QDialog
 {
     Q_OBJECT
     friend class Miarex;
-    friend class MainFrame;
 
     public:
         ManagePlanesDlg(QWidget *pParent);

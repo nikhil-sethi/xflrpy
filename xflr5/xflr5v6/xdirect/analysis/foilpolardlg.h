@@ -29,6 +29,7 @@
 #include <QLineEdit>
 #include <QSettings>
 #include <QDialogButtonBox>
+#include <QCheckBox>
 
 #include <xflcore/core_enums.h>
 
@@ -43,33 +44,38 @@ class FoilPolarDlg : public QDialog
     public:
         FoilPolarDlg(QWidget *pParent=nullptr);
 
-        void readParams();
         void initDialog();
-        void setPlrName();
-        void setupLayout();
-        void connectSignals();
-        void setDensity();
 
-        void keyPressEvent(QKeyEvent *pEvent) override;
-        void showEvent(QShowEvent *pEvent) override;
-        void hideEvent(QHideEvent *pEvent) override;
+        QString const & polarName() const {return m_PlrName;}
+
+        static Polar const &refPolar() {return s_RefPolar;}
 
         static void loadSettings(QSettings &settings);
         static void saveSettings(QSettings &settings);
 
-    public slots:
+    private:
+        void keyPressEvent(QKeyEvent *pEvent) override;
+        void showEvent(QShowEvent *pEvent) override;
+        void hideEvent(QHideEvent *pEvent) override;
+
+        void readParams();
+        void setAutoPlrName();
+        void setupLayout();
+        void connectSignals();
+        void setDensity();
+
+    private slots:
         void onAutoName();
         void onOK();
         void onPolarType();
-        void onNameChanged();
         void editingFinished();
         void onFluidUnit();
         void onCalcReynolds();
         void onButton(QAbstractButton *pButton);
 
-    public:
 
-        QRadioButton *m_prbAuto1, *m_prbAuto2;
+    private:
+        QCheckBox *m_pchAutoName;
 
         QLabel *m_plabRe, *m_plabReUnit;
         QLabel *m_plabMach;
@@ -96,8 +102,6 @@ class FoilPolarDlg : public QDialog
         DoubleEdit *m_pdeNCrit;
         DoubleEdit *m_pdeTopTrans;
         DoubleEdit *m_pdeBotTrans;
-
-        bool  m_bAutoName;
 
         QString m_FoilName;
         QString m_PlrName;

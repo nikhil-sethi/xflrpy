@@ -48,7 +48,6 @@ class InertiaDlg : public QDialog
     friend class EditBodyDlg;
     friend class PlaneDlg;
     friend class Miarex;
-    friend class MainFrame;
 
     public:
         InertiaDlg(QWidget *pParent);

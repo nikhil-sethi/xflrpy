@@ -24,8 +24,7 @@
 *@brief This file contains the declaration of the class TwoDWidget,
 *used for 2d drawing in the central area of the application's MainFrame.
 */
-#ifndef INVERSEVIEWDWIDGET_H
-#define INVERSEVIEWDWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -41,32 +40,26 @@ class MainFrame;
 * Depending on the active application, this class calls the drawings methods in QAFoil, QXDirect, QXInverse or QMiarex.
 * All Qt events received by this widget are sent to the child applications for handling.
 */
-class inverseviewwt : public QWidget
+class InverseViewWt : public QWidget
 {
     Q_OBJECT
 
-    friend class MainFrame;
+    public:
+        InverseViewWt(QWidget *parent = nullptr);
 
+    protected:
+        void contextMenuEvent (QContextMenuEvent *pEvent) override;
+        void keyPressEvent(QKeyEvent *pEvent) override;
+        void keyReleaseEvent(QKeyEvent *pEvent) override;
+        void mouseDoubleClickEvent (QMouseEvent *pEvent) override;
+        void mouseMoveEvent(QMouseEvent *pEvent) override;
+        void mousePressEvent(QMouseEvent *pEvent) override;
+        void mouseReleaseEvent(QMouseEvent *pEvent) override;
+        void paintEvent(QPaintEvent *pEvent) override;
+        void resizeEvent (QResizeEvent *pEvent) override;
+        void wheelEvent (QWheelEvent *pEvent) override;
 
-public:
-    inverseviewwt(QWidget *parent = nullptr);
-
-protected:
-    void contextMenuEvent (QContextMenuEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
-    void mouseDoubleClickEvent (QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
-    void resizeEvent (QResizeEvent *event) override;
-    void wheelEvent (QWheelEvent *pEvent) override;
-
-private:
-    MainFrame *m_pMainFrame;   /**< A void pointer to the instance of the MainFrame object. */
-    XInverse *m_pXInverse;    /**< A void pointer to the instance of the QXInverse object. */
-
+    public:
+        static MainFrame *s_pMainFrame;   /**< A void pointer to the instance of the MainFrame object. */
+        static XInverse *s_pXInverse;    /**< A void pointer to the instance of the QXInverse object. */
 };
-
-#endif

@@ -43,7 +43,7 @@ class SplineCtrlsDlg : public QDialog
     friend class AFoil;
 
     public:
-        SplineCtrlsDlg(QWidget *pParent);
+        SplineCtrlsDlg(AFoil *pParent, SplineFoil *pSF);
         ~SplineCtrlsDlg();
 
         void initDialog();
@@ -54,8 +54,8 @@ class SplineCtrlsDlg : public QDialog
         void onButton(QAbstractButton *pButton);
 
     private:
-        void keyPressEvent(QKeyEvent *event) override;
-        void showEvent(QShowEvent *event) override;
+        void keyPressEvent(QKeyEvent *pEvent) override;
+        void showEvent(QShowEvent *pEvent) override;
 
         void fillPointLists();
         void readData();

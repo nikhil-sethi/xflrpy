@@ -61,7 +61,7 @@ class Polar : public XflObject
 
 
         void copySpecification(Polar const*pPolar);
-        void copyPolar(Polar const*pPolar);
+        void copy(Polar const*pPolar);
 
         bool hasOpp(OpPoint const *pOpp) const {return (pOpp->foilName()==m_FoilName && pOpp->polarName()==m_Name);}
 
@@ -71,6 +71,7 @@ class Polar : public XflObject
 
         double getCm0() const;
         double getZeroLiftAngle() const;
+        double getAlphaClmax() const;
         void getAlphaLimits(double &amin, double &amax) const;
         void getClLimits(double &Clmin, double &Clmax) const;
         void getLinearizedCl(double &Alpha0, double &slope) const;
@@ -146,6 +147,7 @@ class Polar : public XflObject
         QVector<double> m_Cl32Cd;            /**< the array of power factors*/
         QVector<double> m_RtCl;              /**< the array of aoa values */
         QVector<double> m_Re;                /**< the array of Re coefficients */
+        QVector<double> m_Clmax;             /**< the array of Clmax of airfoil coefficients */
 
 
     public:

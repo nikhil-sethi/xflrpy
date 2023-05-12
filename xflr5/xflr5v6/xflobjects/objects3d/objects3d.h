@@ -34,7 +34,7 @@ class WPolar;
 class Wing;
 struct LineStyle;
 
-namespace  Objects3d
+namespace Objects3d
 {
     extern QVector <Plane*>    s_oaPlane;   /**< The array of void pointers to the Plane objects. */
     extern QVector <Body*>     s_oaBody;    /**< The array of void pointers to the Body objects. @todo deprecated, remove*/

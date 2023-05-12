@@ -38,10 +38,11 @@
 
 AFoil *SplineCtrlsDlg::s_pAFoil = nullptr;
 
-SplineCtrlsDlg::SplineCtrlsDlg(QWidget *pParent): QDialog(pParent)
+SplineCtrlsDlg::SplineCtrlsDlg(AFoil *pParent, SplineFoil *pSF): QDialog(pParent)
 {
     setWindowTitle(tr("Spline Parameters"));
-    m_pSF = nullptr;
+    m_pSF = pSF;
+    s_pAFoil = pParent;
     setupLayout();
 }
 
@@ -359,10 +360,10 @@ void SplineCtrlsDlg::setControls()
 }
 
 
-void SplineCtrlsDlg::keyPressEvent(QKeyEvent *event)
+void SplineCtrlsDlg::keyPressEvent(QKeyEvent *pEvent)
 {
     // Prevent Return Key from closing App
-    switch (event->key())
+    switch (pEvent->key())
     {
         case Qt::Key_Escape:
         {
@@ -379,7 +380,7 @@ void SplineCtrlsDlg::keyPressEvent(QKeyEvent *event)
             break;
         }
         default:
-            event->ignore();
+            pEvent->ignore();
             break;
     }
 }

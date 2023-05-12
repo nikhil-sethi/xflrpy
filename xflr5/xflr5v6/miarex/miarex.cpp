@@ -118,6 +118,7 @@ Miarex::Miarex(QWidget *parent) : QWidget(parent)
 
     PlaneTreeView::setMainFrame(s_pMainFrame);
     PlaneTreeView::setMiarex(this);
+    StabViewDlg::setMiarex(this);
 
     m_theLLTAnalysis.m_poaPolar = Objects2d::pOAPolar();
 
@@ -168,6 +169,7 @@ Miarex::Miarex(QWidget *parent) : QWidget(parent)
     m_bType1 = m_bType2 = m_bType4 = m_bType7 = true;
     m_bShowEllipticCurve = false;
     m_bShowBellCurve     = false;
+    m_bShowClmaxCurve    = false;
     m_bShowWingCurve[0] = m_bShowWingCurve[1] = m_bShowWingCurve[2] = m_bShowWingCurve[3] = true;
     m_bAnimateWOpp       = false;
     m_bAnimateWOppPlus   = true;
@@ -243,7 +245,6 @@ Miarex::Miarex(QWidget *parent) : QWidget(parent)
         m_WingGraph[ig]->setYMin(0.000);
         m_WingGraph[ig]->setYMax(0.001);
         m_WingGraph[ig]->setScaleType(1);
-        m_WingGraph[ig]->setMargin(50);
         m_WingGraph[ig]->setYVariable(ig);
     }
 
@@ -260,7 +261,6 @@ Miarex::Miarex(QWidget *parent) : QWidget(parent)
         m_WPlrGraph[ig]->setYMin(-0.01);
         m_WPlrGraph[ig]->setYMax( 0.01);
         m_WPlrGraph[ig]->setScaleType(0);
-        m_WPlrGraph[ig]->setMargin(50);
         m_WPlrGraph.at(ig)->setOppHighlighting(true);
     }
 
@@ -283,7 +283,6 @@ Miarex::Miarex(QWidget *parent) : QWidget(parent)
     m_CpGraph.setYMin(-0.01);
     m_CpGraph.setYMax( 0.01);
     m_CpGraph.setScaleType(0);
-    m_CpGraph.setMargin(50);
     m_CpGraph.setInverted(true);
 
     for(int i=0; i<MAXWINGS;i++) m_CpGraph.addCurve(); // four curves, one for each of the plane's wings
@@ -302,7 +301,6 @@ Miarex::Miarex(QWidget *parent) : QWidget(parent)
         m_TimeGraph[ig]->setYMin(-0.01);
         m_TimeGraph[ig]->setYMax( 0.01);
         m_TimeGraph[ig]->setScaleType(0);
-        m_TimeGraph[ig]->setMargin(50);
         m_TimeGraph[ig]->setInverted(false);
         m_TimeGraph[ig]->setGraphName("Time Response");
     }
@@ -336,7 +334,6 @@ Miarex::Miarex(QWidget *parent) : QWidget(parent)
     m_StabPlrGraph.at(0)->setYMin(-0.01);
     m_StabPlrGraph.at(0)->setYMax( 0.01);
     m_StabPlrGraph.at(0)->setScaleType(0);
-    m_StabPlrGraph.at(0)->setMargin(50);
     m_StabPlrGraph.at(0)->setInverted(false);
     m_StabPlrGraph.at(0)->setGraphName("Longitudinal Modes");
     m_StabPlrGraph.at(0)->setOppHighlighting(true);
@@ -351,11 +348,9 @@ Miarex::Miarex(QWidget *parent) : QWidget(parent)
     m_StabPlrGraph.at(1)->setYMin(-0.01);
     m_StabPlrGraph.at(1)->setYMax( 0.01);
     m_StabPlrGraph.at(1)->setScaleType(0);
-    m_StabPlrGraph.at(1)->setMargin(50);
     m_StabPlrGraph.at(1)->setInverted(false);
     m_StabPlrGraph.at(1)->setGraphName("Lateral Modes");
     m_StabPlrGraph.at(1)->setOppHighlighting(true);
-
 
     m_CpLineStyle.m_Color = QColor(255,100,150);
     m_CpLineStyle.m_Stipple = Line::SOLID;
@@ -532,6 +527,7 @@ void Miarex::setControls()
     s_pMainFrame->m_pShowAllWOpps->setEnabled(m_iView==xfl::WOPPVIEW);
     s_pMainFrame->m_pHideAllWOpps->setEnabled(m_iView==xfl::WOPPVIEW);
     s_pMainFrame->m_pShowTargetCurve->setEnabled(m_iView==xfl::WOPPVIEW);
+    s_pMainFrame->m_pShowClmaxCurve->setEnabled(m_iView==xfl::WOPPVIEW);
     s_pMainFrame->m_pShowXCmRefLocation->setEnabled(m_iView==xfl::WOPPVIEW);
     s_pMainFrame->m_pShowWing2Curve->setEnabled(pWing(1) && (m_iView==xfl::WOPPVIEW || m_iView==xfl::WCPVIEW));
     s_pMainFrame->m_pShowStabCurve->setEnabled( pWing(2) && (m_iView==xfl::WOPPVIEW || m_iView==xfl::WCPVIEW));
@@ -874,6 +870,29 @@ void Miarex::createWOppCurves()
             }
         }
     }
+
+    // cl max curve is requested, and if the graph variable is local lift coeff, then add the curve
+    if(m_bShowClmaxCurve && m_pCurPOpp)
+    {
+        int nStart(0);
+        if(m_pCurPOpp->isLLTMethod()) nStart = 1;
+        else                          nStart = 0;
+
+        for(int ig=0; ig<MAXWINGGRAPHS; ig++)
+        {
+            if(m_WingGraph[ig]->yVariable()==2)
+            {
+                Curve *pCurve = m_WingGraph[ig]->addCurve();
+                pCurve->setStipple(1);
+                pCurve->setWidth(2);
+                pCurve->setColor(QColor(245, 25, 125));
+                for (int i=nStart; i<m_pCurPOpp->m_NStation; i++) {
+                    pCurve->appendPoint(m_pCurPOpp->m_pWOpp[0]->m_SpanPos[i]*Units::mtoUnit(), m_pCurPOpp->m_pWOpp[0]->m_Clmax[i]);
+                }
+            }
+        }
+    }
+
     m_bResetCurves = false;
 }
 
@@ -5514,6 +5533,58 @@ void Miarex::onShowTargetCurve()
     m_bShowBellCurve     = dlg.m_bShowBellCurve;
 
     m_bResetCurves = true;
+    updateView();
+}
+
+/**
+ * The user has toggled the display of the Clmax curve in the Cl graph in the operating point view
+ */
+void Miarex::onShowClmaxCurve()
+{
+    QAction *pAction = qobject_cast<QAction *>(sender());
+    m_bShowClmaxCurve = pAction->isChecked();
+    m_bResetCurves = true;
+
+    // Check if there is already an analysis with Clmax calculated (the values were not stored in the project file)
+    //    ... not complete - e.g. if user switches to another POpp there will be no warning.
+
+    if(m_bShowClmaxCurve) {
+        if(!m_pCurPOpp) {
+            QMessageBox::information(s_pMainFrame, tr("Warning"), tr("Select an OpPoint to show Clmax curve."));
+            m_bShowClmaxCurve = false;
+        }
+        else {
+            bool bClShown = false;
+            for(int ig=0; ig<MAXWINGGRAPHS; ig++) {
+                if(m_WingGraph[ig]->yVariable()==2) bClShown = true;
+            }
+            if(!bClShown) {
+                QMessageBox::information(s_pMainFrame, tr("Warning"), tr("Display Cl (Local lift coef.) to show Clmax curve."));
+                m_bShowClmaxCurve = false;
+            }
+            else {
+                int nStart(0);
+                bool bClMaxExist = false;
+                if(m_pCurPOpp->analysisMethod()==xfl::LLTMETHOD) nStart = 1;
+                else                                             nStart = 0;
+                for (int i=nStart; i<m_pCurPOpp->m_NStation; i++) {
+                    if (m_pCurPOpp->m_pWOpp[0]->m_Clmax[i] > PRECISION){
+                        bClMaxExist = true;
+                        break;
+                    }
+                }
+                if (!bClMaxExist ) {
+                    QMessageBox::warning(s_pMainFrame, tr("Warning"), tr("No Clmax values available yet.\nYou have to (re)run an analysis to show the Clmax curve."));
+                    m_bShowClmaxCurve = false;
+                }
+
+            }
+        }
+        if(!m_bShowClmaxCurve) {
+            s_pMainFrame->m_pShowClmaxCurve->setChecked(false);
+        }
+    }
+
     updateView();
 }
 

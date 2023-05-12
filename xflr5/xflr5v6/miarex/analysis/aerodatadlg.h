@@ -50,47 +50,48 @@ class AeroDataDlg : public QDialog
 {
     Q_OBJECT
 
-    friend class Miarex;
-
     public:
         AeroDataDlg(QWidget *parent = nullptr);
 
     public:
-        double AirDensity();   //[kg/m3]
-        double KinematicViscosity();     //[kg/m3]
+        double AirDensity() const;   //[kg/m3]
+        double KinematicViscosity() const;     //[kg/m3]
 
 
     private:
         void setupLayout();
 
-        double TemperatureCorrection(double temp);
-        double AirTemperature(double Altitude);   //[K]
-        double AirPressure(double Altitude);    //[Pa]
-        double AirDensity(double Altitude, double temp);   //[kg/m3]
-        double DynamicViscosity(double Altitude, double temp);     //[kg/m3]
-        double KinematicViscosity(double Altitude , double Temp);   //[kg/m3]
-        double SpeedOfSound(double temp);       //[m/s]
+        double TemperatureCorrection(double temp) const;
+        double AirTemperature(double Altitude)  const;   //[K]
+        double AirPressure(double Altitude) const;    //[Pa]
+        double AirDensity(double Altitude, double temp) const;   //[kg/m3]
+        double DynamicViscosity(double Altitude, double temp) const;     //[kg/m3]
+        double KinematicViscosity(double Altitude , double Temp) const;   //[kg/m3]
+        double SpeedOfSound(double temp) const;       //[m/s]
 
     private:
-        void keyPressEvent(QKeyEvent *event);
+        void keyPressEvent(QKeyEvent *pEvent);
 
     private slots:
         void onTempUnit();
-        void updateResults();
+        void updateResults() const;
         void onButton(QAbstractButton *pButton);
 
-    private:
+
+    public:
         static double s_Altitude;    // meters
         static double s_Temperature; // degree Kelvin
         static bool s_bCelsius;
 
+
+
+    private:
         double UniversalGasConstant;        // [J/(mol.K)]
         double DryAirMolarMass;             // [kg/mol]
         double AdiabaticIndex;
         double SutherlandsConstant;         // [K]
         double ReferenceViscosity;          // [Pa.s] !!!!
 
-    private:
         QComboBox *m_pcbTempUnit;
 
         DoubleEdit *m_pdeTemperature, *m_pdeAltitude;

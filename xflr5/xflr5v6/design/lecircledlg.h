@@ -32,13 +32,14 @@ class QDialogButtonBox;
 class LECircleDlg : public QDialog
 {
     Q_OBJECT
-    friend class AFoil;
 
     public:
         LECircleDlg(QWidget *pParent);
 
-        void setupLayout();
-        void initDialog();
+        void initDialog(double radius, bool bShowCircle);
+        double radius() const {return m_Radius;}
+        bool bShowCircle() const {return  m_bShowCircle;}
+
 
     private slots:
         void onOK();
@@ -46,7 +47,7 @@ class LECircleDlg : public QDialog
 
     private:
         void keyPressEvent(QKeyEvent *event) override;
-
+        void setupLayout();
 
     private:
         QCheckBox *m_pchShow;
@@ -55,6 +56,6 @@ class LECircleDlg : public QDialog
         QDialogButtonBox *m_pButtonBox;
 
         double m_Radius;
-        bool m_bShowRadius;
+        bool m_bShowCircle;
 };
 

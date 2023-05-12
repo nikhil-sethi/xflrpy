@@ -22,8 +22,8 @@
 */
 void sortComplex(std::complex<double>*array, int n)
 {
-    std::complex<double> temp, temp2;
-    int flipped=0;
+    std::complex<double> temp(0), temp2(0);
+    int flipped(0);
 
     if (n<=1) return;
 
@@ -99,7 +99,7 @@ int compareComplex(std::complex<double> a, std::complex<double>b)
 bool CubicSplineInterpolation(int n, double const *x, double const *y, double *a, double *b, double *c, double *d)
 {
     if(n>50) return false;
-    int i,size;
+    int size(0);
 
     QVector<double>M(16*n*n,0);
     QVector<double>RHS(4*n,0);
@@ -107,7 +107,7 @@ bool CubicSplineInterpolation(int n, double const *x, double const *y, double *a
 
     size = 4*n;
 //	Interpolation conditions
-    for (i=0; i<n; i++)
+    for (int i=0; i<n; i++)
     {
         //pj(x[i]) = y[i]
         M[2*i*size +4*i]     = x[i]*x[i]*x[i];
@@ -126,7 +126,7 @@ bool CubicSplineInterpolation(int n, double const *x, double const *y, double *a
     }
 
 //  Derivation conditions
-    for (i=1; i<n; i++)
+    for (int i=1; i<n; i++)
     {
         //continuity of 1st order derivatives
 
@@ -162,7 +162,7 @@ bool CubicSplineInterpolation(int n, double const *x, double const *y, double *a
     bool bCancel = false;
     if(!Gauss(M.data(), 4*n, RHS.data(), 1, &bCancel)) return false;
 
-    for(i=0; i<n; i++)
+    for(int i=0; i<n; i++)
     {
         a[i] = RHS[4*i];
         b[i] = RHS[4*i+1];
@@ -245,6 +245,7 @@ double err_func(double x)
     if(x>0.0) return 1.0-e;
     else      return -(1.0-e);
 }
+
 
 /* compute inverse error functions with maximum error of 2.35793 ulp */
 double erf_inv(double a)
@@ -447,9 +448,9 @@ bool linearRegression(int n, double const *x, double const*y, double &a, double 
 {
     a = b = 0;
 
-    double sum_x=0, sum_y=0.0;
-    double sum_x2=0.0;
-    double sum_xy= 0;
+    double sum_x(0), sum_y(0);
+    double sum_x2(0);
+    double sum_xy(0);
 
     for(int i=0; i<n; i++)
     {

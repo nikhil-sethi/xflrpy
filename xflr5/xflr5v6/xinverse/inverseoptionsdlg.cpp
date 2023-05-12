@@ -31,10 +31,12 @@
 #include <xflwidgets/line/linebtn.h>
 
 
+XInverse * InverseOptionsDlg::s_pXInverse(nullptr);
+
+
 InverseOptionsDlg::InverseOptionsDlg(QWidget *pParent) : QDialog(pParent)
 {
     setWindowTitle(tr("XInverse Style"));
-    m_pXInverse = nullptr;
     setupLayout();
 }
 
@@ -91,19 +93,19 @@ void InverseOptionsDlg::setupLayout()
 
 void InverseOptionsDlg::initDialog()
 {
-    m_plbRefFoil->setTheStyle(m_pXInverse->m_pRefFoil->theStyle());
-    m_plbModFoil->setTheStyle(m_pXInverse->m_pModFoil->theStyle());
-    m_plbSpline->setTheStyle(m_pXInverse->m_Spline.theStyle());
-    m_plbReflected->setTheStyle(m_pXInverse->m_ReflectedStyle);
+    m_plbRefFoil->setTheStyle(s_pXInverse->m_pRefFoil->theStyle());
+    m_plbModFoil->setTheStyle(s_pXInverse->m_pModFoil->theStyle());
+    m_plbSpline->setTheStyle(s_pXInverse->m_Spline.theStyle());
+    m_plbReflected->setTheStyle(s_pXInverse->m_ReflectedStyle);
 }
 
 
 void InverseOptionsDlg::onRefStyle()
 {
     LineMenu lm(nullptr, true);
-    lm.initMenu(m_pXInverse->m_pRefFoil->theStyle());
+    lm.initMenu(s_pXInverse->m_pRefFoil->theStyle());
     lm.exec(QCursor::pos());
-    m_pXInverse->m_pRefFoil->setTheStyle(lm.theStyle());
+    s_pXInverse->m_pRefFoil->setTheStyle(lm.theStyle());
     m_plbRefFoil->setTheStyle(lm.theStyle());
 }
 
@@ -111,9 +113,9 @@ void InverseOptionsDlg::onRefStyle()
 void InverseOptionsDlg::onModStyle()
 {
     LineMenu lm(nullptr, true);
-    lm.initMenu(m_pXInverse->m_pModFoil->theStyle());
+    lm.initMenu(s_pXInverse->m_pModFoil->theStyle());
     lm.exec(QCursor::pos());
-    m_pXInverse->m_pModFoil->setTheStyle(lm.theStyle());
+    s_pXInverse->m_pModFoil->setTheStyle(lm.theStyle());
     m_plbModFoil->setTheStyle(lm.theStyle());
 }
 
@@ -121,10 +123,10 @@ void InverseOptionsDlg::onModStyle()
 void InverseOptionsDlg::onSplineStyle()
 {
     LineMenu lm(nullptr, false);
-    lm.initMenu(m_pXInverse->m_Spline.theStyle());
+    lm.initMenu(s_pXInverse->m_Spline.theStyle());
     lm.exec(QCursor::pos());
 
-    m_pXInverse->m_Spline.setTheStyle(lm.theStyle());
+    s_pXInverse->m_Spline.setTheStyle(lm.theStyle());
     m_plbSpline->setTheStyle(lm.theStyle());
 }
 
@@ -133,10 +135,10 @@ void InverseOptionsDlg::onReflectedStyle()
 {
 
     LineMenu lm(nullptr, false);
-    lm.initMenu(m_pXInverse->m_ReflectedStyle);
+    lm.initMenu(s_pXInverse->m_ReflectedStyle);
     lm.exec(QCursor::pos());
 
-    m_pXInverse->m_ReflectedStyle = lm.theStyle();
+    s_pXInverse->m_ReflectedStyle = lm.theStyle();
     m_plbReflected->setTheStyle(lm.theStyle());
 }
 

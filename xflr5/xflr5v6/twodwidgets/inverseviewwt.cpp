@@ -29,15 +29,15 @@
 #include <twodwidgets/inverseviewwt.h>
 #include <xflcore/displayoptions.h>
 
+MainFrame* InverseViewWt::s_pMainFrame(nullptr);
+XInverse* InverseViewWt::s_pXInverse(nullptr);
+
 /**
 *The public constructor
 */
-inverseviewwt::inverseviewwt(QWidget *parent)
+InverseViewWt::InverseViewWt(QWidget *parent)
     : QWidget(parent)
 {
-    m_pMainFrame = nullptr;
-    m_pXInverse = nullptr;
-
     setMouseTracking(true);
     setCursor(Qt::CrossCursor);
 
@@ -52,11 +52,11 @@ inverseviewwt::inverseviewwt(QWidget *parent)
 *Overrides the keyPressEvent method of the base class.
 *Dispatches the handling to the active child application.
 */
-void inverseviewwt::keyPressEvent(QKeyEvent *event)
+void InverseViewWt::keyPressEvent(QKeyEvent *pEvent)
 {
-    if(m_pMainFrame->m_iApp == xfl::INVERSEDESIGN && m_pXInverse)
+    if(s_pMainFrame->isInverseDesign() && s_pXInverse)
     {
-        m_pXInverse->keyPressEvent(event);
+        s_pXInverse->keyPressEvent(pEvent);
     }
 }
 
@@ -65,25 +65,24 @@ void inverseviewwt::keyPressEvent(QKeyEvent *event)
 *Overrides the keyReleaseEvent method of the base class.
 *Dispatches the handling to the active child application.
 */
-void inverseviewwt::keyReleaseEvent(QKeyEvent *event)
+void InverseViewWt::keyReleaseEvent(QKeyEvent *pEvent)
 {
-    if(m_pMainFrame->m_iApp == xfl::INVERSEDESIGN && m_pXInverse)
+    if(s_pMainFrame->isInverseDesign() && s_pXInverse)
     {
-        m_pXInverse->keyReleaseEvent(event);
+        s_pXInverse->keyReleaseEvent(pEvent);
     }
 }
-
 
 
 /**
 *Overrides the mousePressEvent method of the base class.
 *Dispatches the handling to the active child application.
 */
-void inverseviewwt::mousePressEvent(QMouseEvent *event)
+void InverseViewWt::mousePressEvent(QMouseEvent *pEvent)
 {
-    if(m_pMainFrame->m_iApp == xfl::INVERSEDESIGN && m_pXInverse)
+    if(s_pMainFrame->isInverseDesign() && s_pXInverse)
     {
-        m_pXInverse->mousePressEvent(event);
+        s_pXInverse->mousePressEvent(pEvent);
     }
 }
 
@@ -92,11 +91,11 @@ void inverseviewwt::mousePressEvent(QMouseEvent *event)
 *Overrides the mouseReleaseEvent method of the base class.
 *Dispatches the handling to the active child application.
 */
-void inverseviewwt::mouseReleaseEvent(QMouseEvent *event)
+void InverseViewWt::mouseReleaseEvent(QMouseEvent *pEvent)
 {
-    if(m_pMainFrame->m_iApp == xfl::INVERSEDESIGN && m_pXInverse)
+    if(s_pMainFrame->isInverseDesign() && s_pXInverse)
     {
-        m_pXInverse->mouseReleaseEvent(event);
+        s_pXInverse->mouseReleaseEvent(pEvent);
     }
 }
 
@@ -105,25 +104,24 @@ void inverseviewwt::mouseReleaseEvent(QMouseEvent *event)
 *Overrides the mouseMoveEvent method of the base class.
 *Dispatches the handling to the active child application.
 */
-void inverseviewwt::mouseMoveEvent(QMouseEvent *event)
+void InverseViewWt::mouseMoveEvent(QMouseEvent *pEvent)
 {
-    if(m_pMainFrame->m_iApp == xfl::INVERSEDESIGN && m_pXInverse)
+    if(s_pMainFrame->isInverseDesign() && s_pXInverse)
     {
-        m_pXInverse->mouseMoveEvent(event);
+        s_pXInverse->mouseMoveEvent(pEvent);
     }
 }
-
 
 
 /**
 *Overrides the mouseDoubleClickEvent function of the base class.
 *Dispatches the handling to the active child application.
 */
-void inverseviewwt::mouseDoubleClickEvent ( QMouseEvent * event )
+void InverseViewWt::mouseDoubleClickEvent (QMouseEvent * pEvent)
 {
-    if(m_pMainFrame->m_iApp == xfl::INVERSEDESIGN && m_pXInverse)
+    if(s_pMainFrame->isInverseDesign() && s_pXInverse)
     {
-        m_pXInverse->doubleClickEvent(event->pos());
+        s_pXInverse->doubleClickEvent(pEvent->pos());
     }
 }
 
@@ -132,13 +130,13 @@ void inverseviewwt::mouseDoubleClickEvent ( QMouseEvent * event )
 *Overrides the resizeEvent function of the base class.
 *Dispatches the handling to the active child application.
 */
-void inverseviewwt::resizeEvent(QResizeEvent *event)
+void InverseViewWt::resizeEvent(QResizeEvent *pEvent)
 {
-    if(m_pXInverse)
+    if(s_pXInverse)
     {
-        m_pXInverse->setXInverseScale(rect());
+        s_pXInverse->setXInverseScale(rect());
     }
-    event->accept();
+    pEvent->accept();
 }
 
 
@@ -146,22 +144,22 @@ void inverseviewwt::resizeEvent(QResizeEvent *event)
 *Overrides the wheelEvent function of the base class.
 *Dispatches the handling to the active child application.
 */
-void inverseviewwt::wheelEvent(QWheelEvent *pEvent)
+void InverseViewWt::wheelEvent(QWheelEvent *pEvent)
 {
     double ZoomFactor=1.0;
 
     if(pEvent->angleDelta().y()>0)
     {
         if(!DisplayOptions::bReverseZoom()) ZoomFactor = 1./1.06;
-        else                          ZoomFactor = 1.06;
+        else                                ZoomFactor = 1.06;
     }
     else
     {
         if(!DisplayOptions::bReverseZoom()) ZoomFactor = 1.06;
-        else                          ZoomFactor = 1./1.06;
+        else                                ZoomFactor = 1./1.06;
     }
 
-    if(m_pMainFrame->m_iApp == xfl::INVERSEDESIGN && m_pXInverse)
+    if(s_pMainFrame->isInverseDesign() && s_pXInverse)
     {
         QPoint pt;
 #if QT_VERSION >= 0x050F00
@@ -169,7 +167,7 @@ void inverseviewwt::wheelEvent(QWheelEvent *pEvent)
 #else
         pt = pEvent->pos();
 #endif
-        m_pXInverse->zoomEvent(pt, ZoomFactor);
+        s_pXInverse->zoomEvent(pt, ZoomFactor);
     }
 }
 
@@ -178,19 +176,19 @@ void inverseviewwt::wheelEvent(QWheelEvent *pEvent)
 *Overrides the paintEvent function of the base class.
 *Dispatches the handling to the active child application.
 */
-void inverseviewwt::paintEvent(QPaintEvent *event)
+void InverseViewWt::paintEvent(QPaintEvent *pEvent)
 {
-    if(m_pMainFrame->m_iApp == xfl::INVERSEDESIGN && m_pXInverse)
+    if(s_pMainFrame->isInverseDesign() && s_pXInverse)
     {
         QPainter painter(this);
-        m_pXInverse->paintView(painter);
+        s_pXInverse->paintView(painter);
     }
     else
     {
         QPainter painter(this);
         painter.fillRect(rect(), DisplayOptions::backgroundColor());
     }
-    event->accept();
+    pEvent->accept();
 }
 
 
@@ -198,18 +196,12 @@ void inverseviewwt::paintEvent(QPaintEvent *event)
 * Overrides the contextMenuEvent function of the base class.
 * Dispatches the handling to the active child application.
 */
-void inverseviewwt::contextMenuEvent (QContextMenuEvent * event)
+void InverseViewWt::contextMenuEvent (QContextMenuEvent * pEvent)
 {
-    QPoint ScreenPt = event->globalPos();
+    QPoint ScreenPt = pEvent->globalPos();
 
-    switch(m_pMainFrame->m_iApp)
+    if(s_pMainFrame->isInverseDesign() && s_pXInverse)
     {
-        case xfl::INVERSEDESIGN:
-        {
-            m_pMainFrame->m_pInverseContextMenu->exec(ScreenPt);
-            break;
-        }
-        default:
-            break;
+        s_pMainFrame->m_pInverseContextMenu->exec(ScreenPt);
     }
 }

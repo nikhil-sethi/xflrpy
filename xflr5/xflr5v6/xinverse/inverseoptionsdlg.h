@@ -30,10 +30,11 @@ class InverseOptionsDlg:public QDialog
 {
     Q_OBJECT
     
-    friend class XInverse;
 
     public:
         InverseOptionsDlg(QWidget *pParent);
+        void initDialog();
+        static void setXInverse(XInverse *pXInverse) {s_pXInverse = pXInverse;}
 
     private slots:
         void onRefStyle();
@@ -43,10 +44,9 @@ class InverseOptionsDlg:public QDialog
 
     private:
         void setupLayout();
-        void initDialog();
 
         LineBtn *m_plbRefFoil, *m_plbModFoil, *m_plbSpline, *m_plbReflected;
 
-        XInverse * m_pXInverse;
+        static XInverse * s_pXInverse;
 };
 

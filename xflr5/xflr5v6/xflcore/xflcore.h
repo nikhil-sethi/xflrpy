@@ -96,9 +96,7 @@ namespace xfl
     QString wingType(xfl::enumWingType wingType);
 
 
-
     QString ReynoldsFormat(double f);
-
 
 
     void readColor(QDataStream &ar, int &r, int &g, int &b);
@@ -121,7 +119,6 @@ namespace xfl
     void drawSymbol(QPainter &painter, Line::enumPointStyle pointStyle, QColor const &bkColor, QColor const &linecolor, QPointF const &pt);
     void drawSymbol(QPainter &painter, Line::enumPointStyle pointStyle, QColor const &bkColor, QColor const &linecolor, double x, double y);
 
-//    Qt::PenStyle getStyle(int s);
 
     inline Qt::PenStyle getStyle(Line::enumLineStipple s)
     {

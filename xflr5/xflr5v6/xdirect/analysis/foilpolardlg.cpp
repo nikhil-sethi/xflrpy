@@ -31,7 +31,7 @@
 
 QByteArray FoilPolarDlg::s_WindowGeometry;
 
-int FoilPolarDlg::s_UnitType = 1;
+int    FoilPolarDlg::s_UnitType = 1;
 double FoilPolarDlg::s_Viscosity = 1.5e-5;
 double FoilPolarDlg::s_Density   = 1.225;
 double FoilPolarDlg::s_Chord = 1.0;
@@ -44,8 +44,6 @@ FoilPolarDlg::FoilPolarDlg(QWidget *pParent) : QDialog(pParent)
 {
     setWindowTitle(tr("Foil Polar Definition"));
 
-    m_bAutoName = true;
-
     setupLayout();
     connectSignals();
 }
@@ -55,20 +53,11 @@ void FoilPolarDlg::setupLayout()
 {
     QGroupBox *pNameGroupBox = new QGroupBox(tr("Analysis Name"));
     {
-        QVBoxLayout *pAnalysisLayout = new QVBoxLayout;
+        QHBoxLayout *pAnalysisLayout = new QHBoxLayout;
         {
-            QHBoxLayout *pAutoNameLayout = new QHBoxLayout;
-            {
-                m_prbAuto1 = new QRadioButton(tr("Automatic"));
-                m_prbAuto2 = new QRadioButton(tr("User Defined"));
-                m_pleAnalysisName = new QLineEdit(tr("Analysis Name"));
-                pAutoNameLayout->addStretch(1);
-                pAutoNameLayout->addWidget(m_prbAuto1);
-                pAutoNameLayout->addStretch(1);
-                pAutoNameLayout->addWidget(m_prbAuto2);
-                pAutoNameLayout->addStretch(1);
-            }
-            pAnalysisLayout->addLayout(pAutoNameLayout);
+            m_pchAutoName = new QCheckBox(tr("Automatic"));
+            m_pleAnalysisName = new QLineEdit(tr("Analysis Name"));
+            pAnalysisLayout->addWidget(m_pchAutoName);
             pAnalysisLayout->addWidget(m_pleAnalysisName);
         }
         pNameGroupBox->setLayout(pAnalysisLayout);
@@ -138,8 +127,6 @@ void FoilPolarDlg::setupLayout()
                         plabNu->setAlignment(Qt::AlignRight | Qt::AlignCenter);
                         m_pdeViscosity = new DoubleEdit(1.5e-5);
                         m_plabViscosityUnit = new QLabel(QString::fromUtf8("m²/s"));
-//                        m_pdeDensity->setDigits(5);
-//                        m_pdeViscosity->setDigits(3);
                         m_pdeDensity->setMin(0.0);
                         m_pdeViscosity->setMin(0.0);
                         pAeroDataLayout->addWidget(plab9,1,1);
@@ -256,8 +243,7 @@ void FoilPolarDlg::setupLayout()
 
 void FoilPolarDlg::connectSignals()
 {
-    connect(m_prbAuto1, SIGNAL(clicked()), SLOT(onAutoName()));
-    connect(m_prbAuto2, SIGNAL(clicked()), SLOT(onAutoName()));
+    connect(m_pchAutoName, SIGNAL(toggled(bool)), SLOT(onAutoName()));
 
     connect(m_rbtype1, SIGNAL(clicked()), SLOT(onPolarType()));
     connect(m_rbtype2, SIGNAL(clicked()), SLOT(onPolarType()));
@@ -269,8 +255,6 @@ void FoilPolarDlg::connectSignals()
     connect(m_pdeNCrit,    SIGNAL(valueChanged()), SLOT(editingFinished()));
     connect(m_pdeTopTrans, SIGNAL(valueChanged()), SLOT(editingFinished()));
     connect(m_pdeBotTrans, SIGNAL(valueChanged()), SLOT(editingFinished()));
-
-    connect(m_pleAnalysisName, SIGNAL(editingFinished()), SLOT(onNameChanged()));
 
     connect(m_prbFluidUnit1, SIGNAL(clicked(bool)), SLOT(onFluidUnit()));
     connect(m_prbFluidUnit2, SIGNAL(clicked(bool)), SLOT(onFluidUnit()));
@@ -296,7 +280,7 @@ void FoilPolarDlg::onButton(QAbstractButton *pButton)
 
 void FoilPolarDlg::editingFinished()
 {
-    setPlrName();
+    setAutoPlrName();
 }
 
 
@@ -361,15 +345,15 @@ void FoilPolarDlg::initDialog()
 
     onPolarType();
 
-    m_bAutoName = true;
-    m_prbAuto1->setChecked(true);
+    m_pchAutoName->setChecked(true);
+    m_pleAnalysisName->setEnabled(false);
+    setAutoPlrName();
 
 }
 
 
 void FoilPolarDlg::keyPressEvent(QKeyEvent *pEvent)
 {
-    // Prevent Return Key from closing App
     switch (pEvent->key())
     {
         case Qt::Key_Return:
@@ -378,15 +362,10 @@ void FoilPolarDlg::keyPressEvent(QKeyEvent *pEvent)
             if(!m_pButtonBox->hasFocus())
             {
                 readParams();
-                setPlrName();
+                setAutoPlrName();
                 m_pButtonBox->setFocus();
                 return;
             }
-/*            else if(m_pButtonBox->hasFocus())
-            {
-                onOK();
-                return;
-            }*/
             break;
         }
         case Qt::Key_Escape:
@@ -402,31 +381,24 @@ void FoilPolarDlg::keyPressEvent(QKeyEvent *pEvent)
 
 void FoilPolarDlg::onAutoName()
 {
-    if(m_prbAuto2->isChecked())
+    if(m_pchAutoName->isChecked())
     {
-        m_bAutoName = false;
-        m_pleAnalysisName->setFocus();
-        m_pleAnalysisName->selectAll();
+        setAutoPlrName();
+        m_pleAnalysisName->setEnabled(false);
     }
     else
     {
-        m_bAutoName = true;
-        setPlrName();
+        m_pleAnalysisName->setFocus();
+        m_pleAnalysisName->selectAll();
+        m_pleAnalysisName->setEnabled(true);
     }
-}
-
-
-void FoilPolarDlg::onNameChanged()
-{
-    m_bAutoName = false;
-    m_prbAuto1->setChecked(false);
-    m_prbAuto2->setChecked(true);
 }
 
 
 void FoilPolarDlg::onOK()
 {
-    s_RefPolar.setName(m_pleAnalysisName->text());
+    m_PlrName = m_pleAnalysisName->text();
+    s_RefPolar.setName(m_PlrName);
     accept();
 }
 
@@ -474,19 +446,21 @@ void FoilPolarDlg::onPolarType()
     m_prbFluidUnit1->setEnabled(s_RefPolar.m_PolarType==xfl::FIXEDLIFTPOLAR);
     m_prbFluidUnit2->setEnabled(s_RefPolar.m_PolarType==xfl::FIXEDLIFTPOLAR);
 
-    setPlrName();
+    setAutoPlrName();
 }
 
 
-void FoilPolarDlg::setPlrName()
+void FoilPolarDlg::setAutoPlrName()
 {
     readParams();
 
-    if(m_bAutoName)
+    if(m_pchAutoName->isChecked())
     {
-        m_PlrName= Polar::autoPolarName(s_RefPolar.m_PolarType, s_RefPolar.m_Reynolds, s_RefPolar.m_Mach, s_RefPolar.m_NCrit, s_RefPolar.m_ASpec, s_RefPolar.m_XTop, s_RefPolar.m_XBot);
+        m_PlrName = Polar::autoPolarName(s_RefPolar.m_PolarType, s_RefPolar.m_Reynolds, s_RefPolar.m_Mach, s_RefPolar.m_NCrit, s_RefPolar.m_ASpec, s_RefPolar.m_XTop, s_RefPolar.m_XBot);
         m_pleAnalysisName->setText(m_PlrName);
     }
+    else
+        m_PlrName = m_pleAnalysisName->text();
 }
 
 
@@ -517,7 +491,7 @@ void FoilPolarDlg::onFluidUnit()
 
 void FoilPolarDlg::readParams()
 {
-    bool bOK;
+    bool bOK(false);
     QString str;
     str = m_pdeReynolds->text();
     str.replace(" ","");

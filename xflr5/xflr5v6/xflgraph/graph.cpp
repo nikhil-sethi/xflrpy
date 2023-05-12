@@ -33,8 +33,7 @@
 #define MININTERVAL  0.000000001
 
 
-bool Graph::s_bHighlightPoint = true;
-
+bool Graph::s_bHighlightPoint(true);
 
 QColor Graph::s_CurveColors[] = {QColor(255,   0,   0), QColor(  0,   0, 255), QColor(  0, 255,   0), QColor(255, 255,   0),
                                  QColor(  0, 255, 255), QColor(255,   0, 255), QColor(255, 125,  70), QColor( 70, 125, 255),
@@ -86,7 +85,7 @@ Graph::Graph()
     m_BorderStyle.m_Stipple = Line::SOLID;
     m_BorderStyle.m_Width = 2;
 
-    m_iMargin = 41;
+    m_iMargin = 51;
 
     m_h       = 0;
     m_w       = 0;

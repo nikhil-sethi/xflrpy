@@ -288,7 +288,6 @@ void OpPointWt::resizeEvent(QResizeEvent *pEvent)
         int h = rect().height();
         int h4 = h/3;
         QRect rGraphRect = QRect(0, 0, + rect().width(), rect().height()-h4);
-        m_pCpGraph->setMargin(50);
         m_pCpGraph->setDrawRect(rGraphRect);
         m_pCpGraph->initializeGraph();
     }

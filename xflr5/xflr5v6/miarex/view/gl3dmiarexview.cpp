@@ -70,6 +70,8 @@ gl3dMiarexView::gl3dMiarexView(QWidget *parent) : gl3dXflView(parent)
     m_bStreamlinesDone    = false;
     m_bSurfVelocitiesDone = false;
     m_NStreamLines = 0;
+
+    memset(m_Ny, 0, sizeof(m_Ny));
 }
 
 
@@ -373,12 +375,12 @@ void gl3dMiarexView::glMakeCpLegendClr()
     QFontMetrics fm(fnt);
     float fmw = float(fm.averageCharWidth());
 
-    float fi, ZPos,dz,Right1, Right2;
+    float fi(0), ZPos(0), dz(0), Right1(0), Right2(0);
     float color = 0.0;
 
     float w = float(rect().width());
     float h = float(rect().height());
-    float XPos;
+    float XPos(0);
 
     if(w>h)
     {
@@ -431,7 +433,7 @@ void gl3dMiarexView::glMakeCpLegendClr()
 }
 
 
-bool gl3dMiarexView::glMakeStreamLines(Wing const *PlaneWing[MAXWINGS], Vector3d const *pNode,
+bool gl3dMiarexView::glMakeStreamLines(Wing const *PlaneWing[], Vector3d const *pNode,
                                        WPolar const *pWPolar, PlaneOpp const *pPOpp)
 {
     if(!s_pMiarex->is3dView()) return false;
@@ -977,54 +979,38 @@ void gl3dMiarexView::glMakeMoments(Wing const *pWing, const WPolar *pWPolar, con
     //    -- Wikipedia flight dynamics --
     if(!pWing || !pWPolar) return;
 
-    int i=0;
-
-    float ampL=(0), ampM=(0), ampN=(0);
-    float sign=(0);
-    float angle=(0);//radian
-    float endx, endy=(0), endz=(0), dx=(0), dy=(0), dz=(0), xae=(0), yae=(0), zae=(0);
-    float factor = 10.0f;
+    float ampL(0), ampM(0), ampN(0);
+    float sign(0);
+    float angle(0);//radian
+    float endx(0), endy(0), endz(0), dx(0), dy(0), dz(0), xae(0), yae(0), zae(0);
+    float factor(0);
     float radius= float(pWing->planformSpan())/4.0f;
 
-    m_iMomentPoints = 0;
 
     ampL = 0.5f*float(pWPolar->density() * pWPolar->referenceArea() * pWPolar->referenceMAC()
-                      *pPOpp->m_QInf*pPOpp->m_QInf * pPOpp->m_GRm * s_LiftScale)*factor;
+                      *pPOpp->m_QInf*pPOpp->m_QInf * pPOpp->m_GRm);
     ampM = 0.5f*float(pWPolar->density() * pWPolar->referenceArea() * pWPolar->referenceSpan()
-                      *pPOpp->m_QInf*pPOpp->m_QInf * pPOpp->m_GCm * s_LiftScale)*factor;
+                      *pPOpp->m_QInf*pPOpp->m_QInf * pPOpp->m_GCm);
     ampN = 0.5f*float(pWPolar->density() * pWPolar->referenceArea() * pWPolar->referenceSpan()
-                      *pPOpp->m_QInf*pPOpp->m_QInf*(pPOpp->m_GYm) * s_LiftScale)*factor;
+                      *pPOpp->m_QInf*pPOpp->m_QInf  *pPOpp->m_GYm);
 
-    if(fabsf(ampL)>0.000001f)
-    {
-        m_iMomentPoints += int(qAbs(ampL))  *2;
-        m_iMomentPoints += 4;
-    }
-    if(fabs(ampM)>0.000001f)
-    {
-        m_iMomentPoints += int(qAbs(ampM))  *2;
-        m_iMomentPoints += 4;
-    }
-    if(fabs(ampN)>0.000001f)
-    {
-        m_iMomentPoints += int(qAbs(ampN))  *2;
-        m_iMomentPoints += 4;
-    }
 
-    QVector<float> momentVertexArray(m_iMomentPoints*3);
+    factor = float(s_LiftScale*0.0001);
+
+    QVector<float> momentVertexArray(MOMENTPOINTS*6);
     int iv = 0;
 
     //ROLLING MOMENT
-    if(fabs(ampL)>0.000001f)
+//    if(fabs(ampL)>0.000001f)
     {
         if (ampL>0.0f) sign = -1.0f; else sign = 1.0f;
-        for (i=0; i<int(qAbs(ampL)); i++)
+        for (int i=0; i<3000; i++)
         {
-            angle = sign*float(i)*3.1416f/180.0f     / factor;
+            angle = sign*float(i)*3.1416f/180.0f   *ampL  * factor;
             momentVertexArray[iv++] = 0.0;
             momentVertexArray[iv++] = radius*cosf(angle);
             momentVertexArray[iv++] = radius*sinf(angle);
-            angle = sign*float(i+1)*3.1416f/180.0f / factor;
+            angle = sign*float(i+1)*3.1416f/180.0f *ampL * factor;
             momentVertexArray[iv++] = 0.0;
             momentVertexArray[iv++] = radius*cosf(angle);
             momentVertexArray[iv++] = radius*sinf(angle);
@@ -1056,16 +1042,16 @@ void gl3dMiarexView::glMakeMoments(Wing const *pWing, const WPolar *pWPolar, con
     }
 
     //PITCHING MOMENT
-    if(fabs(ampM)>0.000001f)
+//    if(fabs(ampM)>0.000001f)
     {
         if (ampM>0.0f) sign = -1.0; else sign = 1.0;
-        for (i=0; i<int(qAbs(ampM)); i++)
+        for (int i=0; i<3000; i++)
         {
-            angle = sign*float(i)*3.1416f/180.0f     / factor;
+            angle = sign*float(i)*3.1416f/180.0f   *ampM  * factor;
             momentVertexArray[iv++] = radius*cos(angle);
             momentVertexArray[iv++] = 0.0;
             momentVertexArray[iv++] = radius*sin(angle);
-            angle = sign*float(i+1)*3.1416f/180.0f / factor;
+            angle = sign*float(i+1)*3.1416f/180.0f *ampM  * factor;
             momentVertexArray[iv++] = radius*cos(angle);
             momentVertexArray[iv++] = 0.0;
             momentVertexArray[iv++] = radius*sin(angle);
@@ -1097,17 +1083,17 @@ void gl3dMiarexView::glMakeMoments(Wing const *pWing, const WPolar *pWPolar, con
 
 
     //YAWING MOMENT
-    if(fabs(ampN)>0.000001f)
+ //   if(fabs(ampN)>0.000001f)
     {
         if (ampN>0.0f) sign = -1.0; else sign = 1.0;
         angle = 0.0;
-        for (i=0; i<int(qAbs(ampN)); i++)
+        for (int i=0; i<3000; i++)
         {
-            angle = sign*float(i)*3.1416f/180.0f     / factor;
+            angle = sign*float(i)*3.1416f/180.0f   * ampN * factor;
             momentVertexArray[iv++] = -radius*cos(angle);
             momentVertexArray[iv++] = -radius*sin(angle);
             momentVertexArray[iv++] = 0.0;
-            angle = sign*float(i+1)*3.1416f/180.0f / factor;
+            angle = sign*float(i+1)*3.1416f/180.0f * ampN * factor;
             momentVertexArray[iv++] = -radius*cos(angle);
             momentVertexArray[iv++] = -radius*sin(angle);
             momentVertexArray[iv++] = 0.0;
@@ -1139,13 +1125,12 @@ void gl3dMiarexView::glMakeMoments(Wing const *pWing, const WPolar *pWPolar, con
     }
 
 
-    Q_ASSERT(iv==m_iMomentPoints*3);
+    Q_ASSERT(iv==MOMENTPOINTS*6);
     m_vboMoments.destroy();
     m_vboMoments.create();
     m_vboMoments.bind();
-    m_vboMoments.allocate(momentVertexArray.data(), m_iMomentPoints*3*int(sizeof(float)));
+    m_vboMoments.allocate(momentVertexArray.data(), MOMENTPOINTS*6*int(sizeof(float)));
     m_vboMoments.release();
-
 }
 
 
@@ -1155,7 +1140,7 @@ void gl3dMiarexView::glMakeLiftStrip(int iWing, const Wing *pWing, const WPolar 
 
     Vector3d C, CL, Pt, PtNormal;
 
-    float amp=0, dih=0;
+    float amp(0), dih(0);
     float cosa =  cosf(float(pWOpp->m_Alpha) * PIf/180.0f);
     float sina = -sinf(float(pWOpp->m_Alpha) * PIf/180.0f);
 
@@ -1340,7 +1325,7 @@ void gl3dMiarexView::paintMoments()
 
             m_shadLine.setAttributeBuffer(m_locLine.m_attrVertex, GL_FLOAT, 0, 3);
 
-            glDrawArrays(GL_LINES, 0, m_iMomentPoints);
+            glDrawArrays(GL_LINES, 0, MOMENTPOINTS*6);
         }
         m_vboMoments.release();
 
@@ -1355,7 +1340,7 @@ void gl3dMiarexView::glMakeDownwash(int iWing, const Wing *pWing, const WPolar *
 {
     if(!pWing || !pWPolar || !pWOpp) return;
 
-    int i(0),j(0),k(0),p(0);
+    int i(0),j(0),k(0);
     float dih(0), yob(0);
     float y1(0), y2(0), z1(0), z2(0), xs(0), ys(0), zs(0);
     Vector3d C, Pt, PtNormal;
@@ -1411,7 +1396,6 @@ void gl3dMiarexView::glMakeDownwash(int iWing, const Wing *pWing, const WPolar *
     }
     else
     {
-        p = 0;
         i = 0;
         iv = 0;
         for (j=0; j<pWing->m_Surface.size(); j++)
@@ -1452,7 +1436,6 @@ void gl3dMiarexView::glMakeDownwash(int iWing, const Wing *pWing, const WPolar *
 
                 i++;
             }
-            p++;
         }
     }
 
@@ -2630,4 +2613,39 @@ void gl3dMiarexView::glMake3dObjects()
     s_bResetglOpp = false;
 }
 
+
+void gl3dMiarexView::setSpanStations(Plane const *pPlane, WPolar const *pWPolar, PlaneOpp const*pPOpp)
+{
+    if(!pPlane || !pWPolar || !pPOpp) return;
+    Wing const *pWing = nullptr;
+
+    if(pWPolar->isLLTMethod())
+    {
+        if(pPOpp)
+        {
+            m_Ny[0] = pPOpp->m_pWOpp[0]->m_NStation-1;
+        }
+        else
+        {
+            m_Ny[0] = LLTAnalysis::nSpanStations();
+        }
+
+        m_Ny[1] = m_Ny[2] = m_Ny[3] = 0;
+    }
+    else
+    {
+        for(int iWing=0; iWing<MAXWINGS; iWing++)
+        {
+            pWing = pPlane->wingAt(iWing);
+            if(pWing)
+            {
+                m_Ny[iWing]=0;
+                for (int j=0; j<pWing->m_Surface.size(); j++)
+                {
+                    m_Ny[iWing] += pWing->surface(j)->nYPanels();
+                }
+            }
+        }
+    }
+}
 

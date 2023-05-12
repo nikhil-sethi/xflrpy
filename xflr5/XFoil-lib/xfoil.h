@@ -264,7 +264,7 @@ private:
     bool sinvrt(double &si,double xi,double x[],double xs[],double s[],int n);
 
     void splina(double x[], double xs[], double s[], int n);
-    bool splind(double x[600], double xs[600], double s[600], int n, double xs1, double xs2);
+    bool splind(double *x, double *xs, double *s, int n, double xs1, double xs2);
     bool stepbl();
     bool stfind();
     bool stmove();

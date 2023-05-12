@@ -25,8 +25,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QStatusBar>
-#include <QThread>
-#include <QTimer>
+
 
 #include <globals/mainframe.h>
 #include <misc/editplrdlg.h>
@@ -68,7 +67,6 @@
 #include <xinverse/foilselectiondlg.h>
 
 
-bool XDirect::s_bViscous = true;
 bool XDirect::s_bAlpha = true;
 bool XDirect::s_bInitBL = true;
 bool XDirect::s_bKeepOpenErrors = true;
@@ -137,7 +135,6 @@ XDirect::XDirect(QWidget *parent) : QWidget(parent)
         m_PlrGraph[ig]->setYMax(0.1);
         m_PlrGraph[ig]->setScaleType(2);
         m_PlrGraph[ig]->setBorderStyle({true, Line::SOLID, 3, QColor(200,200,200), Line::NOSYMBOL});
-        m_PlrGraph[ig]->setMargin(50);
         if(ig==0) m_PlrGraph[ig]->setVariables(2,1);
         if(ig==1) m_PlrGraph[ig]->setVariables(0,1);
         if(ig==2) m_PlrGraph[ig]->setVariables(0,5);
@@ -156,14 +153,22 @@ XDirect::XDirect(QWidget *parent) : QWidget(parent)
     m_CpGraph.setXMax(1.0);
     m_CpGraph.setYMin(-0.1);
     m_CpGraph.setYMax(0.1);
-    m_CpGraph.setMargin(50);
     m_CpGraph.setBorderStyle({true, Line::SOLID, 3, QColor(200,200,200), Line::NOSYMBOL});
 
     m_CpGraph.setGraphName("Cp_Graph");
     m_CpGraph.setVariables(0,0);
 
     BatchAbstractDlg::initReList();
+
+    NacaFoilDlg::s_pXFoil         = &m_XFoil;
+    InterpolateFoilsDlg::s_pXFoil = &m_XFoil;
+    CAddDlg::s_pXFoil             = &m_XFoil;
+    TwoDPanelDlg::s_pXFoil        = &m_XFoil;
+    FoilGeomDlg::s_pXFoil         = &m_XFoil;
+    TEGapDlg::s_pXFoil            = &m_XFoil;
+    LEDlg::s_pXFoil               = &m_XFoil;
 }
+
 
 
 /**
@@ -232,7 +237,7 @@ void XDirect::setControls()
     s_pMainFrame->m_pDeleteFoilOpps->setEnabled(Objects2d::curFoil());
     s_pMainFrame->m_pDeleteFoilPolars->setEnabled(Objects2d::curFoil());
 
-    s_pMainFrame->m_pEditCurPolar->setEnabled(Objects2d::curPolar());
+    s_pMainFrame->m_pEditPolarPts->setEnabled(Objects2d::curPolar());
     s_pMainFrame->m_pDeletePolar->setEnabled(Objects2d::curPolar());
     s_pMainFrame->m_pExportCurPolar->setEnabled(Objects2d::curPolar());
     s_pMainFrame->m_pHidePolarOpps->setEnabled(Objects2d::curPolar());
@@ -270,7 +275,6 @@ void XDirect::connectSignals()
     connect(m_prbSpec3,         SIGNAL(clicked()),            SLOT(onSpec()));
     connect(m_ppbAnalyze,       SIGNAL(clicked()),            SLOT(onAnalyze()));
     connect(m_pchSequence,      SIGNAL(clicked()),            SLOT(onSequence()));
-    connect(m_pchViscous,       SIGNAL(clicked()),            SLOT(onViscous()));
     connect(m_pchStoreOpp,      SIGNAL(clicked()),            SLOT(onStoreOpp()));
 
     connect(m_pchAnimate,       SIGNAL(clicked(bool)),        SLOT(onAnimate(bool)));
@@ -927,7 +931,6 @@ void XDirect::loadSettings(QSettings &settings)
     {
         OpPoint::setStoreOpp(settings.value("StoreOpp",       OpPoint::bStoreOpp()).toBool());
         s_bAlpha          = settings.value("AlphaSpec",       s_bAlpha).toBool();
-        s_bViscous        = settings.value("ViscousAnalysis", s_bViscous).toBool();
         s_bInitBL         = settings.value("InitBL",          s_bInitBL).toBool();
         m_bPolarView      = settings.value("PolarView",       m_bPolarView).toBool();
 
@@ -1003,6 +1006,7 @@ void XDirect::loadSettings(QSettings &settings)
 
     XFoilAnalysisDlg::loadSettings(settings);
     FoilPolarDlg::loadSettings(settings);
+    EditPlrDlg::loadSettings(settings);
     Optim2d::loadSettings(settings);
     BatchAbstractDlg::loadSettings(settings);
     BatchCtrlDlg::loadSettings(settings);
@@ -1167,7 +1171,6 @@ void XDirect::onAnalyze()
     }
 
     s_bInitBL   = m_pchInitBL->isChecked();
-    s_bViscous  = m_pchViscous->isChecked();
     OpPoint::setStoreOpp(m_pchStoreOpp->isChecked());
 
     m_ppbAnalyze->setEnabled(false);
@@ -1180,74 +1183,6 @@ void XDirect::onAnalyze()
     m_pXFADlg->initDialog();
     m_pXFADlg->update();
     m_pXFADlg->analyze();
-}
-
-
-void XDirect::onTaskFinished(Polar *pPolar)
-{
-    if(m_pXFADlg->m_bErrors && s_bKeepOpenErrors)
-    {
-    }
-    else
-        m_pXFADlg->hide();
-
-    m_ppbAnalyze->setEnabled(true);
-
-    s_bInitBL = !m_XFoil.isBLInitialized();
-    m_pchInitBL->setChecked(s_bInitBL);;
-
-    m_pFoilTreeView->addOpps(pPolar);
-    if(s_bAlpha) setOpp(XFoilAnalysisDlg::s_Alpha);
-    else         setOpp();
-    m_pFoilTreeView->selectOpPoint();
-
-
-    m_bResetCurves = true;
-
-    setControls();
-    updateView();
-
-    emit projectModified();
-}
-
-
-/**
- * Launches a multi-threaded batch analysis
- */
-void XDirect::onMultiThreadedBatchAnalysis()
-{
-    if(!Objects2d::curFoil()) return;
-
-    if(QThread::idealThreadCount()<2)
-    {
-        QString strange = tr("Not enough threads available for multithreading");
-        QMessageBox::warning(s_pMainFrame, tr("Warning"), strange);
-        return;
-    }
-
-    onPolarView();
-    updateView();
-
-    m_ppbAnalyze->setEnabled(false);
-
-    BatchThreadDlg *pBatchThreadDlg  = new BatchThreadDlg;
-    pBatchThreadDlg->m_pFoil  = Objects2d::curFoil();
-    pBatchThreadDlg->initDialog();
-
-    pBatchThreadDlg->exec();
-
-    delete pBatchThreadDlg;
-
-    setPolar();
-    m_pFoilTreeView->fillModelView();
-
-    m_ppbAnalyze->setEnabled(true);
-
-    setOpp();
-    setControls();
-    updateView();
-
-    emit projectModified();
 }
 
 
@@ -1280,6 +1215,58 @@ void XDirect::onBatchCtrlAnalysis()
     updateView();
 
     emit projectModified();
+}
+
+
+/**
+ * The user has requested a local refinement of the panels of the current foil
+ */
+void XDirect::onCadd()
+{
+    stopAnimate();
+    if(!Objects2d::curFoil())    return;
+    onOpPointView();
+
+    Foil *pCurFoil = curFoil(); //keep a reference to restore eventually
+    Foil *pNewFoil = new Foil();
+    pNewFoil->copyFoil(curFoil());
+
+    setCurOpp(nullptr);
+    m_bResetCurves = true;
+
+    setFoil(pNewFoil);
+
+    CAddDlg caDlg(s_pMainFrame);
+    caDlg.m_pBufferFoil = pNewFoil;
+    caDlg.m_pMemFoil    = pCurFoil;
+    caDlg.initDialog();
+    Line::enumPointStyle psState = pNewFoil->pointStyle();
+    if(psState==Line::NOSYMBOL) pNewFoil->setPointStyle(Line::LITTLECIRCLE);
+    updateView();
+
+    if(QDialog::Accepted == caDlg.exec())
+    {
+        pNewFoil->setPointStyle(psState);
+        xfl::setRandomFoilColor(pNewFoil, !DisplayOptions::isLightTheme());
+
+        if(addNewFoil(pNewFoil))
+        {
+            m_pFoilTreeView->insertFoil(pNewFoil);
+            m_pFoilTreeView->selectFoil(pNewFoil);
+            emit projectModified();
+            updateView();
+            return;
+        }
+    }
+
+    //reset everything
+    setFoil(pCurFoil);
+
+    if(Objects2d::curFoil())
+        m_XFoil.initXFoilGeometry(Objects2d::curFoil()->m_n, Objects2d::curFoil()->m_x, Objects2d::curFoil()->m_y, Objects2d::curFoil()->m_nx, Objects2d::curFoil()->m_ny);
+    delete pNewFoil;
+
+    updateView();
 }
 
 
@@ -1362,9 +1349,9 @@ void XDirect::onDefinePolar()
         }
 
         pNewPolar->setFoilName(Objects2d::curFoil()->name());
-        pNewPolar->setPolarName(fpDlg.m_PlrName);
+        pNewPolar->setPolarName(fpDlg.polarName());
         pNewPolar->setVisible(true);
-        pNewPolar->copySpecification(&FoilPolarDlg::s_RefPolar);
+        pNewPolar->copySpecification(&FoilPolarDlg::refPolar());
 
         Objects2d::addPolar(pNewPolar);
         setPolar(pNewPolar);
@@ -1606,58 +1593,6 @@ void XDirect::onDeleteFoilPolars()
 
 
 /**
- * The user has requested a local refinement of the panels of the current foil
- */
-void XDirect::onCadd()
-{
-    stopAnimate();
-    if(!Objects2d::curFoil())    return;
-    onOpPointView();
-
-    Foil *pCurFoil = curFoil(); //keep a reference to restore eventually
-    Foil *pNewFoil = new Foil();
-    pNewFoil->copyFoil(curFoil());
-
-    setCurOpp(nullptr);
-    m_bResetCurves = true;
-
-    setFoil(pNewFoil);
-
-    CAddDlg caDlg(s_pMainFrame);
-    caDlg.m_pBufferFoil = pNewFoil;
-    caDlg.m_pMemFoil    = pCurFoil;
-    caDlg.initDialog();
-    Line::enumPointStyle psState = pNewFoil->pointStyle();
-    if(psState==Line::NOSYMBOL) pNewFoil->setPointStyle(Line::LITTLECIRCLE);
-    updateView();
-
-    if(QDialog::Accepted == caDlg.exec())
-    {
-        pNewFoil->setPointStyle(psState);
-        xfl::setRandomFoilColor(pNewFoil, !DisplayOptions::isLightTheme());
-
-        if(addNewFoil(pNewFoil))
-        {
-            m_pFoilTreeView->insertFoil(pNewFoil);
-            m_pFoilTreeView->selectFoil(pNewFoil);
-            emit projectModified();
-            updateView();
-            return;
-        }
-    }
-
-    //reset everything
-    setFoil(pCurFoil);
-
-    if(Objects2d::curFoil())
-        m_XFoil.initXFoilGeometry(Objects2d::curFoil()->m_n, Objects2d::curFoil()->m_x, Objects2d::curFoil()->m_y, Objects2d::curFoil()->m_nx, Objects2d::curFoil()->m_ny);
-    delete pNewFoil;
-
-    updateView();
-}
-
-
-/**
  * The user has requested that the foil be derotated
  */
 void XDirect::onDerotateFoil()
@@ -1692,48 +1627,14 @@ void XDirect::onDerotateFoil()
 
 
 /**
- * The user has requested that the length of the current foil be normalized to 1.
- */
-void XDirect::onNormalizeFoil()
-{
-    if(!Objects2d::curFoil()) return;
-    QString str;
-    stopAnimate();
-    Foil *pCurFoil = curFoil();
-    Foil *pNewFoil = new Foil;
-    pNewFoil->copyFoil(Objects2d::curFoil());
-    xfl::setRandomFoilColor(pNewFoil, !DisplayOptions::isLightTheme());
-    setCurFoil(pNewFoil);
-    updateView();
-
-    double length = pNewFoil->normalizeGeometry();
-    str = QString(tr("The foil has been normalized from %1  to 1.000")).arg(length,7,'f',3);
-    s_pMainFrame->statusBar()->showMessage(str);
-    if(addNewFoil(pNewFoil))
-    {
-        m_pFoilTreeView->insertFoil(pNewFoil);
-        m_pFoilTreeView->selectFoil(pNewFoil);
-        emit projectModified();
-        updateView();
-        return;
-    }
-    //restore things
-    delete pNewFoil;
-    setCurFoil(pCurFoil);
-    if(Objects2d::curFoil()) m_XFoil.initXFoilGeometry(Objects2d::curFoil()->m_n, Objects2d::curFoil()->m_x, Objects2d::curFoil()->m_y, Objects2d::curFoil()->m_nx, Objects2d::curFoil()->m_ny);
-    updateView();
-}
-
-
-/**
  * The user has requested to modify the parameters of the active polar
  */
-void XDirect::onEditCurPolar()
+void XDirect::onEditPolarPts()
 {
     if (!Objects2d::curPolar()) return;
 
     Polar *pMemPolar = new Polar;
-    pMemPolar->copyPolar(Objects2d::curPolar());
+    pMemPolar->copy(Objects2d::curPolar());
 
     EditPlrDlg epDlg(s_pMainFrame);
     epDlg.initDialog(this, Objects2d::curPolar(), nullptr, nullptr);
@@ -1751,7 +1652,7 @@ void XDirect::onEditCurPolar()
     }
     else
     {
-        Objects2d::curPolar()->copyPolar(pMemPolar);
+        Objects2d::curPolar()->copy(pMemPolar);
     }
     Objects2d::curPolar()->setStipple(style.m_Stipple);
     Objects2d::curPolar()->setWidth(style.m_Width);
@@ -2562,6 +2463,7 @@ Polar * XDirect::importXFoilPolar(QFile & txtFile)
 
     int matype = strong.mid(0,2).toInt(&bOK);
     int retype = strong.mid(2,2).toInt(&bOK2);
+
     if(!bOK || !bOK2)
     {
         str = QString("Error reading line %1: Unrecognized Mach and Reynolds type.\nThe polar(s) will not be stored").arg(Line);
@@ -2760,7 +2662,6 @@ void XDirect::onImportJavaFoilPolar()
 
     bool bIsReading = true;
     int res(0), Line(0);
-    int NPolars = 0;
     double Re(0);
 
     double alpha(0), CL(0), CD(0), CM(0), Xt(0), Xb(0);
@@ -2804,7 +2705,6 @@ void XDirect::onImportJavaFoilPolar()
             pPolar->setColor(clr.red(), clr.green(), clr.blue());
             Objects2d::addPolar(pPolar);
             setCurPolar(pPolar);
-            NPolars++;
 
             if(!xfl::readAVLString(in, Line, strong)) break;//?    Cl    Cd    Cm 0.25    TU    TL    SU    SL    L/D
             if(!xfl::readAVLString(in, Line, strong)) break;//[?]    [-]    [-]    [-]    [-]    [-]    [-]    [-]    [-]
@@ -2891,6 +2791,46 @@ void XDirect::onInterpolateFoils()
 
 
 /**
+ * Launches a multi-threaded batch analysis
+ */
+void XDirect::onMultiThreadedBatchAnalysis()
+{
+    if(!Objects2d::curFoil()) return;
+
+    if(QThread::idealThreadCount()<2)
+    {
+        QString strange = tr("Not enough threads available for multithreading");
+        QMessageBox::warning(s_pMainFrame, tr("Warning"), strange);
+        return;
+    }
+
+    onPolarView();
+    updateView();
+
+    m_ppbAnalyze->setEnabled(false);
+
+    BatchThreadDlg *pBatchThreadDlg  = new BatchThreadDlg;
+    pBatchThreadDlg->m_pFoil  = Objects2d::curFoil();
+    pBatchThreadDlg->initDialog();
+
+    pBatchThreadDlg->exec();
+
+    delete pBatchThreadDlg;
+
+    setPolar();
+    m_pFoilTreeView->fillModelView();
+
+    m_ppbAnalyze->setEnabled(true);
+
+    setOpp();
+    setControls();
+    updateView();
+
+    emit projectModified();
+}
+
+
+/**
  * The user has requested the launch of the interface used to create a NACA type foil.
  */
 void XDirect::onNacaFoils()
@@ -2953,6 +2893,40 @@ void XDirect::onNacaFoils()
 
     if(Objects2d::curFoil()) m_XFoil.initXFoilGeometry(Objects2d::curFoil()->m_n, Objects2d::curFoil()->m_x, Objects2d::curFoil()->m_y, Objects2d::curFoil()->m_nx, Objects2d::curFoil()->m_ny);
     delete pNacaFoil;
+    updateView();
+}
+
+
+/**
+ * The user has requested that the length of the current foil be normalized to 1.
+ */
+void XDirect::onNormalizeFoil()
+{
+    if(!Objects2d::curFoil()) return;
+    QString str;
+    stopAnimate();
+    Foil *pCurFoil = curFoil();
+    Foil *pNewFoil = new Foil;
+    pNewFoil->copyFoil(Objects2d::curFoil());
+    xfl::setRandomFoilColor(pNewFoil, !DisplayOptions::isLightTheme());
+    setCurFoil(pNewFoil);
+    updateView();
+
+    double length = pNewFoil->normalizeGeometry();
+    str = QString(tr("The foil has been normalized from %1  to 1.000")).arg(length,7,'f',3);
+    s_pMainFrame->statusBar()->showMessage(str);
+    if(addNewFoil(pNewFoil))
+    {
+        m_pFoilTreeView->insertFoil(pNewFoil);
+        m_pFoilTreeView->selectFoil(pNewFoil);
+        emit projectModified();
+        updateView();
+        return;
+    }
+    //restore things
+    delete pNewFoil;
+    setCurFoil(pCurFoil);
+    if(Objects2d::curFoil()) m_XFoil.initXFoilGeometry(Objects2d::curFoil()->m_n, Objects2d::curFoil()->m_x, Objects2d::curFoil()->m_y, Objects2d::curFoil()->m_nx, Objects2d::curFoil()->m_ny);
     updateView();
 }
 
@@ -3553,12 +3527,31 @@ void XDirect::onStoreOpp()
 }
 
 
-/**
- * The user has toggled the switch which defines if the analysis will be viscous or inviscid
- */
-void XDirect::onViscous()
+void XDirect::onTaskFinished(Polar *pPolar)
 {
-    s_bViscous = m_pchViscous->isChecked();
+    if(m_pXFADlg->m_bErrors && s_bKeepOpenErrors)
+    {
+    }
+    else
+        m_pXFADlg->hide();
+
+    m_ppbAnalyze->setEnabled(true);
+
+    s_bInitBL = !m_XFoil.isBLInitialized();
+    m_pchInitBL->setChecked(s_bInitBL);;
+
+    m_pFoilTreeView->addOpps(pPolar);
+    if(s_bAlpha) setOpp(XFoilAnalysisDlg::s_Alpha);
+    else         setOpp();
+    m_pFoilTreeView->selectOpPoint();
+
+
+    m_bResetCurves = true;
+
+    setControls();
+    updateView();
+
+    emit projectModified();
 }
 
 
@@ -3594,7 +3587,6 @@ void XDirect::saveSettings(QSettings &settings)
     {
         settings.setValue("AlphaSpec",          s_bAlpha);
         settings.setValue("StoreOpp",           OpPoint::bStoreOpp());
-        settings.setValue("ViscousAnalysis",    s_bViscous);
         settings.setValue("InitBL",             s_bInitBL);
         settings.setValue("PolarView",          m_bPolarView);
         settings.setValue("Type1",              m_bType1);
@@ -3648,6 +3640,7 @@ void XDirect::saveSettings(QSettings &settings)
     m_pOpPointWidget->saveSettings(settings);
 
     XFoilAnalysisDlg::saveSettings(settings);
+    EditPlrDlg::saveSettings(settings);
     FoilPolarDlg::saveSettings(settings);
     Optim2d::saveSettings(settings);
     BatchAbstractDlg::saveSettings(settings);
@@ -3660,7 +3653,6 @@ void XDirect::saveSettings(QSettings &settings)
  */
 void XDirect::setAnalysisParams()
 {
-    m_pchViscous->setChecked(s_bViscous);
     m_pchInitBL->setChecked(s_bInitBL);
     m_pchStoreOpp->setChecked(OpPoint::bStoreOpp());
     if(Objects2d::curPolar())
@@ -3915,7 +3907,6 @@ void XDirect::setOpPointSequence()
     m_pchSequence->setEnabled(Objects2d::curPolar());
     m_pdeAlphaMin->setEnabled(Objects2d::curPolar());
     m_ppbAnalyze->setEnabled(Objects2d::curPolar());
-    m_pchViscous->setEnabled(Objects2d::curPolar());
     m_pchInitBL->setEnabled(Objects2d::curPolar());
     m_pchStoreOpp->setEnabled(Objects2d::curPolar());
 
@@ -4063,20 +4054,14 @@ void XDirect::setupLayout()
                 pSequenceGroupLayout->addWidget(m_plabUnit3,     3,3);
             }
 
-            QHBoxLayout *pAnalysisSettings = new QHBoxLayout;
-            {
-                m_pchViscous  = new QCheckBox(tr("Viscous"));
-                m_pchInitBL   = new QCheckBox(tr("Init BL"));
-                pAnalysisSettings->addWidget(m_pchViscous);
-                pAnalysisSettings->addWidget(m_pchInitBL);
-            }
+            m_pchInitBL   = new QCheckBox(tr("Init BL"));
 
             pAnalysisGroup->addLayout(pSpecVarsLayout);
             pAnalysisGroup->addStretch(1);
             pAnalysisGroup->addWidget(m_pchSequence);
             pAnalysisGroup->addLayout(pSequenceGroupLayout);
             pAnalysisGroup->addStretch(1);
-            pAnalysisGroup->addLayout(pAnalysisSettings);
+            pAnalysisGroup->addWidget(m_pchInitBL);
             pAnalysisGroup->addWidget(m_pchStoreOpp);
             pAnalysisGroup->addWidget(m_ppbAnalyze);
         }

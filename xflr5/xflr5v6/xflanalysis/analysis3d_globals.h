@@ -32,10 +32,6 @@
 
 
 
-
-double GetPlrPointFromCl(Foil *pFoil, double Re, double Cl, int PlrVar, bool &bOutRe, bool &bError);
-double GetPlrPointFromAlpha(Foil *pFoil, double Re, double Alpha, int PlrVar, bool &bOutRe, bool &bError);
-
 double splineBlend(int const &index, int const &p, double const &t, double *knots);
 
 
