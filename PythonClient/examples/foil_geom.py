@@ -14,7 +14,7 @@ from xflrpy import xflrClient, enumApp
 import random 
 
 project_name = "fuselage center.dat"
-project_path = "/home/nikhil/Softwares/xflrpy/projects/"
+project_path = "/home/nikhil/Software/xflrpy/projects/"
 
 xp = xflrClient(connect_timeout=100)
 xp.loadProject(files=project_path+project_name, save_current=False)

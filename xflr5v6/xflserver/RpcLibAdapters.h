@@ -2,6 +2,7 @@
 
 #include <xflobjects/objects2d/foil.h>
 #include <xflobjects/objects2d/polar.h>
+#include <xflobjects/objects3d/plane.h>
 #include <xflobjects/objects2d/oppoint.h>
 #include <xdirect/xdirect.h>
 #include <xflcore/linestyle.h>
@@ -43,6 +44,7 @@ namespace RpcLibAdapters
 
             FoilAdapter(){}
             FoilAdapter(Foil& out){
+                // if (&out==nullptr) return; 
                 name = out.name().toStdString();
                 camber = out.camber();
                 camber_x = out.xCamber();
@@ -346,7 +348,74 @@ namespace RpcLibAdapters
             }
 
         };
+
+        struct WingSectionAdapter{
+            int nXPanels;
+            int nYPanels;
+            xfl::enumPanelDistribution xPanelDist;
+            xfl::enumPanelDistribution yPanelDist;
+
+            double chord;
+            double length;
+            double yPosition;
+            double yProj;
+            double offset;
+            double dihedral;
+            double zPos;
+            double twist;
+
+            std::string rightFoilName;
+            std::string leftFoilName;
+
+            MSGPACK_DEFINE_ARRAY(yPosition, chord, offset, dihedral, twist, rightFoilName, leftFoilName, nXPanels, xPanelDist, nYPanels, yPanelDist);
+
+        };
+
+        struct WingAdapter{
+            std::vector<WingSectionAdapter> sections;
+
+            MSGPACK_DEFINE_MAP(sections);
+
+            WingAdapter(){};
+            WingAdapter(Wing& out){
+                for (WingSection section: out.m_Section){
+                    WingSectionAdapter section_adapter;
+                    section_adapter.chord = section.m_Chord;
+                    section_adapter.yPosition = section.m_YPosition;
+                    section_adapter.offset = section.m_Offset;
+                    section_adapter.dihedral = section.m_Dihedral;
+                    section_adapter.twist = section.m_Twist;
+                    section_adapter.rightFoilName = section.m_RightFoilName.toStdString();
+                    section_adapter.leftFoilName = section.m_LeftFoilName.toStdString();
+                    section_adapter.nXPanels = section.m_NXPanels;
+                    section_adapter.xPanelDist = section.m_XPanelDist;
+                    section_adapter.nYPanels = section.m_NYPanels;
+                    section_adapter.yPanelDist = section.m_YPanelDist;
+                    
+                    sections.push_back(section_adapter);
+                }
+                
+            }
+
+        };
+
+        struct PlaneAdapter{
+            string name;
+            WingAdapter wing;
+
+            MSGPACK_DEFINE_MAP(name, wing);
+
+            PlaneAdapter(){};
+            PlaneAdapter(Plane& out){
+                name = out.name().toStdString();
+                if (&out==nullptr) return;
+                wing = WingAdapter(out.m_Wing[0]);
+            }
+
+        };
+
 }; // namespace adapters
 
 MSGPACK_ADD_ENUM(xfl::enumGraphView);
+MSGPACK_ADD_ENUM(xfl::enumPanelDistribution);
 MSGPACK_ADD_ENUM(RpcLibAdapters::PolarResultAdapter::enumPolarResult);

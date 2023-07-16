@@ -403,6 +403,7 @@ class Miarex:
     """
     def __init__(self, client) -> None:
         self._client = client
+        self.plane_mgr = PlaneManager(client)
 
 class XDirect(MsgpackMixin):
     """
@@ -436,3 +437,30 @@ class XInverse(MsgpackMixin):
     """
     def __init__(self, client) -> None:
         self._client = client
+
+class Wing(MsgpackMixin):
+    sections = []
+
+    def __init__(self, sections:list = []):
+        self.sections = sections
+
+class Plane(MsgpackMixin):
+    name = ""
+    wing = Wing()
+
+    def __init__(self) -> None:
+        self.wing = Wing()
+
+class PlaneManager:
+    """Manager for planes and 3D objects"""
+
+    def __init__(self, client) -> None:
+        self._client = client
+
+    def getPlane(self, name) -> Plane:
+        plane_raw = self._client.call("getPlane", name)
+        assert plane_raw["name"] == name, "Please specify a valid plane name"
+        return Plane.from_msgpack(plane_raw)
+
+
+

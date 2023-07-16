@@ -28,6 +28,7 @@
 #include "rpc/server.h"
 
 #include <xflobjects/objects2d/objects2d.h>
+#include <xflobjects/objects3d/objects3d.h>
 #include <iostream>
 #include <QObject>
 #include <QString>
@@ -301,6 +302,19 @@ xflServer::xflServer(int port) : server(port)
         if (!pOpPoint) OpPoint* pOpPoint = Objects2d::curOpp();
         
         return  RpcLibAdapters::OpPointAdapter(*pOpPoint);
+    });
+
+    server.bind("getPlane", [&](string name){
+        Plane* pPlane = Objects3d::plane(QString::fromStdString(name));
+            
+        if (pPlane!=nullptr) {   // if the current foil is not the default splinefoil
+            return RpcLibAdapters::PlaneAdapter(*pPlane);
+        }
+        else {
+            // return garbage plane if it's the spline foil
+            // do further checks in python because msgpack needs to this adapter as a return type at all costs 
+            return RpcLibAdapters::PlaneAdapter(); 
+        }
     });
 }
 
