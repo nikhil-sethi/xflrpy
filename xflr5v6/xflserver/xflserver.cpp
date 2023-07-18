@@ -337,7 +337,9 @@ xflServer::xflServer(int port) : server(port)
         return RpcLibAdapters::PlaneAdapter(*Objects3d::addPlane(pPlane));
     });
 
-
+    server.bind("getPlaneData", [&](string name){
+        return Objects3d::plane(QString::fromStdString(name))->planeData(false).toStdString();
+    });
 
 }
 

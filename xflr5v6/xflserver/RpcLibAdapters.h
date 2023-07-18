@@ -54,6 +54,7 @@ namespace RpcLibAdapters
                 }
         
         };
+
         struct Coord{
             double x,y;
             MSGPACK_DEFINE_ARRAY(x,y);
@@ -461,6 +462,7 @@ namespace RpcLibAdapters
             }
 
         };
+
 
 }; // namespace adapters
 

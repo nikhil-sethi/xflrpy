@@ -71,5 +71,8 @@ plane3.wing.sections.append(sec1)
 
 # # create the fin
 # plane3.fin.sections.append(())
-print(plane3)
+
 miarex.plane_mgr.addPlane(plane3)
+
+plane_data = miarex.plane_mgr.getPlaneData("custom_plane")
+print(plane_data)

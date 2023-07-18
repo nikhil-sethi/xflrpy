@@ -445,17 +445,17 @@ class enumWingType(enum.IntEnum):
     FIN = 3
 
 class WingSection(MsgpackMixin):
-    y_position = 0
-    chord = 0.1
-    offset = 0.05
-    dihedral = 0
-    twist = 0
-    right_foil_name = ""
-    left_foil_name = ""
-    n_x_panels = 7
-    x_panel_dist = 0
-    n_y_panels = 7
-    y_panel_dist = 0
+    y_position = 0  # yPos(m): spanwise position of segment
+    chord = 0.1 # chord(m): length of segment in x (longitudinal) direction
+    offset = 0.05   # offset(m): x position from origin. Check XFLR wing design module
+    dihedral = 0    # dihedral (deg): absolute dihedral angle till the next segment
+    twist = 0   # twist(deg): absolute twist angle with respect to the x(longitudinal) axis
+    right_foil_name = ""    # rightFoil(str): right airfoil name
+    left_foil_name = "" # leftFoil(str): left airfoil name
+    n_x_panels = 7  # nXPanels: number of panels along the longitudinal directions
+    x_panel_dist = 0    # xPanelDist: distribution of panels in longitudinal direction
+    n_y_panels = 7  # nYPanels: number of panels along the lateral directions
+    y_panel_dist = 0    # yPanelDist: distribution of panels in lateral direction
 
     def __init__(self, y_position = 0, chord = 0.1, offset = 0.05, dihedral = 0, twist = 0, right_foil_name = "", left_foil_name = "", n_x_panels = 7, x_panel_dist = 0, n_y_panels = 7, y_panel_dist = 0) -> None:
         self.y_position = y_position
@@ -472,23 +472,7 @@ class WingSection(MsgpackMixin):
 
 class Wing(MsgpackMixin):
     type = enumWingType.MAINWING
-    sections = [] 
-    """
-    sections: list of section tuples. Data order:
-    
-    yPos(m): spanwise position of segment
-    chord(m): length of segment in x (longitudinal) direction
-    offset(m): x position from origin. Check XFLR wing design module
-    dihedral (deg): absolute dihedral angle till the next segment
-    twist(deg): absolute twist angle with respect to the x(longitudinal) axis
-    rightFoil(str): right airfoil name
-    leftFoil(str): left airfoil name
-    nXPanels: number of panels along the longitudinal directions
-    xPanelDist: distribution of panels in longitudinal direction
-    nYPanels: number of panels along the lateral directions
-    yPanelDist: distribution of panels in lateral direction
-
-    """
+    sections = [] # list of WingSection
     
     def __init__(self, type=enumWingType.MAINWING, sections:list = None):
         self.type = type
@@ -532,4 +516,8 @@ class PlaneManager:
         plane_raw = self._client.call("addDefaultPlane", name)
         assert plane_raw["name"] == name
         return Plane.from_msgpack(plane_raw)
+
+    def getPlaneData(self, name):
+        """Get overall information about a plane. This is not a variable of the plane class to avoid too much data"""
+        return self._client.call("getPlaneData", name)
 
