@@ -33,6 +33,7 @@ class Foil; // only need pointer not actual implementation
 class AFoil;
 class Polar;
 class MainFrame; // need only pointer 
+class Plane;
 
 namespace RpcLibAdapters{
 
@@ -91,4 +92,7 @@ class xflServer: public QThread
         void onSetXDirectDisplay(RpcLibAdapters::XDirectDisplayState* dsp_state);
         void onXDirectAnimate(bool flag);
         void onXDirectAnimateSpeed(int val);
+
+        // Miarex signals
+        void onNewPlane(Plane* plane);
 };

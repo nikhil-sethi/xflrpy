@@ -438,18 +438,78 @@ class XInverse(MsgpackMixin):
     def __init__(self, client) -> None:
         self._client = client
 
-class Wing(MsgpackMixin):
-    sections = []
+class enumWingType(enum.IntEnum):
+    MAINWING = 0
+    SECONDWING = 1
+    ELEVATOR = 2
+    FIN = 3
 
-    def __init__(self, sections:list = []):
-        self.sections = sections
+class WingSection(MsgpackMixin):
+    y_position = 0
+    chord = 0.1
+    offset = 0.05
+    dihedral = 0
+    twist = 0
+    right_foil_name = ""
+    left_foil_name = ""
+    n_x_panels = 7
+    x_panel_dist = 0
+    n_y_panels = 7
+    y_panel_dist = 0
+
+    def __init__(self, y_position = 0, chord = 0.1, offset = 0.05, dihedral = 0, twist = 0, right_foil_name = "", left_foil_name = "", n_x_panels = 7, x_panel_dist = 0, n_y_panels = 7, y_panel_dist = 0) -> None:
+        self.y_position = y_position
+        self.chord = chord
+        self.offset = offset
+        self.dihedral = dihedral
+        self.twist = twist
+        self.right_foil_name = right_foil_name
+        self.left_foil_name = left_foil_name
+        self.n_x_panels = n_x_panels
+        self.x_panel_dist = x_panel_dist
+        self.n_y_panels = n_y_panels
+        self.y_panel_dist = y_panel_dist
+
+class Wing(MsgpackMixin):
+    type = enumWingType.MAINWING
+    sections = [] 
+    """
+    sections: list of section tuples. Data order:
+    
+    yPos(m): spanwise position of segment
+    chord(m): length of segment in x (longitudinal) direction
+    offset(m): x position from origin. Check XFLR wing design module
+    dihedral (deg): absolute dihedral angle till the next segment
+    twist(deg): absolute twist angle with respect to the x(longitudinal) axis
+    rightFoil(str): right airfoil name
+    leftFoil(str): left airfoil name
+    nXPanels: number of panels along the longitudinal directions
+    xPanelDist: distribution of panels in longitudinal direction
+    nYPanels: number of panels along the lateral directions
+    yPanelDist: distribution of panels in lateral direction
+
+    """
+    
+    def __init__(self, type=enumWingType.MAINWING, sections:list = None):
+        self.type = type
+        if sections is None:
+            self.sections = []
+        else:
+            self.sections = sections
 
 class Plane(MsgpackMixin):
     name = ""
-    wing = Wing()
+    wing = Wing(enumWingType.MAINWING)
+    wing2 = Wing(enumWingType.SECONDWING)
+    elevator = Wing(enumWingType.ELEVATOR)
+    fin = Wing(enumWingType.FIN)
 
-    def __init__(self) -> None:
-        self.wing = Wing()
+    def __init__(self, name="Plane Name") -> None:
+        self.name = name
+        self.wing = Wing(enumWingType.MAINWING)
+        self.wing2 = Wing(enumWingType.SECONDWING)
+        self.elevator = Wing(enumWingType.ELEVATOR)
+        self.fin = Wing(enumWingType.FIN)
 
 class PlaneManager:
     """Manager for planes and 3D objects"""
@@ -458,9 +518,18 @@ class PlaneManager:
         self._client = client
 
     def getPlane(self, name) -> Plane:
+        """Return an existing plane by name"""
         plane_raw = self._client.call("getPlane", name)
         assert plane_raw["name"] == name, "Please specify a valid plane name"
         return Plane.from_msgpack(plane_raw)
+    
+    def addPlane(self, plane:Plane):
+        assert len(plane.wing.sections) >0, "The plane wing must have at least one section!"
+        self._client.call("addPlane", plane)
 
-
+    def addDefaultPlane(self, name):
+        """Adds a new default plane to the list of planes"""
+        plane_raw = self._client.call("addDefaultPlane", name)
+        assert plane_raw["name"] == name
+        return Plane.from_msgpack(plane_raw)
 

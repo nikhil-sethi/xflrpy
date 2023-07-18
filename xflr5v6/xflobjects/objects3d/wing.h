@@ -149,6 +149,7 @@ class Wing
 
         void insertSection(int iSection);
         void appendWingSection() {m_Section.append(WingSection());}
+        void setWingSection(int i, WingSection section) {m_Section[i] = section;}
         void appendWingSection(double Chord, double Twist, double Pos, double Dihedral, double Offset, int NXPanels, int NYPanels,
                                xfl::enumPanelDistribution XPanelDist, xfl::enumPanelDistribution YPanelDist, QString const &RightFoilName, QString const&LeftFoilName);
         void removeWingSection(int const iSection);

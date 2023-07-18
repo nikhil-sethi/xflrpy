@@ -24,6 +24,7 @@
 #include <design/afoil.h>
 #include "RpcLibAdapters.h" // redundant
 #include <xdirect/xdirect.h>
+#include <miarex/miarex.h>
 #include <xflobjects/objects2d/foil.h>
 #include "rpc/server.h"
 
@@ -304,6 +305,10 @@ xflServer::xflServer(int port) : server(port)
         return  RpcLibAdapters::OpPointAdapter(*pOpPoint);
     });
 
+    // ===================== Miarex ====================== //
+    QObject::connect(this, &xflServer::onNewPlane, s_pMainFrame->m_pMiarex, &Miarex::onNewPlaneHeadless, Qt::BlockingQueuedConnection);
+
+
     server.bind("getPlane", [&](string name){
         Plane* pPlane = Objects3d::plane(QString::fromStdString(name));
             
@@ -316,6 +321,24 @@ xflServer::xflServer(int port) : server(port)
             return RpcLibAdapters::PlaneAdapter(); 
         }
     });
+
+    server.bind("addDefaultPlane", [&](string name){
+        Plane* pPlane = new Plane();
+        pPlane->setName(QString::fromStdString(name));
+        
+        emit onNewPlane(pPlane);
+        return RpcLibAdapters::PlaneAdapter(*Objects3d::addPlane(pPlane));
+
+    });
+
+    server.bind("addPlane", [&](RpcLibAdapters::PlaneAdapter plane){
+        Plane* pPlane = RpcLibAdapters::PlaneAdapter::from_msgpack(plane);
+        emit onNewPlane(pPlane);
+        return RpcLibAdapters::PlaneAdapter(*Objects3d::addPlane(pPlane));
+    });
+
+
+
 }
 
 void xflServer::run(){

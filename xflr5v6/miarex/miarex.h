@@ -226,6 +226,11 @@ class Miarex : public QWidget
         void onWOppView();
         void onWPolarView();
 
+    public slots:
+        // headless slots
+        void onNewPlaneHeadless(Plane* pPlane); // perform updates on adding a new plane
+
+
     public:
         //overrides
         void keyPressEvent(QKeyEvent *event) override;

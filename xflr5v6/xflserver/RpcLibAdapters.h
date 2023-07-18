@@ -350,51 +350,77 @@ namespace RpcLibAdapters
         };
 
         struct WingSectionAdapter{
-            int nXPanels;
-            int nYPanels;
-            xfl::enumPanelDistribution xPanelDist;
-            xfl::enumPanelDistribution yPanelDist;
-
+            double y_position;
             double chord;
-            double length;
-            double yPosition;
-            double yProj;
             double offset;
             double dihedral;
-            double zPos;
-            double twist;
+            double twist;        
+            std::string right_foil_name;
+            std::string left_foil_name;
+            int n_x_panels;
+            xfl::enumPanelDistribution x_panel_dist;
+            int n_y_panels;
+            xfl::enumPanelDistribution y_panel_dist;
 
-            std::string rightFoilName;
-            std::string leftFoilName;
+            MSGPACK_DEFINE_MAP(y_position, chord, offset, dihedral, twist, right_foil_name, left_foil_name, n_x_panels, x_panel_dist, n_y_panels, y_panel_dist);
 
-            MSGPACK_DEFINE_ARRAY(yPosition, chord, offset, dihedral, twist, rightFoilName, leftFoilName, nXPanels, xPanelDist, nYPanels, yPanelDist);
+            WingSectionAdapter(){}
+            WingSectionAdapter(const WingSection& out){
+                chord = out.m_Chord;
+                y_position = out.m_YPosition;
+                offset = out.m_Offset;
+                dihedral = out.m_Dihedral;
+                twist = out.m_Twist;
+                right_foil_name = out.m_RightFoilName.toStdString();
+                left_foil_name = out.m_LeftFoilName.toStdString();
+                n_x_panels = out.m_NXPanels;
+                x_panel_dist = out.m_XPanelDist;
+                n_y_panels = out.m_NYPanels;
+                y_panel_dist = out.m_YPanelDist;
+            }
+
+            static WingSection* from_msgpack(const WingSectionAdapter& in){
+                WingSection* section = new WingSection();
+                section->m_Chord = in.chord;
+                section->m_YPosition = in.y_position;
+                section->m_Offset = in.offset;
+                section->m_Dihedral = in.dihedral;
+                section->m_Twist = in.twist;
+                section->m_RightFoilName = QString::fromStdString(in.right_foil_name);
+                section->m_LeftFoilName = QString::fromStdString(in.left_foil_name);
+                section->m_NXPanels = in.n_x_panels;
+                section->m_XPanelDist = in.x_panel_dist;
+                section->m_NYPanels = in.n_y_panels;
+                section->m_YPanelDist = in.y_panel_dist;
+
+                return section;
+            }
 
         };
 
         struct WingAdapter{
+            xfl::enumWingType type;
             std::vector<WingSectionAdapter> sections;
 
-            MSGPACK_DEFINE_MAP(sections);
+            MSGPACK_DEFINE_MAP(type, sections);
 
             WingAdapter(){};
             WingAdapter(Wing& out){
+                type = out.wingType();
                 for (WingSection section: out.m_Section){
-                    WingSectionAdapter section_adapter;
-                    section_adapter.chord = section.m_Chord;
-                    section_adapter.yPosition = section.m_YPosition;
-                    section_adapter.offset = section.m_Offset;
-                    section_adapter.dihedral = section.m_Dihedral;
-                    section_adapter.twist = section.m_Twist;
-                    section_adapter.rightFoilName = section.m_RightFoilName.toStdString();
-                    section_adapter.leftFoilName = section.m_LeftFoilName.toStdString();
-                    section_adapter.nXPanels = section.m_NXPanels;
-                    section_adapter.xPanelDist = section.m_XPanelDist;
-                    section_adapter.nYPanels = section.m_NYPanels;
-                    section_adapter.yPanelDist = section.m_YPanelDist;
-                    
+                    WingSectionAdapter section_adapter(section);
                     sections.push_back(section_adapter);
+                }   
+            }
+
+            static Wing* from_msgpack(WingAdapter& in){
+                Wing* wing = new Wing();
+                wing->setWingType(in.type);
+                for (int i; i<in.sections.size(); i++){
+                    wing->setWingSection(i, *WingSectionAdapter::from_msgpack(in.sections[i]));
                 }
                 
+                return wing;
             }
 
         };
@@ -402,14 +428,36 @@ namespace RpcLibAdapters
         struct PlaneAdapter{
             string name;
             WingAdapter wing;
+            WingAdapter wing2;
+            WingAdapter elevator;
+            WingAdapter fin;
 
-            MSGPACK_DEFINE_MAP(name, wing);
+            MSGPACK_DEFINE_MAP(name, wing, wing2, elevator, fin);
 
             PlaneAdapter(){};
             PlaneAdapter(Plane& out){
                 name = out.name().toStdString();
-                if (&out==nullptr) return;
                 wing = WingAdapter(out.m_Wing[0]);
+                wing2 = WingAdapter(out.m_Wing[1]);
+                elevator = WingAdapter(out.m_Wing[2]);
+                fin = WingAdapter(out.m_Wing[3]);
+            }
+
+            static Plane* from_msgpack(PlaneAdapter& in){
+                Plane* plane = new Plane();
+                plane->setName(QString::fromStdString(in.name));
+                plane->m_Wing[0] = *WingAdapter::from_msgpack(in.wing);
+
+                if (in.wing2.sections.size()==0) plane->setSecondWing(false);
+                else plane->m_Wing[1] = *WingAdapter::from_msgpack(in.wing2);
+
+                if (in.elevator.sections.size()==0) plane->setElevator(false);
+                else plane->m_Wing[2] = *WingAdapter::from_msgpack(in.elevator);
+
+                if (in.fin.sections.size()==0) plane->setFin(false);
+                else plane->m_Wing[3] = *WingAdapter::from_msgpack(in.fin);
+
+                return plane;
             }
 
         };
@@ -418,4 +466,5 @@ namespace RpcLibAdapters
 
 MSGPACK_ADD_ENUM(xfl::enumGraphView);
 MSGPACK_ADD_ENUM(xfl::enumPanelDistribution);
+MSGPACK_ADD_ENUM(xfl::enumWingType);
 MSGPACK_ADD_ENUM(RpcLibAdapters::PolarResultAdapter::enumPolarResult);

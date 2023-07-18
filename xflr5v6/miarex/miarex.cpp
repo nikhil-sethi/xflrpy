@@ -5059,6 +5059,38 @@ void Miarex::onNewPlane()
     updateView();
 }
 
+void Miarex::onNewPlaneHeadless(Plane* pPlane)
+{
+    if(true)
+    {
+        emit projectModified();
+
+        if(Objects3d::getPlane(pPlane->name()))
+            m_pCurPlane = Objects3d::setModPlane(pPlane);
+        else
+        {
+            Objects3d::addPlane(pPlane);
+            m_pCurPlane = pPlane;
+        }
+        m_pCurWPolar = nullptr;
+
+        setPlane(m_pCurPlane->name());
+
+        m_pPlaneTreeView->insertPlane(pPlane);
+        m_pPlaneTreeView->update();
+        m_pPlaneTreeView->selectPlane(pPlane);
+
+        gl3dMiarexView::s_bResetglMesh = true;
+        gl3dMiarexView::s_bResetglLegend = true;
+    }
+    else
+    {
+        delete pPlane;
+    }
+
+    setControls();
+    updateView();
+}
 
 
 /**
