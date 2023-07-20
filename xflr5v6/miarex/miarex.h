@@ -69,6 +69,10 @@ class Wing;
 class WingOpp;
 class gl3dMiarexView;
 
+namespace RpcLibAdapters{
+    class AnalysisSettings3D;
+}
+
 /**
  *@class QMiarex
  *@brief This is the class associated to the 3D calculations
@@ -133,7 +137,7 @@ class Miarex : public QWidget
         void on3DView();
         void onAdjustToWing();
         void onAdvancedSettings();
-        void onAnalyze();
+        
         void onAnimateWOpp();
         void onAnimateWOppSingle();
         void onAnimateWOppSpeed(int val);
@@ -227,8 +231,11 @@ class Miarex : public QWidget
         void onWPolarView();
 
     public slots:
+        void onAnalyze();
         // headless slots
         void onNewPlaneHeadless(Plane* pPlane); // perform updates on adding a new plane
+        void onDefineWPolarHeadless(WPolar* wpolar, Plane* pPlane);
+        void setAnalysisParamsHeadless(RpcLibAdapters::AnalysisSettings3D& analysis_settings);
 
 
     public:

@@ -33,7 +33,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 VERSION = 6.49
 
 CONFIG += qt
-QT += widgets opengl network xml
+QT += widgets opengl network xml testlib
 
 TEMPLATE = app
 TARGET = xflrpy

@@ -396,14 +396,6 @@ class Afoil:
         line_style.stipple = line_style.stipple.value
         line_style.point_style = line_style.point_style.value
         self._client.call("setLineStyle", name, line_style.to_msgpack())
-    
-class Miarex:
-    """
-    to manage the plane design application
-    """
-    def __init__(self, client) -> None:
-        self._client = client
-        self.plane_mgr = PlaneManager(client)
 
 class XDirect(MsgpackMixin):
     """
@@ -437,6 +429,9 @@ class XInverse(MsgpackMixin):
     """
     def __init__(self, client) -> None:
         self._client = client
+
+
+# =========== Miarex classes ============ #
 
 class enumWingType(enum.IntEnum):
     MAINWING = 0
@@ -521,3 +516,173 @@ class PlaneManager:
         """Get overall information about a plane. This is not a variable of the plane class to avoid too much data"""
         return self._client.call("getPlaneData", name)
 
+class enumAnalysisMethod(enum.IntEnum):
+    LLTMETHOD = 0
+    VLMMETHOD = 1
+    PANE4LMETHOD = 2
+    TRILINMETHOD = 3
+    TRIUNIMETHOD = 4
+
+class enumRefDimension(enum.IntEnum):
+    PLANFORMREFDIM = 0
+    PROJECTEDREFDIM = 1
+    MANUALREFDIM = 2
+
+class WPolarSpec(MsgpackMixin):
+    # polar tab options
+    polar_type = enumPolarType.FIXEDSPEEDPOLAR
+    free_stream_speed = 10 
+    alpha = 0 # (deg) angle of attach 
+    beta = 0 # (deg) sideslip angle
+    
+    # analysis tab options
+    analysis_method = enumAnalysisMethod.VLMMETHOD
+    is_viscous = True
+    
+    # inertia tab
+    use_plane_intertia = True
+    plane_mass = 0
+    x_cog = 0
+    z_cog = 0
+
+    # ref dimensions
+    ref_dimension = enumRefDimension.PROJECTEDREFDIM
+    ref_area = 0
+    ref_chord = 0
+    ref_span = 0
+
+    # aero data
+    density = 1.225 # kg/m3
+    kinematic_viscosity = 1.5e-05 # m2/s
+    is_ground_effect = False
+    height = 0 # m. Set if ground effect is tru
+
+    def __init__(self,polar_type = enumPolarType.FIXEDSPEEDPOLAR, free_stream_speed = 10, alpha = 0 , beta = 0,
+                 analysis_method = enumAnalysisMethod.VLMMETHOD, is_viscous = True,
+                 use_plane_intertia = True, plane_mass = 0, x_cog = 0, z_cog = 0,  
+                 ref_dimension = enumRefDimension.PROJECTEDREFDIM, ref_area = 0, ref_chord = 0, ref_span = 0, 
+                 density = 1.225, kinematic_viscosity = 1.5e-05, is_ground_effect = False, height = 0) -> None:
+        
+        self.polar_type = polar_type
+        self.free_stream_speed = free_stream_speed 
+        self.alpha = alpha # (deg) angle of attach 
+        self.beta = beta # (deg) sideslip angle
+            
+        # analysis tab options
+        self.analysis_method = analysis_method
+        self.is_viscous = is_viscous
+
+        # inertia tab
+        self.use_plane_intertia = use_plane_intertia
+        self.plane_mass = plane_mass
+        self.x_cog = x_cog
+        self.z_cog = z_cog
+
+        # ref dimensions
+        self.ref_dimension = ref_dimension
+        self.ref_area = ref_area
+        self.ref_chord = ref_chord
+        self.ref_span = ref_span
+
+        # aero data
+        self.density = density # kg/m3
+        self.kinematic_viscosity = kinematic_viscosity # m2/s
+        self.is_ground_effect = is_ground_effect
+        self.height = height # m. Set if ground effect is tru
+        
+class WPolarResult(MsgpackMixin):
+    """ 
+    A custom simplified data structure for the polar result.
+    Filling this is slow so you might want to avoid it when running optimizations
+    """
+    alpha = [] # angle of attach
+    beta = [] # sideslip angle
+    Q_inf = []
+
+    # lift coefficients
+    Cl = []
+    ClCd = []
+    Cl32Cd = []
+
+    # drag coefficients
+    TCd = [] # total drag
+    ICd = [] # indueced drag
+    PCd = [] # profile drag
+
+    # moment coefficients
+    Cm = []  # total pitching moment coefficient
+    ICm = [] # induced pitching moment coefficient
+    IYm = [] # induced yawing moment coefficient
+    VCm = [] # viscous pitching moment
+
+    # forces
+    FZ = [] # total wing lift
+    FX = [] # total drag force
+    FY = [] # total side force
+
+    # moments
+    Rm = [] # total rolling moment
+    Pm = [] # total pitching moment
+    max_bending = [] # max bending moment at chord
+
+    # stability
+    XCpCl = [] # neutral point
+    SM = [] # static margin
+
+class WPolar(MsgpackMixin):
+    name = ""
+    plane_name = ""
+    spec = WPolarSpec()
+    result = WPolarResult()
+
+    def __init__(self, name="", plane_name="") -> None:
+        self.name = name
+        self.plane_name = plane_name
+        self.spec = WPolarSpec()
+        self.result = WPolarResult()
+
+class enumWPolarResult(enum.IntEnum):
+    ALPHA = 0
+    CL = 1
+    XCPCL = 2 
+    CD = 3
+    CDP = 4
+    CM = 5
+    ICD = 6
+    SM = 7
+    FX = 8
+    FY = 9
+    CLCD = 10
+    CL32CD = 11
+    FZ = 12
+    QINF = 13
+
+class AnalysisSettings3D(MsgpackMixin):
+    sequence = (0,0,0)
+    is_sequence = False
+    init_LLT = True
+    store_opp = True
+
+    def __init__(self, sequence = (0,0,0), is_sequence = False, init_LLT = True, store_opp = True) -> None:
+        self.sequence = sequence
+        self.is_sequence = is_sequence
+        self.init_LLT = init_LLT
+        self.store_opp = store_opp
+
+class Miarex:
+    """
+    to manage the plane design application
+    """
+    def __init__(self, client) -> None:
+        self._client = client
+        self.plane_mgr = PlaneManager(client)
+
+    def define_analysis(self, wpolar:WPolar):
+        """Takes Polar as argument (and not polar.name) because we're creating a new Polar on the heap everytime"""
+        self._client.call("defineAnalysis3D", wpolar.to_msgpack())
+
+    def analyze(self, polar_name:str, plane_name:str, analysis_settings: AnalysisSettings3D, result_list = []):
+        """Analyses the current polar"""
+        wpolar_result_raw = self._client.call("analyzeWPolar", polar_name, plane_name, analysis_settings, result_list)
+        return WPolarResult.from_msgpack(wpolar_result_raw)
+    

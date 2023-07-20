@@ -3,6 +3,7 @@
 #include <xflobjects/objects2d/foil.h>
 #include <xflobjects/objects2d/polar.h>
 #include <xflobjects/objects3d/plane.h>
+#include <xflobjects/objects3d/wpolar.h>
 #include <xflobjects/objects2d/oppoint.h>
 #include <xdirect/xdirect.h>
 #include <xflcore/linestyle.h>
@@ -463,10 +464,195 @@ namespace RpcLibAdapters
 
         };
 
+        struct WPolarSpec{
+            xfl::enumPolarType polar_type;
+            double free_stream_speed;
+            double alpha;
+            double beta;
+
+            xfl::enumAnalysisMethod analysis_method;
+            bool is_viscous;
+
+            bool use_plane_intertia;
+            double plane_mass;
+            double x_cog;
+            double z_cog;
+
+            xfl::enumRefDimension ref_dimension;
+            double ref_area;
+            double ref_chord;
+            double ref_span;
+
+            double density;
+            double kinematic_viscosity;
+            bool is_ground_effect;
+            double height;
+
+            MSGPACK_DEFINE_MAP(polar_type, free_stream_speed, alpha, beta, analysis_method, is_viscous, use_plane_intertia, plane_mass, x_cog, z_cog, ref_dimension, ref_area, ref_chord, ref_span, density, kinematic_viscosity, is_ground_effect, height);
+
+            WPolarSpec(){}
+            WPolarSpec(const WPolar& out){
+                polar_type = out.polarType();
+                free_stream_speed = out.velocity();
+                alpha = out.Alpha();
+                beta = out.Beta();
+                analysis_method = out.analysisMethod();
+                is_viscous = out.bViscous();
+                use_plane_intertia = out.bAutoInertia();
+                plane_mass = out.mass();
+                x_cog = out.CoG().x;
+                z_cog = out.CoG().z;
+                ref_dimension = out.referenceDim();
+                ref_area = out.referenceArea();
+                ref_chord = out.referenceChordLength();
+                ref_span = out.referenceSpanLength();
+                density = out.density();
+                kinematic_viscosity = out.viscosity();
+                is_ground_effect = out.bGround();
+                height = out.groundHeight();
+            }
+
+        };
+
+        struct WPolarResult{
+            std::vector<double> alpha;
+            std::vector<double> Cl;
+            std::vector<double> ClCd;
+            std::vector<double> TCd;
+            std::vector<double> Cm;
+            std::vector<double> Cl32Cd;
+            std::vector<double> Fz;
+            std::vector<double> Fx;
+            std::vector<double> Fy;
+            std::vector<double> Q_inf;
+            std::vector<double> XCpCl;
+            std::vector<double> SM;
+            std::vector<double> ICd;
+            std::vector<double> PCd;
+            enum enumWPolarResult{ALPHA, CL, XCPCL, CD, CDP, CM, ICD, SM_, FX, FY, CLCD, CL32CD, FZ, QINF};
+            
+            MSGPACK_DEFINE_MAP(alpha, Cl, XCpCl, TCd, PCd, Cm, SM, ICd, Fz, Fx, ClCd, Cl32Cd, Q_inf, Fy);
+
+
+            WPolarResult(){}
+            WPolarResult(const WPolar& out, const vector<enumWPolarResult>& result_list = vector<enumWPolarResult>{}){
+                if (result_list.size()==0) return;
+                for (auto const& key: result_list){ //iterating once to avoid using find at every comparison
+                    switch (key)
+                    {
+                    case ALPHA:
+                        alpha = std::vector<double>(out.m_Alpha.begin(), out.m_Alpha.end());
+                        break;
+                    case CL:
+                        Cl = std::vector<double>(out.m_CL.begin(), out.m_CL.end());
+                        break;
+                    case XCPCL:
+                        XCpCl = std::vector<double>(out.m_XCpCl.begin(), out.m_XCpCl.end());
+                        break;
+                    case CD:
+                        TCd = std::vector<double>(out.m_TCd.begin(), out.m_TCd.end());
+                        break;
+                    case CDP:
+                        PCd = std::vector<double>(out.m_PCd.begin(), out.m_PCd.end());
+                        break;
+                    case CM:
+                        Cm = std::vector<double>(out.m_GCm.begin(), out.m_GCm.end());
+                        break;
+                    case ICD:
+                        ICd = std::vector<double>(out.m_ICd.begin(), out.m_ICd.end());
+                        break;
+                    case SM_:
+                        SM = std::vector<double>(out.m_SM.begin(), out.m_SM.end());
+                        break;
+                    case FX:
+                        Fx = std::vector<double>(out.m_FX.begin(), out.m_FX.end());
+                        break;
+                    case FY:
+                        Fy = std::vector<double>(out.m_FY.begin(), out.m_FY.end());
+                        break;
+                    case CLCD:
+                        ClCd = std::vector<double>(out.m_ClCd.begin(), out.m_ClCd.end());
+                        break;
+                    case CL32CD:
+                        Cl32Cd = std::vector<double>(out.m_Cl32Cd.begin(), out.m_Cl32Cd.end());
+                        break;
+                    case FZ:
+                        Fz = std::vector<double>(out.m_FZ.begin(), out.m_FZ.end());
+                        break; 
+                    case QINF:
+                        Q_inf = std::vector<double>(out.m_QInfinite.begin(), out.m_QInfinite.end());
+                        break;
+                    default:
+                        break;
+                    }
+                }
+        }
+
+        };
+
+        struct WPolarAdapter{
+            string name;
+            string plane_name;
+            WPolarSpec spec;
+            WPolarResult result;
+
+            MSGPACK_DEFINE_MAP(name, plane_name, spec, result);
+
+            WPolarAdapter(){}
+
+            WPolarAdapter(const WPolar& out){
+                name = out.name().toStdString();
+                plane_name = out.planeName().toStdString();
+                spec = WPolarSpec(out);
+                result = WPolarResult(out);
+            }
+
+            static WPolar* from_msgpack(const WPolarAdapter in){
+                WPolar* wpolar = new WPolar();
+                wpolar->setName(QString::fromStdString(in.name));
+
+                // set specification
+                wpolar->setPolarType(in.spec.polar_type);
+                wpolar->setVelocity(in.spec.free_stream_speed);
+                wpolar->setAlpha(in.spec.alpha);
+                wpolar->setBeta(in.spec.beta);
+                wpolar->setAnalysisMethod(in.spec.analysis_method);
+                wpolar->setViscous(in.spec.is_viscous);
+                wpolar->setAutoInertia(in.spec.use_plane_intertia);
+                wpolar->setMass(in.spec.plane_mass);
+                wpolar->setCoGx(in.spec.x_cog);
+                wpolar->setCoGz(in.spec.z_cog);
+                wpolar->setReferenceDim(in.spec.ref_dimension);
+                wpolar->setReferenceArea(in.spec.ref_area);
+                wpolar->setReferenceChordLength(in.spec.ref_chord);
+                wpolar->setReferenceSpanLength(in.spec.ref_span);
+                wpolar->setDensity(in.spec.density);
+                wpolar->setViscosity(in.spec.kinematic_viscosity);
+                wpolar->setGroundEffect(in.spec.is_ground_effect);
+                wpolar->setGroundHeight(in.spec.height);
+            
+                return wpolar;
+            }
+
+        };
+
+        struct AnalysisSettings3D{
+            SequenceAdapter sequence;
+            bool is_sequence;
+            bool init_LLT;
+            bool store_opp;
+
+            MSGPACK_DEFINE_MAP(sequence, is_sequence, init_LLT, store_opp);
+
+        };
 
 }; // namespace adapters
 
 MSGPACK_ADD_ENUM(xfl::enumGraphView);
 MSGPACK_ADD_ENUM(xfl::enumPanelDistribution);
 MSGPACK_ADD_ENUM(xfl::enumWingType);
+MSGPACK_ADD_ENUM(xfl::enumPolarType);
+MSGPACK_ADD_ENUM(xfl::enumAnalysisMethod);
+MSGPACK_ADD_ENUM(xfl::enumRefDimension);
+MSGPACK_ADD_ENUM(RpcLibAdapters::WPolarResult::enumWPolarResult);
 MSGPACK_ADD_ENUM(RpcLibAdapters::PolarResultAdapter::enumPolarResult);

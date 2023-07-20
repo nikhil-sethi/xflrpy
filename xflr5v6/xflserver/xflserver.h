@@ -34,10 +34,11 @@ class AFoil;
 class Polar;
 class MainFrame; // need only pointer 
 class Plane;
-
+class WPolar;
 namespace RpcLibAdapters{
 
     class AnalysisSettings2D;
+    class AnalysisSettings3D;
     class XDirectDisplayState;
 }
 
@@ -95,4 +96,9 @@ class xflServer: public QThread
 
         // Miarex signals
         void onNewPlane(Plane* plane);
+        void onDefineWPolar(WPolar* polar, Plane* pPlane);
+        void onSetAnalysisSettings3D(RpcLibAdapters::AnalysisSettings3D& analysis_settings);
+        void onAnalyzeCurWPolar();
+        void onSetWPolar(WPolar* pPolar);
+        void onSetPlane(Plane* pPlane);
 };

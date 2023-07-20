@@ -34,6 +34,7 @@
 #include <QObject>
 #include <QString>
 #include <QVector>
+#include <QSignalSpy>
 
 #include "utils.h"
 
@@ -307,7 +308,11 @@ xflServer::xflServer(int port) : server(port)
 
     // ===================== Miarex ====================== //
     QObject::connect(this, &xflServer::onNewPlane, s_pMainFrame->m_pMiarex, &Miarex::onNewPlaneHeadless, Qt::BlockingQueuedConnection);
-
+    QObject::connect(this, &xflServer::onDefineWPolar, s_pMainFrame->m_pMiarex, &Miarex::onDefineWPolarHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onSetWPolar, s_pMainFrame->m_pMiarex, QOverload<WPolar*>::of(&Miarex::setWPolar), Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onSetPlane, s_pMainFrame->m_pMiarex, QOverload<Plane*>::of(&Miarex::setPlane), Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onSetAnalysisSettings3D, s_pMainFrame->m_pMiarex, &Miarex::setAnalysisParamsHeadless, Qt::BlockingQueuedConnection);
+    QObject::connect(this, &xflServer::onAnalyzeCurWPolar, s_pMainFrame->m_pMiarex, &Miarex::onAnalyze, Qt::BlockingQueuedConnection);
 
     server.bind("getPlane", [&](string name){
         Plane* pPlane = Objects3d::plane(QString::fromStdString(name));
@@ -340,6 +345,30 @@ xflServer::xflServer(int port) : server(port)
     server.bind("getPlaneData", [&](string name){
         return Objects3d::plane(QString::fromStdString(name))->planeData(false).toStdString();
     });
+
+    server.bind("defineAnalysis3D", [&](RpcLibAdapters::WPolarAdapter wpolar){
+        Plane* pPlane = Objects3d::plane(QString::fromStdString(wpolar.plane_name));
+        WPolar* pWPolar = RpcLibAdapters::WPolarAdapter::from_msgpack(wpolar); 
+        std::cout<<pWPolar<<std::endl;
+        emit onDefineWPolar(pWPolar, pPlane);
+    });
+
+    server.bind("analyzeWPolar", [&](string polar_name, string plane_name, RpcLibAdapters::AnalysisSettings3D analysis_settings, vector<RpcLibAdapters::WPolarResult::enumWPolarResult> result_list){
+        emit onSetAnalysisSettings3D(analysis_settings);
+
+        Plane* pPlane = Objects3d::plane(QString::fromStdString(plane_name));
+        WPolar* pPolar = Objects3d::getWPolar(pPlane, QString::fromStdString(polar_name));
+        emit onSetPlane(pPlane);
+        emit onSetWPolar(pPolar);
+        emit onAnalyzeCurWPolar();
+
+        // this spy is needed to make sure that the analysis is completed before results are returned.
+        QSignalSpy spy(s_pMainFrame->m_pMiarex->m_pPanelAnalysisDlg, &PanelAnalysisDlg::analysisFinished);
+        spy.wait(1000);
+        
+        return RpcLibAdapters::WPolarResult(*pPolar, result_list);
+    });
+
 
 }
 

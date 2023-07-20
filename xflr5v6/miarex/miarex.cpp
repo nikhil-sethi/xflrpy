@@ -95,6 +95,8 @@
 #include <xflwidgets/line/linedelegate.h>
 #include <xflwidgets/line/linepickerwt.h>
 
+#include <xflserver/RpcLibAdapters.h> 
+
 #ifdef Q_OS_WIN
 #include <windows.h> // for Sleep
 #endif
@@ -8559,3 +8561,195 @@ void Miarex::updateTreeView()
 }
 
 
+void Miarex::onDefineWPolarHeadless(WPolar* pNewWPolar, Plane* plane)
+{
+    if(!plane) return;
+
+    stopAnimate();
+
+    // WPolar *pNewWPolar = new WPolar;
+
+    if (true)
+    {
+        //Then add WPolar to array
+        emit projectModified();
+        // pNewWPolar->duplicateSpec(&wpolar);
+        pNewWPolar->setPlaneName(plane->name());
+        // pNewWPolar->setPolarName(wpolar.polarName());
+
+        if(pNewWPolar->referenceDim()==xfl::PLANFORMREFDIM)
+        {
+            pNewWPolar->setReferenceSpanLength(plane->planformSpan());
+            double area = plane->planformArea();
+            if(plane && plane->biPlane()) area += plane->wing2()->m_PlanformArea;
+            pNewWPolar->setReferenceArea(area);
+        }
+        else if(pNewWPolar->referenceDim()==xfl::PROJECTEDREFDIM)
+        {
+            pNewWPolar->setReferenceSpanLength(plane->projectedSpan());
+            double area = plane->projectedArea();
+            if(plane && plane->biPlane()) area += plane->wing2()->m_ProjectedArea;
+            pNewWPolar->setReferenceArea(area);
+        }
+        
+        // chord wasn't set in the original method, because it's mac by default. so added this line her
+        pNewWPolar->setReferenceChordLength(plane->mac());
+        
+        if(m_bDirichlet) pNewWPolar->setBoundaryCondition(xfl::DIRICHLET);
+        else             pNewWPolar->setBoundaryCondition(xfl::NEUMANN);
+
+
+        // analysis method 
+        // taken from polar dialog onMethod() slot
+        if (pNewWPolar->analysisMethod() == xfl::LLTMETHOD)
+        {
+            pNewWPolar->setViscous(true);
+            pNewWPolar->setThinSurfaces(true);
+            pNewWPolar->setWakeRollUp(false);
+            pNewWPolar->setTilted(false);
+            pNewWPolar->setAnalysisMethod(xfl::LLTMETHOD);
+        }
+        else if (pNewWPolar->analysisMethod() == xfl::VLMMETHOD)
+        {
+            pNewWPolar->setVLM1(true);
+            pNewWPolar->setThinSurfaces(true);
+            pNewWPolar->setAnalysisMethod(xfl::PANEL4METHOD);
+        }
+        else if (pNewWPolar->analysisMethod() == xfl::PANEL4METHOD)
+        {
+            pNewWPolar->setThinSurfaces(false);
+            pNewWPolar->setAnalysisMethod(xfl::PANEL4METHOD);
+        }
+
+
+        QColor clr = xfl::getObjectColor(4);
+        pNewWPolar->setColor(clr);
+        if(DisplayOptions::isAlignedChildrenStyle()) pNewWPolar->setTheStyle(plane->theStyle());
+
+        m_pCurWPolar = Objects3d::insertNewWPolar(pNewWPolar, plane);
+        m_pCurPOpp = nullptr;
+        setWPolar(pNewWPolar);
+        m_pPlaneTreeView->insertWPolar(pNewWPolar);
+        m_pPlaneTreeView->selectWPolar(pNewWPolar, false);
+        m_pCurPOpp = nullptr;
+
+        gl3dMiarexView::s_bResetglGeom = true;
+        gl3dMiarexView::s_bResetglMesh = true;
+        gl3dMiarexView::s_bResetglOpp  = true;
+        gl3dMiarexView::s_bResetglWake = true;
+
+        updateView();
+        m_ppbAnalyze->setFocus();
+    }
+    else
+    {
+        delete pNewWPolar;
+    }
+    setControls();
+}
+
+void Miarex::setAnalysisParamsHeadless(RpcLibAdapters::AnalysisSettings3D& analysis_settings)
+{
+    m_pchSequence->setChecked(analysis_settings.is_sequence);
+
+    m_pdeAlphaMax->setEnabled(analysis_settings.is_sequence);
+    m_pdeAlphaDelta->setEnabled(analysis_settings.is_sequence);
+
+    if (!m_pCurWPolar)
+    {
+        m_pchSequence->setEnabled(false);
+        m_pdeAlphaMin->setEnabled(false);
+        m_pdeAlphaMax->setEnabled(false);
+        m_pdeAlphaDelta->setEnabled(false);
+        m_pchInitLLTCalc->setEnabled(false);
+        m_pchStoreWOpp->setEnabled(false);
+        return;
+    }
+    else
+    {
+        m_pchSequence->setEnabled(true);
+        m_pdeAlphaMin->setEnabled(true);
+
+        m_pdeAlphaMax->setEnabled(analysis_settings.is_sequence);
+        m_pdeAlphaDelta->setEnabled(analysis_settings.is_sequence);
+
+        m_pchInitLLTCalc->setEnabled(true);
+        m_pchStoreWOpp->setEnabled(true);
+    }
+
+    m_pchInitLLTCalc->setChecked(analysis_settings.init_LLT);
+    m_pchStoreWOpp->setChecked(PlaneOpp::s_bStoreOpps);
+
+    if (!m_pCurWPolar || (m_pCurWPolar && m_pCurWPolar->polarType() < xfl::FIXEDAOAPOLAR))
+    {
+        m_pdeAlphaMin->setValue(analysis_settings.sequence.start);
+        m_pdeAlphaMax->setValue(analysis_settings.sequence.end);
+        m_pdeAlphaDelta->setValue(analysis_settings.sequence.delta);
+    }
+    else if(m_pCurWPolar  && m_pCurWPolar->polarType() == xfl::FIXEDAOAPOLAR)
+    {
+        m_pdeAlphaMin->setValue(m_QInfMin*Units::mstoUnit());
+        m_pdeAlphaMax->setValue(m_QInfMax*Units::mstoUnit());
+        m_pdeAlphaDelta->setValue(m_QInfDelta*Units::mstoUnit());
+    }
+    else if (m_pCurWPolar && m_pCurWPolar->polarType() == xfl::BETAPOLAR)
+    {
+        m_pdeAlphaMin->setValue(analysis_settings.sequence.start);
+        m_pdeAlphaMax->setValue(analysis_settings.sequence.end);
+        m_pdeAlphaDelta->setValue(analysis_settings.sequence.delta);
+    }
+    else if (m_pCurWPolar && (m_pCurWPolar->polarType() == xfl::STABILITYPOLAR))
+    {
+        m_pdeAlphaMin->setValue(m_ControlMin);
+        m_pdeAlphaMax->setValue(m_ControlMax);
+        m_pdeAlphaDelta->setValue(m_ControlDelta);
+    }
+
+    if(m_pCurWPolar && m_pCurWPolar->polarType()==xfl::FIXEDAOAPOLAR)
+    {
+        QString str;
+        Units::getSpeedUnitLabel(str);
+        m_plabUnit1->setText(str);
+        m_plabUnit2->setText(str);
+        m_plabUnit3->setText(str);
+
+        m_plabParameterName->setText("Freestream velocity");
+        QFont fontSymbol(DisplayOptions::textFont());
+        fontSymbol.setBold(true);
+        fontSymbol.setPointSize(DisplayOptions::textFont().pointSize()+2);
+        m_plabParameterName->setFont(fontSymbol);
+    }
+    else if(m_pCurWPolar && m_pCurWPolar->polarType()==xfl::STABILITYPOLAR)
+    {
+        m_plabUnit1->setText("");
+        m_plabUnit2->setText("");
+        m_plabUnit3->setText("");
+
+        m_plabParameterName->setText("Control parameter");
+/*        QFont fontSymbol(DisplayOptions::textFont());
+        fontSymbol.setBold(true);
+        m_plabParameterName->setFont(fontSymbol);*/
+    }
+    else if(m_pCurWPolar && m_pCurWPolar->polarType()==xfl::BETAPOLAR)
+    {
+        m_plabUnit1->setText(QChar(0260));
+        m_plabUnit2->setText(QChar(0260));
+        m_plabUnit3->setText(QChar(0260));
+
+        m_plabParameterName->setText(QChar(0x03B2));
+/*        QFont fontSymbol("Symbol");
+        fontSymbol.setBold(true);
+        m_plabParameterName->setFont(fontSymbol);*/
+    }
+    else
+    {
+        m_plabUnit1->setText(QChar(0260));
+        m_plabUnit2->setText(QChar(0260));
+        m_plabUnit3->setText(QChar(0260));
+
+        m_plabParameterName->setText(QChar(0x03B1));
+/*        QFont fontSymbol("Symbol");
+        fontSymbol.setBold(true);
+        m_plabParameterName->setFont(fontSymbol);*/
+    }
+}
