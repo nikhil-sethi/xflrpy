@@ -10,7 +10,7 @@ xp = xflrClient(connect_timeout=100)
 
 # Gives useful information about the mainframe class in xflr5
 print(xp.state)
-xp.setApp(enumApp.MIAREX) # set to airfoil design application
+xp.setApp(enumApp.MIAREX) # set to plane design application
 
 # Load multiple airfoils; return the design application
 xp.loadProject(project_path + project_name)
@@ -26,7 +26,6 @@ sec0 = WingSection(chord=0.2, right_foil_name="fuselage center", left_foil_name=
 sec1 = WingSection(y_position = 1, chord=0.1, offset=0.2, twist=5, dihedral=5, right_foil_name="MH 60  10.08%", left_foil_name="MH 60  10.08%")
 plane3.wing.sections.append(sec0)
 plane3.wing.sections.append(sec1)
-# plane3.wing.sections.append((0.5, 0.1, 0.4, 2, 5, "MH 60  10.08%", "MH 60  10.08%"))
 
 # # create the elevator
 # plane3.elevator.sections.append(())

@@ -1,24 +1,28 @@
 ## Note
 This repository is under initial development phase. As a result there are not many features or refined code practices as of yet. There might be breaking changes without updating the major version until the first release. Any and every contribution/constructive criticism is welcome. Use github issues to roast me.
 
-# xflrpy v0.5.0
+# xflrpy v0.6.0
 ![](https://github.com/nikhil-sethi/xflrpy/blob/master/xflr5v6/resources/images/xp_github.jpeg)
 
 xflrpy is a python enabled version of [xflr5](http://www.xflr5.tech/xflr5.htm) with support for scripting and design optimization using a [python package](https://pypi.org/project/xflrpy/). The [original software](https://sourceforge.net/projects/xflr5/) is capable of the design and low-fidelity analysis of airfoils and model aircraft and was created by created by André Deperrois.
 
-The current version (v0.5.0) has limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.md) and [Todo](https://github.com/nikhil-sethi/xflrpy/blob/master/TODO.md). Currently you can:
+The current version (v0.6.0) has limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.md) and [Todo](https://github.com/nikhil-sethi/xflrpy/blob/master/TODO.md). Currently you can:
+
 - Create, load and save projects
 - Set and get apps (xfoil, plane-design, foil-design, inverse-design)
 - Set and get airfoils from direct design
 - Set geometry properties for airfoils including individual coordinates
 - Changes display styles for airfoils
 - Select, delete, rename, export airfoils
-
-New in v0.5.0! 
 - Set and get polars from XDirect module 
-- Analyse polars
+- Analyse 2D polars
 - Get targeted results from operating points
 - Set analysis and display settings including animation
+
+New in v0.6.0! 
+- Create and modify planes
+- Set and get wing polars from Miarex module 
+- Analyse 3D wing polars
 
 ![Optimizing a BWB UAV](https://github.com/nikhil-sethi/xflrpy/blob/pythonqt/xflrpy.gif)
 
@@ -29,7 +33,7 @@ and design optimization applications.
 
 I understand that are already  software like openVSP/SUAVE which do similar stuff. But all these softwares either have good frontends or backends but not both. xflr5 has one of the most intuitive and responsive frontends while being feature rich at the same time. It would be very powerful with a good API and that is the goal of this project.
 
-Also. Making APIs is fun and there is a pandemic going around so I was bored.
+Also, making APIs is fun, there is a pandemic going around and I was bored.
 
 # How?
 Some standard ways of exposing C code to python include using wrappers like [SWIG](https://github.com/swig/swig), 
@@ -70,7 +74,7 @@ Because of the above reasons, I won't be maintaining the pythonqt approach but i
 Note that as of 28/12/21 v0.2.0, the pythonqt branch has more and better features than rpc. If you want to whip up something quick, I reccommend you use that. But this will change soon enough. I will be adding more features to rpc and hope to move this statement to the changelog ASAP :) 
 
 ## So..How to build it?
-For Linux (tested on Ubuntu 20.04, Python 3.8.10, Qt 5.15.2, msgpack-rpc-python 0.40.1, rpclib 2.3.0):
+For Linux (tested on Ubuntu 22.04, Python 3.10.6, Qt 5.15.2, rpc-msgpack 0.6, rpclib 2.3.0):
 These instructions are basic and just an extension of [this](https://github.com/polmes/xflr5-ubuntu) repo.
 
 Setup
@@ -128,7 +132,10 @@ pip install -e .
 
 A brief sketch:
 ```python
-from xflrpy import xflrClient, enumApp, enumLineStipple
+from xflrpy import xflrClient, enumApp, enumLineStipple, Plane, WingSection, WPolar, enumPolarType, AnalysisSettings3D, enumWPolarResult, enumAnalysisMethod
+
+
+# ======== PROJECT MANAGEMENT ========= 
 
 # Change these values accordingly
 # Using a valid path is your responsibility
@@ -146,6 +153,9 @@ xp.setApp(enumApp.DIRECTDESIGN)
 
 # Gives useful information about the mainframe class in xflr5
 print(xp.state)
+
+
+# =========== AIRFOIL MORPHING =============
 
 # get a useable object for the current class
 afoil = xp.getApp(enumApp.DIRECTDESIGN)
@@ -176,5 +186,73 @@ ls.stipple = enumLineStipple.DASHDOT
 afoil.setLineStyle(foil.name, ls)   # set the style finally
 
 # delete foil. why not. what's the point of all this. why are we here.
-foil.delete()
+# foil.delete()
+
+
+# =========== PLANE MORPHING =============
+
+xp.setApp(enumApp.MIAREX) # set to plane design application
+
+# Load multiple airfoils; return the design application
+xp.loadProject(project_path + project_name)
+
+miarex = xp.getApp() # Get the current application
+
+
+# Create a new custom plane
+plane3 = Plane(name="custom_plane")
+
+
+# let's add sections to the primary wing
+sec0 = WingSection(chord=0.2, right_foil_name="fuselage center", left_foil_name="fuselage center") # you might need to change airfoils accordingly
+sec1 = WingSection(y_position = 1, chord=0.1, offset=0.2, twist=5, dihedral=5, right_foil_name="MH 60  10.08%", left_foil_name="MH 60  10.08%")
+plane3.wing.sections.append(sec0)
+plane3.wing.sections.append(sec1)
+
+
+### You can also add elevators and fins, but i'll leave that for now 
+# # create the elevator
+# plane3.elevator.sections.append(())
+
+# # create the fin
+# plane3.fin.sections.append(())
+
+# adds the plane to the list and tree view
+miarex.plane_mgr.addPlane(plane3)
+
+# get and print useful plane data
+plane_data = miarex.plane_mgr.getPlaneData("custom_plane")
+print(plane_data)
+
+
+# =========== 3D ANALYSIS =============
+
+# create a Wing Polar object
+wpolar = WPolar(name="my_cute_polar", plane_name="custom_plane")
+# set it's specfications
+wpolar.spec.polar_type = enumPolarType.FIXEDSPEEDPOLAR
+wpolar.spec.free_stream_speed = 12
+wpolar.spec.analysis_method = enumAnalysisMethod.VLMMETHOD
+
+# creates the analysis
+miarex.define_analysis(wpolar=wpolar)
+
+# these settings are on the right pane in the GUI
+analysis_settings = AnalysisSettings3D(is_sequence=True, sequence=(0,10,1))
+
+# get custom results from the analysis
+results = miarex.analyze("my_cute_polar", "custom_plane2", analysis_settings, result_list=[enumWPolarResult.ALPHA, enumWPolarResult.CLCD])
+
+print(results)
+
 ```
+
+
+Check out the examples directory for more!
+
+
+## Cite
+If you find the work useful in your own projects or research, consider citing it! It'll help the software reach other researchers and keep your conscience clear.
+
+## Bonus Gif for scrolling
+![](200w.gif)

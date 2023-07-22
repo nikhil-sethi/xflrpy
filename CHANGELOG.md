@@ -2,6 +2,10 @@
 There will be occassional updates here when I feel changes should be grouped. Hopefully these fall in line with version releases.
 Currently the repository in under intial develpopment phase. I will be maintaining version 0.x.y until the first release.
 
+### July 2023
+- Added plane creation, modification and IO (v0.6.0)
+- Added 3D analysis
+
 ### April 2023 
 (long time no see)
 - Changed msgpack-rpc-python to rpc-msgpack (for tornado new version)
