@@ -56,6 +56,7 @@ class SplineCtrlsDlg : public QDialog
     private:
         void keyPressEvent(QKeyEvent *pEvent) override;
         void showEvent(QShowEvent *pEvent) override;
+        QSize sizeHint() const override {return QSize(950,850);}
 
         void fillPointLists();
         void readData();

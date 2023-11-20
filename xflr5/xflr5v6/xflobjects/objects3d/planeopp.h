@@ -165,7 +165,7 @@ class PlaneOpp : public XflObject
         bool m_bThinSurface;        /**< true if the WingOpp is the results of a calculation on the middle surface */
         bool m_bTiltedGeom;         /**< true if the WingOpp is the results of a calculation on the tilted geometry */
 
-        double m_Weight;
+        double m_Mass;
 
         double m_CL;          /**< the wing lift coefficient */
         double m_CX;          /**< the total drag coefficient */

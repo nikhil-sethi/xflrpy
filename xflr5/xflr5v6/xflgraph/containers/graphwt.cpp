@@ -23,7 +23,6 @@
 #include <globals/mainframe.h>
 
 #include "graphwt.h"
-#include "graphtilewt.h"
 #include <xflgraph/controls/graphdlg.h>
 #include <xflobjects/objects2d/polar.h>
 #include <xflobjects/objects3d/wpolar.h>

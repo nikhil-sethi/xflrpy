@@ -46,6 +46,7 @@
 #include <xflgeom/geom3d/vector3d.h>
 #include <xflobjects/objects3d/plane.h>
 #include <xflobjects/objects3d/wpolar.h>
+#include <xflwidgets/customwts/plaintextoutput.h>
 
 QByteArray PanelAnalysisDlg::s_Geometry;
 
@@ -78,7 +79,7 @@ void PanelAnalysisDlg::initDialog()
 {
     m_Progress = 0.0;
     m_ppbProgress->setValue(int(m_Progress));
-    m_pteOutput->clear();
+    m_ppto->clear();
     m_pchLogFile->setChecked(Miarex::s_bLogFile);
 }
 
@@ -122,17 +123,11 @@ void PanelAnalysisDlg::onLogFile()
 /**Updates the progress of the analysis in the slider widget */
 void PanelAnalysisDlg::onProgress()
 {
-    /*    QTime dt = QTime::currentTime();
-    QString str = dt.toString("hh:mm:ss.zzz");
-    qDebug() << str;*/
-
     m_ppbProgress->setMaximum(int(m_pTheTask->m_pthePanelAnalysis->m_TotalTime));
     m_ppbProgress->setValue(int(m_pTheTask->m_pthePanelAnalysis->m_Progress));
     if(m_strOut.length())
     {
-        m_pteOutput->insertPlainText(m_strOut);
-        m_pteOutput->textCursor().movePosition(QTextCursor::End);
-        m_pteOutput->ensureCursorVisible();
+        m_ppto->onAppendThisPlainText(m_strOut);
         m_strOut.clear();
     }
 }
@@ -140,11 +135,6 @@ void PanelAnalysisDlg::onProgress()
 
 void PanelAnalysisDlg::setupLayout()
 {
-    m_pteOutput = new QTextEdit(this);
-    m_pteOutput->setReadOnly(true);
-    m_pteOutput->setLineWrapMode(QTextEdit::NoWrap);
-    m_pteOutput->setWordWrapMode(QTextOption::NoWrap);
-    m_pteOutput->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 
     m_ppbProgress = new QProgressBar(this);
     m_ppbProgress->setOrientation(Qt::Horizontal);
@@ -153,28 +143,29 @@ void PanelAnalysisDlg::setupLayout()
     m_ppbProgress->setValue(0);
 
 
-    QHBoxLayout *pctrlLayout = new QHBoxLayout;
-    {
-        m_ppbCancel = new QPushButton(tr("Cancel"));
-        connect(m_ppbCancel, SIGNAL(clicked()), this, SLOT(onCancelAnalysis()));
-
-        m_pchLogFile = new QCheckBox(tr("Keep this window opened on errors"));
-        connect(m_pchLogFile, SIGNAL(toggled(bool)), this, SLOT(onLogFile()));
-        pctrlLayout->addWidget(m_pchLogFile);
-        pctrlLayout->addStretch();
-        pctrlLayout->addWidget(m_ppbCancel);
-    }
 
     QVBoxLayout *pMainLayout = new QVBoxLayout;
     {
-        pMainLayout->addWidget(m_pteOutput);
+
+        QHBoxLayout *pctrlLayout = new QHBoxLayout;
+        {
+            m_ppbCancel = new QPushButton(tr("Cancel"));
+            connect(m_ppbCancel, SIGNAL(clicked()), this, SLOT(onCancelAnalysis()));
+
+            m_pchLogFile = new QCheckBox(tr("Keep this window opened on errors"));
+            connect(m_pchLogFile, SIGNAL(toggled(bool)), this, SLOT(onLogFile()));
+            pctrlLayout->addWidget(m_pchLogFile);
+            pctrlLayout->addStretch();
+            pctrlLayout->addWidget(m_ppbCancel);
+        }
+
+        m_ppto = new PlainTextOutput;
+        pMainLayout->addWidget(m_ppto);
         pMainLayout->addWidget(m_ppbProgress);
         pMainLayout->addLayout(pctrlLayout);
     }
     setLayout(pMainLayout);
 }
-
-
 
 
 
@@ -214,12 +205,12 @@ void PanelAnalysisDlg::analyze()
     clock.start(); // put some pressure
 
     QString strange = "\n" + QString(xfl::versionName()) +"\n";
-    updateOutput(strange);
+    m_ppto->onAppendThisPlainText(strange);
     QDateTime dt = QDateTime::currentDateTime();
     strange = dt.toString("dd.MM.yyyy  hh:mm:ss\n\n");
-    updateOutput(strange);
+    m_ppto->onAppendThisPlainText(strange);
     strange = "Launching Analysis\n\n";
-    updateOutput(strange);
+    m_ppto->onAppendThisPlainText(strange);
 
 
     connect(&m_Timer, SIGNAL(timeout()), this, SLOT(onProgress()));
@@ -278,7 +269,7 @@ void PanelAnalysisDlg::onTaskFinished()
     else if (PanelAnalysis::s_bWarning)
         strong = "\n"+tr("Panel Analysis completed ... Errors encountered")+"\n";
 
-    updateOutput(strong);
+    m_ppto->onAppendThisPlainText(strong);
     onProgress();
 
     QString FileName = QDir::tempPath() + "/XFLR5.log";
@@ -287,7 +278,7 @@ void PanelAnalysisDlg::onTaskFinished()
     {
         QTextStream outstream(pXFile);
 
-        outstream << m_pteOutput->toPlainText();
+        outstream << m_ppto->toPlainText();
         outstream << "\n";
         QDateTime dt = QDateTime::currentDateTime();
         QString str = dt.toString(Qt::TextDate);
@@ -308,23 +299,10 @@ void PanelAnalysisDlg::onTaskFinished()
 }
 
 
-/**
-* Updates the text output in the dialog box and the log file.
-*@param strong the text message to append to the output widget and to the log file.
-*/
-void PanelAnalysisDlg::updateOutput(QString const&strong)
-{
-    m_pteOutput->insertPlainText(strong);
-    m_pteOutput->textCursor().movePosition(QTextCursor::End);
-    m_pteOutput->ensureCursorVisible();
-}
-
 
 void PanelAnalysisDlg::onMessage(QString const &msg)
 {
-    m_pteOutput->insertPlainText(msg);
-    m_pteOutput->textCursor().movePosition(QTextCursor::End);
-    m_pteOutput->ensureCursorVisible();
+    m_ppto->onAppendThisPlainText(msg);
 }
 
 

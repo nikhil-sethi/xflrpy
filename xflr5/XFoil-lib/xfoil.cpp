@@ -4170,7 +4170,7 @@ bool XFoil::inside(double x[], double y[], int n, double xf, double yf)
  *      (x-xte,y-yte) . (x',y') = 0     at  s = sle
  *
  *     i.e. the surface tangent is normal to the chord
- *     line connecting x(sle),y(sle) and the te point.
+ *     line connecting x(sle),y(sle) and the TE point.
 //------------------------------------------------------ */
 bool XFoil::lefind(double &sle, double x[], double xp[], double y[], double yp[], double s[], int n)
 {
@@ -8058,7 +8058,7 @@ void XFoil::splina(double x[], double xs[], double s[], int n)
 bool XFoil::splind(double *x, double *xs, double *s, int n, double xs1, double xs2)
 {
     int nmax=600;
-    double a[601],b[601],c[601];
+    double a[601], b[601], c[601];
     double dsm(0), dsp(0);
     memset(a, 0, 601*sizeof(double));
     memset(b, 0, 601*sizeof(double));
@@ -8102,8 +8102,8 @@ bool XFoil::splind(double *x, double *xs, double *s, int n, double xs1, double x
         }
     }
 
-
-    if(xs2>=998.0) {
+    if(xs2>=998.0)
+    {
         b[n] = 1.0;
         a[n] = 2.0;
         xs[n] = 3.0*(x[n]-x[n-1]) / (s[n]-s[n-1]);
@@ -8121,7 +8121,8 @@ bool XFoil::splind(double *x, double *xs, double *s, int n, double xs1, double x
         }
     }
 
-    if(n==2 && xs1<=-998.0 && xs2<=-998.0) {
+    if(n==2 && xs1<=-998.0 && xs2<=-998.0)
+    {
         b[n] = 1.0;
         a[n] = 2.0;
         xs[n] = 3.0*(x[n]-x[n-1]) / (s[n]-s[n-1]);
@@ -8133,9 +8134,9 @@ bool XFoil::splind(double *x, double *xs, double *s, int n, double xs1, double x
 }
 
 
-
 void XFoil::sss(double ss, double *s1, double *s2, double del, double xbf, double ybf,
-                double x[], double xp[], double y[], double yp[], double s[], int n, int iside){
+                double x[], double xp[], double y[], double yp[], double s[], int n, int iside)
+{
 //      dimension x(*),xp(*),y(*),yp(*),s(*)
 //----------------------------------------------------------------
 //     returns arc length points s1,s2 at flap surface break

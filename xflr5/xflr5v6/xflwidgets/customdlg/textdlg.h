@@ -1,7 +1,7 @@
 /****************************************************************************
 
     xflr5 v6
-    Copyright (C) André Deperrois 
+    Copyright (C) André Deperrois
     GNU General Public License v3
 
 *****************************************************************************/
@@ -10,24 +10,22 @@
 #pragma once
 
 #include <QDialog>
-#include <QLineEdit>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QKeyEvent>
 
+class PlainTextOutput;
 
-
-class NewNameDlg : public QDialog
+class TextDlg : public QDialog
 {
     Q_OBJECT
 
     public:
-        NewNameDlg(QString const &name, QWidget *pParent=nullptr);
-
+        TextDlg(QString const &text, QWidget *pParent=nullptr);
         void keyPressEvent(QKeyEvent *pEvent) override;
-        QSize sizeHint() const  override  {return QSize(900,500);}
+        QSize sizeHint() const override {return  QSize(1000,500);}
         void setQuestion(QString const &quest) {m_plabQuestion->setText(quest);}
-        QString const &newName() const {return m_NewName;}
+        QString const &newText() const {return m_NewText;}
 
     private:
         void setupLayout();
@@ -39,10 +37,7 @@ class NewNameDlg : public QDialog
     private:
         QDialogButtonBox *m_pButtonBox;
         QLabel *m_plabQuestion;
-        QLineEdit *m_pleName;
-        QString m_NewName;
-
+        PlainTextOutput *m_ppto;
+        QString m_NewText;
 };
-
-
 

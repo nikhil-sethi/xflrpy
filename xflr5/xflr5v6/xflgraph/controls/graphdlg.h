@@ -59,31 +59,31 @@ class GraphDlg : public QDialog
 
 
     private slots:
-        void onButton(QAbstractButton *pButton);
-        void onOK();
-        void onTitleFont();
-        void onLabelFont();
-        void onTitleColor();
-        void onLabelColor();
-        void onRestoreParams();
+        void onActivePage(int index);
         void onAutoX();
         void onAutoY();
         void onAxisStyle();
-        void onMargin();
-        void onXMajGridStyle();
-        void onXMinGridStyle();
-        void onYMajGridStyle();
-        void onYMinGridStyle();
-        void onXMajGridShow(int state);
-        void onYMajGridShow(int state);
-        void onXMinGridShow(int state);
-        void onYMinGridShow(int state);
-        void onGraphBorder(int state);
-        void onGraphBackColor();
         void onBorderStyle();
-        void onYInverted();
-        void onActivePage(int index);
+        void onButton(QAbstractButton *pButton);
+        void onGraphBackColor();
+        void onGraphBorder(int state);
+        void onLabelColor();
+        void onLabelFont();
+        void onMargin();
+        void onOK();
+        void onRestoreParams();
+        void onTitleColor();
+        void onTitleFont();
         void onVariableChanged();
+        void onXMajGridShow(int state);
+        void onXMajGridStyle();
+        void onXMinGridShow(int state);
+        void onXMinGridStyle();
+        void onYInverted();
+        void onYMajGridShow(int state);
+        void onYMajGridStyle();
+        void onYMinGridShow(int state);
+        void onYMinGridStyle();
 
 
     private:

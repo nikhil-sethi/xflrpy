@@ -46,7 +46,7 @@ PlaneOpp::PlaneOpp(Plane *pPlane, WPolar *pWPolar, int PanelArraySize)
     m_WPolarType     = xfl::FIXEDSPEEDPOLAR;
     m_AnalysisMethod = xfl::VLMMETHOD;
 
-    m_Weight = 0.0;
+    m_Mass = 0.0;
 
     m_theStyle.m_Stipple     = Line::SOLID;
     m_theStyle.m_Width       = 1;
@@ -584,7 +584,7 @@ bool PlaneOpp::serializePOppXFL(QDataStream &ar, bool bIsStoring)
         ar << m_Beta;
         ar << m_Ctrl;
 
-        ar << m_Weight;
+        ar << m_Mass;
 
         if(m_AnalysisMethod!=xfl::LLTMETHOD)
         {
@@ -690,7 +690,7 @@ bool PlaneOpp::serializePOppXFL(QDataStream &ar, bool bIsStoring)
         ar >> m_Beta;
         ar >> m_Ctrl;
 
-        ar >> m_Weight;
+        ar >> m_Mass;
 
         if(m_dG!=nullptr)     delete [] m_dG;
         if(m_dSigma!=nullptr) delete [] m_dSigma;
@@ -821,7 +821,7 @@ void PlaneOpp::getProperties(QString &planeOppProperties, QString lengthUnitLabe
     strong  = QString(QObject::tr("Alpha")+" =%1").arg(m_Alpha,7,'f',2);
     planeOppProperties += strong +QChar(0260)+"\n";
 
-    strong  = QString(QObject::tr("Mass")+"  = %1 ").arg(m_Weight*kgtoUnit,7,'f',3);
+    strong  = QString(QObject::tr("Mass")+"  = %1 ").arg(m_Mass*kgtoUnit,7,'f',3);
     planeOppProperties += strong + massUnitLabel + "\n";
 
     if(qAbs(m_Beta)>PRECISION)

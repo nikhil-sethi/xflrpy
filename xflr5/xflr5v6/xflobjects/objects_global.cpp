@@ -116,6 +116,38 @@ QColor xfl::getObjectColor(int type)
 
 
 /**
+*@return true and intersection point M if AB and CD intersect inside, false and intersection point M if AB and CD intersect outside
+*/
+bool xfl::intersect(Vector2d const &A, Vector2d const &B, Vector2d const &C, Vector2d const &D, Vector2d *M)
+{
+    double Det(0), Det1(0), Det2(0), t(0), u(0);
+    Vector2d AB, CD;
+
+    M->set(0,0);
+    AB.set(B.x-A.x, B.y-A.y);
+    CD.set(D.x-C.x, D.y-C.y);
+
+    Det  = -AB.x * CD.y + CD.x * AB.y;
+    if(Det==0.0)
+    {
+        //vectors are parallel, no intersection
+        return false;
+    }
+    Det1 = -(C.x-A.x)*CD.y + (C.y-A.y)*CD.x;
+    Det2 = -(C.x-A.x)*AB.y + (C.y-A.y)*AB.x;
+
+    t = Det1/Det;
+    u = Det2/Det;
+
+    M->x = A.x + t*AB.x;
+    M->y = A.y + t*AB.y;
+
+    if (0.0<=t && t<=1.0 && 0.0<=u && u<=1.0) return true;//M is between A and B
+    else                                      return false;//M is outside
+}
+
+
+/**
 * Returns the intersection of a ray with the object's panels
 * The ray is defined by a mouse click and is perpendicular to the viewport
 *    A is the ray's origin,
@@ -130,8 +162,8 @@ bool xfl::intersect(Vector3d const &LA, Vector3d const &LB, Vector3d const &TA, 
                Vector3d const &A,  Vector3d const &U,  Vector3d &I, double &dist)
 {
     Vector3d P, W, V, T;
-    bool b1, b2, b3, b4;
-    double r,s;
+    bool b1(0), b2(0), b3(0), b4(0);
+    double r(0),s(0);
 
     r = (LA.x-A.x)*Normal.x + (LA.y-A.y)*Normal.y + (LA.z-A.z)*Normal.z ;
     s = U.x*Normal.x + U.y*Normal.y + U.z*Normal.z;
@@ -325,10 +357,6 @@ Foil *xfl::readFoilFile(QFile &xFoilFile)
         }
     }
 
-    memcpy(pFoil->m_x, pFoil->m_xb, sizeof(pFoil->m_xb));
-    memcpy(pFoil->m_y, pFoil->m_yb, sizeof(pFoil->m_yb));
-    pFoil->m_n = pFoil->m_nb;
-
     QColor clr = xfl::randomColor(false);
     pFoil->setColor(clr.red(), clr.green(), clr.blue(), clr.alpha());
     pFoil->initFoil();
@@ -345,9 +373,7 @@ Foil *xfl::readFoilFile(QFile &xFoilFile)
 Foil* xfl::readPolarFile(QFile &plrFile, QVector<Polar*> &polarList)
 {
     Foil* pFoil = nullptr;
-    Polar *pPolar = nullptr;
-    Polar * pOldPolar = nullptr;
-    int i=0, n=0, l=0;
+    int n=0;
 
     QDataStream ar(&plrFile);
     ar.setVersion(QDataStream::Qt_4_5);
@@ -365,7 +391,7 @@ Foil* xfl::readPolarFile(QFile &plrFile, QVector<Polar*> &polarList)
         //new format XFLR5 v1.99+
         //first read all available foils
         ar>>n;
-        for (i=0;i<n; i++)
+        for (int i=0;i<n; i++)
         {
             pFoil = new Foil();
             if (!serializeFoil(pFoil, ar, false))
@@ -378,18 +404,18 @@ Foil* xfl::readPolarFile(QFile &plrFile, QVector<Polar*> &polarList)
         //next read all available polars
 
         ar>>n;
-        for (i=0;i<n; i++)
+        for (int i=0;i<n; i++)
         {
-            pPolar = new Polar();
+            Polar*pPolar = new Polar();
 
             if (!serializePolar(pPolar, ar, false))
             {
                 delete pPolar;
                 return nullptr;
             }
-            for (l=0; l<polarList.size(); l++)
+            for (int l=0; l<polarList.size(); l++)
             {
-                pOldPolar = polarList.at(l);
+                Polar *pOldPolar = polarList.at(l);
                 if (pOldPolar->foilName()  == pPolar->foilName() &&
                         pOldPolar->polarName() == pPolar->polarName())
                 {
@@ -483,6 +509,8 @@ void xfl::drawMidLine(QPainter &painter, const Foil *pFoil, double scalex, doubl
         From = To;
     }
 }
+
+
 void xfl::drawFoilPoints(QPainter &painter, Foil const*pFoil, double alpha, double scalex, double scaley,
                 QPointF const &Offset, const QColor &backColor)
 {
@@ -523,6 +551,7 @@ void xfl::drawFoilPoints(QPainter &painter, Foil const*pFoil, double alpha, doub
         xfl::drawSymbol(painter, pFoil->pointStyle(), backColor, pFoil->color(), pt);
     }
 }
+
 
 void xfl::setAutoWPolarName(WPolar *pWPolar, Plane *pPlane)
 {
@@ -603,7 +632,6 @@ void xfl::setAutoWPolarName(WPolar *pWPolar, Plane *pPlane)
     }
 
     nCtrl = 0;
-
 
 
     if(pWPolar->isStabilityPolar())
@@ -760,7 +788,7 @@ bool xfl::serializeFoil(Foil *pFoil, QDataStream &ar, bool bIsStoring)
     {
         ar << ArchiveFormat;
         xfl::writeString(ar, pFoil->name());
-        xfl::writeString(ar, pFoil->m_FoilDescription);
+        xfl::writeString(ar, pFoil->m_Description);
         ar << pFoil->theStyle().m_Stipple << pFoil->theStyle().m_Width;
         xfl::writeColor(ar, pFoil->theStyle().m_Color.red(), pFoil->theStyle().m_Color.green(), pFoil->theStyle().m_Color.blue());
 
@@ -794,7 +822,7 @@ bool xfl::serializeFoil(Foil *pFoil, QDataStream &ar, bool bIsStoring)
 
         if(ArchiveFormat>=1006)
         {
-            xfl::readString(ar, pFoil->m_FoilDescription);
+            xfl::readString(ar, pFoil->m_Description);
         }
         if(ArchiveFormat>=1002)
         {
@@ -839,11 +867,11 @@ bool xfl::serializeFoil(Foil *pFoil, QDataStream &ar, bool bIsStoring)
         for (j=0; j<pFoil->m_nb; j++)
         {
             ar >> f >> ff;
-            pFoil->m_xb[j]  = double(f);  pFoil->m_yb[j]=double(ff);
+            pFoil->m_xb[j] = double(f);
+            pFoil->m_yb[j] = double(ff);
         }
 
-        /** @todo remove. We don't need to save/load the current foil geom
-         *  since we re-create later it using base geometry and flap data */
+        /** legacy serialization*/
         if(ArchiveFormat>=1001)
         {
             ar >> pFoil->m_n;
@@ -852,22 +880,8 @@ bool xfl::serializeFoil(Foil *pFoil, QDataStream &ar, bool bIsStoring)
             for (j=0; j<pFoil->m_n; j++)
             {
                 ar >> f >> ff;
-                //                pFoil->x[j]=f; pFoil->y[j]=ff;
             }
-            /*            if(pFoil->nb==0 && pFoil->n!=0)
-            {
-                pFoil->nb = pFoil->n;
-                memcpy(pFoil->xb, pFoil->x, sizeof(pFoil->xb));
-                memcpy(pFoil->yb, pFoil->y, sizeof(pFoil->yb));
-            }*/
         }
-        else
-        {
-            /*            memcpy(pFoil->x, pFoil->xb, sizeof(pFoil->xb));
-            memcpy(pFoil->y, pFoil->yb, sizeof(pFoil->yb));
-            pFoil->n=pFoil->nb;*/
-        }
-
 
         pFoil->initFoil();
         pFoil->setFlap();
@@ -875,7 +889,6 @@ bool xfl::serializeFoil(Foil *pFoil, QDataStream &ar, bool bIsStoring)
         return true;
     }
 }
-
 
 
 /**

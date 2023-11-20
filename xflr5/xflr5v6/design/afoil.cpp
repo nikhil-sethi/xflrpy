@@ -53,6 +53,7 @@
 #include <xflobjects/objects2d/foil.h>
 #include <xflobjects/objects_global.h>
 #include <xflwidgets/line/linemenu.h>
+#include <xflwidgets/customdlg/textdlg.h>
 #include <xfoil.h>
 
 
@@ -90,6 +91,8 @@ AFoil::AFoil(QWidget *parent)  : QFrame(parent)
     setupLayout();
 
     SplineCtrlsDlg::s_pAFoil    = this;
+
+    connect(this, SIGNAL(projectModified()), s_pMainFrame, SLOT(onProjectModified()));
 }
 
 
@@ -197,7 +200,11 @@ void AFoil::fillTableRow(int row)
 
     ind = m_pFoilModel->index(row, 0, QModelIndex());
     m_pFoilModel->setData(ind, pFoil->name());
-
+    if(!pFoil->description().isEmpty())
+    {
+        QStandardItem *pItem = m_pFoilModel->itemFromIndex(ind);
+        if(pItem) pItem->setToolTip(pFoil->description());
+    }
     ind = m_pFoilModel->index(row, 1, QModelIndex());
     m_pFoilModel->setData(ind, pFoil->thickness());
 
@@ -326,7 +333,6 @@ void AFoil::loadSettings(QSettings &settings)
     {
         m_pSF->theStyle().loadSettings(settings, "SplineFoil");
 
-        m_pSF->m_bOutPoints  = settings.value("SFOutPoints", m_pSF->m_bOutPoints).toBool();
         m_pSF->m_bCenterLine = settings.value("SFCenterLine", m_pSF->m_bCenterLine).toBool();
 
         m_pSF->m_Intrados.m_iRes =  qMax(settings.value("LowerRes",m_pSF->m_Intrados.m_iRes).toInt(), 10);
@@ -1147,6 +1153,19 @@ void AFoil::onRenameFoil()
 
     fillFoilTable();
     m_p2dWidget->update();
+    emit projectModified();
+}
+
+
+void AFoil::onFoilDescription()
+{
+    if(!Objects2d::curFoil()) return;
+
+    TextDlg dlg(Objects2d::curFoil()->description(), this);
+
+    if(dlg.exec() != QDialog::Accepted) return;
+    Objects2d::curFoil()->setDescription(dlg.newText());
+    emit projectModified();
 }
 
 
@@ -1250,7 +1269,6 @@ void AFoil::saveSettings(QSettings &settings)
     {
         m_pSF->theStyle().saveSettings(settings, "SplineFoil");
 
-        settings.setValue("SFOutPoints", m_pSF->m_bOutPoints);
         settings.setValue("SFCenterLine", m_pSF->m_bCenterLine);
 
         settings.setValue("LowerRes", m_pSF->m_Intrados.m_iRes);
@@ -1297,7 +1315,7 @@ void AFoil::setupLayout()
     m_ptvFoil->setFont(DisplayOptions::tableFont());
     m_ptvFoil->horizontalHeader()->setFont(DisplayOptions::tableFont());
 
-    connect(m_ptvFoil, SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(onFoilTableCtxMenu(const QPoint&)));
+    connect(m_ptvFoil, SIGNAL(customContextMenuRequested(QPoint)), SLOT(onFoilTableCtxMenu(QPoint)));
 
     QHBoxLayout *pMainLayout = new QHBoxLayout;
     pMainLayout->addWidget(m_ptvFoil);
@@ -1582,7 +1600,6 @@ void AFoil::setTableFont()
 {
     m_ptvFoil->setFont(DisplayOptions::tableFont());
 }
-
 
 
 Foil* AFoil::addNewFoil(Foil *pFoil)

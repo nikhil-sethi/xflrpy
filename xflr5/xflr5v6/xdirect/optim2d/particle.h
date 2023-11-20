@@ -66,6 +66,12 @@ class Particle
 
         bool dominates(Particle const* pOther) const;
 
+        bool isConverged()  const {return m_bIsConverged;}
+        void setConverged(bool b) {m_bIsConverged=b;}
+
+        void setInParetoFront(bool b) {m_bIsInParetoFront = b;}
+        bool isInParetoFront() const {return m_bIsInParetoFront;}
+
     private:
         // size = dimension = nVariables
         QVector<double> m_Position;
@@ -79,4 +85,9 @@ class Particle
         int m_nBest;
         QVector<QVector<double>> m_BestError;    /** the particle's personal best errors achieved so far; size=nObjectives*/
         QVector<QVector<double>> m_BestPosition; /** the particle's personal best positions achieved so far; size=dimension */
+
+        bool m_bIsInParetoFront;
+
+        //XFoil specific
+        bool m_bIsConverged;
 };

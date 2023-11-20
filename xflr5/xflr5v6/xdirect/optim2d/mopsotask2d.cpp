@@ -19,50 +19,69 @@
 
 *****************************************************************************/
 
+#include <QDebug>
+
 #include "mopsotask2d.h"
 #include <xflcore/constants.h>
-
 #include <xfoil.h>
 #include <xflobjects/objects2d/foil.h>
 #include <xdirect/analysis/xfoiltask.h>
+#include <xflcore/mathelem.h>
 
-
-MOPSOTask2d::MOPSOTask2d()
+MOPSOTask2d::MOPSOTask2d() : MOPSOTask()
 {
     m_pFoil = nullptr;
     m_pPolar = nullptr;
 
     m_iLE = -1;
 
-    m_HHn             = 5;
+    m_HHt1            = 1.0;
     m_HHt2            = 1.0;
     m_HHmax           = 0.02;  // unused, replaced by the variable amplitude
     m_Alpha           = 0.0;
 }
 
 
-// for this demo case, modifies only the top surface, i.e. from node 0 to node m_iLE
 void MOPSOTask2d::makeFoil(Particle const &particle, Foil *pFoil) const
 {
     pFoil->copyFoil(m_pFoil, false);
 
-    double t1=0, hh=0, x=0;
+    double t1(0), hh(0), x(0);
+
+    int halfdim = particle.dimension()/2; //less the flap dim
 
     for(int i=0; i<m_iLE; i++)
     {
-        x = pFoil->m_x[i];
-        for(int j=0; j<particle.dimension(); j++)
+        x = pFoil->m_xb[i];
+        for(int j=0; j<halfdim; j++)
         {
-            t1 = double(j+1)/double(particle.dimension()+1); // HH undefined for t1=0
+            t1 = m_HHt1*double(j+1)/double(2*halfdim+1);
             hh = HH(x, t1, m_HHt2) * particle.pos(j);
             pFoil->m_xb[i] += pFoil->m_nx[i] *hh;
             pFoil->m_yb[i] += pFoil->m_ny[i] *hh;
         }
     }
 
-    memcpy(pFoil->m_x, pFoil->m_xb, IBX*sizeof(double));
-    memcpy(pFoil->m_y, pFoil->m_yb, IBX*sizeof(double));
-    pFoil->normalizeGeometry();
+    for(int i=m_iLE+1; i<pFoil->m_nb; i++)
+    {
+        x = pFoil->m_x[i];
+        for(int j=0; j<halfdim; j++)
+        {
+            t1 = m_HHt1*double(j+1)/double(2*halfdim+1);
+            hh = HH(x, t1, m_HHt2) * particle.pos(halfdim+j);
+            pFoil->m_xb[i] += pFoil->m_nx[i] *hh;
+            pFoil->m_yb[i] += pFoil->m_ny[i] *hh;
+        }
+    }
+
+    pFoil->initFoil();
+
+    if(isOdd(particle.dimension()))
+    {
+        double angle = particle.position().last();
+        pFoil->setTEFlapAngle(angle);
+        pFoil->setFlap();
+    }
 }
 
 
@@ -76,48 +95,59 @@ void MOPSOTask2d::calcFitness(Particle *pParticle) const
 
     QString strange;
 
-    XFoilTask *task = new XFoilTask; // watch the stack
+    XFoilTask *task = new XFoilTask;
     XFoil const &xfoil = task->m_XFoilInstance;
     task->m_OutStream.setString(&strange);
     task->setSequence(true, m_Alpha, m_Alpha, 0.0);
     task->initializeXFoilTask(&tempfoil, m_pPolar, bViscous, bInitBL, false);
     task->run();
 
-    double Cl = LARGEVALUE;
-    double Cd = LARGEVALUE;
-    if(xfoil.lvconv)
-    {
-        Cl = xfoil.cl;
-        Cd = xfoil.cd;
-    }
-    else
-    {
-        // just to keep a reasonable scale for the Pareto graph
-        Cl = 2.0;
-        Cd = 0.5;
+    bool bConverged = xfoil.lvconv;
 
+
+    for(int i=0; i<m_Objective.size(); i++)
+    {
+        if      (m_Objective.at(i).m_Name=="Cl")     pParticle->setFitness(i, xfoil.cl);
+        else if (m_Objective.at(i).m_Name=="Cd")     pParticle->setFitness(i, xfoil.cd);
+        else if (m_Objective.at(i).m_Name=="Cl/Cd")  pParticle->setFitness(i, xfoil.cl/xfoil.cd);
+        else if (m_Objective.at(i).m_Name=="Cp_min") pParticle->setFitness(i, xfoil.cpmn);
+        else if (m_Objective.at(i).m_Name=="Cm")     pParticle->setFitness(i, xfoil.cm);
+        else if (m_Objective.at(i).m_Name=="Cm0")
+        {
+            task->setSequence(false, 0, 0, 0);
+            task->initializeXFoilTask(&tempfoil, m_pPolar, bViscous, bInitBL, false);
+            task->run();
+            bConverged = bConverged && xfoil.lvconv;
+            pParticle->setFitness(i, xfoil.cm);
+        }
     }
+
+    pParticle->setConverged(bConverged);
 
     delete task;
-
-    pParticle->setFitness(0, Cl);
-    pParticle->setFitness(1, Cd);
 }
 
 
 double MOPSOTask2d::error(const Particle *pParticle, int iObjective) const
 {
-    return fabs(pParticle->fitness(iObjective)-m_Objective.at(iObjective).m_Target);
+    if(!pParticle->isConverged()) return LARGEVALUE;
+
+    switch (m_Objective.at(iObjective).m_Type)
+    {
+        case xfl::MINIMIZE:
+        {
+            if(pParticle->fitness(iObjective) <= m_Objective.at(iObjective).m_Target)
+                return 0;
+            else
+                return fabs(pParticle->fitness(iObjective)-m_Objective.at(iObjective).m_Target);
+        }
+        case xfl::MAXIMIZE:
+            if(pParticle->fitness(iObjective) >= m_Objective.at(iObjective).m_Target)
+                return 0;
+            else
+                return fabs(pParticle->fitness(iObjective)-m_Objective.at(iObjective).m_Target);
+        default:
+        case xfl::EQUALIZE:
+            return fabs(pParticle->fitness(iObjective)-m_Objective.at(iObjective).m_Target);
+    }
 }
-
-
-/** Hicks-Henne bump function
- * parameter t1 controls the bump's position and t2 its width
- */
-double MOPSOTask2d::HH(double x, double t1, double t2) const
-{
-    if(x<=0.0 || x>=1.0) return 0.0;
-    return pow(sin(PI*pow(x, log(0.5)/log(t1))), t2);
-}
-
-

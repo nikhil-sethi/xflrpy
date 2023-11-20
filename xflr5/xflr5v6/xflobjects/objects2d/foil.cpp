@@ -19,13 +19,14 @@
 
 *****************************************************************************/
 
-
+#include <QDebug>
 #include <QTextStream>
 #include <QRandomGenerator>
 
 #include "foil.h"
 #include <xflgeom/geom2d/spline.h>
 #include <xflobjects/objects2d/polar.h>
+#include <xflobjects/objects_global.h>
 #include <xflcore/constants.h>
 
 
@@ -97,7 +98,7 @@ Foil::Foil()
 */
 void Foil::compMidLine(bool bParams)
 {
-    double xt=0, yex=0, yin=0, step=0, nx=0, ny=0;
+    double xt(0), yex(0), yin(0), step(0), nx(0), ny(0);
 
     if(bParams)
     {
@@ -143,7 +144,7 @@ void Foil::copyFoil(const Foil *pSrcFoil, bool bMetaData)
 {
     if(bMetaData)
     {
-        m_Name    = pSrcFoil->name();
+        m_Name        = pSrcFoil->name();
         m_bCenterLine = pSrcFoil->m_bCenterLine;
         m_theStyle    = pSrcFoil->theStyle();
     }
@@ -529,9 +530,8 @@ Vector2d Foil::lowerYRel(double xRel, double &normx, double &normy) const
 */
 void Foil::getLowerY(double x, double &y, double &normx, double &normy) const
 {
-    double nabs;
+    double nabs(0);
     x = m_rpIntrados[0].x + x*(m_rpIntrados[m_iInt].x-m_rpIntrados[0].x);
-
     if(x<=m_rpIntrados[0].x)
     {
         normx = -1.0;
@@ -607,6 +607,13 @@ void Foil::getUpperY(double x, double &y, double &normx, double &normy) const
 
 }
 
+/** don't.*/
+void Foil::storeModCoordinates()
+{
+    memcpy(m_xb, m_x, sizeof(m_x));
+    memcpy(m_yb, m_y, sizeof(m_y));
+}
+
 
 /**
 * Initializes the foil geometry, constructs the upper and lower points, and applies the flap deflection if requested.
@@ -660,6 +667,9 @@ bool Foil::initFoil()
     m_iInt = m_iBaseInt;
 
     compMidLine(true);
+    memcpy(m_x, m_xb, sizeof(m_xb));
+    memcpy(m_y, m_yb, sizeof(m_yb));
+    m_n = m_nb;
     memcpy(m_rpBaseMid, m_rpMid, sizeof(m_rpBaseMid));
 
 
@@ -675,7 +685,7 @@ bool Foil::initFoil()
     //the second time is to get the mid line of the current foil
     //i.e. with flaps eventually
     //used for the VLM analysis
-    k=0;
+/*    k=0;
     bNotFound = true;
     while (k<m_n)
     {
@@ -707,43 +717,15 @@ bool Foil::initFoil()
 
 
     compMidLine(false);
+
+    memcpy(m_x, m_xb, sizeof(m_xb));
+    memcpy(m_y, m_yb, sizeof(m_yb));
+    m_n = m_nb;*/
+
     return true;
 }
 
 
-/**
-*ABCD are assumed to lie in the xy plane
-*@return true and intersection point M if AB and CD intersect inside, false and intersection point M if AB and CD intersect outside
-*/
-bool Foil::intersect(Vector2d const &A, Vector2d const &B, Vector2d const &C, Vector2d const &D, Vector2d *M) const
-{
-    double Det, Det1, Det2, t, u;
-    Vector2d AB, CD;
-
-    M->set(0,0);
-    AB.set(B.x-A.x, B.y-A.y);
-    CD.set(D.x-C.x, D.y-C.y);
-
-    //Cramer's rule
-
-    Det  = -AB.x * CD.y + CD.x * AB.y;
-    if(Det==0.0)
-    {
-        //vectors are parallel, no intersection
-        return false;
-    }
-    Det1 = -(C.x-A.x)*CD.y + (C.y-A.y)*CD.x;
-    Det2 = -(C.x-A.x)*AB.y + (C.y-A.y)*AB.x;
-
-    t = Det1/Det;
-    u = Det2/Det;
-
-    M->x = A.x + t*AB.x;
-    M->y = A.y + t*AB.y;
-
-    if (0.0<=t && t<=1.0 && 0.0<=u && u<=1.0) return true;//M is between A and B
-    else                                      return false;//M is outside
-}
 
 
 /**
@@ -1023,7 +1005,7 @@ void Foil::setLEFlap()
     {
 
         //define a 3 ctrl-pt spline to smooth the connection between foil and flap on bottom side
-        intersect(m_rpIntrados[iLowerh-2], m_rpIntrados[iLowerh-1],
+        xfl::intersect(m_rpIntrados[iLowerh-2], m_rpIntrados[iLowerh-1],
                   m_rpIntrados[iLowerh],   m_rpIntrados[iLowerh+1], &M);
         //sanity check
         if(M.x <= m_rpIntrados[iLowerh-1].x || M.x >= m_rpIntrados[iLowerh].x)
@@ -1052,7 +1034,7 @@ void Foil::setLEFlap()
     {
 
         //define a 3 ctrl-pt spline to smooth the connection between foil and flap on bottom side
-        intersect(m_rpExtrados[iUpperh-2], m_rpExtrados[iUpperh-1],
+        xfl::intersect(m_rpExtrados[iUpperh-2], m_rpExtrados[iUpperh-1],
                   m_rpExtrados[iUpperh],   m_rpExtrados[iUpperh+1], &M);
 
         //sanity check
@@ -1088,7 +1070,7 @@ void Foil::setLEFlap()
     {
         for (k=i1;k<m_iExt; k++)
         {
-            if(intersect(m_rpExtrados[j], m_rpExtrados[j+1],
+            if(xfl::intersect(m_rpExtrados[j], m_rpExtrados[j+1],
                          m_rpExtrados[k], m_rpExtrados[k+1], &M))
             {
                 bIntersect = true;
@@ -1119,7 +1101,7 @@ void Foil::setLEFlap()
     {
         for (k=i1;k<m_iInt; k++)
         {
-            if(intersect(m_rpIntrados[j], m_rpIntrados[j+1],
+            if(xfl::intersect(m_rpIntrados[j], m_rpIntrados[j+1],
                          m_rpIntrados[k], m_rpIntrados[k+1], &M))
             {
                 bIntersect = true;
@@ -1267,7 +1249,7 @@ void Foil::setTEFlap()
     if(m_TEFlapAngle<0.0)
     {
         //define a 3 ctrl-pt spline to smooth the connection between foil and flap on bottom side
-        intersect(m_rpIntrados[iLowerh-1], m_rpIntrados[iLowerh],
+        xfl::intersect(m_rpIntrados[iLowerh-1], m_rpIntrados[iLowerh],
                   m_rpIntrados[iLowerh+1], m_rpIntrados[iLowerh+2], &M);
 
         //sanity check
@@ -1296,7 +1278,7 @@ void Foil::setTEFlap()
     else if(m_TEFlapAngle>0.0)
     {
         //define a 3 ctrl-pt spline to smooth the connection between foil and flap on top side
-        intersect(m_rpExtrados[iUpperh-1], m_rpExtrados[iUpperh],
+        xfl::intersect(m_rpExtrados[iUpperh-1], m_rpExtrados[iUpperh],
                   m_rpExtrados[iUpperh+1], m_rpExtrados[iUpperh+2], &M);
 
         //sanity check
@@ -1335,7 +1317,7 @@ void Foil::setTEFlap()
     {
         for (k=i1; k>0; k--)
         {
-            if(intersect(m_rpExtrados[j], m_rpExtrados[j+1], m_rpExtrados[k], m_rpExtrados[k-1], &M))
+            if(xfl::intersect(m_rpExtrados[j], m_rpExtrados[j+1], m_rpExtrados[k], m_rpExtrados[k-1], &M))
             {
                 bIntersect = true;
                 break;
@@ -1365,7 +1347,7 @@ void Foil::setTEFlap()
     {
         for (k=i1; k>0; k--)
         {
-            if(intersect(m_rpIntrados[j], m_rpIntrados[j+1], m_rpIntrados[k], m_rpIntrados[k-1], &M))
+            if(xfl::intersect(m_rpIntrados[j], m_rpIntrados[j+1], m_rpIntrados[k], m_rpIntrados[k-1], &M))
             {
                 bIntersect = true;
                 break;
@@ -1386,6 +1368,7 @@ void Foil::setTEFlap()
         m_iInt = k+p-1;
     }
 }
+
 
 /**
  * Creates the leading and trailing edge flaps on the current geometry.
@@ -1483,7 +1466,7 @@ void Foil::setEditStyle()
     setVisible(true);
     setColor(160,160,160);
     setLineStipple(Line::DASH);
-    setLineWidth(1);
+    setLineWidth(2);
     setVisible(true);
 }
 
@@ -1492,6 +1475,10 @@ QString Foil::properties() const
 {
     QString props, str1;
     props = m_Name + "\n";
+    if(!m_Description.isEmpty())
+    {
+        props += m_Description+"\n";
+    }
 
     str1 = QString(QObject::tr("Thickness         = %1")).arg(thickness()*100.0, 6, 'f', 2);
     props += str1 + "%\n";
@@ -1507,6 +1494,7 @@ QString Foil::properties() const
 
     str1 = QString(QObject::tr("Number of Panels  =  %1")).arg( m_n);
     props += str1;
+
 
     return props;
 }

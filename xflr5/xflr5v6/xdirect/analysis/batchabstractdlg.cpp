@@ -252,14 +252,9 @@ void BatchAbstractDlg::makeCommonWidgets()
         }
     }
 
-    m_pteTextOutput = new PlainTextOutput;
-    m_pteTextOutput->setReadOnly(true);
-    m_pteTextOutput->setLineWrapMode(QPlainTextEdit::NoWrap);
-    m_pteTextOutput->setWordWrapMode(QTextOption::NoWrap);
-    m_pteTextOutput->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_pteTextOutput->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    m_ppto = new PlainTextOutput;
     QFontMetrics fm(DisplayOptions::tableFont());
-    m_pteTextOutput->setMinimumWidth(67*fm.averageCharWidth());
+    m_ppto->setMinimumWidth(67*fm.averageCharWidth());
 
     m_pfrOptions = new QFrame;
     {
@@ -292,7 +287,7 @@ void BatchAbstractDlg::makeCommonWidgets()
         m_pButtonBox->addButton(m_ppbAdvancedSettings, QDialogButtonBox::ActionRole);
 
         QPushButton *ppbClearBtn = new QPushButton(tr("Clear Output"));
-        connect(ppbClearBtn, SIGNAL(clicked()), m_pteTextOutput, SLOT(clear()));
+        connect(ppbClearBtn, SIGNAL(clicked()), m_ppto, SLOT(clear()));
         m_pButtonBox->addButton(ppbClearBtn, QDialogButtonBox::ActionRole);
 
         m_ppbAnalyze   = new QPushButton(tr("Analyze"));
@@ -334,7 +329,7 @@ void BatchAbstractDlg::cleanUp()
     if(m_pXFile->isOpen())
     {
         QTextStream out(m_pXFile);
-        out<<m_pteTextOutput->toPlainText();
+        out<<m_ppto->toPlainText();
         m_pXFile->close();
     }
     m_pButtonBox->button(QDialogButtonBox::Close)->setEnabled(true);
@@ -411,8 +406,8 @@ void BatchAbstractDlg::initDialog()
         }
     }
 
-    m_pteTextOutput->clear();
-    m_pteTextOutput->setFont(DisplayOptions::tableFont());
+    m_ppto->clear();
+    m_ppto->setFont(DisplayOptions::tableFont());
 
 //    s_PolarType = xfl::FIXEDSPEEDPOLAR; //no choice...
     switch (s_PolarType)
@@ -612,7 +607,7 @@ void BatchAbstractDlg::writeString(QString &strong)
  */
 void BatchAbstractDlg::outputReList()
 {
-    m_pteTextOutput->appendPlainText(tr("Reynolds numbers to analyze:")+"\n");
+    m_ppto->appendPlainText(tr("Reynolds numbers to analyze:")+"\n");
 
     for(int i=0; i<s_ReList.count(); i++)
     {
@@ -622,11 +617,11 @@ void BatchAbstractDlg::outputReList()
                     .arg(s_ReList.at(i), 10,'f',0)
                     .arg(s_MachList.at(i), 5,'f',3)
                     .arg(s_NCritList.at(i), 5, 'f', 2);
-            m_pteTextOutput->appendPlainText(strong+"\n");
+            m_ppto->appendPlainText(strong+"\n");
         }
     }
 
-    m_pteTextOutput->appendPlainText("\n");
+    m_ppto->appendPlainText("\n");
 }
 
 

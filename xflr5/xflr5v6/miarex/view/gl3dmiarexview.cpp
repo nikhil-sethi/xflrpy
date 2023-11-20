@@ -771,6 +771,12 @@ void gl3dMiarexView::glMakeTransitions(int iWing, Wing const *pWing, WPolar cons
     if(!pWing || !pWPolar || !pWOpp) return;
     Vector3d Pt, N;
 
+    if(m_Ny[iWing]<=1)
+    {
+        m_vboTransitions[iWing].destroy();
+        return;
+    }
+
     int bufferSize = int(m_Ny[iWing]*6);
     QVector<float> pTransVertexArray(bufferSize);
     int iv=0;
@@ -871,7 +877,6 @@ void gl3dMiarexView::glMakeTransitions(int iWing, Wing const *pWing, WPolar cons
     }
 
     Q_ASSERT(iv==m_Ny[iWing]*6);
-
 
     m_vboTransitions[iWing].destroy();
     m_vboTransitions[iWing].create();
@@ -1148,6 +1153,12 @@ void gl3dMiarexView::glMakeLiftStrip(int iWing, const Wing *pWing, const WPolar 
     //dynamic pressure x area
     float q0 = 0.5f * float(pWPolar->density() * pWOpp->m_QInf * pWOpp->m_QInf);
 
+    if(m_Ny[iWing]<=1)
+    {
+        m_vboLiftStrips[iWing].destroy();
+        return;
+    }
+
     QVector<float> pLiftVertexArray(m_Ny[iWing]*9);
 
     int iv=0;
@@ -1350,6 +1361,12 @@ void gl3dMiarexView::glMakeDownwash(int iWing, const Wing *pWing, const WPolar *
     float cosa =  cosf(float(pWOpp->m_Alpha)*PIf/180.0f);
     float factor = float(s_VelocityScale)/5.0f;
 
+    if(m_Ny[iWing]<=1)
+    {
+        m_vboDownwash[iWing].destroy();
+        return;
+    }
+
     int bufferSize = m_Ny[iWing]*18;
     QVector<float> pDownWashVertexArray(bufferSize);
     int iv = 0;
@@ -1461,6 +1478,13 @@ void gl3dMiarexView::glMakeDragStrip(int iWing, const Wing *pWing, const WPolar 
     float sina = -float(sin(pWOpp->m_Alpha * PI/180.0));
     float cosb =  float(cos(-beta*PI/180.0));
     float sinb =  float(sin(-beta*PI/180.0));
+
+    if(m_Ny[iWing]<=1)
+    {
+        m_vboICd[iWing].destroy();
+        m_vboVCd[iWing].destroy();
+        return;
+    }
 
     int bufferSize = m_Ny[iWing]*9;
     QVector<float> pICdVertexArray(bufferSize);
@@ -2268,10 +2292,10 @@ void gl3dMiarexView::glMakePanels(QOpenGLBuffer &vboPanels,
     int ip = 0;
     for (int p=0; p<nPanels; p++)
     {
-        TA.copy(nodes[panels[p].m_iTA]);
-        TB.copy(nodes[panels[p].m_iTB]);
-        LA.copy(nodes[panels[p].m_iLA]);
-        LB.copy(nodes[panels[p].m_iLB]);
+        TA.copy(nodes[panels.at(p).m_iTA]);
+        TB.copy(nodes[panels.at(p).m_iTB]);
+        LA.copy(nodes[panels.at(p).m_iLA]);
+        LB.copy(nodes[panels.at(p).m_iLB]);
 
         // each quad is two triangles
         // write the first one

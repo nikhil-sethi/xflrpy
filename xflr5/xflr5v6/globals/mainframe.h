@@ -294,7 +294,7 @@ class MainFrame : public QMainWindow
         //AFoil Actions
         QAction *m_pZoomInAct, *m_pResetXScaleAct, *m_pResetYScaleAct, *m_pResetXYScaleAct;
         QAction *m_pZoomYAct, *m_pZoomLessAct, *m_pAFoilGridAct;
-        QAction *m_pAFoilDelete, *m_pAFoilRename, *m_pAFoilExport, *m_pAFoilDuplicateFoil;
+        QAction *m_pAFoilDelete, *m_pAFoilRename, *m_pAFoilSetDescription, *m_pAFoilExport, *m_pAFoilDuplicateFoil;
         QAction *m_pAFoilSetTEGap, *m_pAFoilSetLERadius, *m_pAFoilSetFlap, *m_pAFoilInterpolateFoils, *m_pAFoilNacaFoils;
         QAction *m_pAFoilDerotateFoil, *m_pAFoilNormalizeFoil, *m_pAFoilRefineLocalFoil, *m_pAFoilRefineGlobalFoil;
         QAction *m_pAFoilEditCoordsFoil, *m_pAFoilScaleFoil;
@@ -313,7 +313,7 @@ class MainFrame : public QMainWindow
         QAction *m_pW3DPrefsAct, *m_pW3DLightAct, *m_pW3DScalesAct, *m_pReset3DScale;
         QAction *m_pDefinePlaneAct, *m_pDefinePlaneObjectAct, *m_pEditPlaneAct, *m_pEditBodyAct, *m_pEditBodyObjectAct;
         QAction *m_pEditWingAct, *m_pEditStabAct, *m_pEditFinAct;
-        QAction *m_pSavePlaneAsProjectAct, *m_pRenameCurPlaneAct, *m_pDeleteCurPlane, *m_pDuplicateCurPlane;
+        QAction *m_pSavePlaneAsProjectAct, *m_pRenameCurPlaneAct, *m_pPlaneDescriptionAct,*m_pDeleteCurPlane, *m_pDuplicateCurPlane;
         QAction *m_pRenameCurWPolar, *m_pEditWPolarAct, *m_pEditWPolarPts, *m_pExportCurWPolar, *m_pResetCurWPolar;
         QAction *m_pDeleteCurWPolar, *m_pDeleteCurWOpp;
         QAction *m_pEditObjectAct, *m_pEditWPolarObjectAct;
@@ -349,6 +349,7 @@ class MainFrame : public QMainWindow
         QAction *m_pExportCurFoil, *m_pDeleteCurFoil, *m_pRenameCurFoil;
         QAction *m_pDerotateFoil, *m_pNormalizeFoil, *m_pRefineLocalFoil, *m_pRefineGlobalFoil , *m_pEditCoordsFoil, *m_pScaleFoil;
         QAction *m_pSetTEGap, *m_pSetLERadius, *m_pSetFlap, *m_pInterpolateFoils, *m_pNacaFoils, *m_pDirectDuplicateCurFoil;
+        QAction *m_pOptimize, *m_pEditDescription;
 
         QAction *m_pCurGraphDlgAct,*m_pExportCurGraphAct, *m_pResetCurGraphScales;
 

@@ -4214,6 +4214,7 @@ PlaneOpp* PanelAnalysis::createPlaneOpp(double *Cp, double const *Gamma, double 
 
         pPOpp->setAlpha(m_OpAlpha);
         pPOpp->m_QInf                = m_QInf;
+        pPOpp->m_Mass                = m_pWPolar->mass();
 
         pPOpp->m_CL  = m_Force.dot(xfl::windNormal(   m_OpAlpha, m_OpBeta));
         pPOpp->m_CX  = m_Force.dot(xfl::windDirection(m_OpAlpha, m_OpBeta));
@@ -4257,7 +4258,6 @@ PlaneOpp* PanelAnalysis::createPlaneOpp(double *Cp, double const *Gamma, double 
                     pPOpp->m_EigenVector[i+4][l] = m_vLat[4*i+l];
                 }
             }
-
 
             for(int i=0; i<4; i++)
             {

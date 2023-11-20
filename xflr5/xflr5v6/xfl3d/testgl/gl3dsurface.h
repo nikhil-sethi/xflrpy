@@ -10,6 +10,7 @@
 
 #include <xfl3d/testgl/gl3dtestglview.h>
 #include <xflgeom/geom2d/vector2d.h>
+
 class gl3dSurface : public gl3dTestGLView
 {
     public:

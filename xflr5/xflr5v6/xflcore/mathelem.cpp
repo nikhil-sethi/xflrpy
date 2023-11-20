@@ -217,72 +217,6 @@ double getDistribFraction(double tau, xfl::enumPanelDistribution DistType)
 }
 
 
-
-/** @todo use std::erf instead */
-double err_func(double x)
-{
-    // approximation from Abramowitz and Stegun (equations 7.1.25–28)
-    double p = 0.3275911;
-    double a1 = 0.254829592;
-    double a2 = -0.284496736;
-    double a3 = 1.421413741;
-    double a4 = -1.453152027;
-    double a5 = 1.061405429;
-
-    // All of these approximations are valid for x>0
-    // To use these approximations for negative x, use the fact that erf(x)
-    // is an odd function, so erf(x) = −erf(−x).
-    double ax = fabs(x);
-    double t = 1.0/(1.0 + p*ax);
-    double e = a1*t + a2*t*t + a3*t*t*t + a4*t*t*t*t + a5*t*t*t*t*t;
-    e *= exp(-ax*ax);
-
-#ifdef Q_OS_WIN
-    double nada = erf(x);
-    (void)nada;
-#endif
-
-    if(x>0.0) return 1.0-e;
-    else      return -(1.0-e);
-}
-
-
-/* compute inverse error functions with maximum error of 2.35793 ulp */
-double erf_inv(double a)
-{
-    float p(0), r(0), t(0);
-    t = fmaf (a, 0.0f - a, 1.0f);
-    t = log(t);
-    if (fabsf(t) > 6.125f)
-    { // maximum ulp error = 2.35793
-        p =              3.03697567e-10f; //  0x1.4deb44p-32
-        p = fmaf (p, t,  2.93243101e-8f); //  0x1.f7c9aep-26
-        p = fmaf (p, t,  1.22150334e-6f); //  0x1.47e512p-20
-        p = fmaf (p, t,  2.84108955e-5f); //  0x1.dca7dep-16
-        p = fmaf (p, t,  3.93552968e-4f); //  0x1.9cab92p-12
-        p = fmaf (p, t,  3.02698812e-3f); //  0x1.8cc0dep-9
-        p = fmaf (p, t,  4.83185798e-3f); //  0x1.3ca920p-8
-        p = fmaf (p, t, -2.64646143e-1f); // -0x1.0eff66p-2
-        p = fmaf (p, t,  8.40016484e-1f); //  0x1.ae16a4p-1
-    }
-    else
-    { // maximum ulp error = 2.35456
-        p =              5.43877832e-9f;  //  0x1.75c000p-28
-        p = fmaf (p, t,  1.43286059e-7f); //  0x1.33b458p-23
-        p = fmaf (p, t,  1.22775396e-6f); //  0x1.49929cp-20
-        p = fmaf (p, t,  1.12962631e-7f); //  0x1.e52bbap-24
-        p = fmaf (p, t, -5.61531961e-5f); // -0x1.d70c12p-15
-        p = fmaf (p, t, -1.47697705e-4f); // -0x1.35be9ap-13
-        p = fmaf (p, t,  2.31468701e-3f); //  0x1.2f6402p-9
-        p = fmaf (p, t,  1.15392562e-2f); //  0x1.7a1e4cp-7
-        p = fmaf (p, t, -2.32015476e-1f); // -0x1.db2aeep-3
-        p = fmaf (p, t,  8.86226892e-1f); //  0x1.c5bf88p-1
-    }
-    r = a * p;
-    return r;
-}
-
-
 /**
  * returns the ordinate y corresponding to coordinate x
  * on a line defined by points (x0,y0) and (x1,y1)
@@ -401,18 +335,6 @@ bool isBetween(int f, double f1, double f2)
 }
 
 
-bool isEven(int n)
-{
-    return n%2==0;
-}
-
-
-bool isOdd(int n)
-{
-    return n%2==1;
-}
-
-
 /** input uniformly spaced in [0,1], ouput bunched in [0,1]
     BunchAmp:  k=0.0 --> uniform bunching, k=1-->full varying bunch
     BunchDist: k=0.0 --> uniform bunching, k=1 weigth on endpoints
@@ -473,11 +395,10 @@ bool linearRegression(int n, double const *x, double const*y, double &a, double 
 /** Hicks-Henne bump function
  * parameter t1 controls the bump's position and t2 its width
  */
-double HH(double x, double t1, double t2, double xmin, double xmax)
+double HH(double x, double t1, double t2)
 {
-    if(x<=xmin || x>=xmax) return 0.0;
-    double xrel = (x-xmin)/(xmax-xmin);
-    return pow(sin(PI*pow(xrel, log(0.5)/log(t1))), t2);
+    if(x<=0.0 || x>=1.0) return 0.0;
+    return pow(sin(PI*pow(x, log(0.5)/log(t1))), t2);
 }
 
 
@@ -523,15 +444,18 @@ double Laguerre(int alpha, int k, double x)
 
 int factorial(int n)
 {
-    if     (n==0) return 1;
-    else if(n==1) return 1;
-    else if(n==2) return 2;
-    else if(n==3) return 6;
-    else if(n==4) return 24;
-    else if(n==5) return 120;
-    else if(n==6) return 750;
-    else if(n==7) return 5040;
-
+    switch(n)
+    {
+        case 0: return 1;
+        case 1: return 1;
+        case 2: return 2;
+        case 3: return 6;
+        case 4: return 24;
+        case 5: return 120;
+        case 6: return 750;
+        case 7: return 5040;
+        default: break;
+    }
     return n*factorial(n-1);
 }
 
@@ -592,17 +516,6 @@ void modeProperties(std::complex<double> lambda, double &omegaN, double &omega1,
         omegaN = 0.0;
         zeta = 0.0;
     }
-
-/*    double sum, prod, sigma1;
-    sum  = lambda.real() * 2.0;                         // is a real number
-    prod = lambda.real()*lambda.real() + lambda.imag()*lambda.imag();  // is a positive real number
-    omegaN = fabs(lambda.imag());
-    if(omegaN>PRECISION)    omega1 = sqrt(prod);
-    else                    omega1 = 0.0;
-    sigma1 = sum /2.0;
-    if(omega1>PRECISION) dsi = -sigma1/omega1;
-    else                 dsi = 0.0;
-    qDebug("old   %13.7f  %13.7f  %13.7f", omegaN/2/PI, omega1/2/PI, dsi);*/
 }
 
 

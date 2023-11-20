@@ -319,14 +319,12 @@ void Objects2d::deleteOppAt(int index)
 
 bool Objects2d::deleteOpp(OpPoint *pOpp)
 {
-    OpPoint* pOldOpp=nullptr;
-
     if(!pOpp) return false;
     if(pOpp == m_pCurOpp) m_pCurOpp = nullptr;
 
     for (int iOpp=0; iOpp<s_oaOpp.size(); iOpp++)
     {
-        pOldOpp = s_oaOpp.at(iOpp);
+        OpPoint* pOldOpp = s_oaOpp.at(iOpp);
         if (pOpp == pOldOpp)
         {
             s_oaOpp.removeAt(iOpp);
@@ -340,14 +338,12 @@ bool Objects2d::deleteOpp(OpPoint *pOpp)
 
 void Objects2d::deletePolar(Polar *pPolar)
 {
-    Polar* pOldPolar=nullptr;
-
     if(!pPolar) return;
     if(pPolar == m_pCurPolar) m_pCurPolar = nullptr;
 
     for (int iPolar=0; iPolar<s_oaPolar.size(); iPolar++)
     {
-        pOldPolar =s_oaPolar.at(iPolar);
+        Polar* pOldPolar =s_oaPolar.at(iPolar);
         if (pPolar == pOldPolar)
         {
             s_oaPolar.removeAt(iPolar);
@@ -382,6 +378,9 @@ void Objects2d::renameThisFoil(Foil *pFoil, QString const &newFoilName)
     OpPoint *pOpPoint(nullptr);
     QString oldFoilName = pFoil->name();
 
+    if(oldFoilName==newFoilName) return;
+
+
     //check that this Foil exists in the array
     bool bFound = false;
     for(int iFoil=0; iFoil<s_oaFoil.count(); iFoil++)
@@ -398,21 +397,23 @@ void Objects2d::renameThisFoil(Foil *pFoil, QString const &newFoilName)
         return;
     }
 
-    //rename it
-    pFoil->setName(newFoilName);
 
     //delete any former Foil with the new name
     for(int iFoil=0; iFoil<s_oaFoil.count(); iFoil++)
     {
         pOldFoil = s_oaFoil.at(iFoil);
-        if(pOldFoil->name() == oldFoilName)
+        if(pOldFoil->name() == newFoilName)
         {
             deleteThisFoil(pOldFoil);
             //continue loop to purge old duplicates, who knows.
         }
     }
+    pOldFoil = nullptr;
+
 
     //ready to rename
+    //rename it
+    pFoil->setName(newFoilName);
 
     //rename its children objects
     for (int iPolar=0; iPolar<s_oaPolar.size(); iPolar++)
@@ -460,8 +461,6 @@ void Objects2d::renameThisFoil(Foil *pFoil, QString const &newFoilName)
     //Not inserted, append
     s_oaFoil.append(pFoil);
 }
-
-
 
 
 OpPoint *Objects2d::getOpp(Foil *pFoil, Polar *pPolar, double Alpha)

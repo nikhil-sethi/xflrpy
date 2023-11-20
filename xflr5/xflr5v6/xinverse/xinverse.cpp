@@ -64,22 +64,21 @@ XInverse::XInverse(QWidget *parent) : QWidget(parent)
     m_pCurGraph = nullptr;
     m_pOverlayFoil = nullptr;
 
-    m_bTransGraph    = false;
+    m_bGetPos        = false;
     m_bLoaded        = false;
-    m_bZoomPlus      = false;
-    m_bShowPoints    = false;
-    m_bTangentSpline = false;
+    m_bMark          = false;
     m_bMarked        = false;
-    m_bTrans   = false;
-    m_bSpline  = false;
-    m_bSplined = true;
-    m_bRefFoil = true;
-    m_bModFoil = false;
-    m_bGetPos  = false;
-    m_bMark    = false;
-    m_bMarked  = false;
-    m_bSmooth  = false;
-    m_bXPressed = m_bYPressed = false;
+    m_bModFoil       = false;
+    m_bRefFoil       = true;
+    m_bShowPoints    = false;
+    m_bSmooth        = false;
+    m_bSpline        = false;
+    m_bSplined       = true;
+    m_bTangentSpline = false;
+    m_bTrans         = false;
+    m_bTransGraph    = false;
+    m_bXPressed      = m_bYPressed = false;
+    m_bZoomPlus      = false;
 
     m_fRefScale = m_fScale = m_fYScale = 1.0;
 
@@ -87,10 +86,10 @@ XInverse::XInverse(QWidget *parent) : QWidget(parent)
     m_pModFoil = new Foil();
     m_pRefFoil->setColor(255,100,100);
     m_pRefFoil->setLineStipple(Line::SOLID);
-    m_pRefFoil->setLineWidth(1);
+    m_pRefFoil->setLineWidth(2);
     m_pModFoil->setColor(100,100,255);
     m_pModFoil->setLineStipple(Line::SOLID);
-    m_pModFoil->setLineWidth(1);
+    m_pModFoil->setLineWidth(2);
 
 
     m_Spline.insertPoint(0.0,  0.0);
@@ -102,7 +101,7 @@ XInverse::XInverse(QWidget *parent) : QWidget(parent)
     m_Spline.splineCurve();
 
     m_Spline.setStipple(Line::SOLID);
-    m_Spline.setWidth(1);
+    m_Spline.setWidth(2);
     m_Spline.setColor(QColor(170,120, 0));
 
     m_ReflectedStyle.m_Stipple = Line::DASH;
@@ -142,13 +141,15 @@ XInverse::XInverse(QWidget *parent) : QWidget(parent)
     {
         m_pswInv->setCurrentIndex(1);
     }
+
+    connect(this, SIGNAL(projectModified()), s_pMainFrame, SLOT(onProjectModified()));
 }
 
 
 XInverse::~XInverse()
 {
-    delete m_pModFoil;
-    delete m_pRefFoil;
+    delete m_pModFoil;    m_pModFoil =  nullptr;
+    delete m_pRefFoil;    m_pRefFoil =  nullptr;
 }
 
 
@@ -1296,7 +1297,6 @@ void XInverse::onApplySpline()
 
     m_pmteOutput->append(tr("Spline is applied"));
     updateView();
-    emit projectModified();
 }
 
 
@@ -1335,7 +1335,6 @@ void XInverse::onExecute()
         execQDES();
     }
     updateView();
-    emit projectModified();
 }
 
 
@@ -1362,7 +1361,8 @@ void XInverse::onExtractFoil()
         Foil *pFoil = Objects2d::foil(dlg.selectedFoilName());
         XDirect::setCurFoil(pFoil);
 
-        m_pRefFoil->copyFoil(pFoil);
+        m_pRefFoil->copyFoil(pFoil, false);
+        m_pRefFoil->setName(pFoil->name());
 
         m_pModFoil->setName(m_pRefFoil->name() + tr(" Modified"));
         initXFoil(m_pRefFoil);
@@ -1614,8 +1614,11 @@ void XInverse::onQViscous()
 void XInverse::onQPoints()
 {
     m_bShowPoints = !m_bShowPoints;
-    m_pQCurve->setPointStyle(m_bShowPoints);
-    m_pMCurve->setPointStyle(m_bShowPoints);
+    if(m_bShowPoints)
+    {
+        m_pQCurve->setSymbol(Line::LITTLECIRCLE);
+        m_pMCurve->setSymbol(Line::LITTLECIRCLE);
+    }
     checkActions();
     updateView();
 }
@@ -1776,6 +1779,7 @@ void XInverse::onStoreFoil()
     {
         pNewFoil->setName(renDlg.newName());
         Objects2d::insertThisFoil(pNewFoil);
+        emit projectModified();
     }
     else
     {
@@ -1857,11 +1861,10 @@ void XInverse::paintGraph(QPainter &painter)
     //Draw spline, if any
     if(m_bSpline && !m_bGetPos)
     {
-
         QPoint pt = m_QGraph.offset();
 
         m_Spline.drawSpline(painter, 1.0/m_QGraph.xScale(), -1.0/m_QGraph.yScale(), pt);
-        m_Spline.drawCtrlPoints(painter, 1.0/m_QGraph.xScale(), -1.0/m_QGraph.yScale(), pt);
+        m_Spline.drawCtrlPoints(painter, 1.0/m_QGraph.xScale(), -1.0/m_QGraph.yScale(), pt, m_QGraph.backgroundColor());
 
     }
 
@@ -1944,7 +1947,8 @@ void XInverse::paintFoil(QPainter &painter)
         FoilPen.setWidth(m_pRefFoil->lineWidth());
         painter.setPen(FoilPen);
 
-        xfl::drawFoil(painter, m_pRefFoil, -alpha, m_fScale, m_fScale*m_fYScale, m_ptOffset);
+        xfl::drawFoil(      painter, m_pRefFoil, -alpha, m_fScale, m_fScale*m_fYScale, m_ptOffset);
+        xfl::drawFoilPoints(painter, m_pRefFoil, -alpha, m_fScale, m_fScale*m_fYScale, m_ptOffset, DisplayOptions::backgroundColor());
         painter.drawLine(20, m_rGraphRect.bottom()+20, 40, m_rGraphRect.bottom()+20);
         painter.setPen(TextPen);
         painter.drawText(50, m_rGraphRect.bottom()+25, m_pRefFoil->name());
@@ -1958,6 +1962,7 @@ void XInverse::paintFoil(QPainter &painter)
         painter.setPen(ModPen);
 
         xfl::drawFoil(painter, m_pModFoil, -alpha, m_fScale, m_fScale*m_fYScale, m_ptOffset);
+        xfl::drawFoilPoints(painter, m_pModFoil, -alpha, m_fScale, m_fScale*m_fYScale, m_ptOffset, DisplayOptions::backgroundColor());
         painter.drawLine(20, m_rGraphRect.bottom()+35, 40, m_rGraphRect.bottom()+35);
         painter.setPen(TextPen);
         painter.drawText(50, m_rGraphRect.bottom()+40, m_pModFoil->name());
@@ -2252,7 +2257,7 @@ bool XInverse::setParams()
     m_pMCurve->setName(tr("Q - Specification"));
     m_pQVCurve->setName(tr("Q - Viscous"));
     m_pQVCurve->setColor(QColor(50,170,0));
-    m_pQVCurve->setStipple(0);
+    m_pQVCurve->setStipple(Line::SOLID);
 
     m_pReflectedCurve->setLineStyle(m_ReflectedStyle);
     m_pReflectedCurve->setName(tr("Reflected"));
@@ -2288,7 +2293,7 @@ bool XInverse::setParams()
         {
             Foil *pFoil = Objects2d::foilAt(0);
             strFoilName = pFoil->name();
-            m_pRefFoil->copyFoil(pFoil);
+            m_pRefFoil->copyFoil(pFoil,false);
             m_pRefFoil->setColor(m_pQCurve->color().red(), m_pQCurve->color().green(), m_pQCurve->color().blue(), m_pQCurve->color().alpha());
             initXFoil(m_pRefFoil);
         }
@@ -2350,7 +2355,6 @@ void XInverse::setXInverseScale(QRect CltRect)
 
     resetScale();
 }
-
 
 
 /**

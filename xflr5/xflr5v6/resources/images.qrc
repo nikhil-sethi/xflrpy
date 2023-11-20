@@ -37,5 +37,7 @@
         <file>images/Lorenz.png</file>
         <file>images/Lorenz_inv.png</file>
         <file>images/unsaved.png</file>
+        <file>images/HH_inv.png</file>
+        <file>images/HH.png</file>
     </qresource>
 </RCC>

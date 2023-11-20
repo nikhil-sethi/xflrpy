@@ -58,6 +58,7 @@
 #include <xflobjects/editors/renamedlg.h>
 #include <xflobjects/objects2d/objects2d.h>
 #include <xflobjects/objects_global.h>
+#include <xflwidgets/customdlg/textdlg.h>
 #include <xflwidgets/customwts/doubleedit.h>
 #include <xflwidgets/customwts/mintextedit.h>
 #include <xflwidgets/line/linebtn.h>
@@ -320,8 +321,8 @@ void XDirect::createOppCurves(OpPoint *pOpp)
             if(m_bShowInviscid && pOpPoint && m_CpGraph.yVariable()<2 && pOpp==curOpp())
             {
                 Curve *pCpi = m_CpGraph.addCurve();
-                pCpi->setPointStyle(pOpPoint->pointStyle());
-                pCpi->setStipple(1);
+                pCpi->setSymbol(pOpPoint->pointStyle());
+                pCpi->setStipple(Line::DASH);
                 pCpi->setColor(pOpPoint->color().darker(150));
                 pCpi->setWidth(pOpPoint->lineWidth());
                 str= QString("-Re=%1-Alpha=%2_Inviscid").arg(pOpPoint->Reynolds(),8,'f',0).arg(pOpPoint->aoa(),5,'f',2);
@@ -884,11 +885,11 @@ void XDirect::keyPressEvent(QKeyEvent *pEvent)
             onInterpolateFoils();
             break;
         }
-        case Qt::Key_F12:
+/*        case Qt::Key_F12:
         {
             onOptim2d();
             break;
-        }
+        }*/
         default:
             QWidget::keyPressEvent(pEvent);
     }
@@ -1432,7 +1433,6 @@ void XDirect::onDeleteCurOpp()
 void XDirect::onDeleteCurPolar()
 {
     if(!Objects2d::curPolar()) return;
-    OpPoint *pOpPoint(nullptr);
 
     QString str;
 
@@ -1445,7 +1445,7 @@ void XDirect::onDeleteCurPolar()
         // start by removing all OpPoints
         for (int l=Objects2d::oppCount()-1; l>=0; l--)
         {
-            pOpPoint = Objects2d::oppAt(l);
+            OpPoint *pOpPoint = Objects2d::oppAt(l);
             if (pOpPoint->polarName()  == Objects2d::curPolar()->polarName() &&
                   pOpPoint->foilName() == Objects2d::curFoil()->name())
             {
@@ -1522,7 +1522,6 @@ void XDirect::onDeleteFoilOpps()
         if(pOpp->foilName()==Objects2d::curFoil()->name())
         {
             Objects2d::deleteOppAt(i);
-            delete pOpp;
         }
     }
     setCurOpp(nullptr);
@@ -4197,7 +4196,20 @@ void XDirect::onRenameCurFoil()
     renameFoil(Objects2d::curFoil());
     m_pFoilTreeView->fillModelView();
     setFoil(Objects2d::curFoil());
+    m_pFoilTreeView->setObjectProperties();
     emit projectModified();
+}
+
+
+void XDirect::onFoilDescription()
+{
+    if(!Objects2d::curFoil()) return;
+
+    TextDlg dlg(Objects2d::curFoil()->description(), this);
+
+    if(dlg.exec() != QDialog::Accepted) return;
+    Objects2d::curFoil()->setDescription(dlg.newText());
+    m_pFoilTreeView->setObjectProperties();
 }
 
 
@@ -4219,7 +4231,6 @@ Foil* XDirect::addNewFoil(Foil *pFoil)
 
     RenameDlg renDlg(s_pMainFrame);
     renDlg.initDialog(&NameList, pFoil->name(), tr("Enter the foil's new name"));
-
     if(renDlg.exec() != QDialog::Rejected)
     {
         pFoil->setName(renDlg.newName());
@@ -4229,7 +4240,6 @@ Foil* XDirect::addNewFoil(Foil *pFoil)
     }
     return nullptr;
 }
-
 
 
 /**

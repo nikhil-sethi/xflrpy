@@ -34,14 +34,13 @@ class MOPSOTask2d : public MOPSOTask
         void setPolar(Polar *pPolar) {m_pPolar=pPolar;}
         void setAlpha(double aoa) {m_Alpha=aoa;}
 
-        void setHHParams(int n, double t2, double amp) {m_HHn=n; m_HHt2=t2; m_HHmax=amp;}
+        void setHHParams(double t1, double t2, double amp) {m_HHt1=t1; m_HHt2=t2; m_HHmax=amp;}
 
         void makeFoil(Particle const &particle, Foil *pFoil) const;
 
     private:
         void calcFitness(Particle *pParticle) const override;
         double error(Particle const *pParticle, int iObjective) const override;
-        double HH(double x, double t1, double t2) const;
 
     private:
         Foil const *m_pFoil;
@@ -50,11 +49,12 @@ class MOPSOTask2d : public MOPSOTask
 
         int m_iLE;  /**< the index of the leading edge point for thee current aoa */
 
+        double m_HHt1;     /**< t1 parameter of the HH functions */
         double m_HHt2;     /**< t2 parameter of the HH functions */
-        int    m_HHn;      /**< number of HH functions to use */
         double m_HHmax;    /**< the max amplitude of the HH functions - unused and deined by the variable's amplitude*/
         double m_Alpha;
 
 };
 
 
+double HH(double x, double t1, double t2);

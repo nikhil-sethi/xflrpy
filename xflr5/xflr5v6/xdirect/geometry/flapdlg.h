@@ -52,8 +52,8 @@ class FlapDlg : public QDialog
 
     private slots:
         void onApply();
-        void onLEFlapCheck(int);
-        void onTEFlapCheck(int);
+        void onLEFlapCheck();
+        void onTEFlapCheck();
         void onChanged();
         void accept() override;
         void onButton(QAbstractButton *pButton);

@@ -171,7 +171,6 @@ void SplineCtrlsDlg::setupLayout()
                     m_ptvUpperList->setMinimumWidth(250);
                     m_ptvUpperList->setSelectionBehavior(QAbstractItemView::SelectRows);
                     pUpperSideLayout->addLayout(pUpperLayout);
-                    pUpperSideLayout->addStretch(1);
                     pUpperSideLayout->addWidget(m_ptvUpperList);
                 }
                 pUpperSideBox->setLayout(pUpperSideLayout);
@@ -200,7 +199,6 @@ void SplineCtrlsDlg::setupLayout()
                     m_ptvLowerList->setMinimumWidth(250);
                     m_ptvLowerList->setSelectionBehavior(QAbstractItemView::SelectRows);
                     pLowerSideLayout->addLayout(pLowerLayout);
-                    pLowerSideLayout->addStretch(1);
                     pLowerSideLayout->addWidget(m_ptvLowerList);
                 }
                 pLowerSideBox->setLayout(pLowerSideLayout);
@@ -233,11 +231,11 @@ void SplineCtrlsDlg::setupLayout()
         setLayout(pMainLayout);
     }
 
-    connect(m_pchSymetric,    SIGNAL(clicked()),         SLOT(onUpdate()));
-    connect(m_pcbDegExtrados, SIGNAL(activated(int)),    SLOT(onUpdate()));
-    connect(m_pcbDegIntrados, SIGNAL(activated(int)),    SLOT(onUpdate()));
-    connect(m_pieOutExtrados, SIGNAL(editingFinished()), SLOT(onUpdate()));
-    connect(m_pieOutIntrados, SIGNAL(editingFinished()), SLOT(onUpdate()));
+    connect(m_pchSymetric,    SIGNAL(clicked()),      SLOT(onUpdate()));
+    connect(m_pcbDegExtrados, SIGNAL(activated(int)), SLOT(onUpdate()));
+    connect(m_pcbDegIntrados, SIGNAL(activated(int)), SLOT(onUpdate()));
+    connect(m_pieOutExtrados, SIGNAL(valueChanged()), SLOT(onUpdate()));
+    connect(m_pieOutIntrados, SIGNAL(valueChanged()), SLOT(onUpdate()));
 }
 
 
@@ -329,7 +327,7 @@ void SplineCtrlsDlg::readData()
     }
 
     m_pSF->m_Extrados.m_iRes = m_pieOutExtrados->value();
-    m_pSF->m_Intrados.m_iRes = m_pieOutExtrados->value();
+    m_pSF->m_Intrados.m_iRes = m_pieOutIntrados->value();
     m_pSF->m_bSymetric = m_pchSymetric->isChecked();
 
     if(m_pSF->m_bSymetric)
@@ -411,12 +409,6 @@ void SplineCtrlsDlg::updateSplines()
     m_pSF->updateSplineFoil();
     s_pAFoil->m_p2dWidget->update();
 }
-
-
-
-
-
-
 
 
 

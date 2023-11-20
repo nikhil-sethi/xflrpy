@@ -144,20 +144,6 @@ MainFrame::MainFrame(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(paren
     setWindowTitle(xfl::versionName());
     setWindowIcon(QIcon(":/images/xflr5_64.png"));
 
-//    testConfiguration();
-
-    //    Settings sets(this);//to initialize the static variables
-    //"Qt does not support style hints on X11 since this information is not provided by the window system."
-    /*    DisplayOptions::textFont().setStyleHint(QFont::TypeWriter, QFont::OpenGLCompatible);
-    DisplayOptions::textFont().setStyleStrategy(QFont::OpenGLCompatible);
-    DisplayOptions::textFont().setFamily(DisplayOptions::textFont().defaultFamily());
-    DisplayOptions::textFont().setPointSize(9);
-
-    DisplayOptions::tableFont().setStyleHint(QFont::TypeWriter);
-    DisplayOptions::tableFont().setStyleStrategy(QFont::PreferDevice);
-    DisplayOptions::tableFont().setFamily(DisplayOptions::tableFont().defaultFamily());
-    DisplayOptions::tableFont().setPointSize(8);*/
-
     m_pdwMiarex = nullptr;
     m_pdwPlaneTreeView = nullptr;
 
@@ -531,6 +517,9 @@ void MainFrame::createAFoilActions()
     m_pAFoilRename->setShortcut(Qt::Key_F2);
     connect(m_pAFoilRename, SIGNAL(triggered()), m_pAFoil, SLOT(onRenameFoil()));
 
+    m_pAFoilSetDescription = new QAction(tr("Edit description"), this);
+    connect(m_pAFoilSetDescription, SIGNAL(triggered()), m_pAFoil, SLOT(onFoilDescription()));
+
     m_pAFoilExport = new QAction(tr("Export"), this);
     connect(m_pAFoilExport, SIGNAL(triggered()), m_pAFoil, SLOT(onExportCurFoil()));
 
@@ -666,6 +655,7 @@ void MainFrame::createAFoilMenus()
     m_pAFoilDesignMenu = menuBar()->addMenu(tr("F&oil"));
     {
         m_pAFoilDesignMenu->addAction(m_pAFoilRename);
+        m_pAFoilDesignMenu->addAction(m_pAFoilSetDescription);
         m_pAFoilDesignMenu->addAction(m_pAFoilDelete);
         m_pAFoilDesignMenu->addAction(m_pAFoilExport);
         m_pAFoilDesignMenu->addAction(m_pAFoilDuplicateFoil);
@@ -708,6 +698,7 @@ void MainFrame::createAFoilMenus()
         m_pAFoilDesignMenu_AFoilCtxMenu = m_pAFoilCtxMenu->addMenu(tr("F&oil"));
         {
             m_pAFoilDesignMenu_AFoilCtxMenu->addAction(m_pAFoilRename);
+            m_pAFoilDesignMenu_AFoilCtxMenu->addAction(m_pAFoilSetDescription);
             m_pAFoilDesignMenu_AFoilCtxMenu->addAction(m_pAFoilDelete);
             m_pAFoilDesignMenu_AFoilCtxMenu->addAction(m_pAFoilExport);
             m_pAFoilDesignMenu_AFoilCtxMenu->addAction(m_pAFoilDuplicateFoil);
@@ -771,6 +762,7 @@ void MainFrame::createAFoilMenus()
     m_pAFoilTableCtxMenu = new QMenu(tr("Foil Actions"),this);
     {
         m_pAFoilTableCtxMenu->addAction(m_pAFoilRename);
+        m_pAFoilTableCtxMenu->addAction(m_pAFoilSetDescription);
         m_pAFoilTableCtxMenu->addAction(m_pAFoilDelete);
         m_pAFoilTableCtxMenu->addAction(m_pAFoilExport);
         m_pAFoilTableCtxMenu->addAction(m_pAFoilDuplicateFoil);
@@ -1208,6 +1200,9 @@ void MainFrame::createMiarexActions()
     m_pRenameCurPlaneAct->setStatusTip(tr("Rename the currently selected object"));
     connect(m_pRenameCurPlaneAct, SIGNAL(triggered()), m_pMiarex, SLOT(onRenameCurPlane()));
 
+    m_pPlaneDescriptionAct = new QAction(tr("Edit description"), this);
+    connect(m_pPlaneDescriptionAct, SIGNAL(triggered()), m_pMiarex, SLOT(onPlaneDescription()));
+
     m_pExporttoAVL = new QAction(tr("Export to AVL"), this);
     m_pExporttoAVL->setStatusTip(tr("Export the current plane or wing to a text file in the format required by AVL"));
     connect(m_pExporttoAVL, SIGNAL(triggered()), m_pMiarex, SLOT(onExporttoAVL()));
@@ -1452,6 +1447,7 @@ void MainFrame::createMiarexMenus()
             m_pCurrentPlaneMenu->addAction(m_pEditBodyObjectAct);
             m_pCurrentPlaneMenu->addSeparator();
             m_pCurrentPlaneMenu->addAction(m_pRenameCurPlaneAct);
+            m_pCurrentPlaneMenu->addAction(m_pPlaneDescriptionAct);
             m_pCurrentPlaneMenu->addAction(m_pDuplicateCurPlane);
             m_pCurrentPlaneMenu->addAction(m_pDeleteCurPlane);
             m_pCurrentPlaneMenu->addAction(m_pSavePlaneAsProjectAct);
@@ -1563,6 +1559,7 @@ void MainFrame::createMiarexMenus()
             m_pCurrentPlaneMenu_WOppCtxMenu->addAction(m_pEditBodyObjectAct);
             m_pCurrentPlaneMenu_WOppCtxMenu->addSeparator();
             m_pCurrentPlaneMenu_WOppCtxMenu->addAction(m_pRenameCurPlaneAct);
+            m_pCurrentPlaneMenu_WOppCtxMenu->addAction(m_pPlaneDescriptionAct);
             m_pCurrentPlaneMenu_WOppCtxMenu->addAction(m_pDuplicateCurPlane);
             m_pCurrentPlaneMenu_WOppCtxMenu->addAction(m_pDeleteCurPlane);
             m_pCurrentPlaneMenu_WOppCtxMenu->addAction(m_pSavePlaneAsProjectAct);
@@ -1657,6 +1654,7 @@ void MainFrame::createMiarexMenus()
             m_pCurrentPlaneMenu_WCpCtxMenu->addAction(m_pEditBodyObjectAct);
             m_pCurrentPlaneMenu_WCpCtxMenu->addSeparator();
             m_pCurrentPlaneMenu_WCpCtxMenu->addAction(m_pRenameCurPlaneAct);
+            m_pCurrentPlaneMenu_WCpCtxMenu->addAction(m_pPlaneDescriptionAct);
             m_pCurrentPlaneMenu_WCpCtxMenu->addAction(m_pDuplicateCurPlane);
             m_pCurrentPlaneMenu_WCpCtxMenu->addAction(m_pDeleteCurPlane);
             m_pCurrentPlaneMenu_WCpCtxMenu->addAction(m_pSavePlaneAsProjectAct);
@@ -1736,6 +1734,7 @@ void MainFrame::createMiarexMenus()
             m_pCurrentPlaneMenu_WTimeCtxMenu->addAction(m_pEditBodyObjectAct);
             m_pCurrentPlaneMenu_WTimeCtxMenu->addSeparator();
             m_pCurrentPlaneMenu_WTimeCtxMenu->addAction(m_pRenameCurPlaneAct);
+            m_pCurrentPlaneMenu_WTimeCtxMenu->addAction(m_pPlaneDescriptionAct);
             m_pCurrentPlaneMenu_WTimeCtxMenu->addAction(m_pDuplicateCurPlane);
             m_pCurrentPlaneMenu_WTimeCtxMenu->addAction(m_pDeleteCurPlane);
             m_pCurrentPlaneMenu_WTimeCtxMenu->addAction(m_pSavePlaneAsProjectAct);
@@ -1823,6 +1822,7 @@ void MainFrame::createMiarexMenus()
             m_pCurrentPlaneMenu_WPlrCtxMenu->addAction(m_pEditBodyObjectAct);
             m_pCurrentPlaneMenu_WPlrCtxMenu->addSeparator();
             m_pCurrentPlaneMenu_WPlrCtxMenu->addAction(m_pRenameCurPlaneAct);
+            m_pCurrentPlaneMenu_WPlrCtxMenu->addAction(m_pPlaneDescriptionAct);
             m_pCurrentPlaneMenu_WPlrCtxMenu->addAction(m_pDuplicateCurPlane);
             m_pCurrentPlaneMenu_WPlrCtxMenu->addAction(m_pDeleteCurPlane);
             m_pCurrentPlaneMenu_WPlrCtxMenu->addAction(m_pSavePlaneAsProjectAct);
@@ -1901,6 +1901,7 @@ void MainFrame::createMiarexMenus()
             m_pCurrentPlaneMenu_W3DCtxMenu->addAction(m_pEditBodyObjectAct);
             m_pCurrentPlaneMenu_W3DCtxMenu->addSeparator();
             m_pCurrentPlaneMenu_W3DCtxMenu->addAction(m_pRenameCurPlaneAct);
+            m_pCurrentPlaneMenu_W3DCtxMenu->addAction(m_pPlaneDescriptionAct);
             m_pCurrentPlaneMenu_W3DCtxMenu->addAction(m_pDuplicateCurPlane);
             m_pCurrentPlaneMenu_W3DCtxMenu->addAction(m_pDeleteCurPlane);
             m_pCurrentPlaneMenu_W3DCtxMenu->addAction(m_pSavePlaneAsProjectAct);
@@ -1984,6 +1985,7 @@ void MainFrame::createMiarexMenus()
             m_pCurrentPlaneMenu_W3DStabCtxMenu->addAction(m_pEditBodyObjectAct);
             m_pCurrentPlaneMenu_W3DStabCtxMenu->addSeparator();
             m_pCurrentPlaneMenu_W3DStabCtxMenu->addAction(m_pRenameCurPlaneAct);
+            m_pCurrentPlaneMenu_W3DStabCtxMenu->addAction(m_pPlaneDescriptionAct);
             m_pCurrentPlaneMenu_W3DStabCtxMenu->addAction(m_pDuplicateCurPlane);
             m_pCurrentPlaneMenu_W3DStabCtxMenu->addAction(m_pDeleteCurPlane);
             m_pCurrentPlaneMenu_W3DStabCtxMenu->addAction(m_pSavePlaneAsProjectAct);
@@ -2125,6 +2127,9 @@ void MainFrame::createXDirectActions()
     m_pRenameCurFoil = new QAction(tr("Rename")/*+"\tF2"*/, this);
     m_pRenameCurFoil->setShortcut(Qt::Key_F2);
     connect(m_pRenameCurFoil, SIGNAL(triggered()), m_pXDirect, SLOT(onRenameCurFoil()));
+
+    m_pEditDescription = new QAction(tr("Edit Description"), this);
+    connect(m_pEditDescription, SIGNAL(triggered()), m_pXDirect, SLOT(onFoilDescription()));
 
     m_pExportCurFoil = new QAction(tr("Export"), this);
     connect(m_pExportCurFoil, SIGNAL(triggered()), m_pXDirect, SLOT(onExportCurFoil()));
@@ -2283,7 +2288,11 @@ void MainFrame::createXDirectActions()
     m_pSetFlap->setShortcut(Qt::Key_F10);
     connect(m_pSetFlap, SIGNAL(triggered()), m_pXDirect, SLOT(onSetFlap()));
 
-    m_pInterpolateFoils = new QAction(tr("Interpolate Foils")/*+"\t(F11)"*/, this);
+    m_pOptimize = new QAction(tr("Optimize"), this);
+    m_pOptimize->setShortcut(Qt::Key_F12);
+    connect(m_pOptimize, SIGNAL(triggered()), m_pXDirect, SLOT(onOptim2d()));
+
+    m_pInterpolateFoils = new QAction(tr("Interpolate Foils"), this);
     m_pInterpolateFoils->setShortcut(Qt::Key_F11);
     connect(m_pInterpolateFoils, SIGNAL(triggered()), m_pXDirect, SLOT(onInterpolateFoils()));
 
@@ -2340,8 +2349,11 @@ void MainFrame::createXDirectMenus()
             m_pCurrentFoilMenu->addSeparator();
             m_pCurrentFoilMenu->addAction(m_pExportCurFoil);
             m_pCurrentFoilMenu->addAction(m_pRenameCurFoil);
+            m_pCurrentFoilMenu->addAction(m_pEditDescription);
             m_pCurrentFoilMenu->addAction(m_pDeleteCurFoil);
             m_pCurrentFoilMenu->addAction(m_pDirectDuplicateCurFoil);
+            m_pCurrentFoilMenu->addSeparator();
+            m_pCurrentFoilMenu->addAction(m_pOptimize);
             m_pCurrentFoilMenu->addSeparator();
             m_pCurrentFoilMenu->addAction(m_pShowFoilPolarsOnly);
             m_pCurrentFoilMenu->addAction(m_pShowFoilPolars);
@@ -2458,8 +2470,11 @@ void MainFrame::createXDirectMenus()
             m_pCurrentFoilMenu_OperFoilCtxMenu->addSeparator();
             m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pExportCurFoil);
             m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pRenameCurFoil);
+            m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pEditDescription);
             m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pDeleteCurFoil);
             m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pDirectDuplicateCurFoil);
+            m_pCurrentFoilMenu_OperFoilCtxMenu->addSeparator();
+            m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pOptimize);
             m_pCurrentFoilMenu_OperFoilCtxMenu->addSeparator();
             m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pShowFoilPolarsOnly);
             m_pCurrentFoilMenu_OperFoilCtxMenu->addAction(m_pShowFoilPolars);
@@ -2557,8 +2572,11 @@ void MainFrame::createXDirectMenus()
             m_pCurrentFoilMenu_OperPolarCtxMenu->addSeparator();
             m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pExportCurFoil);
             m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pRenameCurFoil);
+            m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pEditDescription);
             m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pDeleteCurFoil);
             m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pDirectDuplicateCurFoil);
+            m_pCurrentFoilMenu_OperPolarCtxMenu->addSeparator();
+            m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pOptimize);
             m_pCurrentFoilMenu_OperPolarCtxMenu->addSeparator();
             m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pShowFoilPolarsOnly);
             m_pCurrentFoilMenu_OperPolarCtxMenu->addAction(m_pShowFoilPolars);
@@ -3732,7 +3750,7 @@ void MainFrame::onNewProject()
             if(saveProject(m_FileName))
             {
                 deleteProject();
-                statusBar()->showMessage(tr("The project ") + s_ProjectName + tr(" has been saved"));
+                statusBar()->showMessage(tr("The project ") + s_ProjectName + tr(" has been saved"), 5000);
             }
             else return; //save failed, don't close
         }
@@ -3810,14 +3828,17 @@ void MainFrame::onRestoreToolbars()
 
         m_ptbXDirect->show();
         m_pdwXDirect->show();
+        m_pdwXDirect->setFloating(false);
+        m_pdwFoilTreeView->show();
+        m_pdwFoilTreeView->setFloating(false);
     }
     else if(m_iApp==xfl::DIRECTDESIGN)
     {
         m_ptbXInverse->hide();
         m_ptbMiarex->hide();
         m_ptbXDirect->hide();
-        m_pdwPlaneTreeView->hide();
         m_pdwFoilTreeView->hide();
+        m_pdwPlaneTreeView->hide();
         m_pdw3DScales->hide();
 
         m_pdwXDirect->hide();
@@ -3827,21 +3848,24 @@ void MainFrame::onRestoreToolbars()
 
         m_ptbAFoil->show();
         m_pdwAFoil->show();
+        m_pdwAFoil->setFloating(false);
     }
     else if(m_iApp==xfl::INVERSEDESIGN)
     {
         m_ptbAFoil->hide();
         m_ptbMiarex->hide();
         m_ptbXDirect->hide();
-                m_pdw3DScales->hide();
+        m_pdw3DScales->hide();
         m_pdwStabView->hide();
-
+        m_pdwFoilTreeView->hide();
+        m_pdwPlaneTreeView->hide();
         m_pdwAFoil->hide();
         m_pdwXDirect->hide();
         m_pdwMiarex->hide();
 
         m_ptbXInverse->show();
         m_pdwXInverse->show();
+        m_pdwXInverse->setFloating(false);
     }
     else if(m_iApp==xfl::MIAREX)
     {
@@ -3849,13 +3873,18 @@ void MainFrame::onRestoreToolbars()
         m_ptbAFoil->hide();
         m_ptbXDirect->hide();
         m_pdw3DScales->hide();
-        m_pdwPlaneTreeView->hide();
+        m_pdwFoilTreeView->hide();
 
         m_pdwAFoil->hide();
         m_pdwXDirect->hide();
         m_pdwXInverse->hide();
-        m_pdwMiarex->show();
+
         m_ptbMiarex->show();
+        m_pdwMiarex->show();
+        m_pdwMiarex->setFloating(false);
+        m_pdwPlaneTreeView->show();
+        m_pdwPlaneTreeView->setFloating(false);
+
     }
 }
 
@@ -3865,7 +3894,7 @@ void MainFrame::onSaveTimer()
     if (!s_ProjectName.length()) return;
     if(saveProject(m_FileName))
     {
-        statusBar()->showMessage(tr("The project ") + s_ProjectName + tr(" has been saved"));
+        statusBar()->showMessage(tr("The project ") + s_ProjectName + tr(" has been saved"), 5000);
     }
 }
 
@@ -3880,7 +3909,7 @@ void MainFrame::onSaveProject()
     if(saveProject(m_FileName))
     {
         addRecentFile(m_FileName);
-        statusBar()->showMessage(tr("The project ") + s_ProjectName + tr(" has been saved"));
+        statusBar()->showMessage(tr("The project ") + s_ProjectName + tr(" has been saved"), 5000);
     }
     m_pMiarex->updateView();
 }
@@ -3892,7 +3921,7 @@ bool MainFrame::onSaveProjectAs()
     {
         setProjectName(m_FileName);
         addRecentFile(m_FileName);
-        statusBar()->showMessage(tr("The project ") + s_ProjectName + tr(" has been saved"));
+        statusBar()->showMessage(tr("The project ") + s_ProjectName + tr(" has been saved"), 5000);
     }
 
     return true;
@@ -3903,7 +3932,7 @@ bool MainFrame::onSaveProjectAs(const QString &pathName)
 {
     saveProject(pathName);
     setProjectName(pathName);
-    statusBar()->showMessage(tr("The project ") + pathName + tr(" has been saved\n\n"));
+    statusBar()->showMessage(tr("The project ") + pathName + tr(" has been saved\n\n"), 5000);
     return true;
 }
 
@@ -4467,7 +4496,7 @@ bool MainFrame::serializePlaneProject(QDataStream &ar)
     }
 
 
-    ar << polarList.size();
+    ar << int(polarList.size());
     for (int ip=0; ip<polarList.size();ip++)
     {
         serializePolarXFL(polarList.at(ip), ar, true);
@@ -5982,7 +6011,7 @@ bool MainFrame::serializeFoilXFL(Foil *pFoil, QDataStream &ar, bool bIsStoring)
     {
         ar << ArchiveFormat;
         ar << pFoil->name();
-        ar << pFoil->m_FoilDescription;
+        ar << pFoil->m_Description;
 
 /*        ar << pFoil->m_Stipple << pFoil->m_Width;
         writeColor(ar, pFoil->red(), pFoil->green(), pFoil->blue(), pFoil->alphaChannel());
@@ -6036,9 +6065,6 @@ bool MainFrame::serializeFoilXFL(Foil *pFoil, QDataStream &ar, bool bIsStoring)
             ar >> pFoil->m_xb[j] >> pFoil->m_yb[j];
         }
 
-        memcpy(pFoil->m_x, pFoil->m_xb, sizeof(pFoil->m_xb));
-        memcpy(pFoil->m_y, pFoil->m_yb, sizeof(pFoil->m_yb));
-        pFoil->m_n = pFoil->m_nb;
 
         pFoil->initFoil();
         pFoil->setFlap();
@@ -6235,7 +6261,7 @@ void MainFrame::onPreferences()
         saveSettings();
     }
 
-    if(dlg.m_pDisplayOptionsWt->m_bIsGraphModified)
+    if(dlg.m_pDisplayOptionsWt->bIsGraphModified())
     {
         setGraphSettings(&Settings::s_RefGraph);
     }

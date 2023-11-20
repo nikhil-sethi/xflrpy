@@ -8,6 +8,7 @@
 
 #include <QApplication>
 #include <QRandomGenerator>
+#include <QGridLayout>
 #include <QFormLayout>
 #include <QLabel>
 
@@ -18,9 +19,11 @@
 #include <xfl3d/views/gl3dview.h> // for the static variables
 #include <xflwidgets/customwts/intedit.h>
 #include <xflwidgets/customwts/doubleedit.h>
+#include <xflwidgets/color/colormenubtn.h>
 #include <xflwidgets/wt_globals.h>
 
-int gl2dNewton::s_MaxIter = 64;
+
+int gl2dNewton::s_MaxIter = 32;
 float gl2dNewton::s_Tolerance = 1.e-6f;
 QColor gl2dNewton::s_Colors[5] = {QColor(77,27,21), QColor(75,111,117), QColor(11,47,77), QColor(77,77,77), QColor(131,120,107)};
 
@@ -32,7 +35,7 @@ gl2dNewton::gl2dNewton(QWidget *pParent) : gl2dView(pParent)
     m_rectView = QRectF(-1.0, -1.0, 2.0, 2.0);
 
     m_bResetRoots = true;
-    m_nRoots = 3;
+
     m_iHoveredRoot = m_iSelectedRoot = -1;
 
     m_Time = 0;
@@ -48,12 +51,12 @@ gl2dNewton::gl2dNewton(QWidget *pParent) : gl2dView(pParent)
     m_locNRoots    = -1;
     for(int i=0; i<MAXROOTS; i++) m_locColor[i] = m_locRoot[i] = -1;
 
-    QFrame *pFrame = new QFrame(this);
+    QFrame *m_pCmdFrame = new QFrame(this);
     {
-        pFrame->setCursor(Qt::ArrowCursor);
+        m_pCmdFrame->setCursor(Qt::ArrowCursor);
 
-        pFrame->setFrameShape(QFrame::NoFrame);
-        pFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        m_pCmdFrame->setFrameShape(QFrame::NoFrame);
+        m_pCmdFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
         QVBoxLayout *pFrameLayout = new QVBoxLayout;
         {
@@ -92,7 +95,6 @@ gl2dNewton::gl2dNewton(QWidget *pParent) : gl2dView(pParent)
             m_plabScale = new QLabel();
             m_plabScale->setFont(DisplayOptions::textFont());
 
-
             QLabel *pRefLink = new QLabel;
             pRefLink->setText("Inspired by <a href=https://youtu.be/-RdOwhmqP5s>3Blue1Brown's YouTube video</a>");
             pRefLink->setOpenExternalLinks(true);
@@ -105,26 +107,18 @@ gl2dNewton::gl2dNewton(QWidget *pParent) : gl2dView(pParent)
             pFrameLayout->addWidget(m_pchShowRoots);
             pFrameLayout->addWidget(m_pchAnimateRoots);
             pFrameLayout->addWidget(m_plabScale);
+
             pFrameLayout->addWidget(pRefLink);
         }
 
-        pFrame->setLayout(pFrameLayout);
+        m_pCmdFrame->setLayout(pFrameLayout);
 
-        QPalette palette;
-        palette.setColor(QPalette::WindowText, Qt::white);
-        palette.setColor(QPalette::Text,  Qt::white);
-        QColor clr = gl3dView::backColor();
-        clr.setAlpha(0);
-        palette.setColor(QPalette::Window, clr);
-        palette.setColor(QPalette::Base, clr);
-
-        pFrame->setStyleSheet("QFrame{background-color: transparent; color: white}"
+        m_pCmdFrame->setStyleSheet("QFrame{background-color: transparent; color: white}"
                               "QRadioButton{background-color: transparent; color: white}"
                               "QCheckBox{background-color: transparent; color: white}");
-//        setWidgetStyle(pFrame, palette);
-//        pFrame->setPalette(palette);
-    }
 
+//        setWidgetStyle(pFrame, palette);
+    }
     connect(&m_Timer, SIGNAL(timeout()), SLOT(onMoveRoots()));
 
     onNRoots();
@@ -155,7 +149,7 @@ void gl2dNewton::saveSettings(QSettings &settings)
 
 void gl2dNewton::initializeGL()
 {
-    QString strange, vsrc, fsrc;
+    QString strange, vsrc, gsrc, fsrc;
     vsrc = ":/shaders/newton/newton_VS.glsl";
     m_shadNewton.addShaderFromSourceFile(QOpenGLShader::Vertex, vsrc);
     if(m_shadNewton.log().length())
@@ -190,12 +184,59 @@ void gl2dNewton::initializeGL()
     }
     m_shadNewton.release();
 
-    gl2dView::initializeGL();
+    vsrc = ":/shaders/point/point_VS.glsl";
+    m_shadPoint.addShaderFromSourceFile(QOpenGLShader::Vertex, vsrc);
+    if(m_shadPoint.log().length())
+    {
+        strange = QString::asprintf("%s", QString("Point vertex shader log:"+m_shadPoint.log()).toStdString().c_str());
+        trace(strange);
+    }
+
+    gsrc = ":/shaders/point/point_GS.glsl";
+    m_shadPoint.addShaderFromSourceFile(QOpenGLShader::Geometry, gsrc);
+    if(m_shadPoint.log().length())
+    {
+        strange = QString::asprintf("%s", QString("Point geometry shader log:"+m_shadPoint.log()).toStdString().c_str());
+        trace(strange);
+    }
+
+    fsrc = ":/shaders/point/point_FS.glsl";
+    m_shadPoint.addShaderFromSourceFile(QOpenGLShader::Fragment, fsrc);
+    if(m_shadPoint.log().length())
+    {
+        strange = QString::asprintf("%s", QString("Point fragment shader log:"+m_shadPoint.log()).toStdString().c_str());
+        trace(strange);
+    }
+
+    m_shadPoint.link();
+    m_shadPoint.bind();
+    {
+        m_locPoint.m_attrVertex = m_shadPoint.attributeLocation("vertexPosition_modelSpace");
+        m_locPoint.m_State  = m_shadPoint.attributeLocation("PointState");
+        m_locPoint.m_vmMatrix   = m_shadPoint.uniformLocation("vmMatrix");
+        m_locPoint.m_pvmMatrix  = m_shadPoint.uniformLocation("pvmMatrix");
+        m_locPoint.m_ClipPlane  = m_shadPoint.uniformLocation("clipPlane0");
+        m_locPoint.m_UniColor   = m_shadPoint.uniformLocation("Color");
+        m_locPoint.m_Thickness  = m_shadPoint.uniformLocation("Thickness");
+        m_locPoint.m_Shape      = m_shadPoint.uniformLocation("Shape");
+        m_locPoint.m_Viewport   = m_shadPoint.uniformLocation("Viewport");
+        m_locPoint.m_Light      = m_shadPoint.uniformLocation("LightOn");
+        m_locPoint.m_TwoSided   = m_shadPoint.uniformLocation("TwoSided");
+    }
+    m_shadPoint.release();
+
+    makeQuad();
 }
 
 
 void gl2dNewton::paintGL()
 {
+    glClearColor(float(DisplayOptions::backgroundColor().redF()), float(DisplayOptions::backgroundColor().greenF()), float(DisplayOptions::backgroundColor().blueF()), 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_DEPTH_TEST);
+
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
     float ratio = float(width())/float(height());
     double w = m_rectView.width();
@@ -210,8 +251,9 @@ void gl2dNewton::paintGL()
         m_shadNewton.setUniformValue(m_locTolerance, s_Tolerance);
         m_shadNewton.setUniformValue(m_locViewRatio, ratio);
 
-        m_shadNewton.setUniformValue(m_locNRoots, m_nRoots);
-        for(int i=0; i<m_nRoots; i++)
+        int nroots = m_prb3roots->isChecked() ? 3 : 5;
+        m_shadNewton.setUniformValue(m_locNRoots, nroots);
+        for(int i=0; i<nroots; i++)
         {
             m_shadNewton.setUniformValue(m_locColor[i], s_Colors[i]);
             m_shadNewton.setUniformValue(m_locRoot[i], m_Root[i]);
@@ -239,16 +281,18 @@ void gl2dNewton::paintGL()
 
     if(m_pchShowRoots->isChecked())
     {
+
         if(m_bResetRoots)
         {
-            int buffersize = m_nRoots*4;
+            int nroots = m_prb3roots->isChecked() ? 3 : 5;
+            int buffersize = nroots*4;
             QVector<float> pts(buffersize);
             int iv = 0;
-            for(int is=0; is<m_nRoots; is++)
+            for(int is=0; is<nroots; is++)
             {
                 pts[iv++] = m_Root[is].x();
                 pts[iv++] = m_Root[is].y();
-                pts[iv++] = 0.0f;
+                pts[iv++] = 1.0f;
                 if (is==m_iSelectedRoot || is==m_iHoveredRoot)
                     pts[iv++] = 1.0f;
                 else
@@ -278,17 +322,19 @@ void gl2dNewton::paintGL()
         QMatrix4x4 vmMat(m_matView*m_matModel);
         QMatrix4x4 pvmMat(m_matProj*vmMat);
 
+
         m_shadPoint.bind();
         {
             float m_ClipPlanePos(500.0);
             m_shadPoint.setUniformValue(m_locPoint.m_ClipPlane, m_ClipPlanePos);
             m_shadPoint.setUniformValue(m_locPoint.m_Viewport, QVector2D(float(m_GLViewRect.width()), float(m_GLViewRect.height())));
+    //        m_shadPoint.setUniformValue(m_locPoint.m_Viewport, QVector2D(float(m_rectView.width()), float(m_rectView.height())));
             m_shadPoint.setUniformValue(m_locPoint.m_vmMatrix,  vmMat);
             m_shadPoint.setUniformValue(m_locPoint.m_pvmMatrix, pvmMat);
         }
         m_shadPoint.release();
 
-        paintPoints(m_vboRoots, 1.0, 0, false, Qt::white, 4);
+        paintPoints(m_vboRoots, 2.0, 0, false, Qt::white, 4);
     }
 
     m_plabScale->setText(QString::asprintf("Scale = %g", m_Scale));
@@ -303,15 +349,25 @@ void gl2dNewton::paintGL()
 
 void gl2dNewton::onNRoots()
 {
-    if     (m_prb3roots->isChecked()) m_nRoots = 3;
-    else if(m_prb5roots->isChecked()) m_nRoots = 5;
-
-    for(int i=0; i<m_nRoots; i++)
+    if(m_prb3roots->isChecked())
     {
-        m_amp0[i] = 1.0f;
-        m_phi0[i] = 2.0f*PIf/float(m_nRoots) * float(i);
-        m_Root[i].setX(m_amp0[i]*cos(m_phi0[i]));
-        m_Root[i].setY(m_amp0[i]*sin(m_phi0[i]));
+        for(int i=0; i<3; i++)
+        {
+            m_amp0[i] = 1.0f;
+            m_phi0[i] = 2.0f*PIf/3.0f * float(i);
+            m_Root[i].setX(m_amp0[i]*cos(m_phi0[i]));
+            m_Root[i].setY(m_amp0[i]*sin(m_phi0[i]));
+        }
+    }
+    else if(m_prb5roots->isChecked())
+    {
+        for(int i=0; i<5; i++)
+        {
+            m_amp0[i] = 1.0f;
+            m_phi0[i] = 2.0f*PIf/5.0f * float(i);
+            m_Root[i].setX(m_amp0[i]*cos(m_phi0[i]));
+            m_Root[i].setY(m_amp0[i]*sin(m_phi0[i]));
+        }
     }
 
     m_Time = 0;
@@ -339,11 +395,13 @@ void gl2dNewton::mousePressEvent(QMouseEvent *pEvent)
     QVector2D pt;
     screenToWorld(pEvent->pos(), pt);
 
-    for(int i=0; i<m_nRoots; i++)
+    int nroots = m_prb3roots->isChecked() ? 3 : 5;
+    for(int i=0; i<nroots; i++)
     {
         if(pt.distanceToPoint(m_Root[i])<0.025/m_Scale)
         {
             m_Timer.stop();
+//            m_pchAnimateRoots->setChecked(false);
             m_iSelectedRoot  = i;
             return;
         }
@@ -357,11 +415,12 @@ void gl2dNewton::mouseMoveEvent(QMouseEvent *pEvent)
 {
     QVector2D pt;
     screenToWorld(pEvent->pos(), pt);
+    int nroots = m_prb3roots->isChecked() ? 3 : 5;
 
-    if(m_iSelectedRoot>=0 && m_iSelectedRoot<m_nRoots)
+    if(m_iSelectedRoot>=0 && m_iSelectedRoot<nroots)
     {
         m_Root[m_iSelectedRoot] = pt;
-        for(int i=0; i<m_nRoots; i++)
+        for(int i=0; i<nroots; i++)
         {
             m_amp0[i] = sqrt(m_Root[i].x()*m_Root[i].x()+m_Root[i].y()*m_Root[i].y());
             m_phi0[i] = atan2f(m_Root[i].y(), m_Root[i].x());
@@ -373,7 +432,7 @@ void gl2dNewton::mouseMoveEvent(QMouseEvent *pEvent)
     }
     else
     {
-        for(int i=0; i<m_nRoots; i++)
+        for(int i=0; i<nroots; i++)
         {
             if(pt.distanceToPoint(m_Root[i])<0.025/m_Scale)
             {
@@ -412,7 +471,8 @@ void gl2dNewton::onMoveRoots()
 {
     float t = float(m_Time)/1000.0f;
 
-    for(int i=0; i<m_nRoots; i++)
+    int nroots = m_prb3roots->isChecked() ? 3 : 5;
+    for(int i=0; i<nroots; i++)
     {
         float amp = m_amp0[i] - (1.0f - cosf(m_omega[2*i]*t*6.0*PIf))/2.0f;
         float phi = m_phi0[i] + 2.0f*PIf*sinf(m_omega[2*i+1]*t);

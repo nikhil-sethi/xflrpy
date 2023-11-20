@@ -41,77 +41,78 @@ FlapDlg::FlapDlg(QWidget *pParent) : QDialog(pParent)
     m_pBufferFoil = nullptr;
     m_bTEFlap     = false;
     m_TEFlapAngle = 0.0;
-    m_TEXHinge    = 80.0;//%
-    m_TEYHinge    = 50.0;//%
+    m_TEXHinge    = 80.0; /** @todo store as frac rather than % */
+    m_TEYHinge    = 50.0;
     m_bLEFlap     = false;
     m_LEFlapAngle = 0.0;
-    m_LEXHinge    = 20.0;//%
-    m_LEYHinge    = 50.0;//%
+    m_LEXHinge    = 20.0;
+    m_LEYHinge    = 50.0;
 
     m_bModified   = false;
     m_bApplied    = true;
 
     setupLayout();
 
-    connect(m_pchLEFlapCheck, SIGNAL(stateChanged(int)), this, SLOT(onLEFlapCheck(int)));
-    connect(m_pchTEFlapCheck, SIGNAL(stateChanged(int)), this, SLOT(onTEFlapCheck(int)));
+    connect(m_pchLEFlapCheck, SIGNAL(clicked(bool)),  SLOT(onLEFlapCheck()));
+    connect(m_pchTEFlapCheck, SIGNAL(clicked(bool)),  SLOT(onTEFlapCheck()));
 
-    connect(m_pdeLEXHinge, SIGNAL(editingFinished()), this, SLOT(onChanged()));
-    connect(m_pdeLEYHinge, SIGNAL(editingFinished()), this, SLOT(onChanged()));
-    connect(m_pdeTEXHinge, SIGNAL(editingFinished()), this, SLOT(onChanged()));
-    connect(m_pdeTEYHinge, SIGNAL(editingFinished()), this, SLOT(onChanged()));
-    connect(m_pdeLEFlapAngle, SIGNAL(editingFinished()), this, SLOT(onChanged()));
-    connect(m_pdeTEFlapAngle, SIGNAL(editingFinished()), this, SLOT(onChanged()));
-
+    connect(m_pdeLEXHinge,    SIGNAL(valueChanged()), SLOT(onChanged()));
+    connect(m_pdeLEYHinge,    SIGNAL(valueChanged()), SLOT(onChanged()));
+    connect(m_pdeTEXHinge,    SIGNAL(valueChanged()), SLOT(onChanged()));
+    connect(m_pdeTEYHinge,    SIGNAL(valueChanged()), SLOT(onChanged()));
+    connect(m_pdeLEFlapAngle, SIGNAL(valueChanged()), SLOT(onChanged()));
+    connect(m_pdeTEFlapAngle, SIGNAL(valueChanged()), SLOT(onChanged()));
 }
 
 
 void FlapDlg::setupLayout()
 {
-    QGridLayout *pFlapDataLayout = new QGridLayout;
+    QVBoxLayout *pMainLayout = new QVBoxLayout;
     {
-        m_pchLEFlapCheck = new QCheckBox(tr("L.E. Flap"));
-        m_pchTEFlapCheck = new QCheckBox(tr("T.E. Flap"));
-        m_pdeLEXHinge    = new DoubleEdit;
-        m_pdeLEYHinge    = new DoubleEdit;
-        m_pdeTEXHinge    = new DoubleEdit;
-        m_pdeTEYHinge    = new DoubleEdit;
-        m_pdeTEFlapAngle = new DoubleEdit;
-        m_pdeLEFlapAngle = new DoubleEdit;
+        QGridLayout *pFlapDataLayout = new QGridLayout;
+        {
+            m_pchLEFlapCheck = new QCheckBox(tr("L.E. Flap"));
+            m_pchTEFlapCheck = new QCheckBox(tr("T.E. Flap"));
+            m_pdeLEXHinge    = new DoubleEdit;
+            m_pdeLEYHinge    = new DoubleEdit;
+            m_pdeTEXHinge    = new DoubleEdit;
+            m_pdeTEYHinge    = new DoubleEdit;
+            m_pdeTEFlapAngle = new DoubleEdit;
+            m_pdeLEFlapAngle = new DoubleEdit;
 
-        QLabel *pLab1 = new QLabel(tr("Flap Angle"));
-        QLabel *pLab2 = new QLabel(QString::fromUtf8("° (")+tr("+ is down") +")");
-        QLabel *pLab3 = new QLabel(tr("Hinge X Position"));
-        QLabel *pLab4 = new QLabel(tr("% Chord"));
-        QLabel *pLab5 = new QLabel(tr("Hinge Y Position"));
-        QLabel *pLab6 = new QLabel(tr("% Thickness"));
+            QLabel *pLab1 = new QLabel(tr("Flap Angle"));
+            QLabel *pLab2 = new QLabel(QString::fromUtf8("° (")+tr("+ is down") +")");
+            QLabel *pLab3 = new QLabel(tr("Hinge X Position"));
+            QLabel *pLab4 = new QLabel(tr("% Chord"));
+            QLabel *pLab5 = new QLabel(tr("Hinge Y Position"));
+            QLabel *pLab6 = new QLabel(tr("% Thickness"));
 
-        pFlapDataLayout->addWidget(m_pchLEFlapCheck, 1, 2);
-        pFlapDataLayout->addWidget(m_pchTEFlapCheck, 1, 3);
-        pFlapDataLayout->addWidget(pLab1, 2, 1);
-        pFlapDataLayout->addWidget(m_pdeLEFlapAngle, 2, 2);
-        pFlapDataLayout->addWidget(m_pdeTEFlapAngle, 2, 3);
-        pFlapDataLayout->addWidget(pLab2, 2, 4);
-        pFlapDataLayout->addWidget(pLab3, 3, 1);
-        pFlapDataLayout->addWidget(m_pdeLEXHinge, 3, 2);
-        pFlapDataLayout->addWidget(m_pdeTEXHinge, 3, 3);
-        pFlapDataLayout->addWidget(pLab4, 3, 4);
-        pFlapDataLayout->addWidget(pLab5, 4, 1);
-        pFlapDataLayout->addWidget(m_pdeLEYHinge, 4, 2);
-        pFlapDataLayout->addWidget(m_pdeTEYHinge, 4, 3);
-        pFlapDataLayout->addWidget(pLab6, 4, 4);
+            pFlapDataLayout->addWidget(m_pchLEFlapCheck, 1, 2);
+            pFlapDataLayout->addWidget(m_pchTEFlapCheck, 1, 3);
+            pFlapDataLayout->addWidget(pLab1,            2, 1);
+            pFlapDataLayout->addWidget(m_pdeLEFlapAngle, 2, 2);
+            pFlapDataLayout->addWidget(m_pdeTEFlapAngle, 2, 3);
+            pFlapDataLayout->addWidget(pLab2,            2, 4);
+            pFlapDataLayout->addWidget(pLab3,            3, 1);
+            pFlapDataLayout->addWidget(m_pdeLEXHinge,    3, 2);
+            pFlapDataLayout->addWidget(m_pdeTEXHinge,    3, 3);
+            pFlapDataLayout->addWidget(pLab4,            3, 4);
+            pFlapDataLayout->addWidget(pLab5,            4, 1);
+            pFlapDataLayout->addWidget(m_pdeLEYHinge,    4, 2);
+            pFlapDataLayout->addWidget(m_pdeTEYHinge,    4, 3);
+            pFlapDataLayout->addWidget(pLab6,            4, 4);
+        }
+
+        m_pButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply, this);
+        {
+            connect(m_pButtonBox, SIGNAL(clicked(QAbstractButton*)), SLOT(onButton(QAbstractButton*)));
+        }
+
+
+        pMainLayout->addLayout(pFlapDataLayout);
+        pMainLayout->addWidget(m_pButtonBox);
     }
-
-    m_pButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply, this);
-    {
-        connect(m_pButtonBox, SIGNAL(clicked(QAbstractButton*)), SLOT(onButton(QAbstractButton*)));
-    }
-
-
-    QVBoxLayout *MainLayout = new QVBoxLayout;
-    MainLayout->addLayout(pFlapDataLayout);
-    MainLayout->addWidget(m_pButtonBox);
-    setLayout(MainLayout);
+    setLayout(pMainLayout);
 }
 
 
@@ -164,8 +165,8 @@ void FlapDlg::readParams()
 void FlapDlg::onApply()
 {
     if(m_bApplied) return;
-    //reset everything and retry
 
+    //reset everything and retry
     readParams();
 
     m_pBufferFoil->setTEFlapData(m_bTEFlap, m_TEXHinge, m_TEYHinge, m_TEFlapAngle);
@@ -225,7 +226,7 @@ void FlapDlg::enableTEFlap(bool bEnable)
 }
 
 
-void FlapDlg::onTEFlapCheck(int)
+void FlapDlg::onTEFlapCheck()
 {
     if(m_pchTEFlapCheck->isChecked())
     {
@@ -239,7 +240,7 @@ void FlapDlg::onTEFlapCheck(int)
 }
 
 
-void FlapDlg::onLEFlapCheck(int)
+void FlapDlg::onLEFlapCheck()
 {
     if(m_pchLEFlapCheck->isChecked())
     {

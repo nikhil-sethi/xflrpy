@@ -77,7 +77,6 @@ class StabViewDlg : public QWidget
         void setMode(int iMode=-1);
         void setupLayout();
         void setControls();
-        void setTimeCurveStyle(QColor const &Color, int const&Style, int const &Width, bool const& bCurve, const int &PointStyle);
         void readControlModelData();
         void updateControlModelData();
 

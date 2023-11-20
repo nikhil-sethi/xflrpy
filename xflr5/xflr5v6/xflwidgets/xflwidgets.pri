@@ -1,4 +1,5 @@
 HEADERS += \
+    $$PWD/customdlg/textdlg.h \
     xflwidgets/color/colorbtn.h \
     xflwidgets/color/colorgraddlg.h \
     xflwidgets/color/colormenubtn.h \
@@ -52,6 +53,7 @@ HEADERS += \
 
 
 SOURCES += \
+    $$PWD/customdlg/textdlg.cpp \
     xflwidgets/color/colorbtn.cpp \
     xflwidgets/color/colorgraddlg.cpp \
     xflwidgets/color/colormenubtn.cpp \

@@ -91,7 +91,6 @@ class GLLightDlg : public QDialog
     private:
         gl3dView *m_pglView;
 
-        static int s_iShininess;
         static QByteArray s_Geometry;
 };
 

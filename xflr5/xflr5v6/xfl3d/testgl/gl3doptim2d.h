@@ -26,7 +26,7 @@ class gl3dOptim2d : public gl3dSurface
 {
     Q_OBJECT
     public:
-        gl3dOptim2d();
+        gl3dOptim2d(QWidget *pParent=nullptr);
         ~gl3dOptim2d();
 
         void glRenderView() override;

@@ -369,53 +369,53 @@ void Surface::getPanel(int const &k, int const &l, xfl::enumSurfacePosition pos)
     getYDist(k,y1,y2);
     if(pos==xfl::MIDSURFACE)
     {
-        LA.x = m_SideA[l+1].x * (1.0-y1) + m_SideB[l+1].x* y1;
-        LA.y = m_SideA[l+1].y * (1.0-y1) + m_SideB[l+1].y* y1;
-        LA.z = m_SideA[l+1].z * (1.0-y1) + m_SideB[l+1].z* y1;
-        TA.x = m_SideA[l].x   * (1.0-y1) + m_SideB[l].x  * y1;
-        TA.y = m_SideA[l].y   * (1.0-y1) + m_SideB[l].y  * y1;
-        TA.z = m_SideA[l].z   * (1.0-y1) + m_SideB[l].z  * y1;
-        LB.x = m_SideA[l+1].x * (1.0-y2) + m_SideB[l+1].x* y2;
-        LB.y = m_SideA[l+1].y * (1.0-y2) + m_SideB[l+1].y* y2;
-        LB.z = m_SideA[l+1].z * (1.0-y2) + m_SideB[l+1].z* y2;
-        TB.x = m_SideA[l].x   * (1.0-y2) + m_SideB[l].x  * y2;
-        TB.y = m_SideA[l].y   * (1.0-y2) + m_SideB[l].y  * y2;
-        TB.z = m_SideA[l].z   * (1.0-y2) + m_SideB[l].z  * y2;
+        LA.x = m_SideA.at(l+1).x * (1.0-y1) + m_SideB.at(l+1).x* y1;
+        LA.y = m_SideA.at(l+1).y * (1.0-y1) + m_SideB.at(l+1).y* y1;
+        LA.z = m_SideA.at(l+1).z * (1.0-y1) + m_SideB.at(l+1).z* y1;
+        TA.x = m_SideA.at(l).x   * (1.0-y1) + m_SideB.at(l).x  * y1;
+        TA.y = m_SideA.at(l).y   * (1.0-y1) + m_SideB.at(l).y  * y1;
+        TA.z = m_SideA.at(l).z   * (1.0-y1) + m_SideB.at(l).z  * y1;
+        LB.x = m_SideA.at(l+1).x * (1.0-y2) + m_SideB.at(l+1).x* y2;
+        LB.y = m_SideA.at(l+1).y * (1.0-y2) + m_SideB.at(l+1).y* y2;
+        LB.z = m_SideA.at(l+1).z * (1.0-y2) + m_SideB.at(l+1).z* y2;
+        TB.x = m_SideA.at(l).x   * (1.0-y2) + m_SideB.at(l).x  * y2;
+        TB.y = m_SideA.at(l).y   * (1.0-y2) + m_SideB.at(l).y  * y2;
+        TB.z = m_SideA.at(l).z   * (1.0-y2) + m_SideB.at(l).z  * y2;
     }
     else if (pos==xfl::BOTSURFACE)
     {
-        LA = m_SideA_B[l+1] * (1.0-y1) + m_SideB_B[l+1]* y1;
-        TA = m_SideA_B[l]   * (1.0-y1) + m_SideB_B[l]  * y1;
-        LB = m_SideA_B[l+1] * (1.0-y2) + m_SideB_B[l+1]* y2;
-        TB = m_SideA_B[l]   * (1.0-y2) + m_SideB_B[l]  * y2;
+        LA = m_SideA_B.at(l+1) * (1.0-y1) + m_SideB_B.at(l+1)* y1;
+        TA = m_SideA_B.at(l)   * (1.0-y1) + m_SideB_B.at(l)  * y1;
+        LB = m_SideA_B.at(l+1) * (1.0-y2) + m_SideB_B.at(l+1)* y2;
+        TB = m_SideA_B.at(l)   * (1.0-y2) + m_SideB_B.at(l)  * y2;
 
-        LA.x = m_SideA_B[l+1].x * (1.0-y1) + m_SideB_B[l+1].x* y1;
-        LA.y = m_SideA_B[l+1].y * (1.0-y1) + m_SideB_B[l+1].y* y1;
-        LA.z = m_SideA_B[l+1].z * (1.0-y1) + m_SideB_B[l+1].z* y1;
-        TA.x = m_SideA_B[l].x   * (1.0-y1) + m_SideB_B[l].x  * y1;
-        TA.y = m_SideA_B[l].y   * (1.0-y1) + m_SideB_B[l].y  * y1;
-        TA.z = m_SideA_B[l].z   * (1.0-y1) + m_SideB_B[l].z  * y1;
-        LB.x = m_SideA_B[l+1].x * (1.0-y2) + m_SideB_B[l+1].x* y2;
-        LB.y = m_SideA_B[l+1].y * (1.0-y2) + m_SideB_B[l+1].y* y2;
-        LB.z = m_SideA_B[l+1].z * (1.0-y2) + m_SideB_B[l+1].z* y2;
-        TB.x = m_SideA_B[l].x   * (1.0-y2) + m_SideB_B[l].x  * y2;
-        TB.y = m_SideA_B[l].y   * (1.0-y2) + m_SideB_B[l].y  * y2;
-        TB.z = m_SideA_B[l].z   * (1.0-y2) + m_SideB_B[l].z  * y2;
+        LA.x = m_SideA_B.at(l+1).x * (1.0-y1) + m_SideB_B.at(l+1).x* y1;
+        LA.y = m_SideA_B.at(l+1).y * (1.0-y1) + m_SideB_B.at(l+1).y* y1;
+        LA.z = m_SideA_B.at(l+1).z * (1.0-y1) + m_SideB_B.at(l+1).z* y1;
+        TA.x = m_SideA_B.at(l).x   * (1.0-y1) + m_SideB_B.at(l).x  * y1;
+        TA.y = m_SideA_B.at(l).y   * (1.0-y1) + m_SideB_B.at(l).y  * y1;
+        TA.z = m_SideA_B.at(l).z   * (1.0-y1) + m_SideB_B.at(l).z  * y1;
+        LB.x = m_SideA_B.at(l+1).x * (1.0-y2) + m_SideB_B.at(l+1).x* y2;
+        LB.y = m_SideA_B.at(l+1).y * (1.0-y2) + m_SideB_B.at(l+1).y* y2;
+        LB.z = m_SideA_B.at(l+1).z * (1.0-y2) + m_SideB_B.at(l+1).z* y2;
+        TB.x = m_SideA_B.at(l).x   * (1.0-y2) + m_SideB_B.at(l).x  * y2;
+        TB.y = m_SideA_B.at(l).y   * (1.0-y2) + m_SideB_B.at(l).y  * y2;
+        TB.z = m_SideA_B.at(l).z   * (1.0-y2) + m_SideB_B.at(l).z  * y2;
     }
     else if (pos==xfl::TOPSURFACE)
     {
-        LA.x = m_SideA_T[l+1].x * (1.0-y1) + m_SideB_T[l+1].x* y1;
-        LA.y = m_SideA_T[l+1].y * (1.0-y1) + m_SideB_T[l+1].y* y1;
-        LA.z = m_SideA_T[l+1].z * (1.0-y1) + m_SideB_T[l+1].z* y1;
-        TA.x = m_SideA_T[l].x   * (1.0-y1) + m_SideB_T[l].x  * y1;
-        TA.y = m_SideA_T[l].y   * (1.0-y1) + m_SideB_T[l].y  * y1;
-        TA.z = m_SideA_T[l].z   * (1.0-y1) + m_SideB_T[l].z  * y1;
-        LB.x = m_SideA_T[l+1].x * (1.0-y2) + m_SideB_T[l+1].x* y2;
-        LB.y = m_SideA_T[l+1].y * (1.0-y2) + m_SideB_T[l+1].y* y2;
-        LB.z = m_SideA_T[l+1].z * (1.0-y2) + m_SideB_T[l+1].z* y2;
-        TB.x = m_SideA_T[l].x   * (1.0-y2) + m_SideB_T[l].x  * y2;
-        TB.y = m_SideA_T[l].y   * (1.0-y2) + m_SideB_T[l].y  * y2;
-        TB.z = m_SideA_T[l].z   * (1.0-y2) + m_SideB_T[l].z  * y2;
+        LA.x = m_SideA_T.at(l+1).x * (1.0-y1) + m_SideB_T.at(l+1).x* y1;
+        LA.y = m_SideA_T.at(l+1).y * (1.0-y1) + m_SideB_T.at(l+1).y* y1;
+        LA.z = m_SideA_T.at(l+1).z * (1.0-y1) + m_SideB_T.at(l+1).z* y1;
+        TA.x = m_SideA_T.at(l).x   * (1.0-y1) + m_SideB_T.at(l).x  * y1;
+        TA.y = m_SideA_T.at(l).y   * (1.0-y1) + m_SideB_T.at(l).y  * y1;
+        TA.z = m_SideA_T.at(l).z   * (1.0-y1) + m_SideB_T.at(l).z  * y1;
+        LB.x = m_SideA_T.at(l+1).x * (1.0-y2) + m_SideB_T.at(l+1).x* y2;
+        LB.y = m_SideA_T.at(l+1).y * (1.0-y2) + m_SideB_T.at(l+1).y* y2;
+        LB.z = m_SideA_T.at(l+1).z * (1.0-y2) + m_SideB_T.at(l+1).z* y2;
+        TB.x = m_SideA_T.at(l).x   * (1.0-y2) + m_SideB_T.at(l).x  * y2;
+        TB.y = m_SideA_T.at(l).y   * (1.0-y2) + m_SideB_T.at(l).y  * y2;
+        TB.z = m_SideA_T.at(l).z   * (1.0-y2) + m_SideB_T.at(l).z  * y2;
     }
 }
 

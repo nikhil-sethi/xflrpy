@@ -159,8 +159,8 @@ void AeroDataDlg::setupLayout()
 
         m_pdeTemperature = new DoubleEdit(s_Temperature, 1, this);
         m_pdeAltitude    = new DoubleEdit(s_Altitude, 1, this);
-        connect(m_pdeTemperature, SIGNAL(editingFinished()), this, SLOT(updateResults()));
-        connect(m_pdeAltitude,    SIGNAL(editingFinished()), this, SLOT(updateResults()));
+        connect(m_pdeTemperature, SIGNAL(valueChanged()), SLOT(updateResults()));
+        connect(m_pdeAltitude,    SIGNAL(valueChanged()), SLOT(updateResults()));
 
         m_plabAirPressure        = new QLabel("1000.0");
         m_plabAirDensity         = new QLabel("1.225");

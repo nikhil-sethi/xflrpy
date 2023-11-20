@@ -92,7 +92,7 @@ void GraphDlg::connectSignals()
 
     connect(m_pchGraphBorder,   SIGNAL(stateChanged(int)),    SLOT(onGraphBorder(int)));
     connect(m_pcbGraphBack,     SIGNAL(clicked()),            SLOT(onGraphBackColor()));
-    connect(m_plbBorderStyle,   SIGNAL(clicked()),            SLOT(onBorderStyle()));
+    connect(m_plbBorderStyle,   SIGNAL(clickedLB(LineStyle)), SLOT(onBorderStyle()));
 
     connect(m_plwXSel, SIGNAL(itemSelectionChanged()), SLOT(onVariableChanged()));
     connect(m_plwYSel, SIGNAL(itemSelectionChanged()), SLOT(onVariableChanged()));
@@ -699,9 +699,7 @@ void GraphDlg::setupLayout()
                 m_pchGraphBorder = new QCheckBox(tr("Graph Border"));
 
                 m_pcbGraphBack = new ColorBtn;
-                m_pcbGraphBack->setMinimumWidth(100);
                 m_plbBorderStyle = new LineBtn(this);
-                m_plbBorderStyle->setMinimumWidth(100);
 
                 pBackDataLayout->addWidget(GraphBackLabel,1,1);
                 pBackDataLayout->addWidget(m_pchGraphBorder,2,1,1,1,Qt::AlignRight | Qt::AlignVCenter);

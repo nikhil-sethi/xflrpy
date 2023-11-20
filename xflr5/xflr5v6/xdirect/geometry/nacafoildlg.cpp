@@ -26,9 +26,9 @@
 #include <xflobjects/objects2d/foil.h>
 #include <xflwidgets/customwts/intedit.h>
 
-XFoil *NacaFoilDlg::s_pXFoil;
-int NacaFoilDlg::s_Digits = 0;
-int NacaFoilDlg::s_Panels = 100;
+XFoil *NacaFoilDlg::s_pXFoil(nullptr);
+int NacaFoilDlg::s_Digits(0);
+int NacaFoilDlg::s_Panels(100);
 
 
 

@@ -23,6 +23,7 @@
 #include "renamedlg.h"
 #include <QMessageBox>
 
+QByteArray RenameDlg::s_Geometry;
 
 RenameDlg::RenameDlg(QWidget *pParent) : QDialog(pParent)
 {
@@ -31,6 +32,17 @@ RenameDlg::RenameDlg(QWidget *pParent) : QDialog(pParent)
     m_bExists = true;
     m_strArray.clear();
     setupLayout();
+}
+
+void RenameDlg::showEvent(QShowEvent *)
+{
+    restoreGeometry(s_Geometry);
+}
+
+
+void RenameDlg::hideEvent(QHideEvent *)
+{
+    s_Geometry = saveGeometry();
 }
 
 
@@ -54,29 +66,21 @@ void RenameDlg::setupLayout()
 
     QVBoxLayout *pMainLayout = new QVBoxLayout;
     {
-        QLabel *pLabelNote = new QLabel;
-        pLabelNote->setText(tr("Note : Overwrite will delete operating points and reset polars"));
         m_plabMessage = new QLabel("A Message here");
 
         m_pleName = new QLineEdit("");
-        QLabel* NameListLabel = new QLabel(tr("Existing Names:"));
+        QLabel* plabNameList = new QLabel(tr("Existing Names:"));
         m_plwNameList = new QListWidget;
-
-        pMainLayout->setStretchFactor(m_plabMessage, 1);
-        pMainLayout->setStretchFactor(m_pleName, 1);
-        pMainLayout->setStretchFactor(NameListLabel, 1);
-        pMainLayout->setStretchFactor(m_plwNameList, 5);
-        pMainLayout->setStretchFactor(m_pButtonBox, 1);
-        pMainLayout->setStretchFactor(pLabelNote, 1);
 
         pMainLayout->addWidget(m_plabMessage);
         pMainLayout->addWidget(m_pleName);
 
-        pMainLayout->addWidget(NameListLabel);
+        pMainLayout->addWidget(plabNameList);
         pMainLayout->addWidget(m_plwNameList);
 
         pMainLayout->addWidget(m_pButtonBox);
-        pMainLayout->addWidget(pLabelNote);
+
+        pMainLayout->setStretchFactor(m_plwNameList, 1);
     }
 
     setLayout(pMainLayout);
@@ -87,7 +91,7 @@ void RenameDlg::setupLayout()
 }
 
 
-void RenameDlg::initDialog(QStringList *pStrList, QString startName, QString question)
+void RenameDlg::initDialog(QStringList *pStrList, const QString &startName, const QString &question)
 {
     m_plwNameList->clear();
 
@@ -104,7 +108,7 @@ void RenameDlg::initDialog(QStringList *pStrList, QString startName, QString que
         m_plabMessage->setText(tr("Enter a name"));
     }
 
-    m_strName = startName;
+    m_startName = startName;
     m_pleName->setText(startName);
     m_pleName->setFocus();
     m_pleName->selectAll();
@@ -127,9 +131,9 @@ void RenameDlg::initDialog(QStringList *pStrList, QString startName, QString que
 }
 
 
-void RenameDlg::keyPressEvent(QKeyEvent *event)
+void RenameDlg::keyPressEvent(QKeyEvent *pEvent)
 {
-    switch (event->key())
+    switch (pEvent->key())
     {
         case Qt::Key_Return:
         case Qt::Key_Enter:
@@ -143,7 +147,7 @@ void RenameDlg::keyPressEvent(QKeyEvent *event)
             return;
         }
         default:
-            event->ignore();
+            pEvent->ignore();
     }
 }
 
@@ -151,31 +155,36 @@ void RenameDlg::keyPressEvent(QKeyEvent *event)
 void RenameDlg::onOverwrite()
 {
     m_bExists = true;
-    m_strName = m_pleName->text();
+    m_pleName->text();
     done(10);
 }
 
 
 void RenameDlg::onOK()
 {
-    m_strName = m_pleName->text();
-    if (!m_strName.length())
+    if (!m_pleName->text().length())
     {
         QMessageBox::warning(this, tr("Warning"), tr("Must enter a name"));
         m_pleName->setFocus();
         return;
     }
+    QString newname = m_pleName->text();
 
-    QString strong;
+    if(m_startName==newname)
+    {
+        // nothing to do
+        QDialog::accept();
+        return;
+    }
 
     //exists ?
     m_bExists = false;
     for (int l=0; l<m_strArray.size(); l++)
     {
-        strong = m_strArray.at(l);
-        if(strong == m_strName)
+        QString oldName = m_strArray.at(l);
+        if(oldName == newname)
         {
-            QString str = tr("Do you wish to overwrite ")+m_strName + " ?";
+            QString str = tr("Do you wish to overwrite ")+oldName + "?";
             if (QMessageBox::Yes == QMessageBox::question(window(), tr("Question"), str,
                                                           QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel))
             {
@@ -204,7 +213,6 @@ void RenameDlg::onSelChangeList(int)
 }
 
 
-
 void RenameDlg::onDoubleClickList(QListWidgetItem *pItem)
 {
     if(pItem)
@@ -214,9 +222,6 @@ void RenameDlg::onDoubleClickList(QListWidgetItem *pItem)
         onOK();
     }
 }
-
-
-
 
 
 

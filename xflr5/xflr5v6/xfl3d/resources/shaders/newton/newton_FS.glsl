@@ -96,7 +96,7 @@ void main(void)
 
             if (abs(difference.x)<tolerance && abs(difference.y)<tolerance)
             {
-                FragmentColor = colors[i] * min(32.0, float(iteration))/32.0;
+                FragmentColor = colors[i] * min(16.0, float(iteration))/16.0;
                 return;
             }
         }

@@ -42,7 +42,8 @@ double gl3dOptim2d::s_ProbXOver       = 0.5;
 double gl3dOptim2d::s_ProbMutation    = 0.15;
 double gl3dOptim2d::s_SigmaMutation   = 0.5;
 
-gl3dOptim2d::gl3dOptim2d() : gl3dSurface()
+
+gl3dOptim2d::gl3dOptim2d(QWidget *pParent) : gl3dSurface(pParent)
 {
     setWindowTitle("2d Optimization");
 

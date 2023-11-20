@@ -30,7 +30,7 @@
 #include <xflwidgets/customwts/intedit.h>
 #include <xflwidgets/customwts/doubleedit.h>
 
-XFoil *TwoDPanelDlg::s_pXFoil;
+XFoil *TwoDPanelDlg::s_pXFoil(nullptr);
 
 
 TwoDPanelDlg::TwoDPanelDlg(QWidget *pParent) : QDialog(pParent)
@@ -84,14 +84,14 @@ void TwoDPanelDlg::setupLayout()
         pInputDataLayout->addWidget(m_pdeXpRef1,  6, 2);
         pInputDataLayout->addWidget(m_pdeXpRef2,  6, 3);
 
-        connect(m_pieNPanels, SIGNAL(editingFinished()), SLOT(onChanged()));
-        connect(m_pdeCVpar,   SIGNAL(editingFinished()), SLOT(onChanged()));
-        connect(m_pdeCTErat,  SIGNAL(editingFinished()), SLOT(onChanged()));
-        connect(m_pdeCTRrat,  SIGNAL(editingFinished()), SLOT(onChanged()));
-        connect(m_pdeXsRef1,  SIGNAL(editingFinished()), SLOT(onChanged()));
-        connect(m_pdeXsRef2,  SIGNAL(editingFinished()), SLOT(onChanged()));
-        connect(m_pdeXpRef1,  SIGNAL(editingFinished()), SLOT(onChanged()));
-        connect(m_pdeXpRef2,  SIGNAL(editingFinished()), SLOT(onChanged()));
+        connect(m_pieNPanels, SIGNAL(valueChanged()), SLOT(onChanged()));
+        connect(m_pdeCVpar,   SIGNAL(valueChanged()), SLOT(onChanged()));
+        connect(m_pdeCTErat,  SIGNAL(valueChanged()), SLOT(onChanged()));
+        connect(m_pdeCTRrat,  SIGNAL(valueChanged()), SLOT(onChanged()));
+        connect(m_pdeXsRef1,  SIGNAL(valueChanged()), SLOT(onChanged()));
+        connect(m_pdeXsRef2,  SIGNAL(valueChanged()), SLOT(onChanged()));
+        connect(m_pdeXpRef1,  SIGNAL(valueChanged()), SLOT(onChanged()));
+        connect(m_pdeXpRef2,  SIGNAL(valueChanged()), SLOT(onChanged()));
     }
 
     m_pButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Apply | QDialogButtonBox::Discard);

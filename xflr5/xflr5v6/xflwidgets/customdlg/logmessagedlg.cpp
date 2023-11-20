@@ -92,9 +92,6 @@ void LogMessageDlg::setupLayout()
     QVBoxLayout * pMainLayout = new QVBoxLayout(this);
     {
         m_pptoOutputLog = new PlainTextOutput;
-        m_pptoOutputLog->setReadOnly(true);
-        m_pptoOutputLog->setLineWrapMode(QPlainTextEdit::NoWrap);
-        m_pptoOutputLog->setWordWrapMode(QTextOption::NoWrap);
         pMainLayout->addWidget(m_pptoOutputLog);
         pMainLayout->addSpacing(20);
         pMainLayout->addWidget(m_pButtonBox);

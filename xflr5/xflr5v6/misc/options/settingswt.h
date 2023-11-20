@@ -20,7 +20,6 @@
 *****************************************************************************/
 
 
-
 #pragma once
 
 #include <QDir>
@@ -35,21 +34,22 @@
 #include <xflcore/core_enums.h>
 #include <xflgraph/graph.h>
 
-class MainFrame;
+
 class TextClrBtn;
 class ColorBtn;
-
+class IntEdit;
 
 
 class Settings : public QWidget
 {
     Q_OBJECT
 
-    friend class MainFrame;
 
     public:
         Settings(QWidget *pParent);
         void initWidget();
+
+        bool bIsGraphModified() const {return m_bIsGraphModified;}
 
         static void loadSettings(QSettings &settings);
         static void saveSettings(QSettings &settings);
@@ -73,8 +73,10 @@ class Settings : public QWidget
         void onTableFont();
         void onTextFont();
         void onTreeFont();
+        void onToolTipFont();
         void onTheme();
         void onStyleSheet(bool bSheet);
+        void onSymbolSize();
 
     private:
         void setupLayout();
@@ -83,7 +85,7 @@ class Settings : public QWidget
     private:
         ColorBtn *m_pcbBackColor;
         TextClrBtn *m_ptcbTextClr;
-        QPushButton *m_ppbTextFont, *m_ppbTableFont, *m_ppbTreeFont;
+        QPushButton *m_ppbTextFont, *m_ppbTableFont, *m_ppbTreeFont, *m_ppbToolTipFont;
         QPushButton *m_ppbGraphSettings;
 
         QCheckBox *m_pchReverseZoom;
@@ -97,6 +99,8 @@ class Settings : public QWidget
         QDir m_StyleSheetDir;
         Graph m_MemGraph;
         bool m_bIsGraphModified;
+
+        IntEdit *m_pieSymbolSize;
 
     public:
         //settings variables used throughout the program

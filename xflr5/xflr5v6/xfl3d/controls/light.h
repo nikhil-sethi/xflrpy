@@ -27,7 +27,7 @@ struct Light
             m_Green = 1.0f;
             m_Blue  = 1.0f;
 
-            m_Ambient   = 0.67f;
+            m_Ambient   = 0.37f;
             m_Diffuse   = 1.41f;
             m_Specular  = 0.71f;
 
@@ -48,7 +48,7 @@ struct Light
 
     public:
 
-        float m_Ambient{0.3f}, m_Diffuse{1.2f}, m_Specular{0.5f}; // the light intensities
+        float m_Ambient{0.37f}, m_Diffuse{1.2f}, m_Specular{0.5f}; // the light intensities
         float m_Red{1.0f}, m_Green{1.0f}, m_Blue{1.0f}; // the color of light
         float m_X{0.1f}, m_Y{0.3f}, m_Z{0.5f}; // coordinates in camera space
         bool m_bIsLightOn{true};
@@ -56,5 +56,5 @@ struct Light
         float m_EyeDist{10.0}; // eye distance; unused in orthographic view, except to calculate light effects
 
         Attenuation m_Attenuation;
-        int m_iShininess{10};
+        int m_iShininess{30};
 };

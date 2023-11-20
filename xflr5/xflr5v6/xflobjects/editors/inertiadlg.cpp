@@ -423,7 +423,6 @@ void InertiaDlg::onCellChanged(QWidget *)
 }
 
 
-
 void InertiaDlg::onVolumeMass()
 {
     readData();
@@ -1129,14 +1128,14 @@ void InertiaDlg::setupLayout()
     }
     setLayout(pMainLayout);
 
-    connect(m_ppbWingInertia,  SIGNAL(clicked()), this, SLOT(onWingInertia()));
-    connect(m_ppbWing2Inertia, SIGNAL(clicked()), this, SLOT(onWing2Inertia()));
-    connect(m_ppbStabInertia,  SIGNAL(clicked()), this, SLOT(onStabInertia()));
-    connect(m_ppbFinInertia,   SIGNAL(clicked()), this, SLOT(onFinInertia()));
-    connect(m_ppbBodyInertia,  SIGNAL(clicked()), this, SLOT(onBodyInertia()));
-    connect(m_pdeVolumeMass,   SIGNAL(editingFinished()), SLOT(onVolumeMass()));
-    connect(m_pInsertMassRow,    SIGNAL(triggered()), SLOT(onInsertMassRow()));
-    connect(m_pDeleteMassRow,    SIGNAL(triggered()), SLOT(onDeleteMassRow()));
+    connect(m_ppbWingInertia,  SIGNAL(clicked()),      SLOT(onWingInertia()));
+    connect(m_ppbWing2Inertia, SIGNAL(clicked()),      SLOT(onWing2Inertia()));
+    connect(m_ppbStabInertia,  SIGNAL(clicked()),      SLOT(onStabInertia()));
+    connect(m_ppbFinInertia,   SIGNAL(clicked()),      SLOT(onFinInertia()));
+    connect(m_ppbBodyInertia,  SIGNAL(clicked()),      SLOT(onBodyInertia()));
+    connect(m_pdeVolumeMass,   SIGNAL(valueChanged()), SLOT(onVolumeMass()));
+    connect(m_pInsertMassRow,  SIGNAL(triggered()),    SLOT(onInsertMassRow()));
+    connect(m_pDeleteMassRow,  SIGNAL(triggered()),    SLOT(onDeleteMassRow()));
 }
 
 

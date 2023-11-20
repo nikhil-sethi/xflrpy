@@ -52,9 +52,7 @@ void FoilSelectionDlg::setupLayout()
             connect(m_pButtonBox, SIGNAL(clicked(QAbstractButton*)), SLOT(onButton(QAbstractButton*)));
         }
 
-        pMainLayout->addStretch(1);
         pMainLayout->addWidget(m_plwNameList);
-        pMainLayout->addStretch(1);
         pMainLayout->addWidget(m_pButtonBox);
     }
 

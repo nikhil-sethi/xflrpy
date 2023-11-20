@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
      * set the Qt::AA_ShareOpenGLContexts application attribute before instantiating QApplication.
      * This will trigger sharing between all QOpenGLWidget instances without any further steps.*/
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-//    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 
     int version = -1;
     for(int i=0; i<argc; i++)

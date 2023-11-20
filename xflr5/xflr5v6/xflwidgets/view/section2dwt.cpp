@@ -39,6 +39,7 @@ QColor Section2dWt::s_TextColor=Qt::lightGray;
 Section2dWt::Section2dWt(QWidget *parent) : QWidget(parent)
 {
     setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
 
     m_hcCross = QCursor(Qt::CrossCursor);
     m_hcMove  = QCursor(Qt::ClosedHandCursor);
@@ -57,14 +58,8 @@ Section2dWt::Section2dWt(QWidget *parent) : QWidget(parent)
     m_bIsImageLoaded = false;
     m_bXDown = m_bYDown = false;
 
-
     m_UnitFactor = 1.0;
     m_exp_x = m_exp_y = 0.0;
-/*    m_NeutralStyle = {true, Line::DASHDOT, 1, QColor(150,150,150), Line::NOSYMBOL};
-    m_XStyle       = {true, Line::DASH, 1, QColor(95,95,95), Line::NOSYMBOL};
-    m_YStyle       = {true, Line::DASH, 1, QColor(95,95,95), Line::NOSYMBOL};
-    m_XMinStyle    = {false, Line::DOT, 1, QColor(75,75,75), Line::NOSYMBOL};
-    m_YMinStyle    = {false, Line::DOT, 1, QColor(75,75,75), Line::NOSYMBOL};*/
 
     m_fScale    = 1.0;
     m_fRefScale = 1.0;
@@ -144,27 +139,16 @@ QSize Section2dWt::minimumSizeHint() const
 }
 
 
-void Section2dWt::paintEvent(QPaintEvent *event)
+void Section2dWt::paintEvent(QPaintEvent*)
 {
-    Q_UNUSED(event);
     QPainter painter(this);
     painter.save();
     painter.fillRect(rect(), DisplayOptions::backgroundColor());
 
-    painter.setFont(DisplayOptions::textFont());
-    QPen TextPen(DisplayOptions::textColor());
-    painter.setPen(TextPen);
-
+    drawScaleLegend(painter);
     paintGrids(painter);
-
-    painter.drawText(5,10, QString(tr("X-Scale = %1")).arg(m_fScale/m_fRefScale,4,'f',1));
-    painter.drawText(5,22, QString(tr("Y-Scale = %1")).arg(m_fScaleY*m_fScale/m_fRefScale,4,'f',1));
-    painter.drawText(5,34, QString(tr("x = %1")).arg(m_MousePos.x,9,'f',5));
-    painter.drawText(5,46, QString(tr("y = %1")).arg(m_MousePos.y,9,'f',5));
-
     painter.restore();
 }
-
 
 
 
@@ -209,7 +193,7 @@ void Section2dWt::keyPressEvent(QKeyEvent *pEvent)
             m_bYDown = true;
             break;
         case Qt::Key_I:
-            if (pEvent->modifiers().testFlag(Qt::ControlModifier) & pEvent->modifiers().testFlag(Qt::ShiftModifier))
+            if (pEvent->modifiers().testFlag(Qt::ControlModifier) && pEvent->modifiers().testFlag(Qt::ShiftModifier))
             {
                 if(!m_bIsImageLoaded)
                 {
@@ -517,12 +501,12 @@ void Section2dWt::wheelEvent (QWheelEvent *pEvent)
     if(pEvent->angleDelta().y()>0)
     {
         if(!DisplayOptions::bReverseZoom()) zoomFactor = 1./1.06;
-        else                          zoomFactor = 1.06;
+        else                                zoomFactor = 1.06;
     }
     else
     {
         if(!DisplayOptions::bReverseZoom()) zoomFactor = 1.06;
-        else                          zoomFactor = 1./1.06;
+        else                                zoomFactor = 1./1.06;
     }
     zoomView(zoomFactor);
     setAutoUnits();
@@ -538,7 +522,7 @@ void Section2dWt::zoomView(double zoomFactor)
     m_ZoomRect.setBottomRight(m_ZoomRect.topLeft());
     releaseZoom();
 
-    double  scale = m_fScale;
+    double scale = m_fScale;
 
     if(!m_bZoomYOnly)
     {
@@ -1117,15 +1101,14 @@ void Section2dWt::onGridSettings()
 void Section2dWt::drawScaleLegend(QPainter &painter)
 {
     painter.save();
-
-    painter.setFont(DisplayOptions::textFont());
-    QPen TextPen(DisplayOptions::textColor());
-    painter.setPen(TextPen);
-
-    painter.drawText(5,10, QString(tr("X-Scale = %1")).arg(m_fScale/m_fRefScale,4,'f',1));
-    painter.drawText(5,22, QString(tr("Y-Scale = %1")).arg(m_fScaleY*m_fScale/m_fRefScale,4,'f',1));
-    painter.drawText(5,34, QString(tr("x = %1")).arg(m_MousePos.x,9,'f',5));
-    painter.drawText(5,46, QString(tr("y = %1")).arg(m_MousePos.y,9,'f',5));
+    QFont fnt(DisplayOptions::textFont()); //valgrind
+    QFontMetrics fm(fnt);
+    int xoff = fm.averageCharWidth();
+    int yinc = fm.height();
+    painter.drawText(xoff, 1*yinc, QString(tr("X-Scale = %1")).arg(m_fScale/m_fRefScale,4,'f',1));
+    painter.drawText(xoff, 2*yinc, QString(tr("Y-Scale = %1")).arg(m_fScaleY*m_fScale/m_fRefScale,4,'f',1));
+    painter.drawText(xoff, 3*yinc, QString(tr("x = %1")).arg(m_MousePos.x,9,'f',5));
+    painter.drawText(xoff, 4*yinc, QString(tr("y = %1")).arg(m_MousePos.y,9,'f',5));;
 
     painter.restore();
 }

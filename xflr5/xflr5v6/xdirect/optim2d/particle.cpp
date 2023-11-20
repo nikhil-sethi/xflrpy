@@ -34,6 +34,8 @@ Particle::Particle()
 
 void Particle::resizeArrays(int ndim, int nobj, int nbest)
 {
+    m_bIsConverged = false;
+    m_bIsInParetoFront = false;
     m_nBest = nbest;
 
     m_Position.resize(ndim);

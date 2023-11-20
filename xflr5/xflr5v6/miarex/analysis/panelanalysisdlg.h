@@ -49,6 +49,7 @@ class WPolar;
 class Plane;
 class PanelAnalysis;
 class PlaneTask;
+class PlainTextOutput;
 
 /**
  *@class PanelAnalysisDlg
@@ -88,11 +89,10 @@ class PanelAnalysisDlg : public QDialog
         QSize sizeHint() const override {return QSize(950,700);}
 
         void setupLayout();
-        void updateOutput(const QString &strong);
         void updateView();
 
     private:
-        QTextEdit *m_pteOutput;
+        PlainTextOutput *m_ppto;
         QPushButton *m_ppbCancel;
         QCheckBox * m_pchLogFile;
         QProgressBar *m_ppbProgress;

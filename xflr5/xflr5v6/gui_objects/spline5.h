@@ -46,8 +46,8 @@ public:
     Spline5();
 
     void drawSpline(QPainter & painter, double const &scalex, double const &scaley, QPointF const &Offset);
-    void drawCtrlPoints(QPainter & painter, double const &scalex, double const &scaley, QPointF const &Offset);
-    void drawOutputPoints(QPainter & painter, double const &scalex, double const &scaley, QPointF const &Offset);
+    void drawCtrlPoints(QPainter & painter, double const &scalex, double const &scaley, QPointF const &Offset, const QColor &backcolor);
+    void drawOutputPoints(QPainter & painter, double const &scalex, double const &scaley, QPointF const &Offset, const QColor &backclr);
 
     void exportSpline(QTextStream &out, bool bExtrados);
 

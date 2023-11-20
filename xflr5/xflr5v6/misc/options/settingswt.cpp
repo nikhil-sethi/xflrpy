@@ -28,18 +28,17 @@
 #include <QMessageBox>
 #include <QFontDatabase>
 #include <QHBoxLayout>
-#include <QRegularExpression>
 
 #include "settingswt.h"
-#include <globals/mainframe.h>
-#include <miarex/miarex.h>
-#include <xdirect/xdirect.h>
+
 #include <xflwidgets/view/section2dwt.h>
 #include <xflcore/displayoptions.h>
 #include <xflcore/xflcore.h>
 #include <xflgraph/controls/graphdlg.h>
 #include <xflwidgets/color/textclrbtn.h>
 #include <xflwidgets/color/colorbtn.h>
+#include <xflwidgets/text/intedit.h>
+
 
 bool Settings::s_bDontUseNativeDlg(true);
 bool Settings::s_bStyleSheet(false);
@@ -82,9 +81,12 @@ Settings::Settings(QWidget *pParent) : QWidget(pParent)
     connect(m_ppbTextFont,           SIGNAL(clicked()),                  SLOT(onTextFont()));
     connect(m_ppbTableFont,          SIGNAL(clicked()),                  SLOT(onTableFont()));
     connect(m_ppbTreeFont,           SIGNAL(clicked()),                  SLOT(onTreeFont()));
+    connect(m_ppbToolTipFont,        SIGNAL(clicked()),                  SLOT(onToolTipFont()));
 
     connect(m_pchReverseZoom,        SIGNAL(clicked()),                  SLOT(onReverseZoom()));
     connect(m_pchAlignChildrenStyle, SIGNAL(clicked()),                  SLOT(onAlignChildrenStyle()));
+
+    connect(m_pieSymbolSize,         SIGNAL(valueChanged()),             SLOT(onSymbolSize()));
 }
 
 
@@ -101,7 +103,7 @@ void Settings::setupLayout()
 
             m_pchStyleSheetOverride = new QCheckBox("Application dark mode override");
             m_pchStyleSheetOverride->setToolTip("Set a dark mode for the application's buttons, menus, toolbars and other widgets.\n"
-                                                "Customize by editing the text file xflr5_dark.qss located in the application's directory.\n"
+                                                "Customize by editing the text file xflr5_dark.css located in the application's directory.\n"
                                                 "Intended primarily for Windows OS which does not support dark mode for 3rd party apps.\n"
                                                 "This option should be used together with the UI dark theme activated.");
             connect(m_pchStyleSheetOverride, SIGNAL(clicked(bool)), SLOT(onStyleSheet(bool)));
@@ -153,13 +155,18 @@ void Settings::setupLayout()
                     QLabel *plabTree = new QLabel(tr("Tree font"));
                     m_ppbTreeFont = new QPushButton;
 
-                    pMainFontLayout->addWidget(plabMain,      1,1);
-                    pMainFontLayout->addWidget(m_ppbTextFont, 1,2);
-                    pMainFontLayout->addWidget(m_ptcbTextClr, 1,3);
-                    pMainFontLayout->addWidget(plabTable,     2,1);
-                    pMainFontLayout->addWidget(m_ppbTableFont,2,2);
-                    pMainFontLayout->addWidget(plabTree,      3,1);
-                    pMainFontLayout->addWidget(m_ppbTreeFont, 3,2);
+                    QLabel *plabToolTip = new QLabel(tr("Tool tip font"));
+                    m_ppbToolTipFont = new QPushButton;
+
+                    pMainFontLayout->addWidget(plabMain,         1,1);
+                    pMainFontLayout->addWidget(m_ppbTextFont,    1,2);
+                    pMainFontLayout->addWidget(m_ptcbTextClr,    1,3);
+                    pMainFontLayout->addWidget(plabTable,        2,1);
+                    pMainFontLayout->addWidget(m_ppbTableFont,   2,2);
+                    pMainFontLayout->addWidget(plabTree,         3,1);
+                    pMainFontLayout->addWidget(m_ppbTreeFont,    3,2);
+                    pMainFontLayout->addWidget(plabToolTip,      4,1);
+                    pMainFontLayout->addWidget(m_ppbToolTipFont, 4,2);
                 }
                 pFontBox->setLayout(pMainFontLayout);
             }
@@ -183,6 +190,19 @@ void Settings::setupLayout()
         pThemeBox->setLayout(pThemeBoxLayout);
     }
 
+    QHBoxLayout *pSymbolLayout  =  new QHBoxLayout;
+    {
+
+        QLabel *plabSym = new QLabel("Symbol size:");
+        m_pieSymbolSize = new IntEdit;
+        m_pieSymbolSize->setToolTip("This value defines a scale for the display of symbols in the graphs and other 2d views.<br>"
+                                    "Recommended size = 3 pixels");
+        QLabel *plabPixels = new QLabel("pixels");
+        pSymbolLayout->addWidget(plabSym);
+        pSymbolLayout->addWidget(m_pieSymbolSize);
+        pSymbolLayout->addWidget(plabPixels);
+        pSymbolLayout->addStretch();
+    }
 
     QVBoxLayout *pMainLayout = new QVBoxLayout;
     {
@@ -196,6 +216,7 @@ void Settings::setupLayout()
         pMainLayout->addWidget(pWidgetStyleBox);
         pMainLayout->addStretch(1);
         pMainLayout->addWidget(pThemeBox);
+        pMainLayout->addLayout(pSymbolLayout);
         pMainLayout->addWidget(m_pchReverseZoom);
         pMainLayout->addWidget(m_pchAlignChildrenStyle);
         pMainLayout->addSpacing(20);
@@ -237,6 +258,11 @@ void Settings::initWidget()
     m_ppbTreeFont->setText(TreeFontName);
     m_ppbTreeFont->setFont(s_TreeFont);
 
+    QFont s_ToolTipFont = DisplayOptions::toolTipFont();
+    QString ToolTipFontName = s_ToolTipFont.family() + QString(" %1").arg(s_ToolTipFont.pointSize());
+    m_ppbToolTipFont->setText(ToolTipFontName);
+    m_ppbToolTipFont->setFont(s_ToolTipFont);
+
     if(m_pcbStyles->findText(s_StyleName)>=0)
         m_pcbStyles->setCurrentIndex(m_pcbStyles->findText(s_StyleName));
     else if(m_pcbStyles->findText(s_StyleSheetName)>=0)
@@ -244,6 +270,8 @@ void Settings::initWidget()
 
     m_pchReverseZoom->setChecked(DisplayOptions::bReverseZoom());
     m_pchAlignChildrenStyle->setChecked(DisplayOptions::s_bAlignChildrenStyle);
+
+    m_pieSymbolSize->setValue(xfl::symbolSize()*2);
 }
 
 
@@ -342,6 +370,19 @@ void Settings::onTreeFont()
 }
 
 
+void Settings::onToolTipFont()
+{
+    bool bOK(false);
+    QFont ToolTipFont = QFontDialog::getFont(&bOK, DisplayOptions::toolTipFont(), this, QString("Tool tip font"));
+
+    if (bOK)
+    {
+        DisplayOptions::setToolTipFont(ToolTipFont);
+        setButtonFonts();
+    }
+}
+
+
 void Settings::saveSettings(QSettings &settings)
 {
     settings.beginGroup("global_settings");
@@ -373,6 +414,8 @@ void Settings::saveSettings(QSettings &settings)
 
         s_RefGraph.setGraphName("Reference_Graph");
         s_RefGraph.saveSettings(settings);
+
+        settings.setValue("SymbolSize",             xfl::symbolSize());
     }
     settings.endGroup();
 }
@@ -412,6 +455,9 @@ void Settings::loadSettings(QSettings &settings)
 
         s_RefGraph.setGraphName("Reference_Graph");
         s_RefGraph.loadSettings(settings);
+
+        xfl::setSymbolSize(        settings.value("SymbolSize",      xfl::symbolSize()).toUInt());
+
     }
     settings.endGroup();
 }
@@ -428,6 +474,12 @@ void Settings::onReverseZoom()
 void Settings::onAlignChildrenStyle()
 {
     DisplayOptions::s_bAlignChildrenStyle = m_pchAlignChildrenStyle->isChecked();
+}
+
+
+void Settings::onSymbolSize()
+{
+    xfl::setSymbolSize(m_pieSymbolSize->value()/2);
 }
 
 
@@ -616,9 +668,7 @@ void Settings::setColorList()
     s_colorNames.append("darkred");
     s_colorNames.append("maroon");
     s_colorNames.append("darkmaroon");
-
 }
-
 
 
 void Settings::setButtonFonts()
@@ -650,12 +700,19 @@ void Settings::setButtonFonts()
                                     DisplayOptions::tableFont().pointSize());
     m_ppbTableFont->setStyleSheet(stylestring);
 
-    QString treeeFontName = DisplayOptions::treeFont().family() + QString(" %1").arg(DisplayOptions::treeFont().pointSize());
-    m_ppbTreeFont->setText(treeeFontName);
+    QString treeFontName = DisplayOptions::treeFont().family() + QString(" %1").arg(DisplayOptions::treeFont().pointSize());
+    m_ppbTreeFont->setText(treeFontName);
     stylestring = QString::asprintf("font-family: %s; font-size: %dpt",
                                     DisplayOptions::treeFont().family().toStdString().c_str(),
                                     DisplayOptions::treeFont().pointSize());
     m_ppbTreeFont->setStyleSheet(stylestring);
+
+    QString toolTipFontName = DisplayOptions::toolTipFont().family() + QString(" %1").arg(DisplayOptions::toolTipFont().pointSize());
+    m_ppbToolTipFont->setText(toolTipFontName);
+    stylestring = QString::asprintf("font-family: %s; font-size: %dpt",
+                                    DisplayOptions::toolTipFont().family().toStdString().c_str(),
+                                    DisplayOptions::toolTipFont().pointSize());
+    m_ppbToolTipFont->setStyleSheet(stylestring);
 }
 
 
@@ -665,12 +722,12 @@ void Settings::onStyleSheet(bool bSheet)
     QFile stylefile;
     if(bSheet)
     {
-        QString qssPathName =  qApp->applicationDirPath() + QDir::separator() +"/xflr5_dark.qss";
+        QString qssPathName =  qApp->applicationDirPath() + QDir::separator() +"/xflr5_dark.css";
         QFileInfo fi(qssPathName);
         if(fi.exists())
             stylefile.setFileName(qssPathName);
         else
-            stylefile.setFileName(QStringLiteral(":/qss/xflr5_dark.qss"));
+            stylefile.setFileName(QStringLiteral(":/qss/xflr5_dark.css"));
         if (stylefile.open(QIODevice::ReadOnly | QIODevice::Text))
         {
             QApplication::setOverrideCursor(Qt::WaitCursor);

@@ -51,8 +51,8 @@ class GraphTileWidget : public QWidget
         int graphWidgetCount() const {return m_GraphWidget.count();}
         int activeGraphIndex() const {return m_iActiveGraphWidget;}
 
-        void keyPressEvent(QKeyEvent *event) override;
-        void contextMenuEvent (QContextMenuEvent *event) override;
+        void keyPressEvent(QKeyEvent *pEvent) override;
+        void contextMenuEvent (QContextMenuEvent *pEvent) override;
 
 
         virtual void setGraphList(QVector<Graph*>pGraphList, int nGraphs, int iGraphWidget, Qt::Orientation orientation =Qt::Horizontal);

@@ -29,7 +29,7 @@
 #include <xflobjects/objects2d/foil.h>
 
 
-XFoil *TEGapDlg::s_pXFoil;
+XFoil *TEGapDlg::s_pXFoil(nullptr);
 
 TEGapDlg::TEGapDlg(QWidget *pParent) : QDialog(pParent)
 {

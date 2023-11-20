@@ -50,6 +50,9 @@ struct LineStyle
     void setStipple(int n) {m_Stipple = convertLineStyle(n);}
     void setPointStyle(int n) {m_Symbol = convertPointStyle_old(n);}
 
+    bool pointsVisible() const {return m_Symbol!=Line::NOSYMBOL;}
+
+
     bool m_bIsEnabled=true;       /**< true if the curve is selectable >*/
     bool m_bIsVisible=true;       /**< true if the curve is visible in the active view >*/
     bool m_bIsHighlighted=false;     /**< true if the curve is selected >*/

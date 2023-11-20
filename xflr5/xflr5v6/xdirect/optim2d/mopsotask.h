@@ -39,14 +39,17 @@ class MOPSOTask : public OptimTask
         MOPSOTask();
 
         void setNObjectives(int nObj) {m_Objective.resize(nObj);}
+        void setObjectives(QVector<OptObjective> const& objectives) {m_Objective = objectives;}
 
         void makeSwarm() override;
 
         int nObjectives() const {return m_Objective.size();}
         OptObjective const & objective(int iobj) const {return m_Objective.at(iobj);}
         void setObjective(int iobj, const OptObjective &obj) {m_Objective[iobj] = obj;}
+        void updateFitnesses();
         void updateErrors();
         void clearPareto(){ m_Pareto.clear();}
+
 
         static void restoreDefaults();
 
@@ -63,8 +66,11 @@ class MOPSOTask : public OptimTask
         virtual void calcFitness(Particle *pParticle) const override = 0;
 
     private slots:
-        void onSwarm();
+        void onIterate();
         void onIteration() override; // in case the iteration is triggered by a timer
+
+    signals:
+        void iterEvent(OptimEvent*);
 
     protected:
 

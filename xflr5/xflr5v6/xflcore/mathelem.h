@@ -39,9 +39,6 @@ void getPointDistribution(QVector<double> &fraclist, int nPanels, xfl::enumPanel
 double getDistribFraction(double tau, xfl::enumPanelDistribution DistType=xfl::COSINE);
 
 
-double err_func(double x);
-double erf_inv(double a);
-
 double interpolateLine(double x, double x0, double y0, double x1, double y1);
 
 double interpolatePolyLine(double x, const QVector<double> &xp, const QVector<double> &yp, bool bExtend);
@@ -50,8 +47,10 @@ double interpolatePolyLine(double x, const QVector<double> &xp, const QVector<do
 QString distributionType(xfl::enumPanelDistribution dist);
 xfl::enumPanelDistribution distributionType(const QString &Dist);
 
-bool isEven(int n);
-bool isOdd(int n);
+
+inline bool isEven(int n) {return n%2==0;}
+inline bool isOdd(int n) {return n%2==1;}
+
 bool isBetween(int f, int f1, int f2);
 bool isBetween(int f, double f1, double f2);
 
@@ -59,6 +58,6 @@ double bunchedParameter(double bunchdist, double bunchamp, double t);
 
 bool linearRegression(int n, double const *x, double const*y, double &a, double &b);
 
-double HH(double x, double t1, double t2, double xmin, double xmax);
+double HH(double x, double t1, double t2);
 
 void modeProperties(std::complex<double> lambda, double &omegaN, double &omega1, double &zeta);

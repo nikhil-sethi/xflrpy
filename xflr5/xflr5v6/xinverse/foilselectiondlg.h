@@ -54,8 +54,10 @@ class FoilSelectionDlg : public QDialog
         void onButton(QAbstractButton *pButton);
 
     private:
+        QSize sizeHint() const override {return QSize(500,700);}
         void setupLayout();
 
+    private:
         QDialogButtonBox *m_pButtonBox;
         QPushButton *m_ppbSelectAll;
         QListWidget *m_plwNameList;

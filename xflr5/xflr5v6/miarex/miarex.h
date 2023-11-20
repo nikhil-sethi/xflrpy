@@ -186,6 +186,7 @@ class Miarex : public QWidget
         void onNewPlane();
         void onNewPlaneObject();
         void onPanelForce();
+        void onPlaneDescription();
         void onPlaneInertia();
         void onPolarFilter();
         void onReadAnalysisData();
@@ -226,9 +227,9 @@ class Miarex : public QWidget
 
     public:
         //overrides
-        void keyPressEvent(QKeyEvent *event) override;
-        void keyReleaseEvent(QKeyEvent *event) override;
-        void showEvent(QShowEvent *event) override;
+        void keyPressEvent(QKeyEvent *pEvent) override;
+        void keyReleaseEvent(QKeyEvent *pEvent) override;
+        void showEvent(QShowEvent *pEvent) override;
 
         //class methods
         WPolar* addWPolar(WPolar* pWPolar);
@@ -280,7 +281,6 @@ class Miarex : public QWidget
         void setWGraphTitles(Graph* pGraph);
         void setWPolar(WPolar*pWPolar=nullptr);
         void setWPolar(bool bCurrent, QString const&WPlrName);
-        void snapClient(QString const &FileName);
         void stopAnimate();
         void updateCurve();
         void updateUnits();

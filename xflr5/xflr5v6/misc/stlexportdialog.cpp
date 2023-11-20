@@ -129,8 +129,8 @@ void STLExportDlg::setupLayout()
 
 void STLExportDlg::connectSignals()
 {
-    connect(m_pieChordPanels, SIGNAL(editingFinished()), this, SLOT(onReadParams()));
-    connect(m_pieSpanPanels,  SIGNAL(editingFinished()), this, SLOT(onReadParams()));
+    connect(m_pieChordPanels, SIGNAL(valueChanged()), SLOT(onReadParams()));
+    connect(m_pieSpanPanels,  SIGNAL(valueChanged()), SLOT(onReadParams()));
 }
 
 

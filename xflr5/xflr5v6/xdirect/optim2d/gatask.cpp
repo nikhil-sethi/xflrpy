@@ -29,8 +29,7 @@
 #include <xflobjects/objects2d/foil.h>
 #include <xflcore/constants.h>
 #include <xdirect/analysis/xfoiltask.h>
-//#include <xdirect/optim2d/optimevent.h>
-
+#include <xflcore/mathelem.h>
 
 double GATask::s_ProbXOver       = 0.5;
 double GATask::s_ProbMutation    = 0.15;
@@ -406,16 +405,6 @@ double GATask::foilFunc(Particle const*pParticle) const
     delete task;
 
     return Cl;
-}
-
-/** Hicks-Henne bump function
- * parameter t1 controls the bump's position and t2 its width
- * @todo make global
- */
-double GATask::HH(double x, double t1, double t2) const
-{
-    if(x<=0.0 || x>=1.0) return 0.0;
-    return pow(sin(PI*pow(x, log(0.5)/log(t1))), t2);
 }
 
 

@@ -51,7 +51,8 @@ void PreferencesDlg::keyPressEvent(QKeyEvent *pEvent)
         case Qt::Key_Return:
         case Qt::Key_Enter:
         {
-            m_pButtonBox->button(QDialogButtonBox::Ok)->setFocus();
+            QPushButton *pButton = m_pButtonBox->button(QDialogButtonBox::Ok);
+            if(pButton) pButton->setFocus();
             break;
         }
         case Qt::Key_Escape:

@@ -213,7 +213,7 @@ void Graph::drawCurve(int nIndex, QPainter &painter)
 
 void Graph::drawAxes(QPainter &painter)
 {
-    double xp=0, yp=0;
+    double xp(0), yp(0);
     QPen AxesPen;
     double scaley = m_scaley;
     painter.save();
@@ -224,9 +224,9 @@ void Graph::drawAxes(QPainter &painter)
     painter.setPen(AxesPen);
 
     //vertical axis
-    if(m_xo>=m_xmin && m_xo<=m_xmax) xp = m_xo;
-    else if(m_xo>m_xmax)         xp = m_xmax;
-    else                     xp = m_xmin;
+    if     (m_xo>=m_xmin && m_xo<=m_xmax) xp = m_xo;
+    else if(m_xo>m_xmax)                  xp = m_xmax;
+    else                                  xp = m_xmin;
 
     painter.drawLine(int(xp/m_scalex) + m_ptoffset.x(), int(m_ymin/scaley) + m_ptoffset.y(),
                      int(xp/m_scalex) + m_ptoffset.x(), int(m_ymax/scaley) + m_ptoffset.y());
@@ -248,7 +248,7 @@ void Graph::drawTitles(QPainter &painter)
 {
     //draws the x & y axis name
 
-    double xp=0, yp=0;
+    double xp(0), yp(0);
 
     double scaley = m_scaley;
     painter.save();
@@ -587,10 +587,10 @@ void Graph::drawYMinGrid(QPainter &painter)
 }
 
 
-void Graph::drawLegend(QPainter &painter, QPoint &Place, QFont const&LegendFont, QColor const &LegendColor, QColor const &backColor)
+void Graph::drawLegend(QPainter &painter, QPoint const &Place, QFont const&LegendFont, QColor const &LegendColor, QColor const &backColor)
 {
     painter.save();
-    int LegendSize, ypos;
+    int LegendSize(0), ypos(0);
     QString strong;
 
     LegendSize = 30;
@@ -602,8 +602,6 @@ void Graph::drawLegend(QPainter &painter, QPoint &Place, QFont const&LegendFont,
 
     painter.setBackgroundMode(Qt::TransparentMode);
 
-    Curve* pCurve;
-
     QPen TextPen(LegendColor);
     QPen LegendPen(Qt::gray);
     QBrush LegendBrush(backColor);
@@ -612,10 +610,10 @@ void Graph::drawLegend(QPainter &painter, QPoint &Place, QFont const&LegendFont,
     int npos = 0;
     for (int nc=0; nc< m_oaCurves.size(); nc++)
     {
-        pCurve = m_oaCurves[nc];
-        if(pCurve->isVisible())
+        Curve const *pCurve = m_oaCurves.at(nc);
+        if(pCurve->isVisible() || pCurve->pointsVisible())
         {
-            pCurve->curveName(strong);
+            pCurve->name(strong);
             if(pCurve->size()>0 && strong.length())//is there anything to draw ?
             {
 
@@ -625,13 +623,15 @@ void Graph::drawLegend(QPainter &painter, QPoint &Place, QFont const&LegendFont,
 
                 painter.setPen(LegendPen);
 
-                painter.drawLine(Place.x(),                     Place.y() + ypos*npos + ypos/3,
+                painter.drawLine(Place.x(),                   Place.y() + ypos*npos + ypos/3,
                                  Place.x() + int(LegendSize), Place.y() + ypos*npos + ypos/3);
-                if(pCurve->pointStyle())
+                if(pCurve->pointsVisible())
                 {
                     int x1 = Place.x() + int(LegendSize/2);
                     int y1 = Place.y() + int(ypos*npos+ ypos/3);
 
+                    LegendPen.setStyle(Qt::SolidLine);
+                    painter.setPen(LegendPen);
                     xfl::drawSymbol(painter, pCurve->pointStyle(), m_BackColor, pCurve->color(), QPoint(x1, y1));
                 }
 
@@ -668,31 +668,29 @@ void Graph::expFormat(double &f, int &exp) const
 
 void Graph::exportToFile(QFile &XFile, bool bCSV)
 {
-    int i,j, maxpoints;
-    Curve *pCurve;
+    int maxpoints(0);
     QString strong;
     QTextStream out(&XFile);
 
-    maxpoints = 0;
-    for(i=0; i<m_oaCurves.size(); i++)
+    for(int i=0; i<m_oaCurves.size(); i++)
     {
-        pCurve = curve(i);
+        Curve *pCurve = curve(i);
         if(pCurve)
         {
             maxpoints = qMax(maxpoints,pCurve->size());
 
-            pCurve->curveName(strong);
+            pCurve->name(strong);
             if(!bCSV) out << "     "<<m_XTitle<<"       "<< strong <<"    ";
             else      out << m_XTitle<<","<< strong << ", , ";
         }
     }
     out<<"\n"; //end of title line
 
-    for(j=0; j<maxpoints; j++)
+    for(int j=0; j<maxpoints; j++)
     {
-        for(i=0; i<m_oaCurves.size(); i++)
+        for(int i=0; i<m_oaCurves.size(); i++)
         {
-            pCurve = curve(i);
+            Curve *pCurve = curve(i);
             if(pCurve && j<pCurve->size())
             {
                 if(!bCSV) strong= QString("%1     %2  ").arg(pCurve->x(j),13,'g',7).arg(pCurve->y(j),13,'g',7);
@@ -724,7 +722,8 @@ void Graph::highlight(QPainter &painter, Curve *pCurve, int ref)
     QPen HighlightPen(QColor(255,100,100));
     HighlightPen.setWidth(2);
     painter.setPen(HighlightPen);
-    QRect r(x-3,y-3,6,6);
+    int w = xfl::symbolSize();
+    QRect r(x-w,y-w,2*w,2*w);
     painter.drawRect(r);
     painter.restore();
 }
@@ -867,7 +866,7 @@ Curve* Graph::addCurve()
     {
         int nIndex = m_oaCurves.size();
         pCurve->setColor(s_CurveColors[nIndex%10]);
-        pCurve->setStipple(0);
+        pCurve->setStipple(Line::SOLID);
         pCurve->m_pParentGraph = this;
         m_oaCurves.append(pCurve);
     }
@@ -882,7 +881,7 @@ Curve* Graph::addCurve(Curve *pCurve)
     {
         int nIndex = m_oaCurves.size();
         pCurve->setColor(s_CurveColors[nIndex%10]);
-        pCurve->setStipple(0);
+        pCurve->setStipple(Line::SOLID);
         pCurve->m_pParentGraph = this;
         m_oaCurves.append(pCurve);
     }
@@ -955,18 +954,20 @@ void Graph::copySettings(Graph *pGraph, bool bScales)
 
 void Graph::deleteCurve(int index)
 {
-    Curve * pCurve = curve(index);
-    m_oaCurves.removeAt(index);
-    delete pCurve;
+    Curve *pCurve = curve(index);
+    if(pCurve)
+    {
+        m_oaCurves.removeAt(index);
+        delete pCurve;
+    }
 }
 
 
 void Graph::deleteCurve(Curve *pCurve)
 {
-    Curve *pOldCurve = nullptr;
     for(int i=0; i<m_oaCurves.size(); i++)
     {
-        pOldCurve = m_oaCurves.at(i);
+        Curve *pOldCurve = m_oaCurves.at(i);
         if(pOldCurve==pCurve)
         {
             m_oaCurves.removeAt(i);
@@ -982,7 +983,7 @@ void Graph::deleteCurve(QString const &CurveTitle)
     for(int i=0; i<m_oaCurves.size(); i++)
     {
         Curve *pOldCurve = m_oaCurves.at(i);
-        if(pOldCurve->m_CurveName==CurveTitle)
+        if(pOldCurve  && pOldCurve->m_Name==CurveTitle)
         {
             m_oaCurves.removeAt(i);
             delete pOldCurve;
@@ -1035,13 +1036,13 @@ Curve const* Graph::curveAt(int nIndex) const
 Curve* Graph::curve(QString const &CurveTitle)
 {
     QString strong;
-    Curve * pCurve;
+
     for(int i=0; i<m_oaCurves.size(); i++)
     {
-        pCurve = m_oaCurves.at(i);
+        Curve *pCurve = m_oaCurves.at(i);
         if(pCurve)
         {
-            pCurve->curveName(strong);
+            pCurve->name(strong);
             if(strong==CurveTitle) return pCurve;
         }
     }
@@ -1091,10 +1092,9 @@ bool Graph::isInDrawRect(int const &x, int const &y)
 
 void Graph::resetCurves()
 {
-    Curve *pCurve;
     for(int i=0; i<m_oaCurves.size(); i++)
     {
-        pCurve = m_oaCurves.at(i);
+        Curve *pCurve = m_oaCurves.at(i);
         pCurve->clear();
     }
 }
@@ -1315,9 +1315,6 @@ void Graph::setYMajGrid(bool const &state, QColor const &clr, int const &style, 
 
 bool Graph::setXScale()
 {
-    Curve *pCurve(nullptr);
-    int nc(0);
-
     if(m_bAutoX)
     {
         bool bCurve = false;
@@ -1325,9 +1322,9 @@ bool Graph::setXScale()
         if (m_oaCurves.size())
         {
             //init only if we have a curve
-            for (nc=0; nc < m_oaCurves.size(); nc++)
+            for (int nc=0; nc < m_oaCurves.size(); nc++)
             {
-                pCurve = m_oaCurves[nc];
+                Curve const *pCurve = m_oaCurves.at(nc);
                 if ((pCurve->isVisible() ||pCurve->pointsVisible()) && pCurve->size()>1)
                 {
                     bCurve = true;
@@ -1339,9 +1336,9 @@ bool Graph::setXScale()
         {
             Cxmin =  9999999.0;
             Cxmax = -9999999.0;
-            for (nc=0; nc < m_oaCurves.size(); nc++)
+            for (int  nc=0; nc < m_oaCurves.size(); nc++)
             {
-                pCurve = m_oaCurves[nc];
+                Curve const *pCurve = m_oaCurves.at(nc);
                 if ((pCurve->isVisible() ||pCurve->pointsVisible())  && pCurve->size()>0)
                 {
                     Cxmin = qMin(Cxmin, pCurve->xMin());
@@ -1369,9 +1366,9 @@ bool Graph::setXScale()
         else
         {
             // until things are made clear
-            for (nc=0; nc < m_oaCurves.size(); nc++)
+            for (int  nc=0; nc < m_oaCurves.size(); nc++)
             {
-                pCurve = m_oaCurves[nc];
+                Curve const *pCurve = m_oaCurves.at(nc);
                 if ((pCurve->isVisible() ||pCurve->pointsVisible())  && pCurve->size()>0)
                 {
                     m_xmin = std::min(m_xmin, pCurve->x(0));
@@ -1431,7 +1428,8 @@ bool Graph::setXScale()
 }
 
 
-void Graph::setXUnit(double f){
+void Graph::setXUnit(double f)
+{
     m_xunit = f;
 }
 
@@ -1476,21 +1474,17 @@ void Graph::setYUnit(double f)
 }
 
 
-
 bool Graph::setYScale()
 {
-    int nc;
-    Curve *pCurve;
-
     if(m_bAutoY)
     {
         bool bCurve = false;
         if (m_oaCurves.size())
         {
             //init only if we have a curve
-            for (nc=0; nc < m_oaCurves.size(); nc++)
+            for (int nc=0; nc < m_oaCurves.size(); nc++)
             {
-                pCurve = m_oaCurves[nc];
+                Curve const *pCurve = m_oaCurves.at(nc);
                 if ((pCurve->isVisible() ||pCurve->pointsVisible())  && pCurve->size()>0)
                 {
                     bCurve = true;
@@ -1502,9 +1496,9 @@ bool Graph::setYScale()
         {
             Cymin =  9999999.0;
             Cymax = -9999999.0;
-            for (nc=0; nc < m_oaCurves.size(); nc++)
+            for (int nc=0; nc < m_oaCurves.size(); nc++)
             {
-                pCurve = m_oaCurves[nc];
+                Curve const *pCurve = m_oaCurves.at(nc);
                 if ((pCurve->isVisible() ||pCurve->pointsVisible()) && pCurve->size()>0)
                 {
                     Cymin = std::min(Cymin, pCurve->yMin());
@@ -1534,7 +1528,7 @@ bool Graph::setYScale()
             // until things are made clear
             for (int nc=0; nc<m_oaCurves.size(); nc++)
             {
-                pCurve = m_oaCurves[nc];
+                Curve const *pCurve = m_oaCurves.at(nc);
                 if ((pCurve->isVisible()||pCurve->pointsVisible())  && pCurve->size()>0)
                 {
                     m_ymin = std::min(m_ymin, pCurve->y(0));
@@ -1607,7 +1601,6 @@ bool Graph::setYScale()
 }
 
 
-
 void Graph::setYVariable(int const & Y)
 {
     m_Y = Y;
@@ -1624,105 +1617,6 @@ int Graph::yToClient(double y) const
 {
     return int(y/m_scaley + m_ptoffset.y());
 }
-
-
-Curve*  Graph::getClosestPoint(const double &x, const double &y, double &xSel, double &ySel, int &nSel)
-{
-    int i, n1;
-    double dist, dmax, x1, y1;
-    dmax = 1.e40;
-    Curve *pOldCurve, *pCurveSel;
-    pCurveSel = nullptr;
-
-    for(i=0; i<m_oaCurves.size(); i++)
-    {
-        pOldCurve = m_oaCurves.at(i);
-        pOldCurve->closestPoint(x, y, x1, y1, dist, n1);
-        if(dist<dmax)
-        {
-            dmax = dist;
-            xSel = x1;
-            ySel = y1;
-            pCurveSel = pOldCurve;
-            nSel = i;
-        }
-    }
-    return pCurveSel;
-}
-
-
-Curve* Graph::getCurvePoint(const int &xClt, const int &yClt,int &nSel)
-{
-    int i, n, xc, yc;
-    double dist, x1, y1, x,y;
-    Curve *pOldCurve;
-
-    x= clientTox(xClt);
-    y= clientToy(yClt);
-    for(i=0; i<m_oaCurves.size(); i++)
-    {
-        pOldCurve = m_oaCurves.at(i);
-        pOldCurve->closestPoint(x, y, x1, y1, dist, n);
-
-        xc = xToClient(x1);
-        yc = yToClient(y1);
-
-        if((xClt-xc)*(xClt-xc) + (yClt-yc)*(yClt-yc) <16)//sqrt(16) pixels distance
-        {
-            nSel = n;
-            return pOldCurve;
-        }
-    }
-    nSel = -1;
-    return  nullptr;
-}
-
-
-bool Graph::selectPoint(QString const &CurveName, int sel)
-{
-    QString str;
-    Curve *pCurve = nullptr;
-
-    if(sel<0)
-    {
-        //        pCurve->SetSelected(-1);
-        return false;
-    }
-
-    for(int i=0; i<m_oaCurves.size(); i++)
-    {
-        pCurve = m_oaCurves.at(i);
-        pCurve->curveName(str);
-        if(str == CurveName)
-        {
-            if(sel>pCurve->count())
-            {
-                pCurve->setSelected(-1);
-                return false;
-            }
-            else
-            {
-                pCurve->setSelected(sel);
-                return true;
-            }
-        }
-    }
-    //    pCurve->SetSelected(-1);
-    return false;
-}
-
-
-void Graph::deselectPoint()
-{
-    Curve *pCurve;
-    for(int i=0; i<m_oaCurves.size(); i++)
-    {
-        pCurve = m_oaCurves.at(i);
-        pCurve->setSelected(-1);
-    }
-}
-
-
 
 
 

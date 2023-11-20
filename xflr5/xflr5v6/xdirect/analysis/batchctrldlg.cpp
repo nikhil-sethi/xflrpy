@@ -124,7 +124,7 @@ void BatchCtrlDlg::setupLayout()
     {
         pRightSideLayout->addWidget(m_pchInitBL);
         pRightSideLayout->addWidget(m_pfrOptions);
-        pRightSideLayout->addWidget(m_pteTextOutput);
+        pRightSideLayout->addWidget(m_ppto);
     }
 
     QHBoxLayout *pBoxesLayout = new QHBoxLayout;
@@ -135,7 +135,7 @@ void BatchCtrlDlg::setupLayout()
     }
 
     setLayout(pBoxesLayout);
-    m_pteTextOutput->setPlainText("Hell");
+    m_ppto->setPlainText("Hell");
 }
 
 
@@ -200,7 +200,7 @@ void BatchCtrlDlg::onAnalyze()
 {
     if(m_bIsRunning)
     {
-        m_pteTextOutput->appendPlainText("Cancelling analyses\n");
+        m_ppto->appendPlainText("Cancelling analyses\n");
         m_bCancel = true;
         XFoilTask::s_bCancel = true;
         XFoil::setCancel(true);
@@ -234,10 +234,10 @@ void BatchCtrlDlg::customEvent(QEvent * pEvent)
         XFoilTaskEvent *pTaskEvent = dynamic_cast<XFoilTaskEvent*>(pEvent);
         m_TaskCounter++;
         QString strange = QString::asprintf("%d/%d: ", m_TaskCounter, m_nTasks) + "Finished task "+ pTaskEvent->foil()->name() + " / " + pTaskEvent->polar()->name();
-        m_pteTextOutput->appendPlainText(strange);
+        m_ppto->appendPlainText(strange);
         if(m_TaskCounter>=m_nTasks)
         {
-            m_pteTextOutput->appendPlainText("All tasks completed");
+            m_ppto->appendPlainText("All tasks completed");
             cleanUp();
         }
     }
@@ -265,7 +265,7 @@ void BatchCtrlDlg::startAnalyses()
     if(foils.isEmpty())
     {
         strange ="No foil defined for analysis\n\n";
-        m_pteTextOutput->insertPlainText(strange);
+        m_ppto->insertPlainText(strange);
         cleanUp();
         return;
     }
@@ -281,14 +281,14 @@ void BatchCtrlDlg::startAnalyses()
 
     XFoilTask::s_bCancel = false;
 
-    m_pteTextOutput->appendPlainText("Starting analyses");
+    m_ppto->appendPlainText("Starting analyses");
 
     for(int i=0; i<foils.count(); i++)
     {
         Foil *pFoil = foils.at(i);
         if(!pFoil) continue;
 
-        m_pteTextOutput->appendPlainText("   starting XFoil tasks for "+pFoil->name());
+        m_ppto->appendPlainText("   starting XFoil tasks for "+pFoil->name());
 
 //        QFutureSynchronizer<void> futureSync;
         for (int iRe=0; iRe<nRe; iRe++)
@@ -316,12 +316,12 @@ void BatchCtrlDlg::startAnalyses()
 #endif
         }
 //        futureSync.waitForFinished(); // maybe unnecessary: "The destructor of QFutureSynchronizer calls waitForFinished()"
-        m_pteTextOutput->appendPlainText("   finished launching XFoil tasks for " + pFoil->name());
+        m_ppto->appendPlainText("   finished launching XFoil tasks for " + pFoil->name());
 
         s_pXDirect->resetCurves();
         s_pXDirect->updateView();
     }
-    m_pteTextOutput->appendPlainText("All tasks launched... waiting\n");
+    m_ppto->appendPlainText("All tasks launched... waiting\n");
 
     m_bIsRunning = true;
 }

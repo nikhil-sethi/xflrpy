@@ -57,7 +57,7 @@ class LinePickerWt;
 /**
 * @class XDirect
 * @brief This class is the general interface for Foil direct analysis.
-* This is the handling class for the QXDirect right toolbar.
+* This is the handling class for the XDirect right toolbar.
 * It provides the methods to modify the foil geometry, define the Polar analysis, perform the analysis, and post-process the results.
 * One of the very first class of this project.
 */
@@ -165,6 +165,7 @@ class XDirect : public QWidget
         void onQGraph();
         void onRefinePanelsGlobally();
         void onRenameCurFoil();
+        void onFoilDescription();
         void onRenameCurPolar();
         void onResetAllPolarGraphsScales();
         void onResetCurPolar();

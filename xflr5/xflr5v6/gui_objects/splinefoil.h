@@ -51,7 +51,6 @@ class SplineFoil : public XflObject
         SplineFoil(SplineFoil *pSF);
 
         bool isSymetric()        const {return m_bSymetric;}
-        bool showOutPoints()     const {return m_bOutPoints;}
         bool showCenterLine()    const {return m_bCenterLine;}
 
         QString const &splineFoilName() const {return m_Name;}
@@ -71,10 +70,10 @@ class SplineFoil : public XflObject
         bool serializeXFL(QDataStream &ar, bool bIsStoring);
 
         void copy(SplineFoil* pSF);
-        void drawCtrlPoints(QPainter &painter, double scalex, double scaley, QPointF Offset);
+        void drawCtrlPoints(QPainter &painter, double scalex, double scaley, const QPointF &Offset, const QColor &backcolor);
         void drawMidLine(QPainter &painter, double scalex, double scaley, QPointF Offset);
         void drawFoil(QPainter &painter, double scalex, double scaley, QPointF Offset);
-        void drawOutPoints(QPainter &painter, double scalex, double scaley, QPointF Offset);
+        void drawOutPoints(QPainter &painter, double scalex, double scaley, const QPointF &Offset, const QColor &backclr);
         void exportToBuffer(Foil *pFoil);
         void exportToFile(QTextStream &out);
         void updateSplineFoil();
@@ -92,7 +91,6 @@ class SplineFoil : public XflObject
 
     private:
         bool m_bModified;                /**< false if the SplineFoil has been serialized in its current dtate, false otherwise */
-        bool m_bOutPoints;               /**< true if the ouput line points should be displayed */
         bool m_bCenterLine;              /**< true if the SplineFoil's mean camber line is to be displayed */
         bool m_bSymetric;                /**< true if the SplineFoil is symetric. In which case the lower surface is set as symetric of the upper surface. */
         bool m_bForceCloseLE;            /**< true if the leading end points of the top and bottom spline should be positioned at the same place */

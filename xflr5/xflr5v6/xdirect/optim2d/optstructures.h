@@ -22,17 +22,25 @@
 #pragma once
 #include <QString>
 
+namespace xfl
+{
+    typedef enum {MINIMIZE, EQUALIZE, MAXIMIZE} enumObjectiveType; // defines whether the objective is to minimize, maximize or make equal
+}
+
+
+
 struct OptObjective
 {
     OptObjective() {}
-    OptObjective(QString const &name, bool bActive, double target, double maxerror) :
-        m_Name(name), m_bActive(bActive), m_Target(target), m_MaxError(maxerror)
+    OptObjective(QString const &name, bool bActive, double target, double maxerror, xfl::enumObjectiveType type) :
+        m_Name(name), m_bActive(bActive), m_Target(target), m_MaxError(maxerror), m_Type(type)
     {}
 
     QString m_Name;
     bool m_bActive = true;
     double m_Target = 0.0;
     double m_MaxError = 0.0;
+    xfl::enumObjectiveType m_Type = xfl::EQUALIZE;
 };
 
 

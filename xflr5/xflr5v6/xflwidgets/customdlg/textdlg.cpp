@@ -1,7 +1,7 @@
 /****************************************************************************
 
     xflr5 v6
-    Copyright (C) André Deperrois 
+    Copyright (C) André Deperrois
     GNU General Public License v3
 
 *****************************************************************************/
@@ -10,55 +10,54 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include "newnamedlg.h"
+#include "textdlg.h"
+#include <xflwidgets/customwts/plaintextoutput.h>
 
-
-NewNameDlg::NewNameDlg(QString const &name, QWidget *pParent) : QDialog(pParent)
+TextDlg::TextDlg(QString const &text, QWidget *pParent) : QDialog(pParent)
 {
     setWindowTitle("Name Dialog");
 
     setupLayout();
 
-    m_pleName->setText(name);
-    m_pleName->selectAll();
+    m_ppto->setPlainText(text);
 }
 
 
-void NewNameDlg::setupLayout()
+void TextDlg::setupLayout()
 {
     QVBoxLayout *pMainLayout = new QVBoxLayout;
     {
-        m_plabQuestion = new QLabel("Name:");
-        m_pleName = new QLineEdit(this);
+        m_plabQuestion = new QLabel("Description:");
+        m_ppto = new PlainTextOutput(this);
+        m_ppto->setReadOnly(false);
 
         m_pButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
         {
             connect(m_pButtonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(onButton(QAbstractButton*)));
         }
         pMainLayout->addWidget(m_plabQuestion);
-        pMainLayout->addWidget(m_pleName);
-        pMainLayout->addStretch(1);
+        pMainLayout->addWidget(m_ppto);
         pMainLayout->addWidget(m_pButtonBox);
     }
     setLayout(pMainLayout);
 }
 
 
-void NewNameDlg::onButton(QAbstractButton*pButton)
+void TextDlg::onButton(QAbstractButton*pButton)
 {
     if      (m_pButtonBox->button(QDialogButtonBox::Ok)     == pButton) accept();
     else if (m_pButtonBox->button(QDialogButtonBox::Cancel) == pButton) reject();
 }
 
 
-void NewNameDlg::accept()
+void TextDlg::accept()
 {
-    m_NewName = m_pleName->text();
+    m_NewText = m_ppto->toPlainText();
     QDialog::accept();
 }
 
 
-void NewNameDlg::keyPressEvent(QKeyEvent *pEvent)
+void TextDlg::keyPressEvent(QKeyEvent *pEvent)
 {
     switch (pEvent->key())
     {

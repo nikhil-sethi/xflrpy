@@ -23,6 +23,7 @@
 
 #include <xflanalysis/analysis3d_params.h>
 #include <xflgeom/geom3d/vector3d.h>
+#include <xflgeom/geom2d/vector2d.h>
 #include <complex>
 
 #include <QDataStream>
@@ -38,6 +39,8 @@ class Plane;
 namespace xfl
 {
     QColor getObjectColor(int type);
+
+    bool intersect(Vector2d const &A, Vector2d const &B, Vector2d const &C, Vector2d const &D, Vector2d *M);
 
     bool intersect(Vector3d const &LA, Vector3d const &LB, Vector3d const &TA, Vector3d const &TB, Vector3d const &Normal,
                    Vector3d const &A,  Vector3d const &U,  Vector3d &I, double &dist);

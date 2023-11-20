@@ -30,7 +30,7 @@
 
 
 
-XFoil *CAddDlg::s_pXFoil;
+XFoil *CAddDlg::s_pXFoil(nullptr);
 
 CAddDlg::CAddDlg(QWidget *pParent) : QDialog(pParent)
 {

@@ -301,7 +301,8 @@ bool XFoilTask::alphaSequence()
                 str = QString(QObject::tr("   ...unconverged after %1 iterations\n")).arg(m_Iterations);
                 traceLog(str);
                 m_bErrors = true;
-                qApp->postEvent(m_pParent, new XFoilOppEvent(nullptr));
+                if(m_pParent)
+                  qApp->postEvent(m_pParent, new XFoilOppEvent(nullptr));
             }
 
             if(XFoil::fullReport())
@@ -322,8 +323,6 @@ bool XFoilTask::alphaSequence()
     //        strong+="\n";
     return true;
 }
-
-
 
 
 /** 
@@ -409,7 +408,6 @@ bool XFoilTask::ReSequence()
     }
     return true;
 }
-
 
 
 /**

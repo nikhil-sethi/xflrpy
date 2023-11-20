@@ -116,7 +116,7 @@ void PlaneTreeView::setObjectProperties()
             {
                 if(pPlane->description().length())
                 {
-                    props = pPlane->description() + "\n\n";
+                    props = pPlane->description() + "\n";
                 }
                 props += pPlane->planeData(false);
             }

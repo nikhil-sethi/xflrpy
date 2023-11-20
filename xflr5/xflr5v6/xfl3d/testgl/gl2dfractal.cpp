@@ -24,7 +24,7 @@
 int gl2dFractal::s_Hue(1000);
 int gl2dFractal::s_MaxIter(1024);
 float gl2dFractal::s_MaxLength(10);
-QVector2D gl2dFractal::s_Seed(-0.35099f, -0.605502f);
+QVector2D gl2dFractal::s_Seed(-0.f, -0.f);
 
 gl2dFractal::gl2dFractal(QWidget *pParent) : gl2dView(pParent)
 {
@@ -148,8 +148,8 @@ void gl2dFractal::saveSettings(QSettings &settings)
         settings.setValue("Hue",       s_Hue);
         settings.setValue("MaxIters",  s_MaxIter);
         settings.setValue("MaxLength", s_MaxLength);
-        settings.setValue("SeedX", s_Seed.x());
-        settings.setValue("SeedY", s_Seed.y());
+        settings.setValue("SeedX",     s_Seed.x());
+        settings.setValue("SeedY",     s_Seed.y());
     }
     settings.endGroup();
 }
@@ -204,6 +204,12 @@ void gl2dFractal::initializeGL()
 
 void gl2dFractal::paintGL()
 {
+    glClearColor(float(DisplayOptions::backgroundColor().redF()), float(DisplayOptions::backgroundColor().greenF()), float(DisplayOptions::backgroundColor().blueF()), 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_DEPTH_TEST);
+
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
     double w = m_rectView.width();
     QVector2D off(-m_ptOffset.x()/width()*w, m_ptOffset.y()/width()*w);
@@ -257,7 +263,7 @@ void gl2dFractal::paintGL()
 
             pts[iv++] = s_Seed.x();
             pts[iv++] = s_Seed.y();
-            pts[iv++] = 0.0f;
+            pts[iv++] = 1.0f;
             if (m_iHoveredRoot==0)
                 pts[iv++] = 1.0f;
             else
@@ -284,7 +290,7 @@ void gl2dFractal::paintGL()
                 {
                     pts[iv++] = x;
                     pts[iv++] = y;
-                    pts[iv++] = 0.0f;
+                    pts[iv++] = 0.5f;
                     pts[iv++] = 1.0f;
 
                     xn = x*x - y*y + s_Seed.x();
@@ -297,7 +303,7 @@ void gl2dFractal::paintGL()
 
                     pts[iv++] = x;
                     pts[iv++] = y;
-                    pts[iv++] = 0.0f;
+                    pts[iv++] = 0.5f;
                     pts[iv++] = 1.0f;
                 }
 
@@ -350,7 +356,7 @@ void gl2dFractal::paintGL()
         }
         m_shadPoint.release();
 
-        paintPoints(m_vboRoots, 1.0, 0, false, Qt::white, 4);
+        paintPoints(m_vboRoots, 2.0, 0, false, Qt::white, 4);
 
     }
 

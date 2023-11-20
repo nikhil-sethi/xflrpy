@@ -54,7 +54,6 @@ void InverseOptionsDlg::setupLayout()
         plab3->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         plab4->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-
         m_plbRefFoil   = new LineBtn(this);
         m_plbModFoil   = new LineBtn(this);
         m_plbSpline    = new LineBtn(this);
@@ -122,7 +121,7 @@ void InverseOptionsDlg::onModStyle()
 
 void InverseOptionsDlg::onSplineStyle()
 {
-    LineMenu lm(nullptr, false);
+    LineMenu lm(nullptr, true);
     lm.initMenu(s_pXInverse->m_Spline.theStyle());
     lm.exec(QCursor::pos());
 
@@ -133,7 +132,6 @@ void InverseOptionsDlg::onSplineStyle()
 
 void InverseOptionsDlg::onReflectedStyle()
 {
-
     LineMenu lm(nullptr, false);
     lm.initMenu(s_pXInverse->m_ReflectedStyle);
     lm.exec(QCursor::pos());

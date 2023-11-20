@@ -124,15 +124,15 @@ void FoilDesignWt::paintSplines(QPainter &painter)
 
         m_pSF->drawFoil(painter, m_fScale, m_fScale*m_fScaleY, m_ptOffset);
 
-        m_pSF->drawCtrlPoints(painter, m_fScale,m_fScale*m_fScaleY, m_ptOffset);
+        m_pSF->drawCtrlPoints(painter, m_fScale,m_fScale*m_fScaleY, m_ptOffset, DisplayOptions::backgroundColor());
 
         if (m_pSF->showCenterLine())
         {
             m_pSF->drawMidLine(painter, m_fScale,m_fScale*m_fScaleY, m_ptOffset);
         }
-        if (m_pSF->showOutPoints())
+        if (m_pSF->theStyle().pointsVisible())
         {
-            m_pSF->drawOutPoints(painter, m_fScale,m_fScale*m_fScaleY, m_ptOffset);
+            m_pSF->drawOutPoints(painter, m_fScale,m_fScale*m_fScaleY, m_ptOffset, DisplayOptions::backgroundColor());
         }
     }
 
@@ -203,86 +203,79 @@ void FoilDesignWt::paintFoils(QPainter &painter)
  */
 void FoilDesignWt::paintLegend(QPainter &painter)
 {
-    painter.save();
+    if(!m_bShowLegend) return;
 
+    painter.save();
     painter.setFont(DisplayOptions::textFont());
 
-    if(m_bShowLegend)
+    QFont fnt(DisplayOptions::textFont()); //valgrind
+    QFontMetrics fm(fnt);
+    int fmw = fm.averageCharWidth();
+
+    Foil const* pRefFoil;
+    QString strong;
+    QPoint Place(rect().right()-35*fmw, 10);
+
+    int LegendSize = 10*fmw;
+    int delta = fm.height();
+    int y0 = fm.height()/3;
+
+    painter.setBackgroundMode(Qt::TransparentMode);
+
+    QPen TextPen(DisplayOptions::textColor());
+    painter.setPen(TextPen);
+
+    QBrush FillBrush(DisplayOptions::backgroundColor());
+    painter.setBrush(FillBrush);
+
+    QPen LegendPen;
+
+    int k=0;
+
+    if(m_pSF && m_pSF->isVisible())
     {
-        QFont fnt(DisplayOptions::textFont()); //valgrind
-        QFontMetrics fm(fnt);
-        int fmw = fm.averageCharWidth();
+        LegendPen.setColor(m_pSF->color());
+        LegendPen.setStyle(xfl::getStyle(m_pSF->lineStipple()));
+        LegendPen.setWidth(m_pSF->lineWidth());
 
-        Foil const* pRefFoil;
-        QString strong;
-        QPoint Place(rect().right()-35*fmw, 10);
-
-        int LegendSize = 10*fmw;
-        int ypos = 15;
-        int delta = 5;
-
-        painter.setBackgroundMode(Qt::TransparentMode);
-
-        QPen TextPen(DisplayOptions::textColor());
-        painter.setPen(TextPen);
-
-        QBrush FillBrush(DisplayOptions::backgroundColor());
-        painter.setBrush(FillBrush);
-
-        QPen LegendPen;
-
-        int k=0;
-
-        if(m_pSF && m_pSF->isVisible())
+        painter.setPen(LegendPen);
+        painter.drawLine(Place.x(), Place.y() + delta*k, Place.x() + LegendSize, Place.y() + delta*k);
+        if(m_pSF->pointStyle()!=Line::NOSYMBOL)
         {
-            LegendPen.setColor(m_pSF->color());
-            LegendPen.setStyle(xfl::getStyle(m_pSF->lineStipple()));
-            LegendPen.setWidth(m_pSF->lineWidth());
-
-            painter.setPen(LegendPen);
-            painter.drawLine(Place.x(), Place.y() + ypos*k, Place.x() + LegendSize, Place.y() + ypos*k);
-            if(m_pSF->showOutPoints())
-            {
-//                    x1 = Place.x + (int)(0.5*LegendSize);
-//                    pDC->Rectangle(x1-2, Place.y + ypos*k-2, x1+2, Place.y + ypos*k+2);
-                int x1 = Place.x() + int(0.5*LegendSize);
-                painter.drawRect(x1-2, Place.y() + ypos*k-2, 4,4);
-            }
-            painter.setPen(TextPen);
-            painter.drawText(Place.x() + LegendSize + fmw, Place.y() + ypos*k+delta, m_pSF->splineFoilName());
+            int x1 = Place.x() + int(0.5*LegendSize);
+            xfl::drawSymbol(painter, m_pSF->pointStyle(), DisplayOptions::backgroundColor(), m_pSF->lineColor(), x1, Place.y() + delta*k);
         }
+        painter.setPen(TextPen);
+        painter.drawText(Place.x() + LegendSize + fmw, Place.y() + delta*k+y0, m_pSF->splineFoilName());
+    }
 
-        k++;
+    k++;
 
 
-        for (int n=0; n <Objects2d::foilCount(); n++)
+    for (int n=0; n <Objects2d::foilCount(); n++)
+    {
+        pRefFoil = Objects2d::foilAt(n);
+        if(pRefFoil && pRefFoil->isVisible())
         {
-            pRefFoil = Objects2d::foilAt(n);
-            if(pRefFoil && pRefFoil->isVisible())
+            strong = pRefFoil->name();
+            if(strong.length())
             {
-                strong = pRefFoil->name();
-                if(strong.length())
-                {
-                    LegendPen.setColor(pRefFoil->color());
-                    LegendPen.setStyle(xfl::getStyle(pRefFoil->lineStipple()));
-                    LegendPen.setWidth(pRefFoil->lineWidth());
+                LegendPen.setColor(pRefFoil->color());
+                LegendPen.setStyle(xfl::getStyle(pRefFoil->lineStipple()));
+                LegendPen.setWidth(pRefFoil->lineWidth());
 
-                    painter.setPen(LegendPen);
-                    painter.drawLine(Place.x(), Place.y() + ypos*k, Place.x() + LegendSize, Place.y() + ypos*k);
+                painter.setPen(LegendPen);
+                painter.drawLine(Place.x(), Place.y() + delta*k, Place.x() + LegendSize, Place.y() + delta*k);
 
-                    int x1 = Place.x() + int(0.5*LegendSize);
-/*                        if(pRefFoil->showPoints())
-                    {
-                        painter.drawRect(x1-2, Place.y() + ypos*k-2, 4,4);
-                    }*/
-                    xfl::drawSymbol(painter, pRefFoil->pointStyle(), DisplayOptions::backgroundColor(), pRefFoil->color(), QPoint(x1, Place.y() + ypos*k));
-                    painter.setPen(TextPen);
-                    painter.drawText(Place.x() + LegendSize + fmw, Place.y() + ypos*k+delta, pRefFoil->name());
-                    k++;
-                }
+                int x1 = Place.x() + int(0.5*LegendSize);
+                xfl::drawSymbol(painter, pRefFoil->pointStyle(), DisplayOptions::backgroundColor(), pRefFoil->color(), QPoint(x1, Place.y() + delta*k));
+                painter.setPen(TextPen);
+                painter.drawText(Place.x() + LegendSize + fmw, Place.y() + delta*k+y0, pRefFoil->name());
+                k++;
             }
         }
     }
+
     painter.restore();
 }
 

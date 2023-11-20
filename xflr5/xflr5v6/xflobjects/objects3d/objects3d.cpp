@@ -530,7 +530,10 @@ Plane * Objects3d::setModPlane(Plane *pModPlane)
         resp = renDlg.exec();
         if(resp==QDialog::Accepted)
         {
-            if (OldName == renDlg.newName()) return pModPlane;
+            if (OldName == renDlg.newName())
+            {
+                return pModPlane;
+            }
 
             //Is the new name already used ?
             bExists = false;
@@ -583,8 +586,11 @@ Plane * Objects3d::setModPlane(Plane *pModPlane)
         {
             //the user wants to overwrite the old plane/wing
 
+            if(pModPlane->name()==renDlg.newName())
+                break;// no neet to overwrite itself
+
             pPlane = getPlane(renDlg.newName());
-            deletePlane(pPlane);
+            if(pPlane) deletePlane(pPlane);
 
             pModPlane->setName(renDlg.newName());
 
@@ -788,9 +794,7 @@ WPolar* Objects3d::insertNewWPolar(WPolar *pNewWPolar, Plane *pCurPlane)
 void Objects3d::renamePlane(const QString &PlaneName)
 {
     QString OldName;
-    PlaneOpp *pPOpp;
-    int l;
-    WPolar *pWPolar;
+
     Plane *pPlane = getPlane(PlaneName);
     if(pPlane)
     {
@@ -799,17 +803,17 @@ void Objects3d::renamePlane(const QString &PlaneName)
 
         pPlane->renameWings();
 
-        for (l=s_oaWPolar.size()-1;l>=0; l--)
+        for (int l=s_oaWPolar.size()-1;l>=0; l--)
         {
-            pWPolar = s_oaWPolar.at(l);
+            WPolar *pWPolar = s_oaWPolar.at(l);
             if (pWPolar->planeName() == OldName)
             {
                 pWPolar->setPlaneName(pPlane->name());
             }
         }
-        for (l=s_oaPOpp.size()-1;l>=0; l--)
+        for (int l=s_oaPOpp.size()-1;l>=0; l--)
         {
-            pPOpp = s_oaPOpp.at(l);
+            PlaneOpp *pPOpp = s_oaPOpp.at(l);
             if (pPOpp->planeName() == OldName)
             {
                 pPOpp->setPlaneName(pPlane->name());
@@ -819,17 +823,9 @@ void Objects3d::renamePlane(const QString &PlaneName)
 }
 
 
-
-
-
-
-
-
 void Objects3d::deleteObjects()
 {
     // clear everything
-
-
     for (int i=s_oaPlane.size()-1; i>=0; i--)
     {
         Plane *pObj = s_oaPlane.at(i);
@@ -946,10 +942,9 @@ void Objects3d::setWPolarPOppStyle(WPolar const* pWPolar, bool bStipple, bool bW
 
 Plane * Objects3d::plane(QString const &PlaneName)
 {
-    Plane* pPlane = nullptr;
     for (int i=0; i<planeCount(); i++)
     {
-        pPlane = s_oaPlane.at(i);
+        Plane* pPlane = s_oaPlane.at(i);
         if (pPlane->name() == PlaneName) return pPlane;
     }
     return nullptr;

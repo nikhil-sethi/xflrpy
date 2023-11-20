@@ -35,7 +35,6 @@
 
 QByteArray GLLightDlg::s_Geometry;
 
-int GLLightDlg::s_iShininess = 3;
 
 GLLightDlg::GLLightDlg(QWidget *pParent) : QDialog(pParent)
 {
@@ -331,7 +330,7 @@ void GLLightDlg::readParams(void)
     light.m_Diffuse     = float(m_peslLightDiffuse->expValue())  / 20.0f;
     light.m_Specular    = float(m_peslLightSpecular->expValue()) / 20.0f;
 
-    s_iShininess   = m_pslMatShininess->value();
+    light.m_iShininess   = m_pslMatShininess->value();
 
     light.m_Attenuation.m_Constant  = float(m_pdeConstantAttenuation->value());
     light.m_Attenuation.m_Linear    = float(m_pdeLinearAttenuation->value());
@@ -363,7 +362,7 @@ void GLLightDlg::setParams(void)
     m_pslGreen->setValue(int(light.m_Green*100.0f));
     m_pslBlue->setValue( int(light.m_Blue *100.0f));
 
-    m_pslMatShininess->setValue(s_iShininess);
+    m_pslMatShininess->setValue(light.m_iShininess);
 
     m_pdeConstantAttenuation->setValue(double(light.m_Attenuation.m_Constant));
     m_pdeLinearAttenuation->setValue(  double(light.m_Attenuation.m_Linear));
@@ -396,7 +395,7 @@ void GLLightDlg::setLabels()
     strong = QString::asprintf("%7.1f", double(light.m_Blue));
     m_plabLightBlue->setText(strong);
 
-    strong = QString::asprintf("%d", s_iShininess);
+    strong = QString::asprintf("%d", light.m_iShininess);
     m_plabMatShininess->setText(strong);
 }
 
@@ -421,7 +420,7 @@ bool GLLightDlg::loadSettings(QSettings &settings)
         light.m_Green             = settings.value("GreenLight",light.m_Green).toFloat();
         light.m_Blue              = settings.value("BlueLight", light.m_Blue).toFloat();
 
-        s_iShininess     = settings.value("MatShininess", 5).toInt();
+        light.m_iShininess        = settings.value("MatShininess", 5).toInt();
 
         light.m_Attenuation.m_Constant    = settings.value("ConstantAtt",  light.m_Attenuation.m_Constant).toFloat();
         light.m_Attenuation.m_Linear      = settings.value("LinearAtt",    light.m_Attenuation.m_Linear).toFloat();
@@ -438,7 +437,6 @@ void GLLightDlg::setDefaults()
 {
     Light &light = gl3dView::s_Light;
     light.setDefaults(LIGHTREFLENGTH);
-    s_iShininess = 5;
 }
 
 
@@ -461,7 +459,7 @@ bool GLLightDlg::saveSettings(QSettings &settings)
         settings.setValue("BlueLight",    light.m_Blue);
         settings.setValue("bLight",       light.m_bIsLightOn);
 
-        settings.setValue("MatShininess", s_iShininess);
+        settings.setValue("MatShininess", light.m_iShininess);
 
         settings.setValue("ConstantAtt",  light.m_Attenuation.m_Constant);
         settings.setValue("LinearAtt",    light.m_Attenuation.m_Linear);

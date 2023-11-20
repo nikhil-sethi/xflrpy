@@ -567,11 +567,12 @@ void FoilPolarDlg::loadSettings(QSettings &settings)
         s_Density       = settings.value("Density",   s_Density).toDouble();
         s_Viscosity     = settings.value("Viscosity", s_Viscosity).toDouble();
 
-        s_RefPolar.setNCrit( settings.value("NCrit",  s_RefPolar.NCrit()).toDouble());
-        s_RefPolar.setXtrTop(settings.value("XTopTr", s_RefPolar.XtrTop()).toDouble());
-        s_RefPolar.setXtrBot(settings.value("XBotTr", s_RefPolar.XtrBot()).toDouble());
-        s_RefPolar.setMach(  settings.value("Mach",   s_RefPolar.Mach()).toDouble());
-        s_RefPolar.setAoa(   settings.value("ASpec",  s_RefPolar.aoa()).toDouble());
+        s_RefPolar.setReynolds(settings.value("Re",     s_RefPolar.Reynolds()).toDouble());
+        s_RefPolar.setNCrit(   settings.value("NCrit",  s_RefPolar.NCrit()).toDouble());
+        s_RefPolar.setXtrTop(  settings.value("XTopTr", s_RefPolar.XtrTop()).toDouble());
+        s_RefPolar.setXtrBot(  settings.value("XBotTr", s_RefPolar.XtrBot()).toDouble());
+        s_RefPolar.setMach(    settings.value("Mach",   s_RefPolar.Mach()).toDouble());
+        s_RefPolar.setAoa(     settings.value("ASpec",  s_RefPolar.aoa()).toDouble());
 
         int b = settings.value("Type").toInt();
         if     (b==1) s_RefPolar.setPolarType(xfl::FIXEDSPEEDPOLAR);
@@ -597,6 +598,7 @@ void FoilPolarDlg::saveSettings(QSettings &settings)
         settings.setValue("Density",   s_Density);
         settings.setValue("Viscosity", s_Viscosity);
 
+        settings.setValue("Re",     s_RefPolar.Reynolds());
         settings.setValue("NCrit",  s_RefPolar.NCrit());
         settings.setValue("XTopTr", s_RefPolar.XtrTop());
         settings.setValue("XBotTr", s_RefPolar.XtrBot());

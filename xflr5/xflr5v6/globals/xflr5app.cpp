@@ -45,9 +45,9 @@ XFLR5App::XFLR5App(int &argc, char** argv) : QApplication(argc, argv)
 {
     setApplicationDisplayName(xfl::versionName());
     setApplicationName(xfl::versionName());
-//    setDesktopFileName(VERSIONNAME);
-    setOrganizationName("Cere-Aero");
-    setOrganizationDomain("cere-aero.tech");
+    setDesktopFileName(xfl::versionName());
+    setApplicationVersion(xfl::versionName(false));
+    setWindowIcon(QIcon(":/images/xflr5_64.png"));
 
     m_bDone = false;
 
@@ -112,13 +112,13 @@ XFLR5App::XFLR5App(int &argc, char** argv) : QApplication(argc, argv)
     if(bSheet)
     {
         QFile stylefile;
-        QString qssPathName =  qApp->applicationDirPath() + QDir::separator() +"/xflr5_dark.qss";
+        QString qssPathName =  qApp->applicationDirPath() + QDir::separator() +"/xflr5_dark.css";
 
         QFileInfo fi(qssPathName);
         if(fi.exists())
             stylefile.setFileName(qssPathName);
         else
-            stylefile.setFileName(QStringLiteral(":/qss/xflr5_dark.qss"));
+            stylefile.setFileName(QStringLiteral(":/qss/xflr5_dark.css"));
 
         if (stylefile.open(QIODevice::ReadOnly | QIODevice::Text))
         {
@@ -136,11 +136,11 @@ XFLR5App::XFLR5App(int &argc, char** argv) : QApplication(argc, argv)
 
     QPixmap pixmap;
     pixmap.load(":/images/splash.png");
-    QSplashScreen splash(pixmap);
-    splash.setWindowFlags(Qt::SplashScreen);
+//    QSplashScreen splash(pixmap);
+//    splash.setWindowFlags(Qt::SplashScreen);
     if(!bScript)
     {
-        splash.show();
+//        splash.show();
 #ifdef Q_OS_WIN
 #ifndef QT_DEBUG
         ShowWindow(GetConsoleWindow(), SW_HIDE);
@@ -204,7 +204,7 @@ XFLR5App::XFLR5App(int &argc, char** argv) : QApplication(argc, argv)
 
     if(bMaximized)  pMainFrame->showMaximized();
     else            pMainFrame->show();
-    splash.finish(pMainFrame);
+//    splash.finish(pMainFrame);
 
 }
 

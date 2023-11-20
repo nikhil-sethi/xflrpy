@@ -165,8 +165,8 @@ void FoilWt::paintLegend(QPainter &painter)
         QPoint Place(rect().right()-35*fmw, 10);
 
         int LegendSize = 10*fmw;
-        int ypos = 15;
-        int delta = 5;
+        int delta = fm.height();
+        int y0 = fm.height()/3;
 
         painter.setBackgroundMode(Qt::TransparentMode);
 
@@ -194,13 +194,13 @@ void FoilWt::paintLegend(QPainter &painter)
                     LegendPen.setWidth(pRefFoil->lineWidth());
 
                     painter.setPen(LegendPen);
-                    painter.drawLine(Place.x(), Place.y() + ypos*k, Place.x() + LegendSize, Place.y() + ypos*k);
+                    painter.drawLine(Place.x(), Place.y() +  delta*k, Place.x() + LegendSize, Place.y() + delta*k);
 
                     double x1 = Place.x() + (0.5*LegendSize);
 
-                    xfl::drawSymbol(painter, pRefFoil->pointStyle(), DisplayOptions::backgroundColor(), pRefFoil->color(), QPointF(x1, Place.y() + ypos*k));
+                    xfl::drawSymbol(painter, pRefFoil->pointStyle(), DisplayOptions::backgroundColor(), pRefFoil->color(), QPointF(x1, Place.y() + delta*k));
                     painter.setPen(TextPen);
-                    painter.drawText(Place.x() + LegendSize + fmw, Place.y() + ypos*k+delta, pRefFoil->name());
+                    painter.drawText(Place.x() + LegendSize + fmw, Place.y() + delta*k+y0, pRefFoil->name());
                     k++;
                 }
             }

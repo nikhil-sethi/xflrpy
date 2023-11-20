@@ -22,16 +22,7 @@
 
 
 
-/**
- *@file
- *
- * This file defines the LLTAnalysisDlg class, which is used to perform LLT analysis
- *
- */
-
-
-#ifndef LLTANALYSIS_H
-#define LLTANALYSIS_H
+#pragma once
 
 
 #include <xflanalysis/analysis3d_params.h>
@@ -164,8 +155,6 @@ private:
     double m_ICd[MAXSPANSTATIONS+1];            /**< Induced Drag coefficient at the span stations */
     double m_ICm;                               /**< The wing's induced pitching moment */
     double m_IYm;                               /**< The wing's induced yawing moment */
-    QString m_LengthUnit;                       /**< Name of the user-defined length unit */
-    double m_Maxa;                              /**< The max value of the difference of induced angle at any span station between two iterations */
     double m_mtoUnit;                           /**< Conversion factor for the display of results in the user-defined length unit*/
     double m_Offset[MAXSPANSTATIONS+1];         /**< offset at  the span stations */
     double m_PCd[MAXSPANSTATIONS+1];            /**< Viscous Drag coefficient at the span stations */
@@ -181,6 +170,9 @@ private:
     double m_XTrTop[MAXSPANSTATIONS+1];         /**< Upper transition location at the span stations */
     double m_XTrBot[MAXSPANSTATIONS+1];         /**< Lower transition location at the span stations */
     double m_Clmax[MAXSPANSTATIONS+1];          /**< Lower transition location at the span stations */
+
+    QString m_LengthUnit;                       /**< Name of the user-defined length unit */
+
 
     Vector3d m_CP;                              /**< The position of the center of pressure */
 
@@ -200,4 +192,4 @@ private:
     QVector<Polar*> const *m_poaPolar;
 };
 
-#endif // LLTANALYSIS_H
+

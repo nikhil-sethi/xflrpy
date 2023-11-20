@@ -44,20 +44,22 @@ Spline5::Spline5() :Spline()
 /**
 *Draws the control points on a QPainter.
 */
-void Spline5::drawCtrlPoints(QPainter &painter, double const &scalex, double const &scaley, QPointF const &Offset)
+void Spline5::drawCtrlPoints(QPainter &painter, double const &scalex, double const &scaley, QPointF const &Offset, QColor const &backcolor)
 {
     painter.save();
+    painter.setBackgroundMode(Qt::TransparentMode);
 
     QPointF pt;
 
-    int width  = 3;
+    int width  = xfl::symbolSize()*1.75;
 
     QPen PointPen;
-    QBrush NoBrush(Qt::NoBrush);
-    PointPen.setWidth(1);
+
+    PointPen.setWidth(2);
 
     painter.setPen(PointPen);
-    painter.setBrush(NoBrush);
+    QBrush backBrush(backcolor);
+    painter.setBrush(backBrush);
 
     for (int i=0; i<m_CtrlPt.size(); i++)
     {
@@ -86,30 +88,21 @@ void Spline5::drawCtrlPoints(QPainter &painter, double const &scalex, double con
 }
 
 
-
 /**
 *Draws the output points on a QPainter.
 */
-void Spline5::drawOutputPoints(QPainter & painter, double const &scalex, double const &scaley, QPointF const &Offset)
+void Spline5::drawOutputPoints(QPainter & painter, double const &scalex, double const &scaley, QPointF const &Offset, QColor const &backclr)
 {
     painter.save();
 
     QPointF pt;
-    QPen OutPen;
-
-    int width = 2;
-
-    OutPen.setColor(m_theStyle.m_Color);
-    OutPen.setStyle(Qt::SolidLine);
-    OutPen.setWidth(1);
-    painter.setPen(OutPen);
 
     for (int i=0; i<m_iRes;i++)
     {
         pt.rx() =  m_Output[i].x*scalex + Offset.x();
         pt.ry() = -m_Output[i].y*scaley + Offset.y();
 
-        painter.drawRect(int(pt.x()-width), int(pt.y()-width), 2*width, 2*width);
+        xfl::drawSymbol(painter, pointStyle(), backclr, lineColor(), pt);
     }
 
     painter.restore();
@@ -134,7 +127,6 @@ void Spline5::drawSpline(QPainter & painter, double const &scalex, double const 
 
     if(m_CtrlPt.size()>=3)
     { 
-
         for(int k=0; k<m_iRes;k++)
         {
             poly.append({m_Output[k].x * scalex + Offset.x(), -m_Output[k].y * scaley + Offset.y()});

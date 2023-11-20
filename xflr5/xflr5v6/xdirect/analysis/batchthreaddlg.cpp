@@ -94,7 +94,7 @@ void BatchThreadDlg::setupLayout()
             QVBoxLayout *pRightSideLayout = new QVBoxLayout;
             {
                 pRightSideLayout->addWidget(m_pfrOptions);
-                pRightSideLayout->addWidget(m_pteTextOutput);
+                pRightSideLayout->addWidget(m_ppto);
             }
             pRightFrame->setLayout(pRightSideLayout);
         }
@@ -149,7 +149,7 @@ void BatchThreadDlg::onAnalyze()
     if(foils.isEmpty())
     {
         strong ="No foil defined for analysis\n\n";
-        m_pteTextOutput->insertPlainText(strong);
+        m_ppto->insertPlainText(strong);
         cleanUp();
         return;
     }
@@ -189,7 +189,7 @@ void BatchThreadDlg::onAnalyze()
         }
     }
     strong = QString(tr("Found %1 foil/polar pairs to analyze\n")).arg(m_nAnalysis);
-    m_pteTextOutput->insertPlainText(strong);
+    m_ppto->insertPlainText(strong);
 
     // Start as many threads as the user has requested
     // This is a complicated way of doing things; QFuture and QRunnable are simpler
@@ -197,8 +197,8 @@ void BatchThreadDlg::onAnalyze()
     XFoilTask::s_bCancel = false;
 
     strong = QString(tr("Starting with %1 threads\n\n")).arg(s_nThreads);
-    m_pteTextOutput->insertPlainText(strong);
-    m_pteTextOutput->insertPlainText(tr("\nStarted/Done/Total\n"));
+    m_ppto->insertPlainText(strong);
+    m_ppto->insertPlainText(tr("\nStarted/Done/Total\n"));
 
     if(m_Timer.isActive())  m_Timer.stop();
     m_Timer.start(30);
@@ -224,8 +224,8 @@ void BatchThreadDlg::onTimerEvent()
 
             if(m_bCancel) strong = tr("\n_____Analysis cancelled_____\n");
             else          strong = tr("\n_____Analysis completed_____\n");
-            m_pteTextOutput->insertPlainText(strong);
-            m_pteTextOutput->ensureCursorVisible();
+            m_ppto->insertPlainText(strong);
+            m_ppto->ensureCursorVisible();
 
             m_Timer.stop();
             cleanUp();
@@ -280,8 +280,8 @@ void BatchThreadDlg::updateOutput(QString const&str)
 {
     QString strong;
     strong = QString::asprintf("%3d/%3d/%3d  ", m_nTaskStarted, m_nTaskDone, m_nAnalysis);
-    m_pteTextOutput->insertPlainText(strong + str);
-    m_pteTextOutput->ensureCursorVisible();
+    m_ppto->insertPlainText(strong + str);
+    m_ppto->ensureCursorVisible();
 }
 
 

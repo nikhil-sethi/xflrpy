@@ -457,7 +457,7 @@ void LegendWt::drawCpLegend(QPainter &painter, Graph const *pGraph, QPointF plac
                 xfl::drawSymbol(painter, pCurve->pointStyle(), DisplayOptions::backgroundColor(), pCurve->color(), x1, y1);
             }
 
-            pCurve->curveName(strong);
+            pCurve->name(strong);
             painter.setPen(TextPen);
             painter.drawText(int(place.x() + 2.0*LegendSize), int(place.y() + 1.*dny*ny), strong);
         }
@@ -518,7 +518,7 @@ void LegendWt::drawStabTimeLegend(QPainter &painter, Graph const *pGraph, QPoint
                 xfl::drawSymbol(painter, pCurve->pointStyle(), DisplayOptions::backgroundColor(), pCurve->color(), x1, y1);
             }
 
-            pCurve->curveName(strong);
+            pCurve->name(strong);
             painter.setPen(TextPen);
             painter.drawText(int(place.x() + 3*LegendSize),
                              int(place.y() + 1.*dny*ny+dny/3), strong);

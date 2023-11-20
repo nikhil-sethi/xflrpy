@@ -111,7 +111,7 @@ void GraphTileWidget::setGraphList(QVector<Graph *> pGraphList, int nGraphs, int
 }
 
 
-void GraphTileWidget::contextMenuEvent (QContextMenuEvent *event)
+void GraphTileWidget::contextMenuEvent (QContextMenuEvent *pEvent)
 {
     QMenu * pGraphMenu = s_pMainFrame->m_pWPlrCtxMenu;
 
@@ -148,17 +148,17 @@ void GraphTileWidget::contextMenuEvent (QContextMenuEvent *event)
     }
 
     //execute the menu
-    pGraphMenu->exec(event->globalPos());
+    pGraphMenu->exec(pEvent->globalPos());
 }
 
 
-void GraphTileWidget::keyPressEvent(QKeyEvent *event)
+void GraphTileWidget::keyPressEvent(QKeyEvent *pEvent)
 {
     //    bool bShift = false;
     bool bCtrl  = false;
     //    if(event->modifiers() & Qt::ShiftModifier)   bShift =true;
-    if(event->modifiers() & Qt::ControlModifier) bCtrl =true;
-    switch (event->key())
+    if(pEvent->modifiers() & Qt::ControlModifier) bCtrl =true;
+    switch (pEvent->key())
     {
         case Qt::Key_1:
         case Qt::Key_2:
@@ -168,12 +168,12 @@ void GraphTileWidget::keyPressEvent(QKeyEvent *event)
         {
             if(bCtrl)
             {
-                event->ignore();
+                pEvent->ignore();
                 return;
             }
             else
             {
-                int iGraph = event->text().toInt()-1;
+                int iGraph = pEvent->text().toInt()-1;
 
                 if(m_xflr5App==xfl::XFOILANALYSIS)
                 {
@@ -226,10 +226,9 @@ void GraphTileWidget::keyPressEvent(QKeyEvent *event)
             onAllGraphs();
             return;
         }
-        default:event->ignore();
+        default:pEvent->ignore();
     }
 }
-
 
 
 void GraphTileWidget::onResetCurves(Graph *pGraph)
@@ -256,7 +255,6 @@ void GraphTileWidget::onResetCurves(Graph *pGraph)
             break;
     }
 }
-
 
 
 void GraphTileWidget::onSingleGraph()
@@ -425,7 +423,6 @@ void GraphTileWidget::onAllGraphs()
 }
 
 
-
 void GraphTileWidget::onCurGraphSettings()
 {
     if(!isVisible()) return;
@@ -459,7 +456,6 @@ void GraphTileWidget::onExportCurGraph()
 }
 
 
-
 /**
  * The user has requested an edition of the settings for all WOpp graphs
  * Launches the dialog box and updates the graphs
@@ -473,14 +469,14 @@ void GraphTileWidget::onAllGraphSettings()
 
     if(xflr5App()==xfl::MIAREX)
     {
-        if(s_pMiarex->m_iView==xfl::WPOLARVIEW)    grDlg.setGraph(s_pMiarex->m_WPlrGraph[0]);
-        else if(s_pMiarex->m_iView==xfl::WOPPVIEW) grDlg.setGraph(s_pMiarex->m_WingGraph[0]);
+        if     (s_pMiarex->m_iView==xfl::WOPPVIEW)   grDlg.setGraph(s_pMiarex->m_WingGraph[0]);
+        else if(s_pMiarex->m_iView==xfl::WPOLARVIEW) grDlg.setGraph(s_pMiarex->m_WPlrGraph[0]);
 
         if(grDlg.exec() == QDialog::Accepted)
         {
-            if(s_pMiarex->m_iView==xfl::WPOLARVIEW)
+            if(s_pMiarex->m_iView==xfl::WOPPVIEW)
                 for(int ig=1; ig<s_pMiarex->m_WingGraph.size(); ig++) s_pMiarex->m_WingGraph[ig]->copySettings(s_pMiarex->m_WingGraph[0]);
-            else if(s_pMiarex->m_iView==xfl::WOPPVIEW)
+            else if(s_pMiarex->m_iView==xfl::WPOLARVIEW)
                 for(int ig=1; ig<s_pMiarex->m_WPlrGraph.size(); ig++) s_pMiarex->m_WPlrGraph[ig]->copySettings(s_pMiarex->m_WPlrGraph[0]);
         }
     }
@@ -498,9 +494,6 @@ void GraphTileWidget::onAllGraphSettings()
     update();
     setFocus();
 }
-
-
-
 
 
 /**
@@ -576,8 +569,6 @@ void GraphTileWidget::onAllGraphScales()
 }
 
 
-
-
 Graph *GraphTileWidget::activeGraph()
 {
     for(int igw=0; igw<m_GraphWidget.count(); igw++)
@@ -588,9 +579,6 @@ Graph *GraphTileWidget::activeGraph()
 }
 
 
-
-
-
 GraphWt *GraphTileWidget::activeGraphWidget()
 {
     for(int igw=0; igw<m_GraphWidget.count(); igw++)
@@ -599,15 +587,6 @@ GraphWt *GraphTileWidget::activeGraphWidget()
     }
     return nullptr;
 }
-
-
-
-
-
-
-
-
-
 
 
 

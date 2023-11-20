@@ -59,6 +59,7 @@ class XFoilTask : public QObject
         bool alphaSequence();
         bool ReSequence();
         bool isFinished() const {return m_bIsFinished;}
+        bool isConverged() const {return m_XFoilInstance.lvconv;}
 
         bool initializeTask(FoilAnalysis &pFoilAnalysis, bool bViscous, bool bInitBL, bool bFromZero);
         bool initializeXFoilTask(const Foil *pFoil, Polar *pPolar, bool bViscous, bool bInitBL, bool bFromZero);

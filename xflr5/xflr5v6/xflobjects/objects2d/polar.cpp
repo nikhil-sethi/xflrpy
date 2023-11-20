@@ -524,15 +524,18 @@ double  Polar::getAlphaClmax() const
     double Clmax =-10000.0;
     double Alphamax = 0.0;
 
-    if(!m_Cl.size() || !m_Alpha.size()) {
+    if(!m_Cl.size() || !m_Alpha.size())
+    {
         return 0.0;
     }
     else
     {
-        for (int i=0;i<m_Cl.size(); i++) {
-            if( m_Cl[i] > Clmax) {
-                Clmax = m_Cl[i];
-                Alphamax = m_Alpha[i];
+        for (int i=0;i<m_Cl.size(); i++)
+        {
+            if( m_Cl.at(i) > Clmax)
+            {
+                Clmax = m_Cl.at(i);
+                Alphamax = m_Alpha.at(i);
             }
         }
     }
@@ -548,27 +551,26 @@ double  Polar::getAlphaClmax() const
 */
 double Polar::getCm0() const
 {
-    int i;
     double Clmin =  1000.0;
     double Clmax = -1000.0;
-    for (i=0; i<m_Cl.size(); i++)
+    for (int i=0; i<m_Cl.size(); i++)
     {
-        Clmin = qMin(Clmin, m_Cl[i]);
-        Clmax = qMax(Clmax, m_Cl[i]);
+        Clmin = qMin(Clmin, m_Cl.at(i));
+        Clmax = qMax(Clmax, m_Cl.at(i));
     }
     if(!(Clmin<0.0) || !(Clmax>0.0)) return 0.0;
     int k=0;
-//    double rr  = m_Cl[k];
-//    double rr1 = m_Cl[k+1];
+//    double rr  = m_Cl.at(k);
+//    double rr1 = m_Cl.at(k+1);
 
-    while (m_Cl[k+1]<0.0)
+    while (m_Cl.at(k+1)<0.0)
     {
-//        rr  = m_Cl[k];
-//        rr1 = m_Cl[k+1];
+//        rr  = m_Cl.at(k);
+//        rr1 = m_Cl.at(k+1);
         k++;
     }
     if(k+1>=m_Cm.size()) return 0.0;
-    double Cm0 = m_Cm[k] + (m_Cm[k+1]-m_Cm[k])*(0.0-m_Cl[k])/(m_Cl[k+1]-m_Cl[k]);
+    double Cm0 = m_Cm.at(k) + (m_Cm.at(k+1)-m_Cm.at(k))*(0.0-m_Cl.at(k))/(m_Cl.at(k+1)-m_Cl.at(k));
     return Cm0;
 
 }
@@ -591,17 +593,17 @@ double Polar::getZeroLiftAngle() const
     }
     if(!(Clmin<0.0) || !(Clmax>0.0)) return 0.0;
     int k=0;
-//    double rr  = m_Cl[k];
-//    double rr1 = m_Cl[k+1];
+//    double rr  = m_Cl.at(k);
+//    double rr1 = m_Cl.at(k+1);
 
-    while (m_Cl[k+1]<0.0)
+    while (m_Cl.at(k+1)<0.0)
     {
-//        rr  = m_Cl[k];
-//        rr1 = m_Cl[k+1];
+//        rr  = m_Cl.at(k);
+//        rr1 = m_Cl.at(k+1);
         k++;
     }
     if(k+1>=m_Alpha.size()) return 0.0;
-    double Alpha0 = m_Alpha[k] + (m_Alpha[k+1]-m_Alpha[k])*(0.0-m_Cl[k])/(m_Cl[k+1]-m_Cl[k]);
+    double Alpha0 = m_Alpha.at(k) + (m_Alpha.at(k+1)-m_Alpha.at(k))*(0.0-m_Cl.at(k))/(m_Cl.at(k+1)-m_Cl.at(k));
     return Alpha0;
 
 }
@@ -632,10 +634,10 @@ void Polar::getLinearizedCl(double &Alpha0, double &slope) const
 
     for (int k=0; k<n; k++)
     {
-        sum1 += m_Cl[k] * m_Alpha[k];
-        sum2 += m_Alpha[k];
-        sum3 += m_Cl[k];
-        sum4 += m_Alpha[k] * m_Alpha[k];
+        sum1 += m_Cl.at(k) * m_Alpha.at(k);
+        sum2 += m_Alpha.at(k);
+        sum3 += m_Cl.at(k);
+        sum4 += m_Alpha.at(k) * m_Alpha.at(k);
     }
     if(fabs(fn*sum4-sum2*sum2)<1.e-10 || fabs(fn*sum1-sum2 * sum3)<1.0e-10)
     {

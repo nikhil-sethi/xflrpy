@@ -75,7 +75,7 @@ class Foil : public XflObject
         double bottomSlope(double x) const;
         double normalizeGeometry();
         void compMidLine(bool bParams);
-
+        void storeModCoordinates();
         bool exportFoil(QTextStream &out) const;
         bool initFoil();
 
@@ -88,15 +88,18 @@ class Foil : public XflObject
         void setLEFlapData(bool bFlap, double xhinge, double yhinge, double angle);
         void setTEFlapData(bool bFlap, double xhinge, double yhinge, double angle);
 
-        bool intersect(Vector2d const &A, Vector2d const &B, Vector2d const &C, Vector2d const &D, Vector2d *M) const;
+        double TEFlapAngle() const {return m_TEFlapAngle;}
+        double LEFlapAngle() const {return m_LEFlapAngle;}
+        void setTEFlapAngle(double angle) {m_TEFlapAngle = angle;}
+        void setLEFlapAngle(double angle) {m_LEFlapAngle = angle;}
 
         bool bCenterLine() const {return m_bCenterLine;}
         void showCenterLine(bool bShow) {m_bCenterLine=bShow;}
 
         void setEditStyle();
 
-        QString const &description() const {return m_FoilDescription;}
-        void setDescription(QString const &description) {m_FoilDescription=description;}
+        QString const &description() const {return m_Description;}
+        void setDescription(QString const &description) {m_Description=description;}
 
         double camber()     const {return m_fCamber;}
         double xCamber()    const {return m_fXCamber;}
@@ -128,7 +131,7 @@ class Foil : public XflObject
 
 
     public:
-        QString m_FoilDescription;             /**< a free description */
+        QString m_Description;             /**< a free description */
 
         bool m_bCenterLine;                  /**< true if the foil mid camber line is to be displayed */
 
@@ -161,6 +164,8 @@ class Foil : public XflObject
 
         bool m_bTEFlap;          /**< true if the foil has a trailing edge flap */
         double m_TEFlapAngle;    /**< the trailing edge flap angle, in degrees*/
+
+        /** @todo  store hinge location as double value rather than percentage  */
         double m_TEXHinge;       /**< the x-position of the trailing edge flap, in chord % */
         double m_TEYHinge;       /**< the y-position of the trailng edge flap, in chord %*/
 

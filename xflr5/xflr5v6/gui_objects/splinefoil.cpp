@@ -34,7 +34,6 @@ SplineFoil::SplineFoil()
 
     m_OutPoints    = 0;
 
-    m_bOutPoints   = false;
     m_bModified    = false;
     m_bCenterLine  = false;
     m_bForceCloseLE = true;
@@ -255,7 +254,7 @@ bool SplineFoil::serialize(QDataStream &ar, bool bIsStoring)
         ar >> k;
         if(k!=0 && k!=1) return false;
 
-        if(k) m_bOutPoints = true; else m_bOutPoints = false;
+//        if(k) m_bOutPoints = true; else m_bOutPoints = false;
 
         ar >> k;
         if(k!=0 && k!=1) return false;
@@ -284,6 +283,7 @@ bool SplineFoil::serialize(QDataStream &ar, bool bIsStoring)
  */
 bool SplineFoil::serializeXFL(QDataStream &ar, bool bIsStoring)
 {
+    bool boolean(false);
     int k(0), n(0);
     double dble(0), x(0), y(0);
     int ArchiveFormat=200002; // 200002: nes LineStyle format
@@ -296,7 +296,7 @@ bool SplineFoil::serializeXFL(QDataStream &ar, bool bIsStoring)
 
         m_theStyle.serializeXfl(ar, bIsStoring);
 
-        ar<<m_bCenterLine << m_bOutPoints;
+        ar<<m_bCenterLine << boolean;
 
         ar << m_Extrados.m_iDegree << m_Intrados.m_iDegree;
         ar << m_Extrados.m_iRes << m_Intrados.m_iRes;
@@ -342,7 +342,7 @@ bool SplineFoil::serializeXFL(QDataStream &ar, bool bIsStoring)
         m_Intrados.setTheStyle(m_theStyle);
         m_Extrados.setTheStyle(m_theStyle);
 
-        ar >> m_bCenterLine >> m_bOutPoints;
+        ar >> m_bCenterLine >> boolean;
 
         ar >> m_Extrados.m_iDegree >> m_Intrados.m_iDegree;
         ar >> m_Extrados.m_iRes >> m_Intrados.m_iRes;
@@ -401,10 +401,10 @@ void SplineFoil::updateSplineFoil()
  * @param scaley the scale of the view in the y direction
  * @param Offset the postion of the SplineFoil's leading edge point
  */
-void SplineFoil::drawCtrlPoints(QPainter &painter, double scalex, double scaley, QPointF Offset)
+void SplineFoil::drawCtrlPoints(QPainter &painter, double scalex, double scaley, QPointF const &Offset, QColor const &backcolor)
 {
-    m_Extrados.drawCtrlPoints(painter, scalex, scaley, Offset);
-    m_Intrados.drawCtrlPoints(painter, scalex, scaley, Offset);
+    m_Extrados.drawCtrlPoints(painter, scalex, scaley, Offset, backcolor);
+    m_Intrados.drawCtrlPoints(painter, scalex, scaley, Offset, backcolor);
 }
 
 /**
@@ -414,10 +414,10 @@ void SplineFoil::drawCtrlPoints(QPainter &painter, double scalex, double scaley,
  * @param scaley the scale of the view in the y direction
  * @param Offset the postion of the SplineFoil's leading edge point
  */
-void SplineFoil::drawOutPoints(QPainter & painter, double scalex, double scaley, QPointF Offset)
+void SplineFoil::drawOutPoints(QPainter & painter, double scalex, double scaley, QPointF const &Offset, QColor const &backclr)
 {
-    m_Extrados.drawOutputPoints(painter, scalex, scaley, Offset);
-    m_Intrados.drawOutputPoints(painter, scalex, scaley, Offset);
+    m_Extrados.drawOutputPoints(painter, scalex, scaley, Offset, backclr);
+    m_Intrados.drawOutputPoints(painter, scalex, scaley, Offset, backclr);
 }
 
 /**

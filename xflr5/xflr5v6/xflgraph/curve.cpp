@@ -63,7 +63,7 @@ void Curve::duplicate(Curve const*pCurve)
     copyData(pCurve);
 
     m_theStyle = pCurve->m_theStyle;
-    m_CurveName  = pCurve->m_CurveName;
+    m_Name  = pCurve->m_Name;
 }
 
 

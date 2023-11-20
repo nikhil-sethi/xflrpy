@@ -65,6 +65,7 @@ void LLTAnalysis::resetVariables()
     m_bError     = false;
     m_bWarning   = false;
 
+
     memset(m_Chord,         0, sizeof(m_Chord));
     memset(m_Offset,        0, sizeof(m_Offset));
     memset(m_Twist,         0, sizeof(m_Twist));
@@ -88,7 +89,6 @@ void LLTAnalysis::resetVariables()
     m_mtoUnit = 0.0;
 
     m_QInf0 = 0.0;
-    m_Maxa  = 0.0;
 
     m_CL = 0.0;
     m_CDi = 0.0;
@@ -194,7 +194,7 @@ void LLTAnalysis::computeWing(double QInf, double Alpha, QString &ErrorMessage)
     Foil *pFoil1(nullptr);
 
     QString strange;
-    double yob(0), tau=(0), c4=(0), zpos=(0);
+    double yob(0), tau(0), c4(0), zpos(0);
 
     double Integral0(0);
     double Integral1(0);
@@ -511,17 +511,19 @@ int LLTAnalysis::iterate(double &QInf, double Alpha)
     bool bOutRe(false), bError(false);
     int iter(0);
 
+    double Maxa(0.0);
+
     while(iter<s_IterLim)
     {
         if(m_bCancel) return -1;
-        m_Maxa = 0.0;
+        Maxa = 0.0;
 
         for (int k=1; k<s_NLLTStations; k++)
         {
             double a = m_Ai[k];
             anext    = -AlphaInduced(k);
             m_Ai[k]  = a +(anext-a)/s_RelaxMax;
-            m_Maxa   = qMax(m_Maxa, qAbs(a-anext));
+            Maxa   = qMax(Maxa, qAbs(a-anext));
         }
 
         double Lift=0.0;// required for Type 2
@@ -552,7 +554,7 @@ int LLTAnalysis::iterate(double &QInf, double Alpha)
             }
         }
 
-        if (m_Maxa<s_CvPrec)
+        if (Maxa<s_CvPrec)
         {
             m_bConverged = true;
             break;
@@ -562,7 +564,7 @@ int LLTAnalysis::iterate(double &QInf, double Alpha)
         if(m_pX && m_pY)
         {
             m_pX->append(double(iter));
-            m_pY->append(m_Maxa);
+            m_pY->append(Maxa);
         }
         iter++;
     }
@@ -604,6 +606,18 @@ void LLTAnalysis::initializeGeom()
 
 bool LLTAnalysis::loop()
 {
+    if(s_NLLTStations<=1 || s_RelaxMax<1)
+    {
+        QString str;
+        str = "Invalid number of stations or relaxation factor.\n"
+              "Recommendation (advanced settings):\n"
+              "   Number of stations = 20\n"
+              "   Relaxation factor = 20.0\n\n"
+              "Aborting analysis...\n";
+        traceLog(str);
+        return false;
+    }
+
     if (m_pWPolar->polarType()!=xfl::FIXEDAOAPOLAR)
     {
         return alphaLoop();
@@ -672,9 +686,19 @@ bool LLTAnalysis::alphaLoop()
             traceLog(str);
             computeWing(m_pWPolar->m_QInfSpec, Alpha, str);// generates wing results,
             traceLog(str);
-            if (m_bWingOut) m_bWarning = true;
-            PlaneOpp *pPOpp = createPlaneOpp(m_pWPolar->m_QInfSpec, Alpha, m_bWingOut);// Adds WOpp point and adds result to polar
-            if(pPOpp) m_PlaneOppList.append(pPOpp);
+
+            bool bStore = true;
+            if (m_bWingOut)
+            {
+                m_bWarning = true;
+                if(!PlaneOpp::s_bKeepOutOpps ) bStore = false;
+            }
+
+            if(bStore)
+            {
+                PlaneOpp *pPOpp = createPlaneOpp(m_pWPolar->m_QInfSpec, Alpha, m_bWingOut);// Adds WOpp point and adds result to polar
+                if(pPOpp) m_PlaneOppList.append(pPOpp);
+            }
             s_bInitCalc = false;
         }
         else
@@ -794,7 +818,6 @@ void LLTAnalysis::setLLTRange(double AlphaMin, double AlphaMax, double DeltaAlph
 }
 
 
-
 void LLTAnalysis::setLLTData(Plane *pPlane, WPolar *pWPolar)
 {
     m_pPlane   = pPlane;
@@ -814,13 +837,11 @@ void LLTAnalysis::initializeAnalysis()
 }
 
 
-
-/** emits the analysis messages to the world */
+/** sends the analysis messages to the world */
 void LLTAnalysis::traceLog(QString str)
 {
     emit outputMsg(str);
 }
-
 
 
 /**
@@ -918,9 +939,7 @@ PlaneOpp* LLTAnalysis::createPlaneOpp(double QInf, double Alpha, bool bWingOut)
         }
     }
 
-    //add the data to the polar object
-    if(PlaneOpp::s_bKeepOutOpps || !pNewPOpp->m_bOut)
-        m_pWPolar->addPlaneOpPoint(pNewPOpp);
+    m_pWPolar->addPlaneOpPoint(pNewPOpp);
 
     return pNewPOpp;
 }

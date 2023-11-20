@@ -30,7 +30,6 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QRadioButton>
-#include <QPlainTextEdit>
 #include <QDialogButtonBox>
 #include <QGroupBox>
 #include <QModelIndex>
@@ -133,7 +132,7 @@ class BatchAbstractDlg : public QDialog
 
         QDialogButtonBox *m_pButtonBox;
         QPushButton *m_ppbAnalyze, *m_ppbAdvancedSettings;
-        PlainTextOutput *m_pteTextOutput;
+        PlainTextOutput *m_ppto;
 
         QSplitter *m_pHSplitter, *m_pVSplitter;
 

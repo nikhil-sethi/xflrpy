@@ -24,7 +24,7 @@
 
 #include "optimtask.h"
 
-int  OptimTask::s_PopSize           = 31;
+int  OptimTask::s_PopSize           = 11;
 int  OptimTask::s_MaxIter           = 100;
 bool OptimTask::s_bMultiThreaded    = true;
 

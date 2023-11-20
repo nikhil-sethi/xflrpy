@@ -22,7 +22,7 @@
 #include <QHBoxLayout>
 #include <QGroupBox>
 #include <QMessageBox>
-
+#include <QDebug>
 #include <xfoil.h>
 #include "foilgeomdlg.h"
 
@@ -31,7 +31,7 @@
 #include <xflobjects/objects2d/foil.h>
 
 
-XFoil *FoilGeomDlg::s_pXFoil;
+XFoil *FoilGeomDlg::s_pXFoil(nullptr);
 
 
 FoilGeomDlg::FoilGeomDlg(QWidget *pParent) : QDialog(pParent)
@@ -39,18 +39,57 @@ FoilGeomDlg::FoilGeomDlg(QWidget *pParent) : QDialog(pParent)
     setWindowTitle(tr("Foil Geometry"));
 
     m_pParent = pParent;
+    m_fCamber     = 0;
+    m_fThickness  = 0;
+    m_fXCamber    = 0;
+    m_fXThickness = 0;
+
+    m_pBaseFoil   = nullptr;
+    m_pBufferFoil = nullptr;
+    m_pMemFoil    = nullptr;
 
     setupLayout();
 
-    connect(m_pdeCamber, SIGNAL(editingFinished()), this, SLOT(onCamber()));
-    connect(m_pdeXCamber, SIGNAL(editingFinished()), this, SLOT(onXCamber()));
-    connect(m_pdeThickness, SIGNAL(editingFinished()), this, SLOT(onThickness()));
-    connect(m_pdeXThickness, SIGNAL(editingFinished()), this, SLOT(onXThickness()));
+    connect(m_pdeCamber,       SIGNAL(valueChanged()), SLOT(onCamber()));
+    connect(m_pdeXCamber,      SIGNAL(valueChanged()), SLOT(onXCamber()));
+    connect(m_pdeThickness,    SIGNAL(valueChanged()), SLOT(onThickness()));
+    connect(m_pdeXThickness,   SIGNAL(valueChanged()), SLOT(onXThickness()));
 
-    connect(m_pslCamberSlide, SIGNAL(valueChanged(int)), this, SLOT(onCamberSlide(int)));
-    connect(m_pslXCamberSlide, SIGNAL(valueChanged(int)), this, SLOT(onXCamberSlide(int)));
-    connect(m_pslThickSlide, SIGNAL(valueChanged(int)), this, SLOT(onThickSlide(int)));
-    connect(m_pslXThickSlide, SIGNAL(valueChanged(int)), this, SLOT(onXThickSlide(int)));
+    connect(m_pslCamberSlide,  SIGNAL(sliderMoved(int)), SLOT(onCamberSlide(int)));
+    connect(m_pslXCamberSlide, SIGNAL(sliderMoved(int)), SLOT(onXCamberSlide(int)));
+    connect(m_pslThickSlide,   SIGNAL(sliderMoved(int)), SLOT(onThickSlide(int)));
+    connect(m_pslXThickSlide,  SIGNAL(sliderMoved(int)), SLOT(onXThickSlide(int)));
+}
+
+
+void FoilGeomDlg::initDialog()
+{
+    // round values to be consistent to entry field value decimals
+    m_fCamber     = round (m_pMemFoil->camber()     * 10000) / 10000 ;
+    m_fThickness  = round (m_pMemFoil->thickness()  * 10000) / 10000 ;
+    m_fXCamber    = round (m_pMemFoil->xCamber()    * 10000) / 10000 ;
+    m_fXThickness = round (m_pMemFoil->xThickness() * 10000) / 10000 ;
+
+    if(qAbs(m_fCamber) <0.0001)
+    {
+        m_pslCamberSlide->setEnabled(false);
+        m_pdeCamber->setEnabled(false);
+    }
+
+    // set values into entry fields and sliders
+    m_pdeCamber->setValue(m_fCamber*100.0);
+    m_pdeThickness->setValue(m_fThickness*100.0);
+    m_pdeXCamber->setValue(m_fXCamber*100.0);
+    m_pdeXThickness->setValue(m_fXThickness*100.0);
+
+    m_pslCamberSlide->setSliderPosition(int(m_fCamber*1000.0));
+    m_pslThickSlide->setSliderPosition(int(m_fThickness*1000.0));
+    m_pslXCamberSlide->setSliderPosition(int(m_fXCamber*1000.0));
+    m_pslXThickSlide->setSliderPosition(int(m_fXThickness*1000.0));
+
+    m_modifying = false;
+    m_pBaseFoil = new Foil();
+    m_pBaseFoil->copyFoil(m_pMemFoil);
 }
 
 
@@ -269,9 +308,8 @@ void FoilGeomDlg::apply()
     // this never should happen
     if(s_pXFoil->nb != m_pMemFoil->m_n)
     {
-        QMessageBox::information(window(), tr("Error"), tr("Panel number changed during modification"));
+//        QMessageBox::information(window(), tr("Error"), tr("Panel number changed during modification"));
     }
-
     // is output corrupted? if yes re-panel base airfoil for the next try
     else if (!isXFoilOk())
     {
@@ -279,7 +317,6 @@ void FoilGeomDlg::apply()
         s_pXFoil->initXFoilGeometry(m_pMemFoil->m_n, m_pMemFoil->m_x, m_pMemFoil->m_y, m_pBufferFoil->m_nx, m_pBufferFoil->m_ny);
         s_pXFoil->npan = s_pXFoil->nb;
         s_pXFoil->pangen();
-        qDebug ("FoilGeomDlg: pangen with nb =%3d due to corrupted output airfoil", s_pXFoil->nb);
 
         for (int j=0; j< s_pXFoil->n; j++)
         {
@@ -347,37 +384,6 @@ void FoilGeomDlg::keyPressEvent(QKeyEvent *pEvent)
             pEvent->ignore();
             break;
     }
-}
-
-
-void FoilGeomDlg::initDialog()
-{
-    // round values to be consistend to entry field value decimals
-    m_fCamber     = round (m_pMemFoil->camber()     * 10000) / 10000 ;
-    m_fThickness  = round (m_pMemFoil->thickness()  * 10000) / 10000 ;
-    m_fXCamber    = round (m_pMemFoil->xCamber()    * 10000) / 10000 ;
-    m_fXThickness = round (m_pMemFoil->xThickness() * 10000) / 10000 ;
-
-    if(qAbs(m_fCamber) <0.0001)
-    {
-        m_pslCamberSlide->setEnabled(false);
-        m_pdeCamber->setEnabled(false);
-    }
-
-    // set values into entry fields and sliders
-    m_pdeCamber->setValue(m_fCamber*100.0);
-    m_pdeThickness->setValue(m_fThickness*100.0);
-    m_pdeXCamber->setValue(m_fXCamber*100.0);
-    m_pdeXThickness->setValue(m_fXThickness*100.0);
-
-    m_pslCamberSlide->setSliderPosition(int(m_fCamber*1000.0));
-    m_pslThickSlide->setSliderPosition(int(m_fThickness*1000.0));
-    m_pslXCamberSlide->setSliderPosition(int(m_fXCamber*1000.0));
-    m_pslXThickSlide->setSliderPosition(int(m_fXThickness*1000.0));
-
-    m_modifying = false;
-    m_pBaseFoil = new Foil();
-    m_pBaseFoil->copyFoil(m_pMemFoil);
 }
 
 

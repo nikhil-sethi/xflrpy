@@ -60,7 +60,7 @@ class Section2dWt : public QWidget
         void mouseMoveEvent(QMouseEvent *pEvent) override;
         void mousePressEvent(QMouseEvent *pEvent) override;
         void mouseReleaseEvent(QMouseEvent *pEvent) override;
-        virtual void paintEvent(QPaintEvent *pEvent) override;
+        virtual void paintEvent(QPaintEvent *) override;
         void resizeEvent (QResizeEvent *pEvent) override;
         void wheelEvent (QWheelEvent *pEvent) override;
         void showEvent(QShowEvent *pEvent) override;

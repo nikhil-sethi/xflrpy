@@ -4,7 +4,7 @@
 
 
 #define MAJOR_VERSION    6
-#define MINOR_VERSION    59
+#define MINOR_VERSION    61
 
 
 //General

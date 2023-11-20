@@ -32,11 +32,12 @@
 #include "mopsotask.h"
 #include <xflcore/constants.h>
 
-int    MOPSOTask::s_ArchiveSize       = 10;
+
+int    MOPSOTask::s_ArchiveSize       = 11;
 double MOPSOTask::s_InertiaWeight     = 0.3;
 double MOPSOTask::s_CognitiveWeight   = 0.7;
 double MOPSOTask::s_SocialWeight      = 0.7;
-double MOPSOTask::s_ProbRegenerate    = 0.05;
+double MOPSOTask::s_ProbRegenerate    = 0.07;
 
 
 MOPSOTask::MOPSOTask()
@@ -46,13 +47,13 @@ MOPSOTask::MOPSOTask()
 
 void MOPSOTask::restoreDefaults()
 {
-    s_PopSize           = 31;
+    s_PopSize           = 11;
     s_ArchiveSize       = 10;
     s_MaxIter           = 100;
     s_InertiaWeight     = 0.3;
     s_CognitiveWeight   = 0.7;
     s_SocialWeight      = 0.7;
-    s_ProbRegenerate    = 0.05;
+    s_ProbRegenerate    = 0.07;
 }
 
 
@@ -62,40 +63,20 @@ void MOPSOTask::makeSwarm()
 
     m_Iter = 0;
 
-    outputMsg("Making swarm...\n");
     m_Swarm.resize(s_PopSize);
 
-    // no need to multithread, no fitness calculation
     for (int i=0; i<m_Swarm.size(); ++i)
     {
         Particle &particle = m_Swarm[i];
         makeRandomParticle(&particle);
     }
 
-    if(s_bMultiThreaded)
-    {
-        QFutureSynchronizer<void> futureSync;
-        for (int isw=0; isw<m_Swarm.size(); ++isw)
-        {
-           Particle &particle = m_Swarm[isw];
+    updateFitnesses();
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
-           futureSync.addFuture(QtConcurrent::run(&MOPSOTask::calcFitness, this, &particle));
-#else
-           futureSync.addFuture(QtConcurrent::run(this, &MOPSOTask::calcFitness, &particle));
-#endif
-        }
-        futureSync.waitForFinished();
-    }
-    else
+    for (int i=0; i<m_Swarm.size(); ++i)
     {
-        for(int i=0; i<m_Swarm.size(); i++)
-            calcFitness(&m_Swarm[i]);
+        if(!m_Swarm.at(i).isConverged()) outputMsg(QString::asprintf("    Particle %d is unconverged\n", i));
     }
-
-    for(int i=0; i<m_Swarm.size(); i++)
-        for(int iobj=0; iobj<m_Objective.size(); iobj++)
-            m_Swarm[i].setError(iobj, error(&m_Swarm.at(i), iobj));
 
     outputMsg(QString::asprintf("Made %d random particles\n", int(m_Swarm.size())));
 
@@ -103,11 +84,12 @@ void MOPSOTask::makeSwarm()
 }
 
 
-void MOPSOTask::onSwarm()
+void MOPSOTask::onIterate()
 {
     if(m_Swarm.size()==0 || m_Swarm.size()!=s_PopSize)
     {
-        outputMsg("Swarm has not been created\n");
+        m_Status = xfl::PENDING;
+        outputMsg("Invalid swarm size\n");
         postPSOEvent(-1); // notifiy finished
         moveToThread(QApplication::instance()->thread());
         return;
@@ -126,6 +108,9 @@ void MOPSOTask::onSwarm()
 
 void MOPSOTask::onIteration()
 {
+    m_Iter++;
+    if(m_Iter>s_MaxIter) return;  // failsafe because events are async
+
     if(s_bMultiThreaded)
     {
         QFutureSynchronizer<void> futureSync;
@@ -146,47 +131,60 @@ void MOPSOTask::onIteration()
         {
             Particle &particle = m_Swarm[isw];
             moveParticle(&particle);
+            if(isCancelled()) break;
         }
     }
 
-    m_Iter++;
 
-    makeParetoFront();
+    bool bIsConverged = false;
+    int iBest0 = 0;
 
-    // select the best first objective
-    int iBest0 = 0; // pareto first, if non better other
-    bool bIsConverged = true;
-    Particle bestparticle;
-    for(int i=0; i<m_Pareto.size(); i++)
+    if(!isCancelled())
     {
-        Particle const &particle = m_Pareto.at(i);
-        // track the first objective for user information
-        if(particle.error(0)<m_Objective.at(0).m_MaxError)
+
+        for (int isw=0; isw<m_Swarm.size(); ++isw)
         {
-            iBest0 = i;
-            bestparticle = particle;
+            if(!m_Swarm.at(isw).isConverged())        outputMsg(QString::asprintf("Particle %d is unconverged\n", isw));
         }
 
-        // check if the particle meets all criteria
-        bIsConverged = true;
-        for(int io=0; io<particle.nObjectives(); io++)
+        makeParetoFront();
+
+        // select the best first objective
+        iBest0 = 0; // pareto first, if non better other
+
+        Particle bestparticle;
+        for(int i=0; i<m_Pareto.size(); i++)
         {
-            if(particle.error(io)>m_Objective.at(io).m_MaxError)
+            Particle const &particle = m_Pareto.at(i);
+            if(particle.error(0)<m_Objective.at(0).m_MaxError)
             {
-                bIsConverged = false;
-                break;
+                iBest0 = i;
+                bestparticle = particle;
             }
-        }
-        if(bIsConverged)            break;
-    }
 
-    postIterEvent(iBest0);
+            // check if the particle meets all criteria
+            bIsConverged = true;
+            for(int io=0; io<particle.nObjectives(); io++)
+            {
+                double err = PRECISION;
+                if(m_Objective.at(io).m_Type==xfl::EQUALIZE)  err = m_Objective.at(io).m_MaxError;
+
+                if(particle.error(io)>err)
+                {
+                    bIsConverged = false;
+                    break;
+                }
+            }
+            if(bIsConverged)  break;
+        }
+
+        postIterEvent(iBest0);
+    }
 
     if(m_Iter>=s_MaxIter || bIsConverged || m_Status==xfl::CANCELLED)
     {
-        if     (bIsConverged)             outputMsg("   ---Converged---\n");
+        if  (bIsConverged) outputMsg("   ---Converged---\n");
         else if(m_Status==xfl::CANCELLED) outputMsg("The task has been cancelled\n");
-        else if(m_Iter>=s_MaxIter)        outputMsg("The maximum number of iterations has been reached\n");
 
         m_Status = xfl::FINISHED;
 
@@ -198,16 +196,21 @@ void MOPSOTask::onIteration()
 }
 
 
+
 void MOPSOTask::moveParticle(Particle *pParticle) const
 {
-    double newpos=0, vel=0;
-    double r1=0, r2=0;
-
-    int igbest=0, ipbest=0;
+    double newpos(0), vel(0);
+    double r1(0), r2(0);
+    int igbest(0), ipbest(0);
 
     // regenerate particles with random probability
     double regen = QRandomGenerator::global()->bounded(1.0);
-    if (regen<s_ProbRegenerate)
+
+    // do not regenerate porticles in the Pareto front.
+    bool bRegen = regen<s_ProbRegenerate;
+    if(pParticle->isInParetoFront()) bRegen = false;
+    if(!pParticle->isConverged()) bRegen = true;
+    if(bRegen)
     {
         makeRandomParticle(pParticle);
     }
@@ -245,7 +248,11 @@ void MOPSOTask::moveParticle(Particle *pParticle) const
     checkBounds(*pParticle);
 
     calcFitness(pParticle); // note: do not parallelize in derived class
-    for(int i=0; i<m_Objective.size(); i++)  pParticle->setError(i, error(pParticle, i));
+
+    for(int i=0; i<m_Objective.size(); i++)
+    {
+        pParticle->setError(i, error(pParticle, i));
+    }
 
     pParticle->updateBest();
 }
@@ -254,8 +261,10 @@ void MOPSOTask::moveParticle(Particle *pParticle) const
 /** Posted when an iteration has ended */
 void MOPSOTask::postIterEvent(int iBest)
 {
-    OptimEvent *pIterEvent = new OptimEvent(OPTIM_ITER_EVENT, m_Iter, iBest, m_Pareto.at(iBest));
-    qApp->postEvent(m_pParent, pIterEvent);
+    // to be used with Qt::BlockingQueuedConnection to ensure ibjject is not deleted before call returns
+    OptimEvent pOptEvent(OPTIM_ITER_EVENT, m_Iter, iBest, m_Pareto.at(iBest));
+//    qApp->postEvent(m_pParent, pIterEvent);
+    emit iterEvent(&pOptEvent);
 }
 
 
@@ -266,26 +275,55 @@ void MOPSOTask::postPSOEvent(int iBest)
     qApp->postEvent(m_pParent, pPSOEvent);
 }
 
+
 #define PARTICLEBESTSIZE 3
 void MOPSOTask::makeRandomParticle(Particle *pParticle) const
 {
     int nBest = std::min(int(m_Objective.size()), PARTICLEBESTSIZE);
     pParticle->resizeArrays(m_Variable.size(), m_Objective.size(), nBest);
-    double pos=0, vel=0;
-    double deltap = 0.0;
-    double deltav = 0.0;
 
     for(int i=0; i<pParticle->dimension(); i++)
     {
-        deltap = m_Variable.at(i).m_Max - m_Variable.at(i).m_Min;
-        pos = m_Variable.at(i).m_Min + QRandomGenerator::global()->bounded(deltap);
+        double deltap = m_Variable.at(i).m_Max - m_Variable.at(i).m_Min;
+        double pos = m_Variable.at(i).m_Min + QRandomGenerator::global()->bounded(deltap);
 
         pParticle->setPos(i, pos);
         pParticle->initializeBest();
 
-        deltav = deltap/2.0;
-        vel = -deltav/2.0 + QRandomGenerator::global()->bounded(deltav);
+        double deltav = deltap/2.0;
+        double vel = -deltav/2.0 + QRandomGenerator::global()->bounded(deltav);
         pParticle->setVel(i, vel);
+    }
+}
+
+
+void MOPSOTask::updateFitnesses()
+{
+    if(s_bMultiThreaded)
+    {
+        QFutureSynchronizer<void> futureSync;
+        for (int isw=0; isw<m_Swarm.size(); ++isw)
+        {
+           Particle &particle = m_Swarm[isw];
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+           futureSync.addFuture(QtConcurrent::run(&MOPSOTask::calcFitness, this, &particle));
+#else
+           futureSync.addFuture(QtConcurrent::run(this, &MOPSOTask::calcFitness, &particle));
+#endif
+        }
+        futureSync.waitForFinished();
+    }
+    else
+    {
+        for(int i=0; i<m_Swarm.size(); i++)
+            calcFitness(&m_Swarm[i]);
+    }
+
+    for(int i=0; i<m_Swarm.size(); i++)
+    {
+        for(int iobj=0; iobj<m_Objective.size(); iobj++)
+            m_Swarm[i].setError(iobj, error(&m_Swarm.at(i), iobj));
     }
 }
 
@@ -303,17 +341,6 @@ void MOPSOTask::updateErrors()
         }
         particle.initializeBest();
     }
-
-/*    for(int j=0; j<m_Pareto.size(); j++)
-    {
-        Particle &particle = m_Pareto[j];
-        for(int iobj=0; iobj<m_Objective.size(); iobj++)
-        {
-            err = error(&particle, iobj);
-            particle.setError(iobj, err);
-        }
-//        particle.initializeBest();
-    }*/
 }
 
 
@@ -321,32 +348,41 @@ void MOPSOTask::makeParetoFront()
 {
     for(int j=0; j<m_Swarm.size(); j++)
     {
-        Particle const &pj = m_Swarm.at(j);
-        bool bIsDominated=false;
-        for(int ip=0; ip<m_Pareto.size(); ip++)
-        {
-            Particle const &ppar = m_Pareto.at(ip);
-            if(ppar.dominates(&pj))
-            {
-                // this particle does not belong to the Pareto front, discard it
-                bIsDominated=true;
-                break;
-            }
-        }
+        Particle &pj = m_Swarm[j];
+        pj.setInParetoFront(false);
 
-        if(!bIsDominated)
+        if(!pj.isConverged())
         {
-            // this particle is worthy
-            // check if it dominates any of the existing particles in the Pareto frontier
-            for(int ip=m_Pareto.size()-1; ip>=0; ip--)
+        }
+        else
+        {
+            bool bIsDominated=false;
+            for(int ip=0; ip<m_Pareto.size(); ip++)
             {
                 Particle const &ppar = m_Pareto.at(ip);
-                if(pj.dominates(&ppar))
+                if(ppar.dominates(&pj))
                 {
-                    m_Pareto.removeAt(ip);
+                    // this particle does not belong to the Pareto front, discard it
+                    bIsDominated=true;
+                    break;
                 }
             }
-            m_Pareto.append(pj);
+
+            if(!bIsDominated)
+            {
+                // this particle is worthy
+                // check if it dominates any of the existing particles in the Pareto frontier
+                for(int ip=m_Pareto.size()-1; ip>=0; ip--)
+                {
+                    Particle const &ppar = m_Pareto.at(ip);
+                    if(pj.dominates(&ppar))
+                    {
+                        m_Pareto.removeAt(ip);
+                    }
+                }
+                m_Pareto.append(pj);
+                pj.setInParetoFront(true);
+            }
         }
     }
 
@@ -356,3 +392,4 @@ void MOPSOTask::makeParetoFront()
         m_Pareto.removeAt(QRandomGenerator::global()->bounded(m_Pareto.size()));
     }
 }
+

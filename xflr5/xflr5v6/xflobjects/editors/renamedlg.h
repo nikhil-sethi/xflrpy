@@ -28,6 +28,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QLineEdit>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QKeyEvent>
 #include <QHBoxLayout>
@@ -40,9 +41,11 @@ class RenameDlg : public QDialog
 
     public:
         RenameDlg(QWidget *pParent=nullptr);
-        void initDialog(QStringList *pStrList, QString startName, QString question);
+        void initDialog(QStringList *pStrList, QString const &startName, QString const &question);
         void setOverwriteEnable(bool bEnable){m_bEnableOverwrite = bEnable;}
-        QString newName(){return m_strName;}
+
+        QString newName() const {return m_pleName->text();}
+
 
     private slots:
         void onOverwrite();
@@ -53,11 +56,14 @@ class RenameDlg : public QDialog
 
 
     private:
-        void keyPressEvent(QKeyEvent *event) override;
+        QSize sizeHint() const override {return QSize(500,800);}
+        void showEvent(QShowEvent *) override;
+        void hideEvent(QHideEvent *) override;
+        void keyPressEvent(QKeyEvent *pEvent) override;
         void setupLayout();
 
         QStringList m_strArray;
-        QString m_strName;
+        QString m_startName;
         QString m_strQuestion;
         bool m_bEnableOverwrite;
         bool m_bExists;
@@ -67,6 +73,9 @@ class RenameDlg : public QDialog
         QListWidget *m_plwNameList;
         QPushButton *m_ppbOverwrite;
         QDialogButtonBox *m_pButtonBox;
+
+
+        static QByteArray s_Geometry;
 };
 
 

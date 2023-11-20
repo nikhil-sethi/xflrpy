@@ -31,7 +31,7 @@
 #include <xflwidgets/customwts/doubleedit.h>
 #include <xflobjects/objects2d/foil.h>
 
-XFoil *LEDlg::s_pXFoil;
+XFoil *LEDlg::s_pXFoil(nullptr);
 
 LEDlg::LEDlg(QWidget *pParent) : QDialog(pParent)
 {

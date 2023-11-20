@@ -200,7 +200,7 @@ void XFoilAnalysisDlg::initDialog()
     pCurve0->setName(str);
     str = "max";
     pCurve1->setName(str);
-    pCurve1->setStipple(0);
+    pCurve1->setStipple(Line::SOLID);
 
     m_pRmsGraph->setXMin(0.0);
     m_pRmsGraph->setXMax(double(XFoilTask::s_IterLim));

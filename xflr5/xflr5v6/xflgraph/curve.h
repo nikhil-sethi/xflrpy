@@ -85,11 +85,13 @@ class Curve
          * Sets the curve's style
          * @param nStyle the index of the new curve's style
          */
-        void setStipple(int nStyle){ m_theStyle.setStipple(nStyle);}
+//        void setStipple(int nStyle){ m_theStyle.setStipple(nStyle);}
+        void setStipple(Line::enumLineStipple stip){ m_theStyle.m_Stipple = stip;}
 
         void setLineStyle(LineStyle const &ls2) {m_theStyle=ls2;}
 
-        void setPointStyle(int pointstyle) {m_theStyle.setPointStyle(pointstyle);}
+//        void setPointStyle(int pointstyle) {m_theStyle.setPointStyle(pointstyle);}
+        void setSymbol(Line::enumPointStyle symbol) {m_theStyle.m_Symbol = symbol;}
 
         /**
          * Sets the index of the currently selected point of this curve
@@ -107,7 +109,7 @@ class Curve
          * Sets the curve title
          *@param Title the new curve's title
          */
-        void setName(QString const &Title){ m_CurveName = Title;}
+        void setName(QString const &Title){ m_Name = Title;}
 
 
         /** Return the visibility of the curve as a boolean. */
@@ -134,10 +136,10 @@ class Curve
         Line::enumPointStyle pointStyle() const {return m_theStyle.m_Symbol;}
 
         /** Returns the Curve's title */
-        void curveName(QString &string) const {string =  m_CurveName;}
+        void name(QString &string) const {string = m_Name;}
 
         /** Returns the Curve's title */
-        QString const &curveName() const {return m_CurveName;}
+        QString const &name() const {return m_Name;}
 
         double  xMin() const;
         double  xMax() const;
@@ -152,7 +154,7 @@ class Curve
 
 
     private:
-        QString m_CurveName;                       /**< the curves's name */
+        QString m_Name;                       /**< the curves's name */
         int m_iSelected;                           /**< the index of the curve's currently selected point, or -1 if none is selected */
         Graph *m_pParentGraph;                      /**< a pointer to the parent graph to which this curve belongs */
         LineStyle m_theStyle;

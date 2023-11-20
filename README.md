@@ -1,6 +1,6 @@
 # XFLR5 for Ubuntu
 
-*This repo provides the latest [XFLR5](http://www.xflr5.tech/xflr5.htm) (currently v6.59) patched for Ubuntu 22.04 LTS*
+*This repo provides the latest [XFLR5](http://www.xflr5.tech/xflr5.htm) (currently v6.61) patched for Ubuntu 22.04 LTS*
 
 ## Installation
 

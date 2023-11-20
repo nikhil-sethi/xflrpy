@@ -56,9 +56,9 @@ int gl3dView::s_AnimationTime = 500; //ms
 
 gl3dView::gl3dView(QWidget *pParent) : QOpenGLWidget(pParent)
 {
-    setMouseTracking(true);
     setCursor(Qt::CrossCursor);
     setFocusPolicy(Qt::WheelFocus);
+    setMouseTracking(true);
 
     m_iTransitionInc = 0;
 

@@ -79,7 +79,6 @@ class GATask : public OptimTask
         /** @todo foil or case specific methods to deport in a derived class */
         void calcFitness(Particle*pParticle) const override;
         double error(Particle const *pParticle, int iObjective) const override;
-        double HH(double x, double t1, double t2) const;
         double foilFunc(Particle const*pParticle) const;
 
 

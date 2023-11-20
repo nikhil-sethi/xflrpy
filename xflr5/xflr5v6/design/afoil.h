@@ -108,6 +108,7 @@ class AFoil : public QFrame
         void onNewSplines();
         void onRedo();
         void onRenameFoil();
+        void onFoilDescription();
         void onResetColumnWidths();
         void onShowAllFoils();
         void onShowCurrentFoil();

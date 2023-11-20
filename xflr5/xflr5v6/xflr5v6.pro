@@ -22,7 +22,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #   Uncomment the following line to print the name of the variable OUT_PWD in the console
 #message($$OUT_PWD)
 
-VERSION = 6.55
+VERSION = 6.61
 
 CONFIG += qt
 QT += widgets opengl xml

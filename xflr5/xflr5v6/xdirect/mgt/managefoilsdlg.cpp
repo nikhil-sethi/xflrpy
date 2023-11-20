@@ -288,7 +288,6 @@ void ManageFoilsDlg::onRename()
 
         RenameDlg renDlg(this);
         renDlg.initDialog(&NameList, m_pFoil->name(), tr("Enter the foil's new name"));
-
         if(renDlg.exec()!=QDialog::Rejected)
         {
             Objects2d::renameThisFoil(m_pFoil, renDlg.newName());

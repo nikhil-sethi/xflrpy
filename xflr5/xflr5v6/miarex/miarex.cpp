@@ -90,6 +90,7 @@
 #include <xflobjects/xml/xmlwpolarreader.h>
 #include <xflobjects/xml/xmlwpolarwriter.h>
 #include <xflwidgets/customdlg/moddlg.h>
+#include <xflwidgets/customdlg/textdlg.h>
 #include <xflwidgets/customwts/doubleedit.h>
 #include <xflwidgets/customwts/mintextedit.h>
 #include <xflwidgets/line/linebtn.h>
@@ -446,12 +447,10 @@ void Miarex::connectSignals()
     connect(m_pchFoilNames, SIGNAL(clicked(bool)), m_pgl3dMiarexView, SLOT(onFoilNames(bool)));
     connect(m_pchMasses,    SIGNAL(clicked(bool)), m_pgl3dMiarexView, SLOT(onShowMasses(bool)));
 
-
-
     connect(m_ppbKeepCpSection,   SIGNAL(clicked()),         SLOT(onKeepCpSection()));
     connect(m_ppbResetCpSection,  SIGNAL(clicked()),         SLOT(onResetCpSection()));
-    connect(m_pslCpSectionSlider, SIGNAL(valueChanged(int)),  SLOT(onCpSectionSlider(int)));
-    connect(m_pdeSpanPos,         SIGNAL(editingFinished()), SLOT(onCpPosition()));
+    connect(m_pslCpSectionSlider, SIGNAL(valueChanged(int)), SLOT(onCpSectionSlider(int)));
+    connect(m_pdeSpanPos,         SIGNAL(valueChanged()), SLOT(onCpPosition()));
 
     connect(m_pchAxes,  SIGNAL(clicked(bool)), m_pgl3dMiarexView, SLOT(onAxes(bool)));
     connect(m_ptbX,     SIGNAL(clicked()),     m_pgl3dMiarexView, SLOT(on3dFront()));
@@ -464,9 +463,9 @@ void Miarex::connectSignals()
 
     connect(m_ppb3DResetScale, SIGNAL(clicked()), SLOT(on3DResetScale()));
 
-    connect(m_pdeAlphaMin,   SIGNAL(editingFinished()), SLOT(onReadAnalysisData()));
-    connect(m_pdeAlphaMax,   SIGNAL(editingFinished()), SLOT(onReadAnalysisData()));
-    connect(m_pdeAlphaDelta, SIGNAL(editingFinished()), SLOT(onReadAnalysisData()));
+    connect(m_pdeAlphaMin,   SIGNAL(valueChanged()), SLOT(onReadAnalysisData()));
+    connect(m_pdeAlphaMax,   SIGNAL(valueChanged()), SLOT(onReadAnalysisData()));
+    connect(m_pdeAlphaDelta, SIGNAL(valueChanged()), SLOT(onReadAnalysisData()));
 
     connect(m_pgl3dMiarexView, SIGNAL(viewModified()), SLOT(onCheckViewIcons()));
 }
@@ -742,7 +741,7 @@ void Miarex::createCpCurves()
                     pCurve->setColor(m_CpLineStyle.m_Color);
                     pCurve->setStipple(m_CpLineStyle.m_Stipple);
                     pCurve->setWidth(m_CpLineStyle.m_Width);
-                    pCurve->setPointStyle(m_CpLineStyle.m_Symbol);
+                    pCurve->setSymbol(m_CpLineStyle.m_Symbol);
 
                     pCurve->setName(POppTitle(m_pCurPOpp)+str3);
 
@@ -818,7 +817,7 @@ void Miarex::createWOppCurves()
             if(m_WingGraph[ig]->yVariable()==3)
             {
                 Curve *pCurve = m_WingGraph[ig]->addCurve();
-                pCurve->setStipple(1);
+                pCurve->setStipple(Line::DASH);
                 pCurve->setWidth(2);
                 pCurve->setColor(QColor(100, 100, 100));
                 for (double id=-50.0; id<=50.5; id+=1.0)
@@ -857,7 +856,7 @@ void Miarex::createWOppCurves()
             if(m_WingGraph[ig]->yVariable()==3)
             {
                 Curve *pCurve = m_WingGraph[ig]->addCurve();
-                pCurve->setStipple(1);
+                pCurve->setStipple(Line::DASH);
                 pCurve->setWidth(2);
                 pCurve->setColor(QColor(100, 100, 100));
                 for (double id=-50.0; id<=50.5; id+=1.0)
@@ -883,7 +882,7 @@ void Miarex::createWOppCurves()
             if(m_WingGraph[ig]->yVariable()==2)
             {
                 Curve *pCurve = m_WingGraph[ig]->addCurve();
-                pCurve->setStipple(1);
+                pCurve->setStipple(Line::DASH);
                 pCurve->setWidth(2);
                 pCurve->setColor(QColor(245, 25, 125));
                 for (int i=nStart; i<m_pCurPOpp->m_NStation; i++) {
@@ -1064,6 +1063,11 @@ void Miarex::createStabRungeKuttaCurves()
     double A[4][4], B[4];
     double m[5][4];
     double y[4], yp[4];
+    memset(A,  0, 16*sizeof(double));
+    memset(B,  0,  4*sizeof(double));
+    memset(m,  0, 20*sizeof(double));
+    memset(y,  0,  4*sizeof(double));
+    memset(yp, 0,  4*sizeof(double));
 
     QString CurveTitle;
 
@@ -1082,7 +1086,7 @@ void Miarex::createStabRungeKuttaCurves()
     if(pCurve3) pCurve3->clear();
     else return;
 
-    //We need a WOpp
+    //We need a Plane Opp
     if(!m_pCurPOpp) return;//nothing to plot
     //Check that the current polar is of the stability type
     if(!m_pCurWPolar || m_pCurWPolar->polarType()!=xfl::STABILITYPOLAR) return;
@@ -1236,8 +1240,8 @@ void Miarex::createStabRLCurves()
 {
     // we have eight modes, 4 longitudinal and 4 lateral
     // declare a curve for each
-    Curve *pLongCurve[4];
-    Curve *pLatCurve [4];
+    Curve *pLongCurve[]{nullptr, nullptr, nullptr, nullptr};
+    Curve *pLatCurve []{nullptr, nullptr, nullptr, nullptr};
 
     m_StabPlrGraph.at(0)->deleteCurves();
     m_StabPlrGraph.at(1)->deleteCurves();
@@ -1573,7 +1577,6 @@ void Miarex::fillWPlrCurve(Curve *pCurve, WPolar const *pWPolar, int XVar, int Y
 }
 
 
-
 /**
  * Overrides the QWidget's keyPressEvent method.
  * Dispatches the key press event
@@ -1727,18 +1730,18 @@ void Miarex::keyPressEvent(QKeyEvent *pEvent)
  * Dispatches the key release event
  * @param event the QKeyEvent sent by Qt
  */
-void Miarex::keyReleaseEvent(QKeyEvent *event)
+void Miarex::keyReleaseEvent(QKeyEvent *pEvent)
 {
-    switch (event->key())
+    switch (pEvent->key())
     {
         case Qt::Key_X:
-            if(!event->isAutoRepeat()) m_bXPressed = false;
+            if(!pEvent->isAutoRepeat()) m_bXPressed = false;
             break;
         case Qt::Key_Y:
-            if(!event->isAutoRepeat()) m_bYPressed = false;
+            if(!pEvent->isAutoRepeat()) m_bYPressed = false;
             break;
         default:
-            event->ignore();
+            pEvent->ignore();
     }
 }
 
@@ -2164,6 +2167,7 @@ void Miarex::onTaskFinished()
     if(!s_bLogFile || !(m_theTask.m_ptheLLTAnalysis->m_bError || m_theTask.m_ptheLLTAnalysis->m_bWarning))
         m_pLLTDlg->hide();
 
+    m_pCurPOpp = nullptr;
     m_pPlaneTreeView->addPOpps(m_pCurWPolar);
 
     if(m_pCurWPolar)
@@ -2171,10 +2175,10 @@ void Miarex::onTaskFinished()
         if     (m_pCurWPolar->isT12Polar()) setPlaneOpp(false, m_AlphaMin);
         else if(m_pCurWPolar->isT4Polar())  setPlaneOpp(false, m_QInfMin);
         else if(m_pCurWPolar->isT5Polar())  setPlaneOpp(false, m_BetaMin);
+        else if(m_pCurWPolar->isT7Polar())  setPlaneOpp(false, m_ControlMin);
     }
 
-    if(m_pCurPOpp) m_pPlaneTreeView->selectPlaneOpp(m_pCurPOpp);
-    else           m_pPlaneTreeView->selectWPolar(m_pCurWPolar, true);
+    m_pPlaneTreeView->selectWPolar(m_pCurWPolar, true);
 
     emit projectModified();
 
@@ -5282,10 +5286,24 @@ void Miarex::onRenameCurPlane()
         m_pPlaneTreeView->selectPlane(m_pCurPlane);
     }
 
+    m_pPlaneTreeView->setObjectProperties();
+
     m_bResetTextLegend = true;
     updateView();
 
     emit projectModified();
+}
+
+
+void Miarex::onPlaneDescription()
+{
+    if(!m_pCurPlane) return;
+
+    TextDlg dlg(m_pCurPlane->description(), this);
+
+    if(dlg.exec() != QDialog::Accepted) return;
+    m_pCurPlane->setDescription(dlg.newText());
+    m_pPlaneTreeView->setObjectProperties();
 }
 
 
@@ -7128,7 +7146,6 @@ void Miarex::setStabGraphTitles()
 }
 
 
-
 /**
  * Sets the x and y axis titles of the polar graphs
  */
@@ -7148,84 +7165,6 @@ void Miarex::showEvent(QShowEvent *pEvent)
 {
     setAnalysisParams();
     pEvent->accept();
-}
-
-
-/**
- * Captures the pixels of the client area and writes them to a file/
- * @deprecated QGLWidget::grabFrameBuffer() is used instead.
- * @param FileName the name of the destination image file.
- */
-void Miarex::snapClient(QString const &FileName)
-{
-    int NbBytes(0);
-    QSize size(m_pgl3dMiarexView->rect().width(),m_pgl3dMiarexView->rect().height());
-
-    int bitsPerPixel = 24;
-    int width = size.width();
-    switch(bitsPerPixel)
-    {
-        case 8:
-        {
-            QMessageBox::warning(s_pMainFrame,tr("Warning"),tr("Cannot (yet ?) save 8 bit depth opengl screen images... Sorry"));
-            return;
-        }
-        case 16:
-        {
-            QMessageBox::warning(s_pMainFrame,tr("Warning"),tr("Cannot (yet ?) save 16 bit depth opengl screen images... Sorry"));
-            size.setWidth(width - size.width() % 2);
-            return;
-        }
-        case 24:
-        {
-            NbBytes = 4 * size.width() * size.height();//24 bits type BMP
-            //            size.setWidth(width - size.width() % 4);
-            break;
-        }
-        case 32:
-        {
-            NbBytes = 4 * size.width() * size.height();//32 bits type BMP
-            break;
-        }
-        default:
-        {
-            QMessageBox::warning(s_pMainFrame,tr("Warning"),tr("Unidentified bit depth... Sorry"));
-            return;
-        }
-    }
-    uchar *pPixelData = new uchar[ulong(NbBytes)];
-
-    // Copy from OpenGL
-    glReadBuffer(GL_FRONT);
-    switch(bitsPerPixel)
-    {
-        case 8: return;
-        case 16: return;
-        case 24:
-        {
-#if QT_VERSION >= 0x040400
-            glReadPixels(0,0,size.width(),size.height(),GL_RGB,GL_UNSIGNED_BYTE,pPixelData);
-            QImage Image(pPixelData, size.width(),size.height(), QImage::Format_RGB888);
-            QImage FlippedImaged;
-            FlippedImaged = Image.mirrored();    //flip vertically
-            FlippedImaged.save(FileName);
-#else
-            QMessageBox::warning(s_pMainFrame,tr("Warning"),"The version of Qt used to compile the code is older than 4.4 and does not support 24 bit images... Sorry");
-#endif
-            break;
-        }
-        case 32:
-        {
-            glReadPixels(0,0,size.width(),size.height(),GL_RGBA,GL_UNSIGNED_BYTE,pPixelData);
-            QImage Image(pPixelData, size.width(),size.height(), QImage::Format_ARGB32);
-            QImage FlippedImaged;
-            FlippedImaged = Image.mirrored();    //flip vertically
-            FlippedImaged.save(FileName);
-
-            break;
-        }
-        default: break;
-    }
 }
 
 

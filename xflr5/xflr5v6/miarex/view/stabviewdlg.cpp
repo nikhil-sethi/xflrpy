@@ -94,8 +94,8 @@ void StabViewDlg::connectSignals()
     connect(m_pdAnimationSpeed ,     SIGNAL(valueChanged(int)),    SLOT(onAnimationSpeed(int)));
     connect(m_pdAnimationAmplitude,  SIGNAL(valueChanged(int)),    SLOT(onAnimationAmplitude(int)));
     connect(m_ppbAnimateRestart,     SIGNAL(clicked()),            SLOT(onAnimateRestart()));
-    connect(m_pdeDeltat,             SIGNAL(editingFinished()),    SLOT(onReadData()));
-    connect(m_pdeModeStep,           SIGNAL(editingFinished()),    SLOT(onReadData()));
+    connect(m_pdeDeltat,             SIGNAL(valueChanged()),       SLOT(onReadData()));
+    connect(m_pdeModeStep,           SIGNAL(valueChanged()),       SLOT(onReadData()));
 
     connect(m_prbInitCondResponse,   SIGNAL(clicked()),            SLOT(onResponseType()));
     connect(m_prbForcedResponse,     SIGNAL(clicked()),            SLOT(onResponseType()));
@@ -503,7 +503,6 @@ void StabViewDlg::onReadData()
     s_pMiarex->m_Modedt = m_pdeModeStep->value();
     s_pMiarex->m_Deltat = m_pdeDeltat->value();
 }
-
 
 
 void StabViewDlg::onResponseType()
@@ -1075,31 +1074,6 @@ void StabViewDlg::setControls()
 }
 
 
-
-void StabViewDlg::setTimeCurveStyle(QColor const &Color, int const&Style, int const &Width, bool const& bCurve, int const& PointStyle)
-{
-    if(!m_pCurve) return;
-    for (int i=0; i<s_pMiarex->m_TimeGraph[0]->curveCount(); i++)
-    {
-        Curve *pCurve = s_pMiarex->m_TimeGraph[0]->curve(i);
-        if(pCurve == m_pCurve)
-        {
-            for(int ig=0; ig<4; ig++)
-            {
-                pCurve = s_pMiarex->m_TimeGraph[ig]->curve(i);
-                pCurve->setColor(Color);
-                pCurve->setStipple(Style);
-                pCurve->setWidth(Width);
-                pCurve->setVisible(bCurve);
-                pCurve->setPointStyle(PointStyle);
-            }
-                        
-            return;
-        }
-    }
-}
-
-
 void StabViewDlg::onRenameCurve()
 {
     if(!m_pCurve) return;
@@ -1133,7 +1107,7 @@ void StabViewDlg::onSelChangeCurve(int sel)
 {
     QString strong = m_pcbCurveList->itemText(sel);
     m_pCurve = s_pMiarex->m_TimeGraph[0]->curve(strong);
-    m_pCurve->curveName(strong);
+    m_pCurve->name(strong);
 }
 
 
@@ -1142,7 +1116,7 @@ void StabViewDlg::onAddCurve()
     addCurve();
     if(m_pCurve)
     {
-        int pos =m_pcbCurveList->findText(m_pCurve->curveName());
+        int pos =m_pcbCurveList->findText(m_pCurve->name());
         m_pcbCurveList->setCurrentIndex(pos);
     }
     onPlotStabilityGraph();
@@ -1152,7 +1126,7 @@ void StabViewDlg::onAddCurve()
 void StabViewDlg::onDeleteCurve()
 {
     if(!m_pCurve) return;
-    QString CurveTitle = m_pCurve->curveName();
+    QString CurveTitle = m_pCurve->name();
     for(int ig=0; ig<MAXTIMEGRAPHS; ig++)    s_pMiarex->m_TimeGraph[ig]->deleteCurve(CurveTitle);
     m_pCurve = nullptr;
 
@@ -1185,7 +1159,7 @@ void StabViewDlg::addCurve()
         if(ig==0) m_pCurve = pCurve;
     }
 
-    if(pCurve) m_pcbCurveList->addItem(pCurve->curveName());
+    if(pCurve) m_pcbCurveList->addItem(pCurve->name());
 
     m_ppbPlotStabGraph->setEnabled(s_pMiarex->m_pCurPOpp && m_pcbCurveList->count());
     m_ppbRenameCurve->setEnabled(  s_pMiarex->m_pCurPOpp && m_pcbCurveList->count());
@@ -1200,12 +1174,12 @@ void StabViewDlg::fillCurveList()
     QString strong;
     for(int i=0; i<s_pMiarex->m_TimeGraph[0]->curveCount(); i++)
     {
-        s_pMiarex->m_TimeGraph[0]->curve(i)->curveName(strong);
+        s_pMiarex->m_TimeGraph[0]->curve(i)->name(strong);
         m_pcbCurveList->addItem(strong);
     }
     if(m_pCurve)
     {
-        int sel = m_pcbCurveList->findText(m_pCurve->curveName());
+        int sel = m_pcbCurveList->findText(m_pCurve->name());
         m_pcbCurveList->setCurrentIndex(sel);
     }
 }

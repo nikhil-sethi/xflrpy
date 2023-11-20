@@ -982,9 +982,8 @@ void xfl::drawSymbol(QPainter &painter, Line::enumPointStyle ptstyle, QColor con
     painter.save();
     painter.setBackgroundMode(Qt::TransparentMode);
 
-    QPen Pointer(painter.pen());
-
-    painter.setPen(Pointer);
+//    QPen sympen(painter.pen());
+//    painter.setPen(sympen);
 
     QColor bck(backcolor);
     bck.setAlpha(255);

@@ -57,7 +57,7 @@ class Graph
         void drawGraph(QPainter &painter);
         void drawAxes(QPainter &painter);
         void drawCurve(int nIndex, QPainter &painter);
-        void drawLegend(QPainter &painter, QPoint &Place, const QFont &LegendFont, const QColor &LegendColor, const QColor &backColor);
+        void drawLegend(QPainter &painter, const QPoint &Place, const QFont &LegendFont, const QColor &LegendColor, const QColor &backColor);
         void drawTitles(QPainter &painter);
         void drawXMinGrid(QPainter &painter);
         void drawYMinGrid(QPainter &painter);
@@ -126,9 +126,7 @@ class Graph
 
 
         void copySettings(Graph* pGraph, bool bScales=true);
-        void deselectPoint();
-        Curve * getCurvePoint(const int &xClt, const int &yClt, int &nSel);
-        Curve * getClosestPoint(double const &x, double const &y, double &xSel, double &ySel, int &nSel);
+
         void resetLimits();
         void resetCurves();
         void scaleAxes(double zoom);
@@ -206,7 +204,6 @@ class Graph
 
         bool bYMajGrid() const;
         bool bYMinGrid() const;
-        bool selectPoint(QString const &CurveName, int sel);
         bool setXScale();
         bool setYScale();
 

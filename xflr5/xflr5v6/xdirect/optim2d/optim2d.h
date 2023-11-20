@@ -25,15 +25,14 @@
 #include <QCheckBox>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QPlainTextEdit>
 #include <QRadioButton>
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QTabWidget>
-#include <QTimer>
+#include <QStandardItemModel>
 
-#include <xflobjects/objects2d/foil.h>
 #include <xdirect/optim2d/particle.h>
+#include <xdirect/optim2d/optimtask.h>
 #include <xflgraph/graph.h>
 
 class Foil;
@@ -43,9 +42,15 @@ class GraphWt;
 class DoubleEdit;
 class IntEdit;
 class XFoilTask;
-class GATask;
 class MOPSOTask2d;
+struct OptObjective;
 
+class PlainTextOutput;
+class CPTableView;
+class ActionDelegate;
+class ActionItemModel;
+
+#define NOBJECTIVES 6
 
 class Optim2d : public QDialog
 {
@@ -55,7 +60,7 @@ class Optim2d : public QDialog
         Optim2d(QWidget *pParent);
         ~Optim2d();
 
-        void setFoil(const Foil *pFoil);
+        void setFoil(Foil *pFoil);
 
         bool isModified() const {return m_bModified;}
 
@@ -68,41 +73,49 @@ class Optim2d : public QDialog
         void showEvent(QShowEvent *pEvent) override;
         void hideEvent(QHideEvent *pEvent) override;
         void customEvent(QEvent *pEvent) override;
+        void resizeEvent(QResizeEvent *pEvent) override;
 
         void setupLayout();
         void connectSignals();
 
-        void readData();
-        void outputText(QString const &msg) const;
-
-        // common
-        void makeRandomParticle(Particle *pParticle) const;
-
-        void makePSOSwarm();
-        void makeGAGen();
-
-        void swarm();
+        void cancelTask();
+        void enableControls(bool bEnable);
         void evolution();
-        void updateParetoGraph();
+        void fillObjectives();
+        void makePSOSwarm();
+        void makeRandomParticle(Particle *pParticle) const;
+        void outputText(QString const &msg);
+        void readData();
+        void readObjectives();
+        void runXFoil(const Foil *pFoil, double &Cl, double &Cd, double &ClCd, double &minCp , double &Cm, double &Cm0, bool &bConverged);
+        void setPSOObjectives(MOPSOTask2d *pSOTask);
+        void swarm();
+        void updatePolar();
+        void updateTaskParameters();
+        void updateVariables(MOPSOTask2d *pPSOTask2d);
 
     private slots:
-        void reject() override;
+        Foil *onStoreBestFoil();
         void onButton(QAbstractButton *pButton);
         void onClose();
-
-        void onAlgorithm();
-        void onAnalyze();
-        void onOptimize();
+        void onContinueBest();
         void onMakeSwarm(bool bShow=true);
-        void onStoreBestFoil();
+        void onObjTableClicked(QModelIndex index);
+        void onPlotHH();
+        void onResizeColumns();
+        void onRunOptimizer();
+        void onRunXFoil();
+        void onTEFlapCheck();
+        void reject() override;
+
+        void onIterEvent(OptimEvent *result);
 
     private:
         bool m_bSaved;
         bool m_bModified;
 
-        Foil const *m_pFoil;
+        Foil *m_pFoil; // not const, potential need to adjust the TE hinge location
         Foil *m_pBestFoil; // used to animate the display
-
         Polar *m_pPolar;
 
         QVector<Foil*> m_TempFoils; /**< pointers to debug foils to delete on exit */
@@ -110,76 +123,85 @@ class Optim2d : public QDialog
         int m_iLE;  /**< the index of the leading edge point for thee current aoa */
 
 
+        bool m_bIsSwarmValid;
+        double m_FlapAngle; // the optimized flap angle
+
         MOPSOTask2d *m_pPSOTask;
-        GATask *m_pGATask;
 
         //XFoil
         static double s_Alpha;
-        static double s_Re;
+        static double s_Re, s_Mach;
         static double s_NCrit;
         static double s_XtrTop;
         static double s_XtrBot;
 
-        //Target
-        static double s_Cl;
-        static double s_ClMaxError;
-        static double s_Cd;
-        static double s_CdMaxError;
+        //Flap
+        static bool s_bTEFlap;
+        static double s_FlapAngleMin, s_FlapAngleMax;
+        static double s_XHinge,  s_YHinge;
 
+        //objectives
+        static bool s_bCl, s_bCd, s_bClCd, s_bCpmin,  s_bCm, s_bCm0;
+        static int s_ClObjType, s_CdObjType, s_ClCdObjType, s_CpMinObjType, s_CmObjType, s_Cm0ObjType;
+        static double s_Cl, s_Cd, s_ClCd, s_Cpmin,  s_Cm, s_Cm0;
+        static double s_ClMaxError, s_CdMaxError, s_ClCdMaxError, s_CpMaxError, s_CmMaxError, s_Cm0MaxError;
+
+
+        //Hicks-Henne
+        static double s_HHt1;     /**< t1 parameter of the HH functions */
         static double s_HHt2;     /**< t2 parameter of the HH functions */
         static int    s_HHn;      /**< number of HH functions to use */
         static double s_HHmax;    /**< the max amplitude of the HH functions */
 
-        //Common
-        static bool   s_bPSO;
-        static int    s_Dt;
 
         // interface
-        Graph m_ErrorGraph;
-        GraphWt *m_pErrorGraphWt;
-        Graph m_ParetoGraph;
-        GraphWt *m_pParetoGraphWt;
+        Graph m_ObjGraph[NOBJECTIVES];
+        GraphWt *m_pObjGraphWt[NOBJECTIVES];
 
         FoilWt *m_pFoilWt;
 
-        // XFoil
-        DoubleEdit *m_pdeAlpha, *m_pdeRe, *m_pdeNCrit, *m_pdeXtrTop, *m_pdeXtrBot;
-        QPushButton *m_ppbAnalyze;
+        QVector<OptObjective> m_Objective;
 
-        // Optim targets
-        DoubleEdit *m_pdeCl, *m_pdeClMaxError;
-        DoubleEdit *m_pdeCd, *m_pdeCdMaxError;
+        // XFoil
+        QPushButton *m_ppbXFoilRun;
+        DoubleEdit *m_pdeAlpha, *m_pdeRe, *m_pdeMach, *m_pdeNCrit, *m_pdeXtrTop, *m_pdeXtrBot;
+
+        //T.E. flap
+        QCheckBox *m_pchTEFlap;
+        DoubleEdit *m_pdeTEYHinge, *m_pdeTEXHinge;
+        DoubleEdit *m_pdeFlapAngleMin, *m_pdeFlapAngleMax;
+
+        //Objectives
+        CPTableView *m_pcptObjective;
+        QStandardItemModel *m_pObjModel;
+        ActionDelegate *m_pObjDelegate;
 
         // Hicks-Henne
         IntEdit *m_pieNHH;
-        DoubleEdit *m_pdeHHt2, *m_pdeHHmax;
+        DoubleEdit *m_pdeHHt1, *m_pdeHHt2, *m_pdeHHmax;
+        Graph m_HHGraph;
+        GraphWt *m_pHHGraphWt;
 
         //PSO
         DoubleEdit *m_pdeInertiaWeight;
         DoubleEdit *m_pdeCognitiveWeight;
         DoubleEdit *m_pdeSocialWeight;
+        DoubleEdit *m_pdeProbaRegen;
 
-        //GA
-        DoubleEdit *m_pdeProbXOver, *m_pdeProbMutation, *m_pdeSigmaMutation;
-
-        //Common
-        QStackedWidget *m_pswAlgo;
         IntEdit *m_piePopSize;
-        IntEdit *m_pieMaxIter, *m_pieUpdateDt;
-        QRadioButton *m_prbPSO, *m_prbGA;
+        IntEdit *m_pieMaxIter;
         QCheckBox *m_pchMultithread;
 
-        QPushButton * m_ppbSwarm, *m_ppbMakeSwarm, *m_ppbStoreBestFoil;
+        QPushButton * m_ppbSwarm, *m_ppbMakeSwarm, *m_ppbStoreBestFoil, *m_ppbContinueBest;
 
+        QSplitter *m_pLeftSplitter ;
         QSplitter *m_pHSplitter, *m_pVSplitter;
-        QPlainTextEdit *m_ppt;
-
-        QTimer m_Timer;
+        PlainTextOutput *m_ppto;
 
         QDialogButtonBox *m_pButtonBox;
 
         static QByteArray s_Geometry;
-        static QByteArray s_HSplitterSizes, s_VSplitterSizes;
+        static QByteArray s_LeftSplitterSizes, s_HSplitterSizes, s_VSplitterSizes;
 };
 
 
