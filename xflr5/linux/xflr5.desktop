@@ -1,0 +1,21 @@
+[Desktop Entry]
+Categories=Science;Math
+Comment[en_GB]=xflr5 - Airfoil and plane analysis tool
+Comment=xflr5 - Airfoil and plane analysis tool
+Exec=/usr/local/bin/xflr5
+GenericName[en_GB]=
+GenericName=
+Icon=/usr/local/share/xflr5/xflr5.png
+MimeType=
+Name[en_GB]=xflr5
+Name=xflr5
+NoDisplay=false
+Path=
+StartupNotify=true
+Terminal=false
+TerminalOptions=
+Type=Application
+X-DBUS-ServiceName=
+X-DBUS-StartupType=
+X-KDE-SubstituteUID=false
+X-KDE-Username=

@@ -1,0 +1,43 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/new.png</file>
+        <file>images/open.png</file>
+        <file>images/save.png</file>
+        <file>images/On3DView.png</file>
+        <file>images/OnCpView.png</file>
+        <file>images/OnExtractFoil.png</file>
+        <file>images/OnPolarView.png</file>
+        <file>images/OnRedo.png</file>
+        <file>images/OnResetFoilScale.png</file>
+        <file>images/OnResetGraphScale.png</file>
+        <file>images/OnStoreFoil.png</file>
+        <file>images/OnWOppView.png</file>
+        <file>images/OnZoomIn.png</file>
+        <file>images/OnZoomLess.png</file>
+        <file>images/OnResetXScale.png</file>
+        <file>images/OnZoomGraphX.png</file>
+        <file>images/OnZoomGraphY.png</file>
+        <file>images/OnZoomYScale.png</file>
+        <file>images/OnStabView.png</file>
+        <file>images/OnRootLocus.png</file>
+        <file>images/OnYView.png</file>
+        <file>images/OnXView.png</file>
+        <file>images/OnZView.png</file>
+        <file>images/OnIsoView.png</file>
+        <file>images/OnFlipView.png</file>
+        <file>images/OnUndo.png</file>
+        <file>images/splash.png</file>
+        <file>images/xflr5_full.png</file>
+        <file>images/xflr5_64.png</file>
+        <file>images/level-.png</file>
+        <file>images/level+.png</file>
+        <file>images/level0.png</file>
+        <file>images/level1.png</file>
+        <file>images/level2.png</file>
+        <file>images/Lorenz.png</file>
+        <file>images/Lorenz_inv.png</file>
+        <file>images/unsaved.png</file>
+        <file>images/HH_inv.png</file>
+        <file>images/HH.png</file>
+    </qresource>
+</RCC>
