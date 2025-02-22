@@ -161,10 +161,10 @@ print(xp.state)
 afoil = xp.getApp(enumApp.DIRECTDESIGN)
 
 # get a specific airfoil from a dictionary of all airfoils
-foilDict = afoil.foilDict["MH 60  10.08%"] 
+foilDict = afoil.foil_mgr.foilDict["MH 60  10.08%"] 
 
 # you can also get the airfoil through a straight function. This is faster
-foil = afoil.getFoil("MH 60  10.08%")
+foil = afoil.foil_mgr.getFoil("MH 60  10.08%")
 
 # show some airfoil properties
 print(foil) 
