@@ -24,8 +24,10 @@ plane3 = Plane(name="custom_plane")
 
 sec0 = WingSection(chord=0.2, right_foil_name="fuselage center", left_foil_name="fuselage center")
 sec1 = WingSection(y_position = 1, chord=0.1, offset=0.2, twist=5, dihedral=5, right_foil_name="MH 60  10.08%", left_foil_name="MH 60  10.08%")
+sec2 = WingSection(y_position = 1.1, chord=0.1, offset=0.2, twist=5, dihedral=5, right_foil_name="MH 60  10.08%", left_foil_name="MH 60  10.08%")
 plane3.wing.sections.append(sec0)
 plane3.wing.sections.append(sec1)
+plane3.wing.sections.append(sec2)
 
 # # create the elevator
 # plane3.elevator.sections.append(())
@@ -47,6 +49,6 @@ wpolar.spec.analysis_method = enumAnalysisMethod.VLMMETHOD
 miarex.define_analysis(wpolar=wpolar)
 
 analysis_settings = AnalysisSettings3D(is_sequence=True, sequence=(0,10,1))
-results = miarex.analyze("my_cute_polar", "custom_plane2", analysis_settings, result_list=[enumWPolarResult.ALPHA, enumWPolarResult.CLCD])
+results = miarex.analyze("my_cute_polar", "custom_plane", analysis_settings, result_list=[enumWPolarResult.ALPHA, enumWPolarResult.CLCD])
 
 print(results)
