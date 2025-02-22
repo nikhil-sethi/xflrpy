@@ -418,7 +418,8 @@ namespace RpcLibAdapters
             static Wing* from_msgpack(WingAdapter& in){
                 Wing* wing = new Wing();
                 wing->setWingType(in.type);
-                for (int i; i<in.sections.size(); i++){
+                for (int i=0; i<in.sections.size(); i++){
+                    if (i >= 2) wing->appendWingSection(); // There are only two sections in the list by default. so add an empty one and set it
                     wing->setWingSection(i, *WingSectionAdapter::from_msgpack(in.sections[i]));
                 }
                 
