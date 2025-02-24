@@ -1,0 +1,12 @@
+ xflrpy-service:
+    image: niksethi/xflrpy:latest
+    environment:
+      - DISPLAY=${DISPLAY}
+      - NVIDIA_DRIVER_CAPABILITIES=all  \
+      - NVIDIA-VISIBLE_DEVICES=all 
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=/tmp/.docker.xauth
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /tmp/.docker.xauth:/tmp/.docker.xauth
+    command: /xflrpy/xlfr5v6/xflrpy

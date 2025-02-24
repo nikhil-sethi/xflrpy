@@ -1,0 +1,27 @@
+services:
+  xflrpy-build:
+    container_name: xflrpy-build
+    build:
+      args:
+        - QT_VERSION=5.15.2
+      context: .
+      dockerfile: docker/Dockerfile
+    image: xflrpy:dev
+    # command: tail -f /dev/null
+
+  xflrpy-service:
+    container_name: xflrpy-service
+    depends_on:
+      - xflrpy-build
+    image: xflrpy:dev
+    environment:
+      - DISPLAY=${DISPLAY}
+      - NVIDIA_DRIVER_CAPABILITIES=all  \
+      - NVIDIA-VISIBLE_DEVICES=all 
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=/tmp/.docker.xauth
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /tmp/.docker.xauth:/tmp/.docker.xauth
+    command: /xflrpy/xflr5v6/xflrpy
+    # command: tail -f /dev/null

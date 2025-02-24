@@ -1,0 +1,15 @@
+{
+    "name": "XFLRpy Dev",
+    "image": "mcr.microsoft.com/devcontainers/typescript-node",
+    "workspaceFolder": "/xflrpy",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "streetsidesoftware.code-spell-checker"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash"
+            }
+        }
+    }
+}
