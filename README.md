@@ -120,6 +120,25 @@ cd ..
 `symbol lookup error: /snap/core20/current/lib/x86_64-linux-gnu/libpthread.so.0: undefined symbol: __libc_pthread_init, version GLIBC_PRIVATE `
 > Run the command: `unset GTK_PATH` in the terminal and try again.
 
+Docker instructions (temporarily here)
+
+For users
+```
+cd xflrpy/docker
+docker compose up
+```
+
+For developers:
+
+To build everything from scratch and test changes
+```
+# To create the xflrpy-deps image (for updating the registry)
+docker build -f Dockerfile --target xflrpy-deps -t xflrpy-deps:latest .
+
+# To build and test full build + xflrpy-service
+docker compose -f docker-compose.dev.yml up
+```
+
 
 Install the python client
 

@@ -1,3 +1,4 @@
+services: 
  xflrpy-service:
     image: niksethi/xflrpy:latest
     environment:
@@ -9,4 +10,4 @@
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /tmp/.docker.xauth:/tmp/.docker.xauth
-    command: /xflrpy/xlfr5v6/xflrpy
+    command: /xflrpy/xflr5v6/xflrpy

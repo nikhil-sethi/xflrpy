@@ -33,6 +33,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 VERSION = 6.49
 
 CONFIG += qt
+CONFIG += link_pkgconfig
+PKGCONFIG += rpclib
+
 QT += widgets opengl network xml testlib
 
 TEMPLATE = app
@@ -41,7 +44,6 @@ TARGET = xflrpy
 
 # The path to the libraries' header files required by the code at compile time
 INCLUDEPATH += $$PWD/../XFoil-lib/
-INCLUDEPATH += $$PWD/../rpclib/include
 # Forces re-build if a library header or source file has been modified
 DEPENDPATH += $$PWD/../XFoil-lib/
 
@@ -127,7 +129,6 @@ QMAKE_CFLAGS_WARN_ON -= -W3
 QMAKE_CFLAGS_WARN_ON += -W4
 
 LIBS += -L../XFoil-lib -lXFoil
-LIBS += -L../rpclib/build -lrpc
 
 include(xflr5v6.pri)
 include(xfl3d/xfl3d.pri)
