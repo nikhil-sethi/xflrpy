@@ -23,5 +23,7 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /tmp/.docker.xauth:/tmp/.docker.xauth
+    ports:
+      - 8080:8080
     command: /xflrpy/xflr5v6/xflrpy
     # command: tail -f /dev/null

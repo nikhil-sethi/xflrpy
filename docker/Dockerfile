@@ -77,8 +77,12 @@ WORKDIR /xflrpy
 RUN qmake
 RUN make all -j8
 
-# # install libraries
+# build xfoil
 WORKDIR /xflrpy/XFoil-lib
 RUN make install && ldconfig
 
-FROM xflrpy-builder as xflrpy-service
+# install xflrpy pythonclient
+WORKDIR /xflrpy/PythonClient
+RUN pip install -e .
+
+# FROM xflrpy-builder as xflrpy-service
