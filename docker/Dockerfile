@@ -6,7 +6,7 @@ ARG QT_PLUGIN_PATH=/opt/qt/$QT_VERSION/gcc_64/plugins/
 ARG QML_IMPORT_PATH=/opt/qt/$QT_VERSION/gcc_64/qml/
 ARG QML2_IMPORT_PATH=/opt/qt/$QT_VERSION/gcc_64/qml/
 
-FROM ubuntu:22.04 AS xflrpy-deps
+FROM ubuntu:22.04 AS xflrpy-base
 
 RUN apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
     git \
@@ -56,7 +56,7 @@ COPY rpclib.pc.in /opt/rpclib-$RPC_VERSION/
 RUN cmake .. && cmake --build . 
 RUN cmake --install . && ldconfig
 
-FROM xflrpy-deps as xflrpy-builder
+FROM xflrpy-base as xflrpy-builder
 
 # declare shared global args
 ARG QT_BIN_PATH

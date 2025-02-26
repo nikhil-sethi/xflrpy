@@ -129,8 +129,10 @@ docker compose up
 ```
 
 For developers:
+```
+ln -s docker/.devcontainer .devcontainer
+```
 
-To build everything from scratch and test changes
 ```
 # To create the xflrpy-deps image (for updating the registry)
 docker build -f Dockerfile --target xflrpy-deps -t xflrpy-deps:latest .

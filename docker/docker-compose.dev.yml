@@ -6,14 +6,14 @@ services:
         - QT_VERSION=5.15.2
       context: ..
       dockerfile: docker/Dockerfile
-    image: xflrpy-build:latest
+    image: niksethi/xflrpy:build
     # command: tail -f /dev/null
 
   xflrpy-service:
     container_name: xflrpy-service
     depends_on:
       - xflrpy-build
-    image: xflrpy-build:latest
+    image: niksethi/xflrpy:build
     environment:
       - DISPLAY=${DISPLAY}
       - NVIDIA_DRIVER_CAPABILITIES=all  \
