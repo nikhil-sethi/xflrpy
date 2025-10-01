@@ -1,12 +1,24 @@
+ARG USERNAME
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
 
 ARG RPC_VERSION=2.3.0
 ARG QT_VERSION=5.15.2
-ARG QT_BIN_PATH=/opt/qt/$QT_VERSION/gcc_64/bin
-ARG QT_PLUGIN_PATH=/opt/qt/$QT_VERSION/gcc_64/plugins/
-ARG QML_IMPORT_PATH=/opt/qt/$QT_VERSION/gcc_64/qml/
-ARG QML2_IMPORT_PATH=/opt/qt/$QT_VERSION/gcc_64/qml/
+ARG QT_HOST=linux
+ARG QT_TARGET=desktop
 
 FROM ubuntu:22.04 AS xflrpy-base
+
+ARG USERNAME
+ARG USER_UID
+ARG USER_GID
+
+ARG RPC_VERSION
+ARG QT_VERSION
+ARG QT_HOST
+ARG QT_TARGET
+
+SHELL ["/bin/bash", "-c"]
 
 RUN apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
     git \
@@ -33,56 +45,49 @@ RUN apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
 
 RUN pip3 install aqtinstall
 
-ARG RPC_VERSION
-ARG QT_VERSION
-ARG QT_MODULES=
-ARG QT_HOST=linux
-ARG QT_TARGET=desktop
-ARG QT_ARCH=
 RUN aqt install-qt ${QT_HOST} ${QT_TARGET} ${QT_VERSION}  ${QT_ARCH}  --outputdir /opt/qt -m ${QT_MODULES}
 
-ENV PATH=$QT_BIN_PATH:$PATH
-ENV QT_PLUGIN_PATH=$QT_PLUGIN_PATH
-ENV QML_IMPORT_PATH=$QML_IMPORT_PATH
-ENV QML2_IMPORT_PATH=$QML2_IMPORT_PATH 
+ENV PATH=/opt/qt/$QT_VERSION/gcc_64/bin:$PATH
+ENV QT_PLUGIN_PATH=/opt/qt/$QT_VERSION/gcc_64/plugins/
+ENV QML_IMPORT_PATH=/opt/qt/$QT_VERSION/gcc_64/qml/
+ENV QML2_IMPORT_PATH=/opt/qt/$QT_VERSION/gcc_64/qml/ 
 
 # install rpclib
-RUN wget -qO- https://github.com/rpclib/rpclib/archive/refs/tags/v$RPC_VERSION.tar.gz | tar -xz -C /opt/
+RUN wget -qO- https://github.com/rpclib/rpclib/archive/refs/tags/v$RPC_VERSION.tar.gz | tar -xz -C /opt/ \
+    && mkdir -p /opt/rpclib-$RPC_VERSION/build
 
-RUN mkdir -p /opt/rpclib-$RPC_VERSION/build 
-WORKDIR /opt/rpclib-$RPC_VERSION/build
 # hack this file into the download because rpclib is not up-to date
-COPY rpclib.pc.in /opt/rpclib-$RPC_VERSION/
-RUN cmake .. && cmake --build . 
-RUN cmake --install . && ldconfig
+# build rpclib
+RUN --mount=type=bind,source=rpclib.pc.in,target=/opt/rpclib-$RPC_VERSION/rpclib.pc.in \ 
+    cd /opt/rpclib-$RPC_VERSION/build \ 
+    && cmake ..  \ 
+    && cmake --build . \
+    && cmake --install .  \
+    && ldconfig
+
+# Create the user
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME \
+    && chsh -s /usr/bin/bash
+
+# Change user
+USER $USERNAME
 
 FROM xflrpy-base as xflrpy-builder
 
-# declare shared global args
-ARG QT_BIN_PATH
-ARG QT_PLUGIN_PATH
-ARG QML_IMPORT_PATH
-ARG QML2_IMPORT_PATH
-
-# set qt paths 
-ENV PATH=$QT_BIN_PATH:${PATH}
-ENV QT_PLUGIN_PATH=$QT_PLUGIN_PATH
-ENV QML_IMPORT_PATH=$QML_IMPORT_PATH
-ENV QML2_IMPORT_PATH=$QML2_IMPORT_PATH 
-    
-COPY . /xflrpy
-
-# # build xflrpy
 WORKDIR /xflrpy
-RUN qmake
-RUN make all -j8
 
-# build xfoil
-WORKDIR /xflrpy/XFoil-lib
-RUN make install && ldconfig
-
-# install xflrpy pythonclient
-WORKDIR /xflrpy/PythonClient
-RUN pip install -e .
-
-# FROM xflrpy-builder as xflrpy-service
+# build xflrpy
+RUN --mount=type=bind,target=/xflrpy \ 
+    && qmake \
+    && make all -j8 \
+    && cd /xflrpy/XFoil-lib \
+    && sudo make install \ 
+    && sudo ldconfig \
+    && cd /xflrpy/PythonClient \
+    && pip install -e .
