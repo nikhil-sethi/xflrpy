@@ -1,0 +1,14 @@
+FROM niksethi/xflrpy:base AS xflrpy-latest
+
+WORKDIR /xflrpy
+
+COPY . /xflrpy
+
+# build xflrpy
+RUN qmake \
+    && make all -j8 \
+    && cd /xflrpy/XFoil-lib \
+    && make install \
+    && ldconfig \
+    && cd /xflrpy/PythonClient \
+    && pip install -e .
