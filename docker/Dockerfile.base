@@ -1,17 +1,9 @@
-ARG USERNAME
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
 ARG RPC_VERSION=2.3.0
 ARG QT_VERSION=5.15.2
 ARG QT_HOST=linux
 ARG QT_TARGET=desktop
 
-FROM ubuntu:22.04 AS xflrpy-base
-
-ARG USERNAME
-ARG USER_UID
-ARG USER_GID
+FROM ubuntu:22.04
 
 ARG RPC_VERSION
 ARG QT_VERSION
@@ -64,30 +56,3 @@ RUN --mount=type=bind,source=rpclib.pc.in,target=/opt/rpclib-$RPC_VERSION/rpclib
     && cmake --build . \
     && cmake --install .  \
     && ldconfig
-
-# Create the user
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
-    && apt-get update \
-    && apt-get install -y sudo \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME \
-    && chsh -s /usr/bin/bash
-
-# Change user
-USER $USERNAME
-
-FROM xflrpy-base as xflrpy-builder
-
-WORKDIR /xflrpy
-
-# build xflrpy
-RUN --mount=type=bind,target=/xflrpy \ 
-    && qmake \
-    && make all -j8 \
-    && cd /xflrpy/XFoil-lib \
-    && sudo make install \ 
-    && sudo ldconfig \
-    && cd /xflrpy/PythonClient \
-    && pip install -e .
