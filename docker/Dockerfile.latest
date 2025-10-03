@@ -8,7 +8,7 @@ COPY . /xflrpy
 RUN qmake \
     && make all -j8 \
     && cd /xflrpy/XFoil-lib \
-    && make install \
-    && ldconfig \
+    && sudo make install \
+    && sudo ldconfig \
     && cd /xflrpy/PythonClient \
     && pip install -e .
