@@ -1,6 +1,8 @@
+name: xflrpy
 services: 
  xflrpy-gui:
     image: niksethi/xflrpy:latest
+    container_name: xflrpy.container
     environment:
       - DISPLAY=:0
       - NVIDIA_DRIVER_CAPABILITIES=all  \
