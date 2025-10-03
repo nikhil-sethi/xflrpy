@@ -1,12 +1,14 @@
 ## Note
+
 This repository is under initial development phase. As a result there are not many features or refined code practices as of yet. There might be breaking changes without updating the major version until the first release. Any and every contribution/constructive criticism is welcome. Use github issues to roast me.
 
-# xflrpy v0.6.0
-![](https://github.com/nikhil-sethi/xflrpy/blob/master/xflr5v6/resources/images/xp_github.jpeg)
+# xflrpy v0.7.0
+
+![xflrpy_logo](https://github.com/nikhil-sethi/xflrpy/blob/master/xflr5v6/resources/images/xp_github.jpeg)
 
 xflrpy is a python enabled version of [xflr5](http://www.xflr5.tech/xflr5.htm) with support for scripting and design optimization using a [python package](https://pypi.org/project/xflrpy/). The [original software](https://sourceforge.net/projects/xflr5/) is capable of the design and low-fidelity analysis of airfoils and model aircraft and was created by created by André Deperrois.
 
-The current version (v0.6.0) has limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.md) and [Todo](https://github.com/nikhil-sethi/xflrpy/blob/master/TODO.md). Currently you can:
+The current version (v0.7.0) has limited features but is continuosly expanding. Check out the [changelog](https://github.com/nikhil-sethi/xflrpy/blob/master/CHANGELOG.md) and [Todo](https://github.com/nikhil-sethi/xflrpy/blob/master/TODO.md). Currently you can:
 
 - Create, load and save projects
 - Set and get apps (xfoil, plane-design, foil-design, inverse-design)
@@ -18,136 +20,72 @@ The current version (v0.6.0) has limited features but is continuosly expanding. 
 - Analyse 2D polars
 - Get targeted results from operating points
 - Set analysis and display settings including animation
-
-New in v0.6.0! 
 - Create and modify planes
 - Set and get wing polars from Miarex module 
 - Analyse 3D wing polars
 
+New in **v0.7.0**! 
+- Docker + Devcontainer support!
+
 ![Optimizing a BWB UAV](https://github.com/nikhil-sethi/xflrpy/blob/pythonqt/xflrpy.gif)
 
-# Why?
-I undertook this project while learning a bit of C++. This repository is aimed at exposing a neat
-and equally powerful python API for xflr5 to make it easier for scripting/automation 
-and design optimization applications. 
+## Installation
 
-I understand that are already  software like openVSP/SUAVE which do similar stuff. But all these softwares either have good frontends or backends but not both. xflr5 has one of the most intuitive and responsive frontends while being feature rich at the same time. It would be very powerful with a good API and that is the goal of this project.
+Currently **only** Linux is supported.
 
-Also, making APIs is fun, there is a pandemic going around and I was bored.
+If you _really_  want to use it in Windows AND you're the kind of person who hates to sleep (spoiler i'm also that person), you can try using the docker installation in Windows Subsystem for Linux ([WSL](https://learn.microsoft.com/en-us/windows/wsl/install)). But yeah best of luck, you warrior.
 
-# How?
-Some standard ways of exposing C code to python include using wrappers like [SWIG](https://github.com/swig/swig), 
-Boost and [PyBind11](https://github.com/pybind/pybind11). Luckily for us, xflr5 is written using [Qt](https://www.qt.io/) 
-which means there exist even more tools like [shiboken](https://github.com/pyside/Shiboken)
-and [PythonQt](https://github.com/MeVisLab/pythonqt) to make life easier. 
+### With docker (recommended)
 
-There are two approaches that I explored: 
-### pythonqt:
-This version comes with an embedded python interpreter within xflr5 itself. 
+This step assumes you are have docker engine installed on your system.
 
-Merits:
-- Has entire Python classes with signals and everything exposed in the custom interpreter. 
-- It is easier and safer to expose more Qt objects to python.
-
-Demerits:
-- The main library is not well-maintained/documented and has been replaced by better tools like PySide6 (this doesn't have an embedded option tho).
-- It requires PythonQt as dependency which is a fairly large library.
-- Everything has to be exposed under the __main__ function which means there is little to no chance of multithreading, doing complex loops or IO operations. (These might be critical for optimization)
-- The above problem also means there is no abstraction and well-defined objects which make the code difficult to read and extend.
-- It is difficult to use external optimization libraries within the interpreter.
-
-### rpc:
-This is the stuff I started working on recently. The approach uses the very light and very fast [rpclib](https://github.com/rpclib/rpclib) library to establish a local server which can communicate with and external python process. This means that we finally have an ["xflrpy" python library](https://pypi.org/project/xflrpy/).
-
-Merits:
-- Solves everything wrong with pythonqt.
-- Very neat.
-- Can extend xflr5 to any programming language which uses rpc and msgpack.
-- More code to write.
-
-Demerits:
-- More code to write.
-- There might be concurrency problems in the future as I add more features.
-
-
-Because of the above reasons, I won't be maintaining the pythonqt approach but it will be long-lived to help people learn something/anything from it. The rpc approach has been merged to the master branch.
-Note that as of 28/12/21 v0.2.0, the pythonqt branch has more and better features than rpc. If you want to whip up something quick, I reccommend you use that. But this will change soon enough. I will be adding more features to rpc and hope to move this statement to the changelog ASAP :) 
-
-## So..How to build it?
-For Linux (tested on Ubuntu 22.04, Python 3.10.6, Qt 5.15.2, rpc-msgpack 0.6, rpclib 2.3.0):
-These instructions are basic and just an extension of [this](https://github.com/polmes/xflr5-ubuntu) repo.
-
-Setup
-```
-git clone https://github.com/nikhil-sethi/xflrpy.git 
+**Terminal 1**: Spawn a container for the SW:
+```bash
+git clone https://github.com/nikhil-sethi/xflrpy.git
 cd xflrpy
-git submodule update --init --recursive
+CURRENT_USER=$(id -u):$(id -g) docker compose up    # might take some time
+```
+You should see the XFLR5 gui.
 
-sudo apt install build-essential mesa-common-dev mesa-utils libgl1-mesa-dev libglu1-mesa-dev
-```
-Build rpclib (If you already have rpclib, you can skip these steps and link the appropriate libraries in xflr5-gui.pro)
-```
-cd rpclib
-mkdir build
-cd build
-cmake ..
-cmake --build .
-```
+**Terminal 2**: Install the pythonclient
 
-Build xflrpy 
-(You will need Qt>=5.14. Check out their page for installing it)
+```bash
+cd xflrpy
+pip install -e .
 ```
-cd ../..
-qmake # or give the complete path to your qmake location
-make all -j8 (replace 8 with the number of cores you want) 
-```
+Now you are ready to run the examples from [this]() directory.
 
-Install and link some libraries
-```
-cd XFoil-lib
-sudo make install
-sudo ldconfig
-```
+If you want to explore some steps yourself you can also pull images manually and test them out.
 
-If everything worked correctly, you should be able to start xflr5.
-```
-cd ..
-./xfr5v6/xflrpy
-```
+Available images:
+- [`base`](https://hub.docker.com/r/niksethi/xflrpy/tags): A base image with all dependencies installed without the software installed.
+- [`latest`](https://hub.docker.com/r/niksethi/xflrpy/tags)`: An image with everything installed and ready to go. The compose command uses this image.
+
+
+### Without docker
+
+You can also build the software on your host PC, but it will require more time debugging and spending less time building cool stuff. But some people like debugging.
+
+Follow [these](./build_yourself.md) instructions to build on your host
 
 > Note: If you're working on Visual Studio code (Linux) and see the following error: 
 
 `symbol lookup error: /snap/core20/current/lib/x86_64-linux-gnu/libpthread.so.0: undefined symbol: __libc_pthread_init, version GLIBC_PRIVATE `
 > Run the command: `unset GTK_PATH` in the terminal and try again.
 
-Docker instructions (temporarily here)
+## Development 
 
-For users
-```
-cd xflrpy/docker
-docker compose up
-```
+This section is only useful for developing or contributing code to this repository. Skip if you're only a user.
 
-For developers:
-```
-ln -s docker/.devcontainer .devcontainer
-```
+Assuming you have VScode Devcontainers installed on your PC:
 
+```bash
+cd xflrpy
+code .
 ```
-# To create the xflrpy-deps image (for updating the registry)
-docker build -f Dockerfile --target xflrpy-deps -t xflrpy-deps:latest .
+You should vscode open up an a dialog box in the bottom right saying "Reopen in container". Click this to open the repository in the container. 
 
-# To build and test full build + xflrpy-service
-docker compose -f docker-compose.dev.yml up
-```
-
-
-Install the python client
-
-```
-cd PythonClient 
-pip install -e .
-```
+You can now develop in this container. The development dockerfile uses the [`base`](https://hub.docker.com/r/niksethi/xflrpy/tags) image and expects you to perform the build yourself. See [Dockerfile.latest](./docker/Dockerfile.latest) how to do this.
 
 ## Test
 
@@ -273,7 +211,9 @@ Check out the examples directory for more!
 
 
 ## Cite
-If you find the work useful in your own projects or research, consider citing it! It'll help the software reach other researchers and keep your conscience clear.
+If you find the work useful in your own projects or research, consider [citing](CITATION.cff) it! It'll help the software reach other researchers and keep your conscience clear.
+
+If you're more interested, checkout the [Why](why.md) and [How](how.md) of this project.
 
 ## Bonus Gif for scrolling
 ![](200w.gif)
