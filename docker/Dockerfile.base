@@ -50,7 +50,7 @@ RUN wget -qO- https://github.com/rpclib/rpclib/archive/refs/tags/v$RPC_VERSION.t
 
 # hack this file into the download because rpclib is not up-to date
 # build rpclib
-RUN --mount=type=bind,source=rpclib.pc.in,target=/opt/rpclib-$RPC_VERSION/rpclib.pc.in \ 
+RUN --mount=type=bind,source=./xflr5/rpclib.pc.in,target=/opt/rpclib-$RPC_VERSION/rpclib.pc.in \ 
     cd /opt/rpclib-$RPC_VERSION/build \ 
     && cmake ..  \ 
     && cmake --build . \
