@@ -9,3 +9,5 @@ Makefile
 testing
 qrc*
 *pyc
+*egg-info
+xflr5v6/xflrpy
