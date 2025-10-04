@@ -38,23 +38,13 @@ sudo ldconfig
 (You will need Qt>=5.14. Check out their page for installing it)
 
 ```bash
-cd ../..
-qmake # or give the complete path to your qmake location
+cd xflrpy/xflr5
+qmake       # or give the complete path to your qmake location
 make all -j8 (replace 8 with the number of cores you want) 
-```
-
-4. Install and link some libraries
-
-```bash
-cd XFoil-lib
 sudo make install
 sudo ldconfig
 ```
 
-## Run
-If everything worked correctly, you should be able to start xflr5.
 
-```bash
-cd </path/to/xflrpy>
-./xfr5v6/xflrpy
-```
+## Run
+If everything worked correctly, run `xflrpy` in the terminal to start the GUI.

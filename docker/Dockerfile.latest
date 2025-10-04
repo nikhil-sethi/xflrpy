@@ -5,10 +5,10 @@ WORKDIR /xflrpy
 COPY . /xflrpy
 
 # build xflrpy
-RUN qmake \
+RUN cd /xflrpy/xflr5/ \
+    && qmake \
     && make all -j8 \
-    && cd /xflrpy/XFoil-lib \
-    && sudo make install \
-    && sudo ldconfig \
+    && make install \
+    && ldconfig \
     && cd /xflrpy/PythonClient \
     && pip install -e .
