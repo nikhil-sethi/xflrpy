@@ -1,0 +1,20 @@
+name: xflrpy
+services: 
+ xflrpy-gui:
+    image: niksethi/xflrpy:latest
+    container_name: xflrpy.container
+    environment:
+      - DISPLAY=:0
+      - NVIDIA_DRIVER_CAPABILITIES=all  \
+      - NVIDIA-VISIBLE_DEVICES=all 
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=${XAUTHORITY}
+    user: "${CURRENT_USER}" # CURRENT_USER=$(id -u):$(id -g)
+    volumes:
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/group:/etc/group:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    ports:
+      - 8080:8080
+    command: xflrpy

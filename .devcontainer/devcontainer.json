@@ -1,0 +1,27 @@
+{
+    "name": "xflrpy.devcontainer",
+    "build": {
+        "dockerfile": "Dockerfile.dev",
+        "context": "..",
+        "args": {
+            "USERNAME": "${localEnv:USER}"
+        }
+    },
+    "workspaceMount": "source=${localWorkspaceFolder},target=/xflrpy,type=bind",
+    "workspaceFolder": "/xflrpy",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.profiles.linux": {
+                    "bash": {
+                        "path": "/bin/bash"
+                    }
+                }
+            },
+            "extensions": [
+                "mhutchie.git-graph",
+            ]
+        }
+    },
+}

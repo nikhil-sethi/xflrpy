@@ -4,7 +4,7 @@ import time
 # Change these values accordingly
 # Using a valid path is your responsibility
 project_name = "test1.xfl"
-project_path = "/home/nikhil/Software/xflrpy/projects/"
+project_path = "/xflrpy/projects/"
 
 xp = xflrClient(connect_timeout=100)
 
