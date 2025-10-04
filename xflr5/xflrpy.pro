@@ -16,3 +16,4 @@ TRANSLATIONS = translations/xflr5 v6.ts \
 OTHER_FILES += License.txt \
     doc/ReleaseNotes.htm
  
+xflr5v6.depends = XFoil-lib
