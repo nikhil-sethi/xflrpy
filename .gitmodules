@@ -1,3 +1,0 @@
-[submodule "rpclib"]
-	path = rpclib
-	url = https://github.com/rpclib/rpclib
