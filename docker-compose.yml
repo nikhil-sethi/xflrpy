@@ -17,4 +17,4 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     ports:
       - 8080:8080
-    command: /xflrpy/xflr5v6/xflrpy
+    command: xflrpy
